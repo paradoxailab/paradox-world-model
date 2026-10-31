@@ -1,0 +1,171 @@
+\begin{thebibliography}{25}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Ba et~al.(2016)Ba, Kiros, and Hinton]{ba2016layernorm}
+Jimmy~Lei Ba, Jamie~Ryan Kiros, and Geoffrey~E. Hinton.
+\newblock Layer normalization.
+\newblock \emph{arXiv preprint arXiv:1607.06450}, 2016.
+
+\bibitem[Bi et~al.(2023)Bi, Xie, Zhang, Chen, Gu, and Tian]{bi2023pangu}
+Kaifeng Bi, Lingxi Xie, Hengheng Zhang, Xin Chen, Xiaotao Gu, and Qi~Tian.
+\newblock Accurate medium-range global weather forecasting with {3D} neural
+  networks.
+\newblock \emph{Nature}, 619:\penalty0 533--538, 2023.
+
+\bibitem[{California Department of Transportation}(2026)]{pems}
+{California Department of Transportation}.
+\newblock Caltrans performance measurement system ({PeMS}); {PEMS04}/{PEMS08}
+  benchmark copies.
+\newblock \url{https://github.com/guoshnBJTU/ASTGNN/tree/main/data}, 2026.
+
+\bibitem[Chen et~al.(2023{\natexlab{a}})Chen, Han, Gong,
+  et~al.]{chen2023fengwu}
+Kang Chen, Tao Han, Junchao Gong, et~al.
+\newblock {FengWu}: Pushing the skillful global medium-range weather forecast
+  beyond 10 days lead.
+\newblock \emph{arXiv preprint arXiv:2304.02948}, 2023{\natexlab{a}}.
+
+\bibitem[Chen et~al.(2023{\natexlab{b}})Chen, Zhong, Zhang, Cheng, Xu, Qi, and
+  Li]{chen2023fuxi}
+Lei Chen, Xiaohui Zhong, Feng Zhang, Yuan Cheng, Yinghui Xu, Yuan Qi, and Hao
+  Li.
+\newblock {FuXi}: a cascade machine learning forecasting system for 15-day
+  global weather forecast.
+\newblock \emph{npj Climate and Atmospheric Science}, 6, 2023{\natexlab{b}}.
+
+\bibitem[Das et~al.(2024)Das, Kong, Sen, and Zhou]{das2024timesfm}
+Abhimanyu Das, Weihao Kong, Rajat Sen, and Yichen Zhou.
+\newblock A decoder-only foundation model for time-series forecasting.
+\newblock In \emph{Proceedings of the 41st International Conference on Machine
+  Learning (ICML)}, 2024.
+
+\bibitem[{Google}(2026)]{weathernext}
+{Google}.
+\newblock {WeatherNext} evaluations.
+\newblock \url{https://developers.google.com/weathernext/guides/evals}, 2026.
+\newblock Accessed 2026-10-31.
+
+\bibitem[{Google Research}(2026)]{timesfmrepo}
+{Google Research}.
+\newblock {TimesFM} repository and model cards (versions 2.5 and 3.0).
+\newblock \url{https://github.com/google-research/timesfm}, 2026.
+\newblock Accessed 2026-10-31.
+
+\bibitem[Hendrycks and Gimpel(2016)]{hendrycks2016gelu}
+Dan Hendrycks and Kevin Gimpel.
+\newblock Gaussian error linear units ({GELUs}).
+\newblock \emph{arXiv preprint arXiv:1606.08415}, 2016.
+
+\bibitem[Koenker and Bassett(1978)]{koenker1978quantiles}
+Roger Koenker and Gilbert Bassett.
+\newblock Regression quantiles.
+\newblock \emph{Econometrica}, 46\penalty0 (1):\penalty0 33--50, 1978.
+
+\bibitem[Lam et~al.(2023)Lam, Sanchez-Gonzalez, Willson,
+  et~al.]{lam2023graphcast}
+Remi Lam, Alvaro Sanchez-Gonzalez, Matthew Willson, et~al.
+\newblock Learning skillful medium-range global weather forecasting.
+\newblock \emph{Science}, 382\penalty0 (6677):\penalty0 1416--1421, 2023.
+
+\bibitem[Li et~al.(2018)Li, Yu, Shahabi, and Liu]{li2018dcrnn}
+Yaguang Li, Rose Yu, Cyrus Shahabi, and Yan Liu.
+\newblock Diffusion convolutional recurrent neural network: Data-driven traffic
+  forecasting.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2018.
+
+\bibitem[Liu et~al.(2023)Liu, Dong, Jiang, Deng, Deng, Chen, and
+  Song]{liu2023staeformer}
+Hangchen Liu, Zheng Dong, Renhe Jiang, Jiewen Deng, Jinliang Deng, Quanjun
+  Chen, and Xuan Song.
+\newblock {STAEformer}: Spatio-temporal adaptive embedding makes vanilla
+  transformer {SOTA} for traffic forecasting.
+\newblock In \emph{Proceedings of the 32nd ACM International Conference on
+  Information and Knowledge Management (CIKM)}, 2023.
+
+\bibitem[Loshchilov and Hutter(2019)]{loshchilov2019adamw}
+Ilya Loshchilov and Frank Hutter.
+\newblock Decoupled weight decay regularization.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2019.
+
+\bibitem[{LTX}(2026)]{worldmodelsoverview}
+{LTX}.
+\newblock Best world models: a landscape overview ({NVIDIA} cosmos, meta
+  {V-JEPA} 2, {DeepMind} genie).
+\newblock \url{https://ltx.io/blog/best-world-models}, 2026.
+\newblock Accessed 2026-10-30.
+
+\bibitem[Nandi et~al.(2024)Nandi, Patel, and Swain]{nandi2024imdlib}
+Saswata Nandi, Pratiman Patel, and Sabyasachi Swain.
+\newblock {IMDLIB}: An open-source library for retrieval, processing and
+  spatiotemporal exploratory assessments of gridded meteorological observation
+  datasets over {India}.
+\newblock \emph{Environmental Modelling \& Software}, 171:\penalty0 105869,
+  2024.
+\newblock \doi{10.1016/j.envsoft.2023.105869}.
+
+\bibitem[Rasp et~al.(2024)Rasp, Hoyer, Merose, Langmore,
+  et~al.]{rasp2024weatherbench2}
+Stephan Rasp, Stephan Hoyer, Alexander Merose, Ian Langmore, et~al.
+\newblock {WeatherBench 2}: A benchmark for the next generation of data-driven
+  global weather models.
+\newblock \emph{Journal of Advances in Modeling Earth Systems}, 2024.
+
+\bibitem[Romano et~al.(2019)Romano, Patterson, and Cand{\`e}s]{romano2019cqr}
+Yaniv Romano, Evan Patterson, and Emmanuel Cand{\`e}s.
+\newblock Conformalized quantile regression.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2019.
+
+\bibitem[Shao et~al.(2022)Shao, Zhang, Wang, Wei, and Xu]{shao2022stid}
+Zezhi Shao, Zhao Zhang, Fei Wang, Wei Wei, and Yongjun Xu.
+\newblock Spatial-temporal identity: A simple yet effective baseline for
+  multivariate time series forecasting.
+\newblock In \emph{Proceedings of the 31st ACM International Conference on
+  Information and Knowledge Management (CIKM)}, 2022.
+
+\bibitem[Shi et~al.(2025)Shi, Wang, Nie, Li, Ye, Wen, and Jin]{shi2025timemoe}
+Xiaoming Shi, Shiyu Wang, Yuqi Nie, Dianqi Li, Zhou Ye, Qingsong Wen, and Ming
+  Jin.
+\newblock Time-{MoE}: Billion-scale time series foundation models with mixture
+  of experts.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2025.
+
+\bibitem[Smith and Topin(2017)]{smith2017superconvergence}
+Leslie~N. Smith and Nicholay Topin.
+\newblock Super-convergence: Very fast training of neural networks using large
+  learning rates.
+\newblock \emph{arXiv preprint arXiv:1708.07120}, 2017.
+
+\bibitem[Szwarcman et~al.(2024)]{szwarcman2024prithvi}
+Daniela Szwarcman et~al.
+\newblock {Prithvi-EO-2.0}: A versatile multi-temporal foundation model for
+  earth observation applications.
+\newblock \emph{arXiv preprint arXiv:2412.02732}, 2024.
+
+\bibitem[{THUML, Tsinghua University}(2026)]{sundial}
+{THUML, Tsinghua University}.
+\newblock Sundial / timer time-series foundation model family.
+\newblock \url{https://dag-upb-ts-arena.hf.space/models/family/sundial}, 2026.
+\newblock Accessed 2026-10-31.
+
+\bibitem[Wu et~al.(2019)Wu, Pan, Long, Jiang, and Zhang]{wu2019graphwavenet}
+Zonghan Wu, Shirui Pan, Guodong Long, Jing Jiang, and Chengqi Zhang.
+\newblock Graph {WaveNet} for deep spatial-temporal graph modeling.
+\newblock In \emph{Proceedings of the 28th International Joint Conference on
+  Artificial Intelligence (IJCAI)}, 2019.
+
+\bibitem[Yu et~al.(2018)Yu, Yin, and Zhu]{yu2018stgcn}
+Bing Yu, Haoteng Yin, and Zhanxing Zhu.
+\newblock Spatio-temporal graph convolutional networks: A deep learning
+  framework for traffic forecasting.
+\newblock In \emph{Proceedings of the 27th International Joint Conference on
+  Artificial Intelligence (IJCAI)}, 2018.
+
+\end{thebibliography}

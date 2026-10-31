@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+# downloaded data and run outputs (re-created by the scripts)
+**/data/raw/*
+!**/data/raw/.gitkeep
+!**/data/raw/SYNTHETIC_IMD_rain_test.npz
+**/models/
+**/submissions/
+# LaTeX build files
+paper/*.aux
+paper/*.log
+paper/*.blg
+paper/*.fls
+paper/*.fdb_latexmk
+paper/*.out

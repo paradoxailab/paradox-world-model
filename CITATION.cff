@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use PWM-Dyn or ParadoxBench, please cite it as below."
+title: "PWM-Dyn and ParadoxBench: A Provenance-Audited Physical Dynamics Model, Benchmarked Against Zero-Shot Foundation Models on US Traffic and Indian Rainfall"
+authors:
+  - family-names: Kumar
+    given-names: Aditya
+    affiliation: "Paradox AI Lab"
+  - family-names: Singh
+    given-names: Anupam
+    affiliation: "Paradox AI Lab"
+contact:
+  - name: "Paradox AI Lab"
+    email: contact.paradoxailab@gmail.com
+    website: "https://paradoxailab.com"
+url: "https://paradoxailab.com"
+license: Apache-2.0
+version: "0.4"
+date-released: "2026-11-01"
+keywords:
+  - spatiotemporal forecasting
+  - graph neural networks
+  - quantile regression
+  - conformal prediction
+  - time-series foundation models
+  - traffic forecasting
+  - monsoon rainfall
+  - benchmark

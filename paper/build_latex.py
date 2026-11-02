@@ -98,13 +98,13 @@ args = ["pandoc", os.path.join(OUT, "body.md"), "-f", "markdown-implicit_figures
         "-V", "documentclass=article", "-V", "fontfamily=mathptmx", "-V", "fontsize=10pt", "-V", "geometry:margin=0.9in",
         "-V", "colorlinks=true", "-V", "linkcolor=blue!50!black", "-V", "urlcolor=blue!50!black",
         "-V", "citecolor=blue!50!black", "--natbib",
-        "-M", f"title={TITLE}", "-M", "date=October 2026",
+        "-M", f"title={TITLE}", "-M", "date=November 2026",
         "-H", os.path.join(OUT, "header.tex")]
 subprocess.run(args, check=True)
 tex = open(os.path.join(OUT, "main.tex")).read()
 tex = tex.replace(r"\begin{document}", r"\begin{document}", 1)
 tex = re.sub(r"\\author\{[^}]*\}", "", tex)
-tex = tex.replace(r"\date{October 2026}", r"\author{" + AUTHOR + "}\n\\date{October 2026}")
+tex = tex.replace(r"\date{November 2026}", r"\author{" + AUTHOR + "}\n\\date{November 2026}")
 tex = tex.replace(r"\maketitle", "\\maketitle\n\\begin{abstract}\n" + abs_tex + "\\end{abstract}\n", 1)
 open(os.path.join(OUT, "main.tex"), "w").write(tex)
 for f in ("refs.bib", "fig_architecture.tex"):

@@ -96,45 +96,39 @@ Model, Benchmarked Against Zero-Shot Foundation Models on US Traffic and
 Indian Rainfall}
 
 \author{Aditya Kumar \qquad Anupam Singh\\[3pt] \small Paradox AI Lab, India\\ \small \href{https://paradoxailab.com}{\texttt{paradoxailab.com}}}
-\date{October 2026}
+\date{November 2026}
 
 \begin{document}
 \maketitle
 \begin{abstract}
 We present PWM-Dyn, the first trained component of the Paradox World
-Model (PWM): a 0.3M-parameter spatiotemporal dynamics model that learns
-how physical conditions evolve and propagate over real-world networks
---- road-sensor graphs and geographic rainfall grids --- with calibrated
-quantile uncertainty and robustness to missing sensors. PWM-Dyn is
-trained from random initialisation on real observations only: Caltrans
-PeMS highway traffic (PEMS08, PEMS04) and India Meteorological
-Department 0.25° gridded daily rainfall. We benchmark it head-to-head
-against Google's TimesFM 2.5 and TimesFM 3.0 zero-shot time-series
-foundation models on identical held-out test windows, scored by one
-shared evaluation function, with the opponents isolated in a separate
-software environment. A provenance audit proves every PWM checkpoint
-contains only PWM-Dyn's own parameters and that PWM's code imports no
-external model library. Measured results: on PEMS08 (1-hour horizon),
-PWM-Dyn's 3-seed ensemble reaches test MAE 14.18 --- 3rd against the
-published leaderboard, ahead of STID and Graph WaveNet --- and, on
-identical test windows, beats zero-shot TimesFM 2.5 (MAE 15.04) by
-5.7\%, TimesFM 3.0 univariate (14.63) by 3.1\% and TimesFM 3.0
-multivariate (14.55) by 2.6\%. On PEMS04 it reaches MAE 18.50 (4th on
-the published table), 6.1\% below TimesFM 2.5 (19.70) and 3.3\% below
-TimesFM 3.0 multivariate (19.14). On Indian monsoon-belt rainfall it
-reaches MAE 2.85, beating climatology by 20\%, persistence by 35\%,
-TimesFM 2.5 (2.96) by 3.9\% and TimesFM 3.0 multivariate (2.92) by 2.5\%
---- while both TimesFM models are better calibrated there (84--86\%
-interval coverage vs PWM's 55\%), a documented defect of PWM on rainfall
-extremes. PWM-Dyn thus has lower point error than every opponent round
-on all three datasets (7 of 7). We situate PWM-Dyn against the published
-PEMS08 leaderboard and against the global landscape of physical-world
-models from US, Chinese and European labs, and we state explicitly which
-comparisons are measured, which are quoted from authors, and which are
-not meaningful. Our claim is deliberately narrow: a small regional
-specialist with verifiable provenance can be competitive with --- and in
-places exceed --- large zero-shot foundation models on physical
-forecasting tasks, at a fraction of the parameters and training cost.
+Model (PWM): a 0.3M-parameter spatiotemporal dynamics model that
+forecasts how physical conditions evolve and propagate over real
+networks --- highway-sensor graphs and gridded rainfall --- with
+calibrated quantile uncertainty and robustness to dead sensors. It is
+trained from random initialisation on public observations only (Caltrans
+PeMS traffic; India Meteorological Department 0.25° daily rainfall), and
+a provenance audit verifies that no external model code or weights are
+inside it. We also release ParadoxBench-1, an open benchmark of four
+tasks (PEMS08, PEMS04, central-India and Konkan rainfall) and four
+tracks --- standard context, open context, 30\% dark sensors and
+zero-shot transfer to an unseen network --- scored by one function for
+point error, pinball loss and interval (Winkler) score. On the
+open-context track, where Google's TimesFM 2.5 and 3.0 compete zero-shot
+with up to 512 steps or 365 days of history, PWM-Dyn has lower MAE,
+pinball loss and interval score than both on all four tasks: MAE 14.15
+vs 14.55 (TimesFM 3.0) on PEMS08, 19.02 vs 19.13 on PEMS04, 2.84 vs 2.92
+and 3.41 vs 3.62 on the two rainfall regions; TimesFM 3.0 keeps a 2.5\%
+lower RMSE on PEMS04. Split-conformal calibration lifts PWM's 80\%
+rainfall-interval coverage from 55\% to 83--85\% without changing the
+median. With 30\% of sensors dark, PWM beats per-sensor climatology by
+9--14\% MAE on traffic. The margins are narrow where it matters: PEMS04
+is a near-tie, PWM's edge over median climatology on rainfall is 2--7\%,
+a PEMS04-trained PWM transferred to PEMS08 (MAE 16.36) trails zero-shot
+TimesFM 3.0, and under the standard 12-step context PWM-Dyn v0.4 does
+not recover our earlier v0.3 result (PEMS08 MAE 14.18). Every PWM win is
+a specialist-vs-zero-shot result: PWM trained on each network's history;
+TimesFM did not.
 \end{abstract}
 
 
@@ -756,15 +750,15 @@ a separate environment (§4) & Nothing: numbers quoted from the paper,
 not re-run & Nothing: landscape comparison only (§2) \\
 \end{longtable}
 
-The provenance audit (\texttt{check\_provenance.py}, §7) enforces the
+The provenance audit (\texttt{check\_provenance.py}, §8) enforces the
 last row mechanically: PWM's package may not import \texttt{timesfm},
 \texttt{transformers}, \texttt{huggingface\_hub} or \texttt{openai};
 every checkpoint must contain exactly PWM-Dyn's own parameter names and
 shapes; and the opponents run in a Python environment PWM's code cannot
 import from.
 
-\subsection{Where PWM-Dyn beats TimesFM, where it does not, and the one
-fix planned}
+\subsection{Where PWM-Dyn beats TimesFM, where it does not, and the
+calibration fix}
 
 PWM-Dyn has lower point error than every TimesFM round on all three
 datasets (7 of 7; §5.2), by 2.5 \% to 6.1 \% MAE, while seeing 12 steps
@@ -780,7 +774,7 @@ closes about half the gap to PWM on traffic); (2) explicit periodic
 position --- PWM knows it is 08:05 on a Tuesday, TimesFM must infer it
 from the context window; (3) in-distribution training --- PWM has seen
 this network's own training period. The third is also the honest caveat:
-PWM wins as a regional specialist, not as a general model (§6).
+PWM wins as a regional specialist, not as a general model (§7).
 
 Where PWM loses is calibration on rainfall. Its 80 \% interval covers
 54.7 \% of test days against 84.3 \% (TimesFM 2.5) and 86.3 \% (TimesFM
@@ -792,18 +786,18 @@ traffic, where no transform is used, PWM's coverage is 79.7--79.8 \% ---
 within 0.3 points of nominal --- so the defect is specific to the
 transformed target.
 
-\textbf{Planned fix (designed, not yet measured).} Conformalised
-quantile regression on the validation split: compute the non-conformity
-score s = max(q10 − y, y − q90) for every validation target in real
-units, take its empirical 80th percentile δ, and report {[}q10 − δ, q90
-+ δ{]} on the test set. This uses no test data, adds no parameters and
-does not change the median, so every MAE/RMSE number in §5 is
-unaffected; under exchangeability it guarantees ≥ 80 \% coverage. A
-second, cheaper change is to apply the pinball loss in real units (after
-expm1) while keeping the network's internal log1p scale. Neither is
-included in the reported results: the paper reports the model as
-trained, and the fix will be added as a separately dated result once
-run, with the same protocol.
+\textbf{The fix, now measured (§6).} Split-conformal quantile regression
+(CQR; Romano et al.~2019), fitted on the validation split: for each
+horizon, the non-conformity score s = max(q10 − y, y − q90) is computed
+for every validation target in the model's target space (log1p for
+rainfall), its 80th percentile δ is taken, and the test interval becomes
+{[}q10 − δ, q90 + δ{]}. It uses no test data, adds no trained parameters
+and leaves the median --- hence MAE and RMSE --- unchanged. With it,
+PWM-Dyn v0.4 covers 84.7 \% of central-India test days (v0.3 without it:
+54.7 \%) and 82.9 \% in the Konkan region, and its rainfall interval
+score is 9 \% and 7 \% lower than TimesFM 3.0's (Table 6.3a). On
+traffic, where coverage was already nominal, it changes little
+(79.5--80.0 \%).
 
 \section{Data and benchmark protocol}
 
@@ -865,7 +859,7 @@ better pretraining recipe.
 \textbf{Environments.} PWM trains and evaluates in the main environment;
 TimesFM runs only in a separate virtualenv. The main environment
 demonstrably cannot import TimesFM (verified at run time); the
-provenance audit (§7) makes this machine-checkable.
+provenance audit (§8) makes this machine-checkable.
 
 \section{Results}
 
@@ -1009,6 +1003,20 @@ physical graph helps, but less than architecture differences among
 leaderboard models; strengthening spatial propagation (e.g.~attention
 along road paths) is the clearest route toward the leaderboard's top and
 is left to v0.4.
+
+\section{ParadoxBench and PWM-Dyn v0.4 / v0.4.1}
+
+\textbf{Headline.} On ParadoxBench-1's open-context track (Track B),
+where Google's TimesFM 2.5 and 3.0 compete zero-shot with up to 512
+steps (traffic) or 365 days (rainfall) of history, PWM-Dyn has the
+lowest MAE, pinball loss (QL) and interval score (IS80) on all four
+tasks (Table 6.3a), with 80 \% interval coverage within 0.2--4.7 points
+of nominal. The margins are small on traffic (MAE 2.8 \% below TimesFM
+3.0 on PEMS08, 0.6 \% on PEMS04, where TimesFM 3.0 keeps a 2.5 \% lower
+RMSE) and larger on rainfall (2.9 \% and 5.7 \%). Every number in this
+section comes from two Kaggle runs on 2× Tesla T4 --- the v0.4 study
+(2026-11-01, 254.6 min) and the v0.4.1 recipe check (93.1 min) --- and
+both runs end with a passing provenance audit.
 
 \subsection{ParadoxBench: the Paradox Physical-Dynamics Benchmark}
 
@@ -1162,6 +1170,229 @@ zero-shot transfer model (Track Z) is the inductive variant without node
 embeddings and without the climatology input, because climatology would
 require the target network's data.
 
+\textbf{Recipe check (v0.4.1) and a negative scaling result (v0.5).} The
+full v0.4 run trained with batch 64 for 40 epochs --- half the
+optimisation steps of v0.3 (batch 32, 60 epochs) --- and its traffic
+test MAE came out above v0.3's. Disclosure: that observation was a
+test-set result, and it is what prompted v0.4.1. To keep the choice
+itself off the test set, v0.4.1 changes nothing in the architecture and
+lets PEMS08 validation (seed 0, long-context variant) choose among three
+recipes: the v0.4 recipe (batch 64, 40 epochs, peak lr 3e-3) reached
+14.485, the v0.3 recipe (batch 32, 60 epochs, lr 2e-3) 14.601, and the
+v0.3 recipe with 100 epochs 14.443. The last was chosen and used for
+both traffic tasks; rainfall keeps v0.4. Before that, a v0.5 validation
+sweep (single seed, long-context) tried 100 epochs, a coarse profile
+input (hourly means of the last day for traffic, monthly means of the
+last year for rainfall) and width 128: every variant landed within 0.6
+\% of the 40-epoch model (PEMS08 14.47--14.57; IMD-CI 2.948--2.959), so
+v0.5 was stopped and no v0.5 model is reported. At this size, more
+epochs or more width alone no longer buys accuracy.
+
+Under the standard 12-step context, neither v0.4 (PEMS08 test MAE 14.53)
+nor v0.4.1 (14.50) recovers v0.3's 14.18 (PEMS04: 19.21 and 19.02
+against 18.50). The v0.3 figure was scored on every test window rather
+than every second one, but TimesFM 3.0 scores the same under both window
+sets (14.55), so the gap is real. We have not isolated its cause --- the
+climatology input and dark-sensor fallback, which help on dark sensors
+and with long context, are the leading suspects --- and we report it
+rather than tune against test data.
+
+\subsection{ParadoxBench-1 leaderboard}
+
+Table 6.3a is the open-context track, where all three model families
+meet. Each PWM-Dyn row is a 3-seed ensemble with split-conformal
+calibration fitted on validation; both PWM versions are shown rather
+than the better one per task. Traffic is in vehicles per 5 minutes (zero
+readings excluded), rainfall in mm/day (dry days included). TimesFM
+3.0's parameter count is not stated in its model card.
+
+\textbf{Table 6.3a --- Track B (open context), MAE.} Lower is better.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1429}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Model
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Params
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Context
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+PEMS08
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+PEMS04
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+IMD-CI
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+IMD-WC
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+PWM-Dyn v0.4.1 & 0.3 M & 300 / 12 steps & \textbf{14.15} &
+\textbf{19.02} & --- & --- \\
+PWM-Dyn v0.4 & 0.3--0.4 M & 300 steps / 30 days & 14.38 & 19.17 &
+\textbf{2.84} & \textbf{3.41} \\
+TimesFM 3.0 multivariate (Google, zero-shot) & not stated & 512 steps /
+365 days & 14.55 & 19.13 & 2.92 & 3.62 \\
+TimesFM 2.5 (Google, zero-shot) & 200 M & 512 steps / 365 days & 15.04 &
+19.70 & 2.96 & 3.67 \\
+Climatology quantiles (train split) & 0 & --- & 22.18 & 25.02 & 2.89 &
+3.65 \\
+Last value & 0 & 1 & 25.30 & 31.56 & 4.37 & 4.88 \\
+Seasonal naive & 0 & 1 day / 1 year & 36.54 & 40.67 & 4.68 & 5.69 \\
+\end{longtable}
+
+\textbf{Table 6.3a (continued) --- Track B, interval score IS80 (80 \%
+coverage in brackets).} Lower IS80 is better; coverage should be close
+to 80 \%.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Model
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+PEMS08
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+PEMS04
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+IMD-CI
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+IMD-WC
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+PWM-Dyn v0.4.1 & \textbf{67.05} (79.5 \%) & \textbf{87.90} (79.8 \%) &
+--- & --- \\
+PWM-Dyn v0.4 & 67.91 (79.7 \%) & 88.16 (80.0 \%) & \textbf{18.01} (84.7
+\%) & \textbf{20.27} (82.9 \%) \\
+TimesFM 3.0 multivariate & 67.84 (80.7 \%) & 88.42 (80.7 \%) & 19.79
+(86.3 \%) & 21.85 (87.2 \%) \\
+TimesFM 2.5 & 70.54 (82.4 \%) & 91.61 (82.0 \%) & 20.72 (84.3 \%) &
+23.00 (85.2 \%) \\
+Climatology quantiles & 117.83 (71.4 \%) & 127.81 (71.5 \%) & 18.21
+(91.0 \%) & 21.09 (91.0 \%) \\
+\end{longtable}
+
+\textbf{Table 6.3b --- the other tracks: MAE · IS80 · coverage.} TimesFM
+is not entered in Track R (a hidden sensor has no history to give a
+univariate model) or Track Z (its pretraining corpus cannot be verified
+free of PeMS data).
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Task / track
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+PWM-Dyn v0.4
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+PWM-Dyn v0.4.1
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Best reference baseline
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+PEMS08 A (standard) & 14.53 · 68.94 · 79.7 \% & 14.50 · 68.39 · 79.7 \%
+& climatology 22.18 · 117.83 · 71.4 \% \\
+PEMS04 A & 19.21 · 88.65 · 79.6 \% & 19.02 · 87.90 · 79.8 \% &
+climatology 25.02 · 127.81 · 71.5 \% \\
+IMD-CI A & 2.84 · 18.01 · 84.7 \% & --- & climatology 2.89 · 18.21 ·
+91.0 \% \\
+IMD-WC A & 3.41 · 20.27 · 82.9 \% & --- & climatology 3.65 · 21.09 ·
+91.0 \% \\
+PEMS08 R (30 \% dark) & 18.70 · 100.61 · 76.8 \% & 18.81 · 99.99 · 76.4
+\% & climatology 21.78 · 113.41 · 72.4 \% \\
+PEMS04 R & 24.99 · 129.58 · 78.1 \% & 24.69 · 126.27 · 78.0 \% &
+climatology 27.39 · 139.04 · 71.3 \% \\
+IMD-CI R & 2.84 · 17.99 · 85.5 \% & --- & climatology 2.88 · 18.12 ·
+91.1 \% \\
+IMD-WC R & 3.43 · 20.75 · 83.2 \% & --- & climatology 3.60 · 21.00 ·
+90.8 \% \\
+PEMS08 Z (trained on PEMS04 only) & 16.36 · 83.47 · 86.7 \% & 16.57 ·
+82.58 · 85.3 \% & none admissible (every baseline needs PEMS08 data) \\
+\end{longtable}
+
+Rainfall Track A and Track B rows are identical because validation
+preferred the standard 30-day model over the seasonal-lag variant on
+both regions (validation MAE 2.952 vs 2.955 and 4.164 vs 4.175); for the
+same reason v0.4.1's PEMS04 Track B entry is its 12-step model (18.839
+vs 18.842). The complete per-track tables, with MAPE, are in the
+repository (results/LEADERBOARD.md, paradoxbench1\_results.json).
+
+\subsection{Head-to-head with Google}
+
+\textbf{Table 6.4 --- PWM-Dyn's advantage over each TimesFM model on
+Track B,} as the percentage by which PWM's score is lower (positive =
+PWM better). PWM-Dyn v0.4.1 on traffic, v0.4 on rainfall.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Task
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+vs TimesFM 3.0 --- MAE / RMSE / QL / IS80
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+vs TimesFM 2.5 --- MAE / RMSE / QL / IS80
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+PEMS08 & +2.8 / +1.4 / +2.0 / +1.2 & +5.9 / +3.5 / +5.4 / +4.9 \\
+PEMS04 & +0.6 / −2.5 / +0.6 / +0.6 & +3.4 / −0.3 / +3.7 / +4.0 \\
+IMD-CI & +2.9 / +2.2 / +6.5 / +9.0 & +4.1 / +1.5 / +9.4 / +13.1 \\
+IMD-WC & +5.7 / +6.0 / +6.5 / +7.2 & +6.9 / +5.1 / +9.7 / +11.9 \\
+\end{longtable}
+
+\textbf{Where PWM-Dyn wins.} It is ahead on 30 of these 32 comparisons.
+The clearest margins are on rainfall uncertainty: after conformal
+calibration PWM's 80 \% intervals are both tighter and closer to nominal
+than TimesFM's, giving 7--13 \% lower interval scores. On PEMS08 it
+leads TimesFM 3.0 on every metric, with a model roughly 600× smaller
+than TimesFM 2.5.
+
+\textbf{Where it loses or ties.} On PEMS04, TimesFM 3.0 has a 2.5 \%
+lower RMSE (TimesFM 2.5: 0.3 \% lower): PWM's median is better on
+typical windows, while TimesFM's largest errors are smaller. PWM's 0.6
+\% MAE lead on PEMS04 is inside the spread between its own single-seed
+validation runs (18.76--18.91), so we call PEMS04 a tie on point
+accuracy. On rainfall PWM's intervals over-cover slightly (82.9--85.5
+\%): the per-horizon offsets fitted on 2019--2021 are conservative on
+2022--2024.
+
+\textbf{Generality still belongs to the foundation model.} TimesFM 3.0
+forecasts PEMS08 zero-shot at MAE 14.55; PWM-Dyn trained only on PEMS04
+and transferred to PEMS08 reaches 16.36 (Track Z) --- far better than
+any baseline that ignores the network's history, but 12 \% behind
+Google's model. PWM-Dyn wins where it has trained on the network's own
+history, and that is the claim this section supports: a 0.3 M-parameter
+specialist, trained in minutes on a free GPU, is at least level with
+2026's zero-shot foundation models on the physical tasks it was built
+for.
+
 \section{Honest claims and limitations}
 
 What these results show: a provenance-verified specialist, trained from
@@ -1191,11 +1422,13 @@ What they do not show:
 \item
   \textbf{Single-digit seed counts.} Published leaderboard numbers are
   often multi-seed averages; our v0.1 CPU result is single-seed, and the
-  GPU run uses 3 seeds.
+  GPU runs use 3 seeds. PWM's 0.6 \% MAE lead over TimesFM 3.0 on PEMS04
+  is inside its own seed spread.
 \item
-  \textbf{Zero-shot regional transfer is weak} (§5.1): PWM beats naive
-  baselines on an unseen network but is far from trained specialists ---
-  the model memorises less than feared and generalises less than hoped.
+  \textbf{Zero-shot regional transfer is weak} (§5.1, §6.4): on
+  ParadoxBench Track Z a PEMS04-trained PWM reaches MAE 16.36 on PEMS08
+  --- well ahead of naive baselines but 12 \% behind zero-shot TimesFM
+  3.0 and 16 \% behind PWM trained on PEMS08 itself.
 \item
   \textbf{What-if outputs are unvalidated} model responses; no observed
   counterfactual exists to score them.
@@ -1226,12 +1459,13 @@ What they do not show:
   pipeline-test data are refused by the report generator.
 \item
   \textbf{Availability.} Full code (model, data loaders, training,
-  opponents harness, audit, report generator) is released as the PWM
-  kit; all datasets are public (Caltrans PeMS mirrors; IMD via imdlib).
-  One free T4 reproduces PWM training and evaluation in under 2 hours;
-  the seven zero-shot TimesFM rounds take a further \textasciitilde8
-  GPU-hours (the slowest, TimesFM 3.0 univariate on PEMS08,
-  \textasciitilde2 h).
+  opponents harness, audit, report generator) is public at
+  github.com/paradoxailab/paradox-world-model (Apache-2.0), with the
+  ParadoxBench package and both Kaggle notebooks; all datasets are
+  public (Caltrans PeMS mirrors; IMD via imdlib). One free T4 reproduces
+  PWM training and evaluation in under 2 hours; the seven zero-shot
+  TimesFM rounds take a further \textasciitilde8 GPU-hours (the slowest,
+  TimesFM 3.0 univariate on PEMS08, \textasciitilde2 h).
 \end{itemize}
 
 \section*{Acknowledgements}
@@ -1239,7 +1473,10 @@ What they do not show:
 
 Benchmark opponents: Google TimesFM team (open weights). Data: Caltrans
 PeMS; India Meteorological Department (imdlib). PWM-Dyn was designed,
-trained and audited at Paradox AI Lab.
+trained and audited at Paradox AI Lab. Use of AI tools: Claude
+(Anthropic) assisted with writing code, running experiments and drafting
+the text. The authors reviewed the code, checked every reported number
+against the run logs, and take full responsibility for the content.
 
 \nocite{*}
 \bibliography{refs}
@@ -1258,9 +1495,15 @@ trained and audited at Paradox AI Lab.
   on PEMS08: Kaggle, 2× Tesla T4, background session on 2026-10-31 (log
   timestamps 3,124 s -- 19,706 s). Section 5.2 is completed from those
   files; the run logs and PROVENANCE\_REPORT.json accompany the paper.
+  ParadoxBench-1 (§6): two Kaggle runs on 2× Tesla T4 --- the v0.4 study
+  (2026-11-01, 254.6 min: 24 PWM training runs plus 3 inductive transfer
+  models, TimesFM 2.5 and 3.0 on all four tasks, baselines, provenance
+  audit) and the v0.4.1 recipe check (93.1 min); both notebooks and logs
+  are in the repository.
 \item
-  Code: PWM kit v0.3 (model, loaders, training, opponents harness,
-  audit, report generator) --- released with the paper.
+  Code: github.com/paradoxailab/paradox-world-model --- PWM kit v0.3
+  (Colab) and v0.4 with the ParadoxBench package, Kaggle notebooks,
+  results JSON and provenance audit.
 \end{itemize}
 
 \end{document}

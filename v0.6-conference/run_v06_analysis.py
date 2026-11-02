@@ -100,6 +100,20 @@ def main(a):
                 L.append(f"| {t} | {tr} | {o['model']} | {c['MAE_a']:.2f} | {c['MAE_b']:.2f} | {c['rel_diff_pct']:+.1f}% | "
                          f"[{c['rel_ci95_pct'][0]:+.1f}, {c['rel_ci95_pct'][1]:+.1f}] | {c['p_value']:.2g} |")
     json.dump(out, open(os.path.join(ROOT, "results", "v06_summary.json"), "w"), indent=1)
+    # machine-readable dump in the log (one line per row), so the numbers can be transcribed exactly
+    f = lambda v, d=4: "" if v is None else (f"{v:.{d}f}" if isinstance(v, float) else str(v))
+    for r in rs:
+        m = r["metrics"]
+        extra = {k: r[k] for k in ("epochs_run", "stopped_by", "budget_minutes", "seed") if k in r}
+        if "member_test" in r:
+            extra["members"] = [round(v["MAE"], 4) for v in r["member_test"].values()]
+        print("ROW|" + "|".join([r["task"], r["track"], r["model"], f(m["MAE"]), f(m["RMSE"]), f(m.get("MAPE"), 3),
+                                 f(m.get("QL")), f(m.get("IS80")), f(m.get("COV80")), f(r.get("params"), 0),
+                                 str(r.get("context_steps", "")), json.dumps(extra)]), flush=True)
+    for c in out["significance"]:
+        print("SIG|" + "|".join([c["task"], c["track"], c["opponent"], f(c["MAE_a"]), f(c["MAE_b"]),
+                                 f(c["rel_diff_pct"], 3), f(c["rel_ci95_pct"][0], 3), f(c["rel_ci95_pct"][1], 3),
+                                 f"{c['p_value']:.3g}", f(c["dm_stat"], 3), str(c["windows"])]), flush=True)
     open(os.path.join(ROOT, "results", "v06_tables.md"), "w").write("\n".join(L))
     print("\n".join(L))
     import subprocess

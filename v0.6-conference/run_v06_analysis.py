@@ -23,7 +23,9 @@ RES, SUB = os.path.join(ROOT, "results", "paradoxbench"), os.path.join(ROOT, "su
 def merge(roots):
     os.makedirs(RES, exist_ok=True); os.makedirs(SUB, exist_ok=True)
     for r in roots:
-        for f in glob.glob(os.path.join(r, "results", "paradoxbench", "*.json")):
+        # the v0.4 study (2026-11-01) wrote its rows under the benchmark's earlier package name, results/ppb/
+        for f in (glob.glob(os.path.join(r, "results", "paradoxbench", "*.json")) +
+                  glob.glob(os.path.join(r, "results", "ppb", "*.json"))):
             d = os.path.join(RES, os.path.basename(f))
             if not os.path.exists(d):
                 shutil.copy(f, d)

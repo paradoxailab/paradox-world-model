@@ -1,0 +1,63 @@
+%% Named version (preprint). The anonymous review build is in the parent folder.
+\documentclass[sigconf]{acmart}
+\settopmatter{printacmref=false}
+\setcopyright{none}
+\renewcommand\footnotetextcopyrightpermission[1]{}
+\acmConference[Preprint]{Paradox AI Lab technical report}{November 2026}{India}
+\acmBooktitle{}\acmDOI{}\acmISBN{}
+
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,calc}
+\usepackage{xspace}
+\newcommand{\benchname}{ParadoxBench\xspace}
+\citestyle{acmauthoryear}
+
+\begin{document}
+
+\title{Trained Small, Scored Fairly: A Sub-Million-Parameter Graph Model Against Published Specialists and
+Zero-Shot Foundation Models on Physical Network Forecasting}
+
+\author{Aditya Kumar}
+\affiliation{\institution{Paradox AI Lab}\country{India}}
+\email{contact.paradoxailab@gmail.com}
+\author{Anupam Singh}
+\affiliation{\institution{Paradox AI Lab}\country{India}}
+\renewcommand{\shortauthors}{Kumar and Singh}
+
+\input{abstract}
+\keywords{spatio-temporal forecasting, graph neural networks, time-series foundation models, benchmarking,
+probabilistic forecasting, conformal prediction, traffic, rainfall}
+
+\maketitle
+
+\input{sec_intro}
+\input{sec_related}
+\input{sec_method}
+
+\begin{figure*}[t]
+\centering
+\resizebox{0.92\textwidth}{!}{\input{fig_architecture}}
+\caption{PWM-Dyn. Each location's history and observed-mask, the time, the training-split climatology and (in the
+transductive variant) a location embedding form a state that three GraphMix blocks diffuse over the physical
+graph $A$ and a learned graph $G$; a linear head returns three quantiles per horizon as offsets from the last
+reading, or from climatology when the sensor is dark.}
+\label{fig:arch}
+\end{figure*}
+
+\input{sec_bench}
+\input{sec_experiments}
+\input{sec_limits}
+
+\begin{acks}
+Benchmark opponents use the official code of STID, Graph WaveNet and STAEformer and the open weights of Google's TimesFM. Data: Caltrans PeMS; the METR-LA and PEMS-BAY releases of DCRNN; India Meteorological Department (via imdlib). Use of AI tools: Claude (Anthropic) assisted with writing code, running experiments and drafting the text; the authors reviewed the code, checked every reported number against the run logs, and take full responsibility for the content. Project page: \url{https://paradoxailab.com}.
+\end{acks}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{refs}
+
+\appendix
+\input{appendix}
+
+\end{document}

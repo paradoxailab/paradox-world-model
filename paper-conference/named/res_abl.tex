@@ -1,0 +1,9 @@
+An earlier version of PWM-Dyn added a per-location climatology input, and its test MAE under the 12-step context was
+2--4\% worse than the version before it. Table~\ref{tab:abl} separates the changes involved on validation. On PEMS04
+the climatology input accounts for most of the loss: with it, validation MAE is 18.84 whichever checkpoint rule is
+used; without it, 18.39--18.61, with training length (60 vs 100 epochs) moving it by 0.22. On PEMS08 the effect is
+mixed: the climatology input improves validation MAE (14.45 vs 14.61) but not test MAE. The configuration with the
+lowest validation MAE averaged over both networks (no climatology input, 100 epochs, checkpoint chosen on every
+validation window) was frozen before any test scoring; its test MAE, reported for the record, is also the lowest of
+the four. The climatology input is not useless: it gives dark sensors a sensible baseline and remains in the
+long-context variant.

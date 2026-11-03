@@ -1,0 +1,32 @@
+\begin{table*}[t]
+\caption{Point accuracy: test MAE (RMSE below) on the official windows. Upper block: Track A, 12-step context, every model trained on the task's training split; lower block: Track B, foundation models zero-shot with 512 steps (365 days on rainfall). Bold: best MAE in the block. $^\dagger$\,stopped by its wall-clock budget before its authors' schedule ended (Table~\ref{tab:budget}). $^\ast$\,network never used during development. Rainfall PWM-Dyn entries are v0.4; rainfall has no specialist entries. Units: vehicles/5\,min (PeMS flow), mph (METR-LA, PEMS-BAY), mm/day (IMD).}
+\label{tab:main}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lrrrrrrrr@{}}
+\toprule
+Model & PEMS08 & PEMS04 & PEMS03$^\ast$ & PEMS07$^\ast$ & METR-LA$^\ast$ & PEMS-BAY$^\ast$ & IMD-CI & IMD-WC \\
+\midrule
+Last value & 25.30 & 31.56 & 23.89 & 35.63 & 5.04 & 2.17 & 4.37 & 4.88 \\
+ & {\scriptsize 38.66} & {\scriptsize 48.25} & {\scriptsize 37.31} & {\scriptsize 54.37} & {\scriptsize 10.98} & {\scriptsize 5.11} & {\scriptsize 13.55} & {\scriptsize 14.94} \\[1pt]
+Climatology & 22.18 & 25.02 & 25.93 & 29.98 & 3.90 & 2.53 & 2.89 & 3.65 \\
+ & {\scriptsize 40.77} & {\scriptsize 41.36} & {\scriptsize 47.80} & {\scriptsize 58.67} & {\scriptsize 8.41} & {\scriptsize 5.48} & {\scriptsize 10.70} & {\scriptsize 13.00} \\[1pt]
+\midrule
+STID & 14.18 & 18.49 & 15.50 & 19.62$^\dagger$ & 3.12 & 1.56$^\dagger$ & -- & -- \\
+ & {\scriptsize 23.21} & {\scriptsize 30.05} & {\scriptsize 26.83} & {\scriptsize 32.72} & {\scriptsize 6.50} & {\scriptsize 3.60} &  &  \\[1pt]
+Graph WaveNet & 14.77 & 19.37$^\dagger$ & 14.70$^\dagger$ & 23.39$^\dagger$ & 3.05$^\dagger$ & 1.57$^\dagger$ & -- & -- \\
+ & {\scriptsize 23.59} & {\scriptsize 30.75} & {\scriptsize 25.17} & {\scriptsize 36.92} & {\scriptsize 6.15} & {\scriptsize 3.57} &  &  \\[1pt]
+STAEformer & \textbf{13.93}$^\dagger$ & 19.21$^\dagger$ & 15.45$^\dagger$ & -- & 3.09$^\dagger$ & 1.59$^\dagger$ & -- & -- \\
+ & {\scriptsize 23.17} & {\scriptsize 30.66} & {\scriptsize 26.03} &  & {\scriptsize 6.33} & {\scriptsize 3.63} &  &  \\[1pt]
+PWM-Dyn (ours) & 14.12 & \textbf{18.46} & \textbf{14.34} & \textbf{19.56} & \textbf{2.92} & \textbf{1.52} & \textbf{2.84} & \textbf{3.41} \\
+ & {\scriptsize 23.46} & {\scriptsize 30.77} & {\scriptsize 23.12} & {\scriptsize 32.60} & {\scriptsize 5.88} & {\scriptsize 3.45} & {\scriptsize 10.42} & {\scriptsize 12.01} \\[1pt]
+\midrule
+TimesFM 2.5 & 15.04 & 19.70 & -- & -- & -- & -- & 2.96 & 3.67 \\
+ & {\scriptsize 24.09} & {\scriptsize 31.70} &  &  &  &  & {\scriptsize 10.58} & {\scriptsize 12.65} \\[1pt]
+TimesFM 3.0 mv & 14.55 & 19.13 & \textbf{14.15} & 20.27 & 3.40 & 1.66 & 2.92 & 3.62 \\
+ & {\scriptsize 23.57} & {\scriptsize 31.02} & {\scriptsize 22.70} & {\scriptsize 33.13} & {\scriptsize 6.97} & {\scriptsize 3.95} & {\scriptsize 10.65} & {\scriptsize 12.78} \\[1pt]
+PWM-Dyn (ours), Track B & \textbf{14.18} & \textbf{18.46} & 14.34 & \textbf{19.56} & \textbf{2.92} & \textbf{1.52} & \textbf{2.84} & \textbf{3.41} \\
+ & {\scriptsize 23.38} & {\scriptsize 30.77} & {\scriptsize 23.12} & {\scriptsize 32.60} & {\scriptsize 5.88} & {\scriptsize 3.45} & {\scriptsize 10.42} & {\scriptsize 12.01} \\[1pt]
+\bottomrule
+\end{tabular}
+\end{table*}

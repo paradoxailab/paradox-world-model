@@ -1,0 +1,18 @@
+\begin{table}[t]
+\caption{Opponent training: epochs completed and what stopped the run (A = authors' schedule, B = wall-clock budget, minutes in brackets). One seed each, official code and hyper-parameters, mixed precision.}
+\label{tab:budget}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Task & STID & Graph WaveNet & STAEformer \\
+\midrule
+PEMS08 & 100 A (6) & 100 A (30) & 25 B (30) \\
+PEMS04 & 100 A (6) & 64 B (30) & 12 B (30) \\
+PEMS03$^\ast$ & 100 A (8) & 58 B (40) & 10 B (40) \\
+PEMS07$^\ast$ & 84 B (12) & 20 B (50) & out of memory \\
+METR-LA$^\ast$ & 100 A (8) & 60 B (40) & 12 B (40) \\
+PEMS-BAY$^\ast$ & 94 B (12) & 30 B (50) & 6 B (55) \\
+\bottomrule
+\end{tabular}
+\end{table}

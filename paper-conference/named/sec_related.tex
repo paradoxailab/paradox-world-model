@@ -1,0 +1,24 @@
+\section{Related work}
+\label{sec:related}
+
+\paragraph{Spatio-temporal specialists.} Traffic forecasting on sensor graphs moved from diffusion-convolutional
+recurrence (DCRNN~\citep{li2018dcrnn}) and graph convolution with temporal gating (STGCN~\citep{yu2018stgcn}) to
+learned adjacency (Graph WaveNet~\citep{wu2019graphwavenet}, MTGNN~\citep{wu2020mtgnn}, AGCRN~\citep{bai2020agcrn}),
+attention (GMAN~\citep{zheng2020gman}, PDFormer~\citep{jiang2023pdformer}) and, recently, simple identity-embedding
+models (STID~\citep{shao2022stid}) and an embedding-heavy vanilla transformer (STAEformer~\citep{liu2023staeformer}).
+Benchmark studies report that gains between recent models are small and sensitive to protocol details, and that
+re-running models under one pipeline changes rankings~\citep{shao2024basicts,liu2023largest}. We follow that
+lesson: every opponent is run with its authors' code on our windows rather than quoted. Missing and dead sensors
+are usually treated as a separate kriging problem~\citep{wu2021ignnk}; our robustness track scores it inside the
+forecasting task.
+
+\paragraph{Time-series foundation models.} TimesFM~\citep{das2024timesfm,timesfmrepo}, Chronos~\citep{ansari2024chronos},
+Moirai~\citep{woo2024moirai}, Time-MoE~\citep{shi2025timemoe} and Sundial~\citep{sundial} are pretrained on large
+corpora and forecast new series zero-shot, with long contexts and, in TimesFM~3.0, cross-series attention. They
+are rarely compared with trained graph specialists under identical windows, metrics and uncertainty scores; this
+paper does that for two TimesFM generations.
+
+\paragraph{Uncertainty.} Quantile regression~\citep{koenker1978quantiles} with conformal
+calibration~\citep{romano2019cqr} gives finite-sample coverage under exchangeability; proper scores such as
+the pinball loss and the interval score~\citep{gneiting2007scoring} reward sharp, calibrated intervals. Traffic
+benchmarks almost always report point metrics only.

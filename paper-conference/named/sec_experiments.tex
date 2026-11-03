@@ -1,0 +1,35 @@
+\section{Experiments}
+\label{sec:exp}
+
+\paragraph{Models.} \emph{Specialists}: STID~\citep{shao2022stid}, Graph WaveNet~\citep{wu2019graphwavenet} and
+STAEformer~\citep{liu2023staeformer}, imported unchanged from their official repositories (pinned commits in the
+supplement) and trained on each task's training split with the published hyper-parameters, loss, optimiser,
+schedule and early stopping, on exactly the windows PWM-Dyn uses. The one code change is a compatibility fix in Graph
+WaveNet, whose 2-D-kernel \texttt{Conv1d} layers are rejected by current PyTorch and are built as \texttt{Conv2d}, the
+operation they computed. Each run had a wall-clock budget on one T4 (Table~\ref{tab:budget}); runs that hit it keep
+their best-validation checkpoint and are marked. \emph{Foundation models}: TimesFM~2.5 (200M) and TimesFM~3.0 in its
+multivariate mode, zero-shot, with a 512-step (365-day) context, run in a separate software environment.
+\emph{References}: last value, seasonal naive and per-location climatology quantiles from the training split.
+\emph{PWM-Dyn}: the configuration frozen by the ablation below, three fresh seeds (100--102), trained for the
+optimisation-step budget it has on PEMS08 ($\approx$33.5k steps; 9--52 GPU-minutes per seed), conformally
+calibrated on validation and scored once.
+
+\input{tables/main}
+
+\subsection{Point accuracy}
+\input{res_point}
+
+\subsection{Is the difference larger than noise?}
+\input{tables/sig}
+\input{res_sig}
+
+\subsection{Uncertainty and dead sensors}
+\input{tables/prob}
+\input{res_prob}
+
+\subsection{What cost v0.4 its accuracy}
+\input{tables/abl}
+\input{res_abl}
+
+\subsection{Cost}
+\input{res_cost}

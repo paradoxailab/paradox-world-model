@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use PWM-Dyn or ParadoxBench, please cite it as below."
-title: "PWM-Dyn and ParadoxBench: A Provenance-Audited Physical Dynamics Model, Benchmarked Against Zero-Shot Foundation Models on US Traffic and Indian Rainfall"
+title: "Trained Small, Scored Fairly: A Sub-Million-Parameter Graph Model Against Published Specialists and Zero-Shot Foundation Models on Physical Network Forecasting (PWM-Dyn v0.6, ParadoxBench-1.1)"
 authors:
   - family-names: Kumar
     given-names: Aditya
@@ -14,8 +14,8 @@ contact:
     website: "https://paradoxailab.com"
 url: "https://paradoxailab.com"
 license: Apache-2.0
-version: "0.4"
-date-released: "2026-11-01"
+version: "0.6.0"
+date-released: "2026-11-03"
 keywords:
   - spatiotemporal forecasting
   - graph neural networks

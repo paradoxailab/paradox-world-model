@@ -1,0 +1,18 @@
+\begin{table}[h]
+\caption{Track R (30\% of locations dark during the test period): MAE on the dark locations. Specialists receive zeros for missing readings, their repositories' convention.}
+\label{tab:trackr}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Task & PWM-Dyn & Climatology & STID & Graph WaveNet & STAEformer \\
+\midrule
+PEMS08 & 19.25 & 21.78 & 198.09 & 216.21 & 186.51 \\
+PEMS04 & 25.33 & 27.39 & 120.58 & 132.51 & 188.00 \\
+PEMS03$^\ast$ & 17.71 & 23.31 & 113.05 & 138.37 & 119.34 \\
+PEMS07$^\ast$ & 30.95 & 29.10 & 293.03 & 310.03 & -- \\
+METR-LA$^\ast$ & 3.36 & 4.07 & 5.11 & 5.89 & 5.33 \\
+PEMS-BAY$^\ast$ & 2.31 & 2.71 & 42.19 & 51.76 & 44.72 \\
+\bottomrule
+\end{tabular}
+\end{table}

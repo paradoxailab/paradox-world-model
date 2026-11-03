@@ -98,6 +98,52 @@ spread, so PEMS04 is a tie on point accuracy. Conformal calibration fixed v0.3's
 | Kaggle `notebook0387a11c3a`, version 364310290 (`v0.4-paradoxbench/notebooks/kaggle_paradoxbench_v04.ipynb`) | 2× T4, 254.6 min | 2026-11-01 | all v0.4 rows, TimesFM 2.5 / 3.0, baselines; provenance PASS |
 | Kaggle `notebookab27dd6f3e`, version 364348754 (`v0.4-paradoxbench/notebooks/kaggle_pwm_v041.ipynb`) | 2× T4, 93.1 min | 2026-11-01 | all v0.4.1 rows; provenance PASS |
 
+## 3. ParadoxBench-1.1: PWM-Dyn v0.6 vs published specialists and TimesFM (Kaggle, 2026-11-02/03)
+
+This round answers six reviewer-style concerns: specialists re-run with their authors' code, four new
+traffic networks, the v0.4 accuracy gap, seeds and significance tests, PEMS08 test exposure, and the
+paper in conference format. Paper: [`paper-conference/named/PWM-Dyn_ParadoxBench_v0.6.pdf`](paper-conference/named/PWM-Dyn_ParadoxBench_v0.6.pdf).
+
+**Protocol.** The v0.6 configuration ("noclim-vs1": no climatology input, batch 32, peak LR 2e-3, a fixed
+budget of ~33.5k steps, checkpoint chosen on all validation windows) was frozen from a validation-only
+ablation before any test score was computed. The reported models use fresh seeds 100–102, which were never
+used in development. PEMS03, PEMS07, METR-LA and PEMS-BAY were never touched during development. STID
+(e8b313b), Graph WaveNet (6b162e8) and STAEformer (fc49d39) were trained with their official code and
+published hyper-parameters on our exact windows, with one seed and a wall-clock budget on one T4 GPU.
+† means the budget stopped the run before its authors' schedule ended.
+
+Track A test MAE (lower is better):
+
+| Network | PWM-Dyn v0.6 (3 seeds) | STID | Graph WaveNet | STAEformer | TimesFM 3.0 (Track B, zero-shot) |
+|---|---|---|---|---|---|
+| PEMS08 | 14.12 | 14.18 | 14.77 | **13.93**† | 14.55 |
+| PEMS04 | **18.46** | 18.49 | 19.37† | 19.21† | 19.13 |
+| PEMS03 | 14.34 | 15.50 | 14.70† | 15.45† | **14.15** |
+| PEMS07 | **19.56** | 19.62† | 23.39† | out of memory | 20.27 |
+| METR-LA | **2.92** | 3.12 | 3.05† | 3.09† | 3.40 |
+| PEMS-BAY | **1.52** | 1.56† | 1.57† | 1.60† | 1.66 |
+
+**Significance.** We use a Diebold–Mariano test with Newey–West variance and a one-day bandwidth, plus a
+day-block bootstrap with 2,000 resamples. A difference counts as significant only if p < 0.05 and the 95%
+bootstrap interval excludes 0.
+
+- PWM-Dyn vs STID is a tie on PEMS08 (p = 0.12) and PEMS04 (p = 0.82).
+- STAEformer's lead on PEMS08 is significant.
+- On PEMS08 Track B, PWM-Dyn's long-context variant (14.18) vs TimesFM 3.0 (14.55) is not significant (p = 0.064). On PEMS04 it is significant (p = 0.029).
+
+Every test is in
+[`v0.6-conference/results/v06_rows_and_tests.txt`](v0.6-conference/results/v06_rows_and_tests.txt).
+
+**What changed and what did not.**
+- The v0.4 loss came from the climatology input. Without it, PEMS08 scores 14.12 and PEMS04 18.46, slightly better than v0.3 (14.18 / 18.50).
+- Single PWM-Dyn seeds are slightly worse than single STID runs on PEMS08, PEMS04 and PEMS07, so part of the margin comes from ensembling.
+- In the dead-sensor setting (Track R, 30% of sensors dark), PWM-Dyn beats per-sensor climatology on 7 of 8 tasks. It loses on PEMS07 (30.95 vs 29.10). Specialists without a missing-data mechanism collapse.
+- TimesFM 3.0 zero-shot wins on PEMS03.
+- Rainfall entries are still from v0.4.
+
+Full per-track tables: [`results/LEADERBOARD_1.1.md`](results/LEADERBOARD_1.1.md); every row as JSON:
+[`results/paradoxbench1.1_results.json`](results/paradoxbench1.1_results.json).
+
 ## Limitations
 
 PWM-Dyn wins as a regional specialist trained on each network's own history; TimesFM has never seen

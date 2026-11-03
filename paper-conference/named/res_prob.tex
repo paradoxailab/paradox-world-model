@@ -1,0 +1,12 @@
+\textbf{Intervals.} After conformal calibration, PWM-Dyn's 80\% intervals cover 78--85\% of test values and have a
+lower interval score than TimesFM~3.0's on seven of eight tasks (Table~\ref{tab:prob}; the two rainfall entries are
+from the previous model version); the exception is again PEMS03. TimesFM's intervals slightly over-cover (81--87\%)
+everywhere; climatology intervals are wide and under-cover on traffic. Specialists give point forecasts only.
+\textbf{Dead sensors.} With 30\% of locations dark throughout the test period, PWM-Dyn's MAE on those locations rises
+by 15--58\% over its normal accuracy on traffic (and hardly at all on rainfall) but stays below per-sensor climatology
+on seven of eight tasks; on PEMS07 it is 6\% worse than climatology. On PEMS08 and PEMS04 the previous version was
+also slightly better on dark sensors (18.70 and 24.99 against 19.25 and 25.33); our ablations do not isolate why. The
+standard-context model's lack of a climatology fallback is one candidate on PEMS04 and the new networks, but it does
+not explain PEMS08, where both versions keep it. The three specialists, fed zeros for the missing readings as their
+repositories do, produce errors of 5--310 (appendix): forecasting dark sensors needs an explicit mechanism, not just a
+graph.

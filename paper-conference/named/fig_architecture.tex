@@ -1,0 +1,37 @@
+% Figure 1: PWM-Dyn forward pass (vector, TikZ)
+\begin{tikzpicture}[
+  font=\footnotesize,
+  box/.style={draw, rounded corners=3pt, align=center, minimum width=3.3cm, minimum height=1.25cm, inner sep=3pt},
+  wide/.style={draw, rounded corners=3pt, align=center, fill=black!5, minimum width=14.2cm, minimum height=1.25cm, inner sep=3pt},
+  fcst/.style={draw=blue!70!black, very thick, rounded corners=3pt, align=center, fill=blue!6, minimum width=6.6cm, minimum height=1.0cm},
+  arr/.style={-{Stealth[length=2mm]}, semithick, draw=black!60},
+  node distance=0.55cm and 0.35cm]
+  % inputs
+  \node[box] (hist)  {\textbf{History}\\values $X$, observed-mask $O$\\$L$ steps $\times$ $N$ locations};
+  \node[box, right=of hist] (time) {\textbf{Time}\\cycle position $p$\\day of week $w$};
+  \node[box, right=of time] (graph) {\textbf{Physical graph $A$}\\road-distance kernel, or\\8-neighbour rainfall grid};
+  \node[box, right=of graph] (ids) {\textbf{Location ids}\\transductive variant only};
+  % encoders
+  \node[box, below=of hist] (tenc) {\textbf{Temporal encoder}\\2-layer MLP over $[x;o]$\\+ last, mean, trend, obs.\ share};
+  \node[box, below=of time] (per)  {\textbf{Periodic embeddings}\\$\mathrm{tod}(p)+\mathrm{dow}(w)$, $d{=}96$};
+  \node[box, below=of graph] (clim) {\textbf{Climatology}\\train-split median for\\each forecast step};
+  \node[box, below=of ids] (lg)   {\textbf{Learned graph $G$}\\$\mathrm{softmax}(\mathrm{relu}(SD^\top))$\\+ per-location embedding};
+  % graphmix
+  \node[wide, below=1.0cm of $(per.south)!0.5!(clim.south)$] (gm)
+    {\textbf{GraphMix $\times$ 3 blocks, width $d=96$}\\
+     $h \leftarrow \mathrm{LN}\big(h + \mathrm{proj}[\,h;\,Ah;\,A^2h;\,Gh;\,G^2h\,]\big)$ \quad two-hop diffusion over the physical (and learned) graph\\
+     $h \leftarrow \mathrm{LN}\big(h + \mathrm{FFN}(h)\big)$ \quad residual, LayerNorm, GELU feed-forward $96\to192\to96$, dropout 0.1};
+  \node[box, below=of gm, minimum width=6.6cm] (head) {\textbf{Quantile head}\\linear $96 \to H\times 3$; output = base + offset\\base = last value, or climatology if the sensor is dark; sorted $q_{10}\le q_{50}\le q_{90}$};
+  \node[fcst, below=of head] (fc) {\textbf{Forecast $q_{10}$ / $q_{50}$ / $q_{90}$}\quad $H$ horizons $\times$ $N$ locations\\split-conformal calibration of $[q_{10}, q_{90}]$ on validation};
+  % arrows
+  \draw[arr] (hist) -- (tenc);
+  \draw[arr] (time) -- (per);
+  \draw[arr] (ids) -- (lg);
+  \draw[arr] (tenc) -- (tenc |- gm.north);
+  \draw[arr] (per) -- (per |- gm.north);
+  \draw[arr] (clim) -- (clim |- gm.north);
+  \draw[arr] (lg) -- (lg |- gm.north);
+  \draw[arr] (graph.east) -- ++(0.17,0) -- ($(gm.north -| graph.east)+(0.17,0)$);
+  \draw[arr] (gm) -- (head);
+  \draw[arr] (head) -- (fc);
+\end{tikzpicture}

@@ -1,0 +1,31 @@
+\begin{table}[t]
+\caption{Left: what cost v0.4 accuracy. Validation MAE (selection criterion, seeds 0--1) and test MAE of each configuration's ensemble; the frozen choice is marked. Right: test MAE of the three fresh seeds of the frozen model and of their ensemble (Track A). The v0.4.1 row is its own three-seed run (seeds 0--2).}
+\label{tab:abl}
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Configuration & \multicolumn{2}{c}{Val.\ MAE} & \multicolumn{2}{c}{Test MAE} \\
+\cmidrule(lr){2-3}\cmidrule(l){4-5}
+ & P08 & P04 & P08 & P04 \\
+\midrule
+clim., 100 ep., select every 4th (v0.4.1) & 14.52 & 18.84 & 14.50 & 19.02 \\
+clim., 100 ep., select every window & 14.45 & 18.84 & 14.45 & 19.06 \\
+no clim., 60 ep., select every window & 14.60 & 18.61 & 14.23 & 18.47 \\
+no clim., 100 ep., select every window (frozen) & 14.61 & 18.39 & 14.14 & 18.42 \\
+\bottomrule
+\end{tabular}
+\vspace{4pt}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Task & Seeds (test MAE) & Mean $\pm$ SD & Ens. \\
+\midrule
+PEMS08 & 14.22 / 14.24 / 14.52 & 14.33 $\pm$ 0.17 & 14.12 \\
+PEMS04 & 18.52 / 18.70 / 18.65 & 18.62 $\pm$ 0.09 & 18.46 \\
+PEMS03$^\ast$ & 14.45 / 14.45 / 14.65 & 14.52 $\pm$ 0.12 & 14.34 \\
+PEMS07$^\ast$ & 20.12 / 19.69 / 19.83 & 19.88 $\pm$ 0.22 & 19.56 \\
+METR-LA$^\ast$ & 2.960 / 2.959 / 2.956 & 2.958 $\pm$ 0.002 & 2.919 \\
+PEMS-BAY$^\ast$ & 1.544 / 1.536 / 1.535 & 1.538 $\pm$ 0.005 & 1.519 \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,26 @@
+\section{Limitations}
+\label{sec:limits}
+
+\textbf{Compute-capped opponents.} Each opponent run had a fixed wall-clock budget on one T4 (30--55 minutes for
+STAEformer and Graph WaveNet, 6--12 for STID; Table~\ref{tab:budget}). STID reached its authors' 100-epoch schedule
+on four networks; Graph WaveNet on one; STAEformer on none, and it ran out of memory on PEMS07 at its published batch
+size. The comparison is therefore compute-matched rather than converged: STAEformer's numbers in particular
+understate what it reaches with its full schedule, and its published results (e.g.\ 13.46 MAE on PEMS08 with all test
+windows) remain ahead of ours where reported. Each opponent was run with one seed.
+
+\textbf{Development exposure.} PEMS08 and PEMS04 shaped PWM-Dyn's design in earlier versions, including one look at
+PEMS08 test scores of development checkpoints; the reported models use fresh seeds and a configuration chosen on
+validation, but the design itself is not blind on those two networks. PEMS03, PEMS07, METR-LA and PEMS-BAY were never
+used during development.
+
+\textbf{Scope.} Traffic tasks use the 12-step literature protocol and the new tasks score every sixth window.
+Rainfall covers two Indian regions and its PWM-Dyn entries come from the previous model version. TimesFM 3.0 is used
+zero-shot under a non-commercial research licence; we did not fine-tune it, and fine-tuned foundation models may
+close the gap we report. A PWM-Dyn win over a foundation model is a specialist-versus-zero-shot result, not evidence
+of better generalisation; the transfer track shows the opposite.
+
+\section{Conclusion}
+
+Trained on a network's own history and scored on identical windows, a 0.3--0.4M-parameter graph model with
+explicit missing-data inputs and conformal intervals \input{concl_findings} The benchmark, its scorer, every
+opponent harness and all saved forecasts are released so that these comparisons can be re-run and extended.

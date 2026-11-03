@@ -1,0 +1,48 @@
+\section{The \benchname{} benchmark}
+\label{sec:bench}
+
+\benchname{} scores every model, specialist or foundation model, with one function on frozen windows. Version
+1.1, used here, has eight tasks (Table~\ref{tab:tasks}): six traffic networks with their standard literature
+protocols (12 five-minute steps in, 12 out; chronological 60/20/20 split for PeMS flow, 70/10/20 for the two
+speed datasets) and two Indian monsoon rainfall regions from the IMD $0.25^\circ$ daily grid~\citep{nandi2024imdlib}
+(30 days in, 7 out; 2000--2018 train, 2019--2021 validation, 2022--2024 test). Values and time features of the
+four tasks added in 1.1 come from public copies of the datasets and road graphs from the DCRNN and ASTGNN
+releases~\citep{li2018dcrnn,guo2019astgcn}; a script rebuilds them, so nothing is re-hosted.
+
+\begin{table}[t]
+\caption{\benchname{}-1.1 tasks. Windows: official test windows (every 2nd; every 6th on the four tasks added in
+1.1, so that foundation models fit a free-GPU budget). All models on a task are scored on the same windows; on METR-LA, 88 of them contain no valid (non-zero) target
+and drop out of every metric and test.}
+\label{tab:tasks}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}llrrl@{}}
+\toprule
+Task & Quantity & $N$ & Steps & Windows \\
+\midrule
+PEMS08 / PEMS04 & flow, veh/5 min & 170 / 307 & 17,856 / 16,992 & 1,775 / 1,688 \\
+PEMS03 / PEMS07 & flow, veh/5 min & 358 / 883 & 26,208 / 28,224 & 870 / 937 \\
+METR-LA / PEMS-BAY & speed, mph & 207 / 325 & 34,272 / 52,116 & 1,139 / 1,734 \\
+IMD-CI / IMD-WC & rain, mm/day & land cells & 9,132 days & 530 / 530 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Tracks.} \textbf{A (standard)}: look-back limited to the standard context (12 steps, 30 days); any
+training on the task's training split. \textbf{B (open context)}: look-back up to 512 steps or 365 days;
+foundation models run zero-shot here. \textbf{R (dead sensors)}: 30\% of locations, fixed by a seeded
+permutation, have no observations during the test period and are scored on those locations only.
+\textbf{Z (transfer)}: forecast PEMS08 with a model that has seen no PEMS08 data, not even its normalisation
+statistics or validation split.
+
+\paragraph{Metrics.} MAE, RMSE and MAPE of the median; QL, the mean pinball loss over the three quantiles (a proper
+score; $2\,\mathrm{QL}$ approximates CRPS); IS80, the interval score~\citep{gneiting2007scoring} of the 80\% interval
+(width plus $10\times$ the size of any miss); and COV80, the share of truths inside it. MAE is the headline point
+metric and IS80 the headline uncertainty metric; point-only models report MAE, RMSE and MAPE.
+
+\paragraph{Protocol.} Test data may not be used for training, selection, early stopping or calibration;
+validation data may. Each scored entry keeps its forecast file, so any two entries can be compared on the same
+windows. Paired comparisons use the Diebold--Mariano test~\citep{diebold1995dm} on per-window absolute-error
+differences with a Newey--West~\citep{newey1987hac} long-run variance (one-day bandwidth), and a moving-block
+bootstrap~\citep{kunsch1989bootstrap} over whole days (2,000 resamples) for a 95\% interval on the relative MAE
+difference.

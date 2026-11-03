@@ -1,0 +1,46 @@
+\section{PWM-Dyn}
+\label{sec:model}
+
+\paragraph{Problem.} A network has $N$ locations (road sensors or grid cells) joined by a fixed physical
+graph $A\in\mathbb{R}^{N\times N}$ built from road distance or geographic adjacency. From the last $L$ observations
+$X\in\mathbb{R}^{L\times N}$, an observed-mask $O\in\{0,1\}^{L\times N}$ (0 = no reading), the position $p$ of the last
+step in its daily or yearly cycle and the day of week $w$, the model returns three quantiles for each of the next $H$
+steps and every location,
+\begin{equation}
+\hat Q = f_\theta(X, O, p, w, A, C)\in\mathbb{R}^{H\times N\times 3},\qquad \hat Q_{h,n,1}\le\hat Q_{h,n,2}\le\hat Q_{h,n,3},
+\end{equation}
+the 10th, 50th and 90th percentiles. $C\in\mathbb{R}^{H\times N}$ is the training-split climatology of the
+forecast steps: the per-location median at the same time of week (traffic, $\pm 5$ minutes) or day of year
+(rainfall, $\pm 7$ days), computed once from the training split. The median is the point forecast and
+$[\hat Q_{\cdot,\cdot,1},\hat Q_{\cdot,\cdot,3}]$ the 80\% prediction interval.
+
+\paragraph{Architecture.} PWM-Dyn (Figure~\ref{fig:arch}) gives every location a $d{=}96$-dimensional state and mixes
+it with its physical neighbours. (i)~A two-layer MLP reads the location's history concatenated with its mask,
+$[X\odot O;\,O]$, so a missing reading is an explicit zero flag rather than an imputed value; four scale-free cues
+(last value, masked mean, trend, observed share) enter through a separate linear map. (ii)~Learned embeddings of
+$p$ and $w$ are added to every location. (iii)~Optionally, a linear map of $C$ is added. (iv)~In the transductive variant, a
+per-location embedding and a learned low-rank graph $G=\mathrm{softmax}(\mathrm{relu}(SD^\top))$, $S,D\in\mathbb{R}^{N\times 16}$,
+are added; the inductive variant drops both so its weights run on unseen networks. (v)~Three GraphMix blocks
+apply two-hop diffusion over $A$ (and $G$), $h\leftarrow\mathrm{LN}(h+W[h;Ah;A^2h;Gh;G^2h])$, followed by a
+residual feed-forward layer. (vi)~A linear head emits $H\times 3$ offsets from a base value and the outputs are sorted.
+The base is the last observed value; when the climatology input is used and a location's last reading is missing,
+the base is $C$, so a dark sensor is forecast as a deviation from its own normal pattern rather than from zero.
+Whether to use $C$ is a configuration choice made on validation (\S\ref{sec:exp}): the reported standard-context
+model omits it and the long-context variant keeps it. The transductive model has $3.2\times10^5$ parameters on PEMS08.
+
+\paragraph{Training.} From random initialisation, with the pinball loss on the three quantiles plus an $L_1$ term on
+the median, over valid targets only (missing and zero readings excluded on traffic, as in the literature).
+During training each batch hides a random share $r\sim U(0, 0.3)$ of locations for the whole input window,
+which forces the model to reconstruct them from their neighbours. AdamW (weight decay $10^{-4}$), one-cycle schedule with peak learning rate $2\times10^{-3}$, batch 32, gradient
+clipping at 5, a fixed budget of $\approx$33.5k optimisation steps (100 epochs on PEMS08); the checkpoint with the
+lowest validation MAE is kept.
+
+\paragraph{Long-context variant.} For the open-context track the input also carries the 24 values around the same
+time one day earlier (traffic) or the same week one year earlier (rainfall); total look-back 300 steps or 365 days,
+inside the foundation models' budget. Whether a task uses it is decided on validation.
+
+\paragraph{Calibration.} Quantile losses alone under-cover on heavy-tailed targets. We apply split-conformal
+quantile regression~\citep{romano2019cqr} on the validation split: per horizon, the score
+$s=\max(\hat Q_1-y,\,y-\hat Q_3)$ in the model's target space gives an offset $\delta_h$ (its $\lceil (n+1)0.8\rceil/n$
+quantile), and the test interval becomes $[\hat Q_1-\delta_h,\hat Q_3+\delta_h]$. The median, hence MAE and RMSE,
+is unchanged. Each reported PWM-Dyn entry is the quantile mean of three independently trained seeds.

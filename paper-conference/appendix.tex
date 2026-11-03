@@ -1,0 +1,26 @@
+\section{Opponent training}
+\label{app:opp}
+
+Each opponent's model class is imported unchanged from a pinned commit of its official repository (STID
+\texttt{e8b313b}, Graph WaveNet \texttt{6b162e8}, STAEformer \texttt{fc49d39}). The training loop re-implements each
+repository's train script: STID uses Adam (lr $2\times10^{-3}$, weight decay $10^{-4}$), MultiStepLR at epochs 1/50/80
+($\gamma=0.5$), batch 64, masked MAE, clipping at 5, 100 epochs; Graph WaveNet uses Adam (lr $10^{-3}$, weight decay
+$10^{-4}$), batch 64, masked MAE, clipping at 5, 100 epochs, the doubly-stochastic transition supports of the road graph
+plus the adaptive adjacency; STAEformer uses the per-dataset settings of its configuration file (Adam, lr $10^{-3}$,
+dataset-specific weight decay and milestones, batch 16, Huber loss on PeMS and masked MAE on METR-LA/PEMS-BAY, early
+stopping with the published patience). All use mixed precision and keep the checkpoint with the lowest validation MAE.
+Inputs are the raw series z-scored with training-split statistics (zeros included, as in the repositories) plus
+time-of-day and day-of-week features. Table~\ref{tab:budget} lists epochs and stopping causes.
+
+\input{tables/budget}
+
+\section{Dead sensors, all entries}
+\input{tables/trackr}
+
+\section{Reproducibility}
+
+The benchmark package, the PWM-Dyn code, the opponent harnesses, the analysis script that produced every table, and
+the saved forecasts of every entry are provided as anonymised supplementary material. A provenance check verifies
+that PWM-Dyn's code imports no external model library and that its checkpoints contain only its own parameters; it
+passes for every reported model. Data are rebuilt from public sources at run time. Hardware: Kaggle, 2$\times$ NVIDIA
+T4 per session; PWM-Dyn session 4.6\,h, opponent session 6.5\,h, analysis on CPU.

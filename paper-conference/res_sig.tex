@@ -1,0 +1,9 @@
+Table~\ref{tab:sig} tests each comparison on the per-window error differences. Against STID, PWM-Dyn's advantage is
+significant on METR-LA, PEMS-BAY and PEMS03 ($p\le0.02$; on PEMS03 the day-block interval is wide because the test
+period contains Thanksgiving week), borderline on PEMS07 ($-0.3\%$, interval touching zero) and absent on PEMS08 and
+PEMS04 ($p=0.12$ and $0.82$): there, the two models are statistically tied. The deficit to STAEformer on PEMS08 is
+significant. Against TimesFM~3.0 the advantage is significant on PEMS04, PEMS07, METR-LA and PEMS-BAY; on PEMS08 the
+bootstrap interval excludes zero but the Diebold--Mariano test does not reject ($p=0.06$); on PEMS03 TimesFM is
+ahead by 1.3\%, not significantly. Seed variation is small relative to these gaps (Table~\ref{tab:abl}, right): the
+standard deviation of single-seed test MAE is 0.002--0.22, and the ensemble beats every one of its seeds on every
+network.

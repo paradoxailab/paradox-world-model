@@ -1,0 +1,353 @@
+%%% -*-BibTeX-*-
+%%% Do NOT edit. File created by BibTeX with style
+%%% ACM-Reference-Format-Journals [18-Jan-2012].
+
+\begin{thebibliography}{26}
+
+%%% ====================================================================
+%%% NOTE TO THE USER: you can override these defaults by providing
+%%% customized versions of any of these macros before the \bibliography
+%%% command.  Each of them MUST provide its own final punctuation,
+%%% except for \shownote{}, \showDOI{}, and \showURL{}.  The latter two
+%%% do not use final punctuation, in order to avoid confusing it with
+%%% the Web address.
+%%%
+%%% To suppress output of a particular field, define its macro to expand
+%%% to an empty string, or better, \unskip, like this:
+%%%
+%%% \newcommand{\showDOI}[1]{\unskip}   % LaTeX syntax
+%%%
+%%% \def \showDOI #1{\unskip}           % plain TeX syntax
+%%%
+%%% ====================================================================
+
+\ifx \showCODEN    \undefined \def \showCODEN     #1{\unskip}     \fi
+\ifx \showDOI      \undefined \def \showDOI       #1{#1}\fi
+\ifx \showISBNx    \undefined \def \showISBNx     #1{\unskip}     \fi
+\ifx \showISBNxiii \undefined \def \showISBNxiii  #1{\unskip}     \fi
+\ifx \showISSN     \undefined \def \showISSN      #1{\unskip}     \fi
+\ifx \showLCCN     \undefined \def \showLCCN      #1{\unskip}     \fi
+\ifx \shownote     \undefined \def \shownote      #1{#1}          \fi
+\ifx \showarticletitle \undefined \def \showarticletitle #1{#1}   \fi
+\ifx \showURL      \undefined \def \showURL       {\relax}        \fi
+% The following commands are used for tagged output and should be
+% invisible to TeX
+\providecommand\bibfield[2]{#2}
+\providecommand\bibinfo[2]{#2}
+\providecommand\natexlab[1]{#1}
+\providecommand\showeprint[2][]{arXiv:#2}
+
+\bibitem[Ansari et~al\mbox{.}(2024)]%
+        {ansari2024chronos}
+\bibfield{author}{\bibinfo{person}{Abdul~Fatir Ansari},
+  \bibinfo{person}{Lorenzo Stella}, \bibinfo{person}{Caner Turkmen},
+  {et~al\mbox{.}}} \bibinfo{year}{2024}\natexlab{}.
+\newblock \showarticletitle{Chronos: Learning the Language of Time Series}.
+\newblock \bibinfo{journal}{\emph{Transactions on Machine Learning Research}}
+  (\bibinfo{year}{2024}).
+\newblock
+
+
+\bibitem[Bai et~al\mbox{.}(2020)]%
+        {bai2020agcrn}
+\bibfield{author}{\bibinfo{person}{Lei Bai}, \bibinfo{person}{Lina Yao},
+  \bibinfo{person}{Can Li}, \bibinfo{person}{Xianzhi Wang}, {and}
+  \bibinfo{person}{Can Wang}.} \bibinfo{year}{2020}\natexlab{}.
+\newblock \showarticletitle{Adaptive Graph Convolutional Recurrent Network for
+  Traffic Forecasting}. In \bibinfo{booktitle}{\emph{Advances in Neural
+  Information Processing Systems}}.
+\newblock
+
+
+\bibitem[Das et~al\mbox{.}(2024)]%
+        {das2024timesfm}
+\bibfield{author}{\bibinfo{person}{Abhimanyu Das}, \bibinfo{person}{Weihao
+  Kong}, \bibinfo{person}{Rajat Sen}, {and} \bibinfo{person}{Yichen Zhou}.}
+  \bibinfo{year}{2024}\natexlab{}.
+\newblock \showarticletitle{A decoder-only foundation model for time-series
+  forecasting}. In \bibinfo{booktitle}{\emph{Proceedings of the 41st
+  International Conference on Machine Learning (ICML)}}.
+\newblock
+\showeprint[arxiv]{2310.10688}
+
+
+\bibitem[Diebold and Mariano(1995)]%
+        {diebold1995dm}
+\bibfield{author}{\bibinfo{person}{Francis~X. Diebold} {and}
+  \bibinfo{person}{Roberto~S. Mariano}.} \bibinfo{year}{1995}\natexlab{}.
+\newblock \showarticletitle{Comparing Predictive Accuracy}.
+\newblock \bibinfo{journal}{\emph{Journal of Business \& Economic Statistics}}
+  \bibinfo{volume}{13}, \bibinfo{number}{3} (\bibinfo{year}{1995}),
+  \bibinfo{pages}{253--263}.
+\newblock
+
+
+\bibitem[Gneiting and Raftery(2007)]%
+        {gneiting2007scoring}
+\bibfield{author}{\bibinfo{person}{Tilmann Gneiting} {and}
+  \bibinfo{person}{Adrian~E. Raftery}.} \bibinfo{year}{2007}\natexlab{}.
+\newblock \showarticletitle{Strictly Proper Scoring Rules, Prediction, and
+  Estimation}.
+\newblock \bibinfo{journal}{\emph{J. Amer. Statist. Assoc.}}
+  \bibinfo{volume}{102}, \bibinfo{number}{477} (\bibinfo{year}{2007}),
+  \bibinfo{pages}{359--378}.
+\newblock
+
+
+\bibitem[{Google Research}(2026)]%
+        {timesfmrepo}
+\bibfield{author}{\bibinfo{person}{{Google Research}}.}
+  \bibinfo{year}{2026}\natexlab{}.
+\newblock \bibinfo{title}{{TimesFM} repository and model cards (versions 2.5
+  and 3.0)}.
+\newblock
+  \bibinfo{howpublished}{\url{https://github.com/google-research/timesfm}}.
+\newblock
+\newblock
+\shownote{Accessed 2026-10-31}.
+
+
+\bibitem[Guo et~al\mbox{.}(2019)]%
+        {guo2019astgcn}
+\bibfield{author}{\bibinfo{person}{Shengnan Guo}, \bibinfo{person}{Youfang
+  Lin}, \bibinfo{person}{Ning Feng}, \bibinfo{person}{Chao Song}, {and}
+  \bibinfo{person}{Huaiyu Wan}.} \bibinfo{year}{2019}\natexlab{}.
+\newblock \showarticletitle{Attention Based Spatial-Temporal Graph
+  Convolutional Networks for Traffic Flow Forecasting}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the AAAI Conference on Artificial
+  Intelligence}}.
+\newblock
+
+
+\bibitem[Jiang et~al\mbox{.}(2023)]%
+        {jiang2023pdformer}
+\bibfield{author}{\bibinfo{person}{Jiawei Jiang}, \bibinfo{person}{Chengkai
+  Han}, \bibinfo{person}{Wayne~Xin Zhao}, {and} \bibinfo{person}{Jingyuan
+  Wang}.} \bibinfo{year}{2023}\natexlab{}.
+\newblock \showarticletitle{{PDFormer}: Propagation Delay-Aware Dynamic
+  Long-Range Transformer for Traffic Flow Prediction}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the AAAI Conference on Artificial
+  Intelligence}}.
+\newblock
+
+
+\bibitem[Koenker and Bassett(1978)]%
+        {koenker1978quantiles}
+\bibfield{author}{\bibinfo{person}{Roger Koenker} {and}
+  \bibinfo{person}{Gilbert Bassett}.} \bibinfo{year}{1978}\natexlab{}.
+\newblock \showarticletitle{Regression Quantiles}.
+\newblock \bibinfo{journal}{\emph{Econometrica}} \bibinfo{volume}{46},
+  \bibinfo{number}{1} (\bibinfo{year}{1978}), \bibinfo{pages}{33--50}.
+\newblock
+
+
+\bibitem[K{\"u}nsch(1989)]%
+        {kunsch1989bootstrap}
+\bibfield{author}{\bibinfo{person}{Hans~R. K{\"u}nsch}.}
+  \bibinfo{year}{1989}\natexlab{}.
+\newblock \showarticletitle{The Jackknife and the Bootstrap for General
+  Stationary Observations}.
+\newblock \bibinfo{journal}{\emph{The Annals of Statistics}}
+  \bibinfo{volume}{17}, \bibinfo{number}{3} (\bibinfo{year}{1989}),
+  \bibinfo{pages}{1217--1241}.
+\newblock
+
+
+\bibitem[Li et~al\mbox{.}(2018)]%
+        {li2018dcrnn}
+\bibfield{author}{\bibinfo{person}{Yaguang Li}, \bibinfo{person}{Rose Yu},
+  \bibinfo{person}{Cyrus Shahabi}, {and} \bibinfo{person}{Yan Liu}.}
+  \bibinfo{year}{2018}\natexlab{}.
+\newblock \showarticletitle{Diffusion Convolutional Recurrent Neural Network:
+  Data-Driven Traffic Forecasting}. In \bibinfo{booktitle}{\emph{International
+  Conference on Learning Representations (ICLR)}}.
+\newblock
+\showeprint[arxiv]{1707.01926}
+
+
+\bibitem[Liu et~al\mbox{.}(2023a)]%
+        {liu2023staeformer}
+\bibfield{author}{\bibinfo{person}{Hangchen Liu}, \bibinfo{person}{Zheng Dong},
+  \bibinfo{person}{Renhe Jiang}, \bibinfo{person}{Jiewen Deng},
+  \bibinfo{person}{Jinliang Deng}, \bibinfo{person}{Quanjun Chen}, {and}
+  \bibinfo{person}{Xuan Song}.} \bibinfo{year}{2023}\natexlab{a}.
+\newblock \showarticletitle{{STAEformer}: Spatio-Temporal Adaptive Embedding
+  Makes Vanilla Transformer {SOTA} for Traffic Forecasting}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the 32nd ACM International
+  Conference on Information and Knowledge Management (CIKM)}}.
+\newblock
+\showeprint[arxiv]{2308.10425}
+
+
+\bibitem[Liu et~al\mbox{.}(2023b)]%
+        {liu2023largest}
+\bibfield{author}{\bibinfo{person}{Xu Liu}, \bibinfo{person}{Yutong Xia},
+  \bibinfo{person}{Yuxuan Liang}, {et~al\mbox{.}}}
+  \bibinfo{year}{2023}\natexlab{b}.
+\newblock \showarticletitle{{LargeST}: A Benchmark Dataset for Large-Scale
+  Traffic Forecasting}. In \bibinfo{booktitle}{\emph{Advances in Neural
+  Information Processing Systems, Datasets and Benchmarks Track}}.
+\newblock
+
+
+\bibitem[Nandi et~al\mbox{.}(2024)]%
+        {nandi2024imdlib}
+\bibfield{author}{\bibinfo{person}{Saswata Nandi}, \bibinfo{person}{Pratiman
+  Patel}, {and} \bibinfo{person}{Sabyasachi Swain}.}
+  \bibinfo{year}{2024}\natexlab{}.
+\newblock \showarticletitle{{IMDLIB}: An open-source library for retrieval,
+  processing and spatiotemporal exploratory assessments of gridded
+  meteorological observation datasets over {India}}.
+\newblock \bibinfo{journal}{\emph{Environmental Modelling \& Software}}
+  \bibinfo{volume}{171} (\bibinfo{year}{2024}), \bibinfo{pages}{105869}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1016/j.envsoft.2023.105869}
+\showDOI{\tempurl}
+
+
+\bibitem[Newey and West(1987)]%
+        {newey1987hac}
+\bibfield{author}{\bibinfo{person}{Whitney~K. Newey} {and}
+  \bibinfo{person}{Kenneth~D. West}.} \bibinfo{year}{1987}\natexlab{}.
+\newblock \showarticletitle{A Simple, Positive Semi-Definite,
+  Heteroskedasticity and Autocorrelation Consistent Covariance Matrix}.
+\newblock \bibinfo{journal}{\emph{Econometrica}} \bibinfo{volume}{55},
+  \bibinfo{number}{3} (\bibinfo{year}{1987}), \bibinfo{pages}{703--708}.
+\newblock
+
+
+\bibitem[Romano et~al\mbox{.}(2019)]%
+        {romano2019cqr}
+\bibfield{author}{\bibinfo{person}{Yaniv Romano}, \bibinfo{person}{Evan
+  Patterson}, {and} \bibinfo{person}{Emmanuel Cand{\`e}s}.}
+  \bibinfo{year}{2019}\natexlab{}.
+\newblock \showarticletitle{Conformalized Quantile Regression}. In
+  \bibinfo{booktitle}{\emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}}.
+\newblock
+\showeprint[arxiv]{1905.03222}
+
+
+\bibitem[Shao et~al\mbox{.}(2024)]%
+        {shao2024basicts}
+\bibfield{author}{\bibinfo{person}{Zezhi Shao}, \bibinfo{person}{Fei Wang},
+  \bibinfo{person}{Yongjun Xu}, {et~al\mbox{.}}}
+  \bibinfo{year}{2024}\natexlab{}.
+\newblock \showarticletitle{Exploring Progress in Multivariate Time Series
+  Forecasting: Comprehensive Benchmarking and Heterogeneity Analysis}.
+\newblock \bibinfo{journal}{\emph{IEEE Transactions on Knowledge and Data
+  Engineering}} (\bibinfo{year}{2024}).
+\newblock
+
+
+\bibitem[Shao et~al\mbox{.}(2022)]%
+        {shao2022stid}
+\bibfield{author}{\bibinfo{person}{Zezhi Shao}, \bibinfo{person}{Zhao Zhang},
+  \bibinfo{person}{Fei Wang}, \bibinfo{person}{Wei Wei}, {and}
+  \bibinfo{person}{Yongjun Xu}.} \bibinfo{year}{2022}\natexlab{}.
+\newblock \showarticletitle{Spatial-Temporal Identity: A Simple yet Effective
+  Baseline for Multivariate Time Series Forecasting}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the 31st ACM International
+  Conference on Information and Knowledge Management (CIKM)}}.
+\newblock
+\showeprint[arxiv]{2208.05233}
+
+
+\bibitem[Shi et~al\mbox{.}(2025)]%
+        {shi2025timemoe}
+\bibfield{author}{\bibinfo{person}{Xiaoming Shi}, \bibinfo{person}{Shiyu Wang},
+  \bibinfo{person}{Yuqi Nie}, \bibinfo{person}{Dianqi Li},
+  \bibinfo{person}{Zhou Ye}, \bibinfo{person}{Qingsong Wen}, {and}
+  \bibinfo{person}{Ming Jin}.} \bibinfo{year}{2025}\natexlab{}.
+\newblock \showarticletitle{Time-{MoE}: Billion-Scale Time Series Foundation
+  Models with Mixture of Experts}. In \bibinfo{booktitle}{\emph{International
+  Conference on Learning Representations (ICLR)}}.
+\newblock
+\showeprint[arxiv]{2409.16040}
+
+
+\bibitem[{THUML, Tsinghua University}(2026)]%
+        {sundial}
+\bibfield{author}{\bibinfo{person}{{THUML, Tsinghua University}}.}
+  \bibinfo{year}{2026}\natexlab{}.
+\newblock \bibinfo{title}{Sundial / Timer time-series foundation model family}.
+\newblock
+  \bibinfo{howpublished}{\url{https://dag-upb-ts-arena.hf.space/models/family/sundial}}.
+\newblock
+\newblock
+\shownote{Accessed 2026-10-31}.
+
+
+\bibitem[Woo et~al\mbox{.}(2024)]%
+        {woo2024moirai}
+\bibfield{author}{\bibinfo{person}{Gerald Woo}, \bibinfo{person}{Chenghao Liu},
+  \bibinfo{person}{Akshat Kumar}, \bibinfo{person}{Caiming Xiong},
+  \bibinfo{person}{Silvio Savarese}, {and} \bibinfo{person}{Doyen Sahoo}.}
+  \bibinfo{year}{2024}\natexlab{}.
+\newblock \showarticletitle{Unified Training of Universal Time Series
+  Forecasting Transformers}. In \bibinfo{booktitle}{\emph{Proceedings of the
+  41st International Conference on Machine Learning}}.
+\newblock
+
+
+\bibitem[Wu et~al\mbox{.}(2021)]%
+        {wu2021ignnk}
+\bibfield{author}{\bibinfo{person}{Yuankai Wu}, \bibinfo{person}{Dingyi
+  Zhuang}, \bibinfo{person}{Aurelie Labbe}, {and} \bibinfo{person}{Lijun Sun}.}
+  \bibinfo{year}{2021}\natexlab{}.
+\newblock \showarticletitle{Inductive Graph Neural Networks for Spatiotemporal
+  Kriging}. In \bibinfo{booktitle}{\emph{Proceedings of the AAAI Conference on
+  Artificial Intelligence}}.
+\newblock
+
+
+\bibitem[Wu et~al\mbox{.}(2020)]%
+        {wu2020mtgnn}
+\bibfield{author}{\bibinfo{person}{Zonghan Wu}, \bibinfo{person}{Shirui Pan},
+  \bibinfo{person}{Guodong Long}, \bibinfo{person}{Jing Jiang},
+  \bibinfo{person}{Xiaojun Chang}, {and} \bibinfo{person}{Chengqi Zhang}.}
+  \bibinfo{year}{2020}\natexlab{}.
+\newblock \showarticletitle{Connecting the Dots: Multivariate Time Series
+  Forecasting with Graph Neural Networks}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the 26th ACM SIGKDD Conference on
+  Knowledge Discovery and Data Mining}}.
+\newblock
+
+
+\bibitem[Wu et~al\mbox{.}(2019)]%
+        {wu2019graphwavenet}
+\bibfield{author}{\bibinfo{person}{Zonghan Wu}, \bibinfo{person}{Shirui Pan},
+  \bibinfo{person}{Guodong Long}, \bibinfo{person}{Jing Jiang}, {and}
+  \bibinfo{person}{Chengqi Zhang}.} \bibinfo{year}{2019}\natexlab{}.
+\newblock \showarticletitle{Graph {WaveNet} for Deep Spatial-Temporal Graph
+  Modeling}. In \bibinfo{booktitle}{\emph{Proceedings of the 28th International
+  Joint Conference on Artificial Intelligence (IJCAI)}}.
+\newblock
+\showeprint[arxiv]{1906.00121}
+
+
+\bibitem[Yu et~al\mbox{.}(2018)]%
+        {yu2018stgcn}
+\bibfield{author}{\bibinfo{person}{Bing Yu}, \bibinfo{person}{Haoteng Yin},
+  {and} \bibinfo{person}{Zhanxing Zhu}.} \bibinfo{year}{2018}\natexlab{}.
+\newblock \showarticletitle{Spatio-Temporal Graph Convolutional Networks: A
+  Deep Learning Framework for Traffic Forecasting}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the 27th International Joint
+  Conference on Artificial Intelligence (IJCAI)}}.
+\newblock
+\showeprint[arxiv]{1709.04875}
+
+
+\bibitem[Zheng et~al\mbox{.}(2020)]%
+        {zheng2020gman}
+\bibfield{author}{\bibinfo{person}{Chuanpan Zheng}, \bibinfo{person}{Xiaoliang
+  Fan}, \bibinfo{person}{Cheng Wang}, {and} \bibinfo{person}{Jianzhong Qi}.}
+  \bibinfo{year}{2020}\natexlab{}.
+\newblock \showarticletitle{{GMAN}: A Graph Multi-Attention Network for Traffic
+  Prediction}. In \bibinfo{booktitle}{\emph{Proceedings of the AAAI Conference
+  on Artificial Intelligence}}.
+\newblock
+
+
+\end{thebibliography}

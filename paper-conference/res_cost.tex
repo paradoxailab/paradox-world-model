@@ -1,0 +1,5 @@
+PWM-Dyn has 0.32--0.41M parameters, against 0.12--0.14M (STID), 0.31--0.32M (Graph WaveNet), 1.2--1.9M (STAEformer)
+and 200M (TimesFM~2.5). One seed trains in 9 (PEMS08), 9 (METR-LA), 13 (PEMS04), 14 (PEMS-BAY), 17 (PEMS03) and 52
+(PEMS07) minutes on a T4, so the three-seed ensembles cost 0.4--2.6 GPU-hours per network; TimesFM~3.0 needed
+0.6--2.0 GPU-hours per network for inference alone at our window counts. The study reported here ran on free Kaggle T4 GPUs in about 11
+GPU-hours.

@@ -1,0 +1,10 @@
+Table~\ref{tab:main} gives test MAE and RMSE. Under the standard 12-step context (upper block) PWM-Dyn has the lowest
+MAE on PEMS04, PEMS03, PEMS07, METR-LA and PEMS-BAY and is second on PEMS08 (14.12) behind STAEformer (13.93), which
+reached only 25 of its scheduled epochs; STAEformer's published PEMS08 result, 13.46 on all test windows, is better
+still. On the four networks never used during development the margin over the best opponent is 2.5\% (PEMS03, Graph
+WaveNet), 0.3\% (PEMS07, STID), 4.2\% (METR-LA, Graph WaveNet) and 2.7\% (PEMS-BAY, STID). STID, the only opponent
+that completed its authors' schedule on most networks, is PWM-Dyn's closest rival everywhere and essentially ties it on
+PEMS08 and PEMS04. In the open-context block, TimesFM~3.0 run zero-shot beats every specialist trained with our
+budget on PEMS03 (14.15) and is ahead of or within 4\% of PWM-Dyn on four of six traffic networks; PWM-Dyn's long-context variant
+was preferred on validation only for PEMS08. RMSE orders the models similarly, with exceptions: all three specialists on PEMS04, and STID and STAEformer on
+PEMS08, have lower RMSE than PWM-Dyn, i.e.\ smaller errors on the largest deviations.

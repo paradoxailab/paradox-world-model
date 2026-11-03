@@ -1,0 +1,190 @@
+ROW|IMD-CI|A|Climatology quantiles|2.8865|10.6973|229.016|1.0880|18.2087|0.9100|0|0|{}
+ROW|IMD-CI|A|Last value|4.3662|13.5458|1328.882||||0|1|{}
+ROW|IMD-CI|A|PWM-Dyn v0.4 (3-seed, CQR)|2.8378|10.4185|268.326|1.0734|18.0145|0.8467|415989|30|{}
+ROW|IMD-CI|B|Climatology quantiles|2.8865|10.6973|229.016|1.0880|18.2087|0.9100|0|0|{}
+ROW|IMD-CI|B|Last value|4.3662|13.5458|1328.882||||0|1|{}
+ROW|IMD-CI|B|PWM-Dyn v0.4 (3-seed, CQR)|2.8378|10.4185|268.326|1.0734|18.0145|0.8467|415989|30|{}
+ROW|IMD-CI|B|Seasonal naive|4.6844|14.1128|1170.977||||0|372|{}
+ROW|IMD-CI|B|TimesFM-2.5 (Google, 200M) (zero-shot, ctx 365)|2.9603|10.5800|277.368|1.1839|20.7156|0.8434|200000000|365|{}
+ROW|IMD-CI|B|TimesFM-3.0 (Google) multivariate (zero-shot, ctx 365)|2.9243|10.6512|204.007|1.1469|19.7867|0.8632||365|{}
+ROW|IMD-CI|R|Climatology quantiles|2.8833|10.6441|211.425|1.0846|18.1206|0.9107|0|0|{}
+ROW|IMD-CI|R|PWM-Dyn v0.4 (3-seed, CQR)|2.8369|10.3782|272.203|1.0724|17.9864|0.8554|415989|30|{}
+ROW|IMD-WC|A|Climatology quantiles|3.6511|13.0047|289.697|1.3117|21.0945|0.9099|0|0|{}
+ROW|IMD-WC|A|Last value|4.8796|14.9409|737.430||||0|1|{}
+ROW|IMD-WC|A|PWM-Dyn v0.4 (3-seed, CQR)|3.4148|12.0129|274.682|1.2447|20.2676|0.8290|352117|30|{}
+ROW|IMD-WC|B|Climatology quantiles|3.6511|13.0047|289.697|1.3117|21.0945|0.9099|0|0|{}
+ROW|IMD-WC|B|Last value|4.8796|14.9409|737.430||||0|1|{}
+ROW|IMD-WC|B|PWM-Dyn v0.4 (3-seed, CQR)|3.4148|12.0129|274.682|1.2447|20.2676|0.8290|352117|30|{}
+ROW|IMD-WC|B|Seasonal naive|5.6859|17.0721|1122.653||||0|372|{}
+ROW|IMD-WC|B|TimesFM-2.5 (Google, 200M) (zero-shot, ctx 365)|3.6696|12.6519|246.907|1.3783|23.0002|0.8520|200000000|365|{}
+ROW|IMD-WC|B|TimesFM-3.0 (Google) multivariate (zero-shot, ctx 365)|3.6214|12.7820|208.728|1.3319|21.8493|0.8718||365|{}
+ROW|IMD-WC|R|Climatology quantiles|3.5978|12.8477|307.530|1.2996|21.0006|0.9080|0|0|{}
+ROW|IMD-WC|R|PWM-Dyn v0.4 (3-seed, CQR)|3.4274|12.0692|288.475|1.2629|20.7497|0.8323|352117|30|{}
+ROW|METR-LA|A|Climatology quantiles|3.8992|8.4136|12.482|1.2972|19.4204|0.7528|0|0|{}
+ROW|METR-LA|A|Graph WaveNet (IJCAI'19, official code)|3.0473|6.1475|8.282||||309400|12|{"epochs_run": 60, "stopped_by": "wall-clock budget", "budget_minutes": 40.0, "seed": 0}
+ROW|METR-LA|A|Last value|5.0379|10.9790|12.218||||0|1|{}
+ROW|METR-LA|A|PWM-Dyn v0.6 (3-seed, CQR)|2.9194|5.8762|7.971|0.9645|14.3388|0.8058|321636|12|{"members": [2.9597, 2.9589, 2.9564]}
+ROW|METR-LA|A|STAEformer (CIKM'23, official code)|3.0908|6.3281|8.701||||1258980|12|{"epochs_run": 12, "stopped_by": "wall-clock budget", "budget_minutes": 40.0, "seed": 0}
+ROW|METR-LA|A|STID (CIKM'22, official code)|3.1243|6.4983|9.133||||117868|12|{"epochs_run": 100, "stopped_by": "authors' epoch limit", "budget_minutes": 8.0, "seed": 0}
+ROW|METR-LA|B|Climatology quantiles|3.8992|8.4136|12.482|1.2972|19.4204|0.7528|0|0|{}
+ROW|METR-LA|B|Graph WaveNet (IJCAI'19, official code)|3.0473|6.1475|8.282||||309400|12|{"epochs_run": 60, "stopped_by": "wall-clock budget", "budget_minutes": 40.0, "seed": 0}
+ROW|METR-LA|B|Last value|5.0379|10.9790|12.218||||0|1|{}
+ROW|METR-LA|B|PWM-Dyn v0.6 (3-seed, CQR)|2.9194|5.8762|7.971|0.9645|14.3388|0.8058|321636|12|{"members": [2.9597, 2.9589, 2.9564]}
+ROW|METR-LA|B|STAEformer (CIKM'23, official code)|3.0908|6.3281|8.701||||1258980|12|{"epochs_run": 12, "stopped_by": "wall-clock budget", "budget_minutes": 40.0, "seed": 0}
+ROW|METR-LA|B|STID (CIKM'22, official code)|3.1243|6.4983|9.133||||117868|12|{"epochs_run": 100, "stopped_by": "authors' epoch limit", "budget_minutes": 8.0, "seed": 0}
+ROW|METR-LA|B|Seasonal naive|10.3473|20.7232|23.214||||0|300|{}
+ROW|METR-LA|B|TimesFM-3.0 (Google) multivariate (zero-shot, ctx 512)|3.4013|6.9719|9.747|1.1459|17.3698|0.8127||512|{}
+ROW|METR-LA|R|Climatology quantiles|4.0743|8.7614|13.359|1.3543|20.2573|0.7502|0|0|{}
+ROW|METR-LA|R|Graph WaveNet (IJCAI'19, official code)|5.8890|10.6855|19.242||||309400|12|{"epochs_run": 60, "stopped_by": "wall-clock budget", "budget_minutes": 40.0, "seed": 0}
+ROW|METR-LA|R|PWM-Dyn v0.6 (3-seed, CQR)|3.3640|6.6923|9.513|1.1160|16.6608|0.8059|321636|12|{"members": [3.4072, 3.4384, 3.4104]}
+ROW|METR-LA|R|STAEformer (CIKM'23, official code)|5.3277|10.3483|16.859||||1258980|12|{"epochs_run": 12, "stopped_by": "wall-clock budget", "budget_minutes": 40.0, "seed": 0}
+ROW|METR-LA|R|STID (CIKM'22, official code)|5.1107|10.0486|16.525||||117868|12|{"epochs_run": 100, "stopped_by": "authors' epoch limit", "budget_minutes": 8.0, "seed": 0}
+ROW|PEMS-BAY|A|Climatology quantiles|2.5326|5.4791|5.955|0.8617|13.1890|0.7474|0|0|{}
+ROW|PEMS-BAY|A|Graph WaveNet (IJCAI'19, official code)|1.5693|3.5699|3.481||||311760|12|{"epochs_run": 30, "stopped_by": "wall-clock budget", "budget_minutes": 50.0, "seed": 0}
+ROW|PEMS-BAY|A|Last value|2.1715|5.1070|4.645||||0|1|{}
+ROW|PEMS-BAY|A|PWM-Dyn v0.6 (3-seed, CQR)|1.5193|3.4507|3.337|0.5045|7.5382|0.7943|336740|12|{"members": [1.5436, 1.5357, 1.5349]}
+ROW|PEMS-BAY|A|STAEformer (CIKM'23, official code)|1.5950|3.6296|3.598||||1372260|12|{"epochs_run": 6, "stopped_by": "wall-clock budget", "budget_minutes": 55.0, "seed": 0}
+ROW|PEMS-BAY|A|STID (CIKM'22, official code)|1.5608|3.5965|3.538||||121644|12|{"epochs_run": 94, "stopped_by": "wall-clock budget", "budget_minutes": 12.0, "seed": 0}
+ROW|PEMS-BAY|B|Climatology quantiles|2.5326|5.4791|5.955|0.8617|13.1890|0.7474|0|0|{}
+ROW|PEMS-BAY|B|Graph WaveNet (IJCAI'19, official code)|1.5693|3.5699|3.481||||311760|12|{"epochs_run": 30, "stopped_by": "wall-clock budget", "budget_minutes": 50.0, "seed": 0}
+ROW|PEMS-BAY|B|Last value|2.1715|5.1070|4.645||||0|1|{}
+ROW|PEMS-BAY|B|PWM-Dyn v0.6 (3-seed, CQR)|1.5193|3.4507|3.337|0.5045|7.5382|0.7943|336740|12|{"members": [1.5436, 1.5357, 1.5349]}
+ROW|PEMS-BAY|B|STAEformer (CIKM'23, official code)|1.5950|3.6296|3.598||||1372260|12|{"epochs_run": 6, "stopped_by": "wall-clock budget", "budget_minutes": 55.0, "seed": 0}
+ROW|PEMS-BAY|B|STID (CIKM'22, official code)|1.5608|3.5965|3.538||||121644|12|{"epochs_run": 94, "stopped_by": "wall-clock budget", "budget_minutes": 12.0, "seed": 0}
+ROW|PEMS-BAY|B|Seasonal naive|3.3677|7.7262|7.738||||0|300|{}
+ROW|PEMS-BAY|B|TimesFM-3.0 (Google) multivariate (zero-shot, ctx 512)|1.6609|3.9467|3.766|0.5533|8.2931|0.8098||512|{}
+ROW|PEMS-BAY|R|Climatology quantiles|2.7081|6.0459|6.877|0.9273|14.2778|0.7476|0|0|{}
+ROW|PEMS-BAY|R|Graph WaveNet (IJCAI'19, official code)|51.7580|53.1677|82.759||||311760|12|{"epochs_run": 30, "stopped_by": "wall-clock budget", "budget_minutes": 50.0, "seed": 0}
+ROW|PEMS-BAY|R|PWM-Dyn v0.6 (3-seed, CQR)|2.3057|5.0367|5.656|0.8117|12.8228|0.7849|336740|12|{"members": [2.3311, 2.3423, 2.3457]}
+ROW|PEMS-BAY|R|STAEformer (CIKM'23, official code)|44.7184|46.2233|70.997||||1372260|12|{"epochs_run": 6, "stopped_by": "wall-clock budget", "budget_minutes": 55.0, "seed": 0}
+ROW|PEMS-BAY|R|STID (CIKM'22, official code)|42.1924|45.9192|68.067||||121644|12|{"epochs_run": 94, "stopped_by": "wall-clock budget", "budget_minutes": 12.0, "seed": 0}
+ROW|PEMS03|A|Climatology quantiles|25.9336|47.7954|26.339|9.4590|154.1017|0.6102|0|0|{}
+ROW|PEMS03|A|Graph WaveNet (IJCAI'19, official code)|14.6990|25.1704|15.608||||312420|12|{"epochs_run": 58, "stopped_by": "wall-clock budget", "budget_minutes": 40.0, "seed": 0}
+ROW|PEMS03|A|Last value|23.8867|37.3086|22.865||||0|1|{}
+ROW|PEMS03|A|PWM-Dyn v0.6 (3-seed, CQR)|14.3384|23.1232|15.089|4.6278|67.1427|0.7843|340964|12|{"members": [14.4496, 14.4483, 14.6491]}
+ROW|PEMS03|A|STAEformer (CIKM'23, official code)|15.4464|26.0273|17.754||||1403940|12|{"epochs_run": 10, "stopped_by": "wall-clock budget", "budget_minutes": 40.0, "seed": 0}
+ROW|PEMS03|A|STID (CIKM'22, official code)|15.4983|26.8327|16.595||||122700|12|{"epochs_run": 100, "stopped_by": "authors' epoch limit", "budget_minutes": 8.0, "seed": 0}
+ROW|PEMS03|B|Climatology quantiles|25.9336|47.7954|26.339|9.4590|154.1017|0.6102|0|0|{}
+ROW|PEMS03|B|Graph WaveNet (IJCAI'19, official code)|14.6990|25.1704|15.608||||312420|12|{"epochs_run": 58, "stopped_by": "wall-clock budget", "budget_minutes": 40.0, "seed": 0}
+ROW|PEMS03|B|Last value|23.8867|37.3086|22.865||||0|1|{}
+ROW|PEMS03|B|PWM-Dyn v0.6 (3-seed, CQR)|14.3384|23.1232|15.089|4.6278|67.1427|0.7843|340964|12|{"members": [14.4496, 14.4483, 14.6491]}
+ROW|PEMS03|B|STAEformer (CIKM'23, official code)|15.4464|26.0273|17.754||||1403940|12|{"epochs_run": 10, "stopped_by": "wall-clock budget", "budget_minutes": 40.0, "seed": 0}
+ROW|PEMS03|B|STID (CIKM'22, official code)|15.4983|26.8327|16.595||||122700|12|{"epochs_run": 100, "stopped_by": "authors' epoch limit", "budget_minutes": 8.0, "seed": 0}
+ROW|PEMS03|B|Seasonal naive|30.2828|56.1677|27.054||||0|300|{}
+ROW|PEMS03|B|TimesFM-3.0 (Google) multivariate (zero-shot, ctx 512)|14.1481|22.6998|13.394|4.5413|65.4984|0.8068||512|{}
+ROW|PEMS03|R|Climatology quantiles|23.3075|42.9015|26.822|8.5315|139.4065|0.6239|0|0|{}
+ROW|PEMS03|R|Graph WaveNet (IJCAI'19, official code)|138.3663|190.0014|83.155||||312420|12|{"epochs_run": 58, "stopped_by": "wall-clock budget", "budget_minutes": 40.0, "seed": 0}
+ROW|PEMS03|R|PWM-Dyn v0.6 (3-seed, CQR)|17.7113|27.9393|25.782|5.7838|84.9576|0.7767|340964|12|{"members": [17.9188, 17.5424, 18.3734]}
+ROW|PEMS03|R|STAEformer (CIKM'23, official code)|119.3412|172.7769|67.328||||1403940|12|{"epochs_run": 10, "stopped_by": "wall-clock budget", "budget_minutes": 40.0, "seed": 0}
+ROW|PEMS03|R|STID (CIKM'22, official code)|113.0473|159.8505|72.022||||122700|12|{"epochs_run": 100, "stopped_by": "authors' epoch limit", "budget_minutes": 8.0, "seed": 0}
+ROW|PEMS04|A|Climatology quantiles|25.0219|41.3596|16.134|8.4307|127.8122|0.7152|0|0|{}
+ROW|PEMS04|A|Graph WaveNet (IJCAI'19, official code)|19.3683|30.7451|14.606||||311400|12|{"epochs_run": 64, "stopped_by": "wall-clock budget", "budget_minutes": 30.0, "seed": 0}
+ROW|PEMS04|A|Last value|31.5563|48.2511|21.331||||0|1|{}
+ROW|PEMS04|A|PWM-Dyn ablation clim-vs1 (2-seed, CQR)|19.0649|31.8909|12.821|6.1159|88.1511|0.7980|335684|12|{"members": [19.0934, 19.2262]}
+ROW|PEMS04|A|PWM-Dyn ablation noclim-vs1 (2-seed, CQR)|18.4160|30.8372|12.600|5.9340|85.9406|0.7991|334436|12|{"members": [18.552, 18.5054]}
+ROW|PEMS04|A|PWM-Dyn ablation v03 (2-seed, CQR)|18.4720|30.2666|12.881|5.9478|86.0745|0.8027|334436|12|{"members": [18.6049, 18.577]}
+ROW|PEMS04|A|PWM-Dyn v0.4 (3-seed, CQR)|19.2082|31.7526|13.147|6.1562|88.6454|0.7964|335684|12|{}
+ROW|PEMS04|A|PWM-Dyn v0.6 (3-seed, CQR)|18.4589|30.7714|12.687|5.9509|86.2330|0.7996|334436|12|{"members": [18.5196, 18.7023, 18.6454]}
+ROW|PEMS04|A|STAEformer (CIKM'23, official code)|19.2059|30.6551|12.921||||1354980|12|{"epochs_run": 12, "stopped_by": "wall-clock budget", "budget_minutes": 30.0, "seed": 0}
+ROW|PEMS04|A|STID (CIKM'22, official code)|18.4908|30.0493|12.455||||121068|12|{"epochs_run": 100, "stopped_by": "authors' epoch limit", "budget_minutes": 6.0, "seed": 0}
+ROW|PEMS04|B|Climatology quantiles|25.0219|41.3596|16.134|8.4307|127.8122|0.7152|0|0|{}
+ROW|PEMS04|B|Graph WaveNet (IJCAI'19, official code)|19.3683|30.7451|14.606||||311400|12|{"epochs_run": 64, "stopped_by": "wall-clock budget", "budget_minutes": 30.0, "seed": 0}
+ROW|PEMS04|B|Last value|31.5563|48.2511|21.331||||0|1|{}
+ROW|PEMS04|B|PWM-Dyn v0.4-LC (3-seed, CQR)|19.1746|31.5182|13.081|6.1345|88.1633|0.7999|340292|300|{}
+ROW|PEMS04|B|PWM-Dyn v0.6 (3-seed, CQR)|18.4589|30.7714|12.687|5.9509|86.2330|0.7996|334436|12|{"members": [18.5196, 18.7023, 18.6454]}
+ROW|PEMS04|B|STAEformer (CIKM'23, official code)|19.2059|30.6551|12.921||||1354980|12|{"epochs_run": 12, "stopped_by": "wall-clock budget", "budget_minutes": 30.0, "seed": 0}
+ROW|PEMS04|B|STID (CIKM'22, official code)|18.4908|30.0493|12.455||||121068|12|{"epochs_run": 100, "stopped_by": "authors' epoch limit", "budget_minutes": 6.0, "seed": 0}
+ROW|PEMS04|B|Seasonal naive|40.6718|66.6411|27.058||||0|300|{}
+ROW|PEMS04|B|TimesFM-2.5 (Google, 200M) (zero-shot, ctx 512)|19.7017|31.7010|13.216|6.3372|91.6073|0.8204|200000000|512|{}
+ROW|PEMS04|B|TimesFM-3.0 (Google) multivariate (zero-shot, ctx 512)|19.1348|31.0243|12.595|6.1366|88.4227|0.8071||512|{}
+ROW|PEMS04|R|Climatology quantiles|27.3872|45.5986|15.895|9.1992|139.0395|0.7132|0|0|{}
+ROW|PEMS04|R|Graph WaveNet (IJCAI'19, official code)|132.5054|169.6801|60.283||||311400|12|{"epochs_run": 64, "stopped_by": "wall-clock budget", "budget_minutes": 30.0, "seed": 0}
+ROW|PEMS04|R|PWM-Dyn v0.4-LC (3-seed, CQR)|24.9869|43.0295|18.163|8.4837|129.5776|0.7806|340292|300|{}
+ROW|PEMS04|R|PWM-Dyn v0.6 (3-seed, CQR)|25.3294|42.6187|16.910|8.4018|125.4080|0.7832|334436|12|{"members": [25.6524, 25.7813, 25.3921]}
+ROW|PEMS04|R|STAEformer (CIKM'23, official code)|187.9973|238.9857|75.208||||1354980|12|{"epochs_run": 12, "stopped_by": "wall-clock budget", "budget_minutes": 30.0, "seed": 0}
+ROW|PEMS04|R|STID (CIKM'22, official code)|120.5813|155.1868|60.947||||121068|12|{"epochs_run": 100, "stopped_by": "authors' epoch limit", "budget_minutes": 6.0, "seed": 0}
+ROW|PEMS07|A|Climatology quantiles|29.9765|58.6726|12.453|10.3193|159.6957|0.7623|0|0|{}
+ROW|PEMS07|A|Graph WaveNet (IJCAI'19, official code)|23.3888|36.9204|10.064||||322920|12|{"epochs_run": 20, "stopped_by": "wall-clock budget", "budget_minutes": 50.0, "seed": 0}
+ROW|PEMS07|A|Last value|35.6336|54.3692|15.549||||0|1|{}
+ROW|PEMS07|A|PWM-Dyn v0.6 (3-seed, CQR)|19.5628|32.6005|8.171|6.3936|93.9935|0.7994|408164|12|{"members": [20.1168, 19.6874, 19.8283]}
+ROW|PEMS07|A|STID (CIKM'22, official code)|19.6154|32.7202|8.348||||139500|12|{"epochs_run": 84, "stopped_by": "wall-clock budget", "budget_minutes": 12.0, "seed": 0}
+ROW|PEMS07|B|Climatology quantiles|29.9765|58.6726|12.453|10.3193|159.6957|0.7623|0|0|{}
+ROW|PEMS07|B|Graph WaveNet (IJCAI'19, official code)|23.3888|36.9204|10.064||||322920|12|{"epochs_run": 20, "stopped_by": "wall-clock budget", "budget_minutes": 50.0, "seed": 0}
+ROW|PEMS07|B|Last value|35.6336|54.3692|15.549||||0|1|{}
+ROW|PEMS07|B|PWM-Dyn v0.6 (3-seed, CQR)|19.5628|32.6005|8.171|6.3936|93.9935|0.7994|408164|12|{"members": [20.1168, 19.6874, 19.8283]}
+ROW|PEMS07|B|STID (CIKM'22, official code)|19.6154|32.7202|8.348||||139500|12|{"epochs_run": 84, "stopped_by": "wall-clock budget", "budget_minutes": 12.0, "seed": 0}
+ROW|PEMS07|B|Seasonal naive|46.7700|76.0732|20.637||||0|300|{}
+ROW|PEMS07|B|TimesFM-3.0 (Google) multivariate (zero-shot, ctx 512)|20.2699|33.1308|8.470|6.5557|95.3208|0.8097||512|{}
+ROW|PEMS07|R|Climatology quantiles|29.0962|56.0732|12.502|10.1418|158.7744|0.7704|0|0|{}
+ROW|PEMS07|R|Graph WaveNet (IJCAI'19, official code)|310.0349|363.8492|98.465||||322920|12|{"epochs_run": 20, "stopped_by": "wall-clock budget", "budget_minutes": 50.0, "seed": 0}
+ROW|PEMS07|R|PWM-Dyn v0.6 (3-seed, CQR)|30.9518|55.6289|15.507|10.5326|161.2186|0.7919|408164|12|{"members": [32.0814, 30.8418, 31.4534]}
+ROW|PEMS07|R|STID (CIKM'22, official code)|293.0284|346.2455|92.188||||139500|12|{"epochs_run": 84, "stopped_by": "wall-clock budget", "budget_minutes": 12.0, "seed": 0}
+ROW|PEMS08|A|Climatology quantiles|22.1847|40.7695|13.608|7.6251|117.8299|0.7138|0|0|{}
+ROW|PEMS08|A|Graph WaveNet (IJCAI'19, official code)|14.7652|23.5869|9.667||||308660|12|{"epochs_run": 100, "stopped_by": "authors' epoch limit", "budget_minutes": 30.0, "seed": 0}
+ROW|PEMS08|A|Last value|25.2973|38.6553|15.666||||0|1|{}
+ROW|PEMS08|A|PWM-Dyn ablation clim-vs1 (2-seed, CQR)|14.4475|23.9313|9.358|4.6889|68.4286|0.7976|318148|12|{"members": [14.6504, 14.5469]}
+ROW|PEMS08|A|PWM-Dyn ablation noclim-vs1 (2-seed, CQR)|14.1383|23.3063|9.213|4.5952|67.1641|0.7988|316900|12|{"members": [14.3192, 14.376]}
+ROW|PEMS08|A|PWM-Dyn ablation v03 (2-seed, CQR)|14.2282|23.3851|9.347|4.6233|67.5585|0.7989|316900|12|{"members": [14.2859, 14.3879]}
+ROW|PEMS08|A|PWM-Dyn v0.4 (3-seed, CQR)|14.5257|23.9146|9.509|4.7190|68.9412|0.7972|318148|12|{}
+ROW|PEMS08|A|PWM-Dyn v0.6 (3-seed, CQR)|14.1202|23.4564|9.243|4.5891|67.0727|0.7972|316900|12|{"members": [14.2187, 14.2359, 14.5238]}
+ROW|PEMS08|A|STAEformer (CIKM'23, official code)|13.9290|23.1657|9.361||||1223460|12|{"epochs_run": 25, "stopped_by": "wall-clock budget", "budget_minutes": 30.0, "seed": 0}
+ROW|PEMS08|A|STID (CIKM'22, official code)|14.1816|23.2132|9.271||||116684|12|{"epochs_run": 100, "stopped_by": "authors' epoch limit", "budget_minutes": 6.0, "seed": 0}
+ROW|PEMS08|B|Climatology quantiles|22.1847|40.7695|13.608|7.6251|117.8299|0.7138|0|0|{}
+ROW|PEMS08|B|Graph WaveNet (IJCAI'19, official code)|14.7652|23.5869|9.667||||308660|12|{"epochs_run": 100, "stopped_by": "authors' epoch limit", "budget_minutes": 30.0, "seed": 0}
+ROW|PEMS08|B|Last value|25.2973|38.6553|15.666||||0|1|{}
+ROW|PEMS08|B|PWM-Dyn v0.4-LC (3-seed, CQR)|14.3800|23.4774|9.477|4.6604|67.9132|0.7971|322756|300|{}
+ROW|PEMS08|B|PWM-Dyn v0.6-LC (3-seed, CQR)|14.1845|23.3757|9.270|4.5953|66.9366|0.7981|322756|300|{"members": [14.4347, 14.4634, 14.3162]}
+ROW|PEMS08|B|STAEformer (CIKM'23, official code)|13.9290|23.1657|9.361||||1223460|12|{"epochs_run": 25, "stopped_by": "wall-clock budget", "budget_minutes": 30.0, "seed": 0}
+ROW|PEMS08|B|STID (CIKM'22, official code)|14.1816|23.2132|9.271||||116684|12|{"epochs_run": 100, "stopped_by": "authors' epoch limit", "budget_minutes": 6.0, "seed": 0}
+ROW|PEMS08|B|Seasonal naive|36.5428|60.7711|24.616||||0|300|{}
+ROW|PEMS08|B|TimesFM-2.5 (Google, 200M) (zero-shot, ctx 512)|15.0375|24.0925|9.440|4.8574|70.5353|0.8236|200000000|512|{}
+ROW|PEMS08|B|TimesFM-3.0 (Google) multivariate (zero-shot, ctx 512)|14.5493|23.5668|9.150|4.6864|67.8441|0.8074||512|{}
+ROW|PEMS08|R|Climatology quantiles|21.7815|41.0791|13.914|7.4107|113.4131|0.7242|0|0|{}
+ROW|PEMS08|R|Graph WaveNet (IJCAI'19, official code)|216.2057|260.5802|91.975||||308660|12|{"epochs_run": 100, "stopped_by": "authors' epoch limit", "budget_minutes": 30.0, "seed": 0}
+ROW|PEMS08|R|PWM-Dyn v0.4-LC (3-seed, CQR)|18.6975|33.4546|12.412|6.4699|100.6081|0.7677|322756|300|{}
+ROW|PEMS08|R|PWM-Dyn v0.6-LC (3-seed, CQR)|19.2451|34.8006|12.753|6.6182|102.3201|0.7633|322756|300|{"members": [19.3132, 19.6416, 19.603]}
+ROW|PEMS08|R|STAEformer (CIKM'23, official code)|186.5119|233.6494|79.955||||1223460|12|{"epochs_run": 25, "stopped_by": "wall-clock budget", "budget_minutes": 30.0, "seed": 0}
+ROW|PEMS08|R|STID (CIKM'22, official code)|198.0907|239.6566|85.309||||116684|12|{"epochs_run": 100, "stopped_by": "authors' epoch limit", "budget_minutes": 6.0, "seed": 0}
+ROW|PEMS08|Z|PWM-Dyn v0.4-LC inductive (trained on PEMS04 only) (3-seed, CQR)|16.3635|25.7297|12.774|5.5097|83.4720|0.8670|244452|300|{}
+SIG|PEMS08|A|Climatology quantiles|14.1201|22.1847|-36.352|-37.501|-34.511|1.46e-151|-26.223|1775
+SIG|PEMS08|A|Graph WaveNet (IJCAI'19, official code)|14.1201|14.7652|-4.369|-4.863|-3.963|6.38e-57|-15.900|1775
+SIG|PEMS08|A|Last value|14.1201|25.2973|-44.183|-45.768|-42.894|7.95e-136|-24.805|1775
+SIG|PEMS08|A|STAEformer (CIKM'23, official code)|14.1201|13.9290|1.373|0.687|1.947|3.54e-05|4.136|1775
+SIG|PEMS08|A|STID (CIKM'22, official code)|14.1201|14.1816|-0.433|-1.005|0.050|0.116|-1.573|1775
+SIG|PEMS08|B|Climatology quantiles|14.1845|22.1847|-36.062|-36.737|-34.601|6.39e-200|-30.167|1775
+SIG|PEMS08|B|Graph WaveNet (IJCAI'19, official code)|14.1845|14.7652|-3.933|-4.993|-2.905|1.86e-13|-7.358|1775
+SIG|PEMS08|B|Last value|14.1845|25.2973|-43.929|-45.575|-42.708|2.03e-137|-24.952|1775
+SIG|PEMS08|B|STAEformer (CIKM'23, official code)|14.1845|13.9290|1.835|0.827|2.840|0.000254|3.658|1775
+SIG|PEMS08|B|STID (CIKM'22, official code)|14.1845|14.1816|0.020|-0.570|0.570|0.943|0.071|1775
+SIG|PEMS08|B|TimesFM-2.5 (Google, 200M) (zero-shot, ctx 512)|14.1845|15.0375|-5.672|-8.897|-3.138|0.00043|-3.521|1775
+SIG|PEMS08|B|TimesFM-3.0 (Google) multivariate (zero-shot, ctx 512)|14.1845|14.5493|-2.507|-5.360|-0.336|0.0644|-1.849|1775
+SIG|PEMS04|A|Climatology quantiles|18.4588|25.0219|-26.229|-35.306|-19.507|1.4e-06|-4.825|1688
+SIG|PEMS04|A|Graph WaveNet (IJCAI'19, official code)|18.4588|19.3683|-4.696|-5.341|-4.267|5.49e-63|-16.752|1688
+SIG|PEMS04|A|Last value|18.4588|31.5562|-41.505|-43.412|-39.724|5.59e-89|-19.999|1688
+SIG|PEMS04|A|STAEformer (CIKM'23, official code)|18.4588|19.2059|-3.889|-4.744|-3.496|1.84e-36|-12.611|1688
+SIG|PEMS04|A|STID (CIKM'22, official code)|18.4588|18.4908|-0.173|-1.952|1.074|0.818|-0.230|1688
+SIG|PEMS04|B|TimesFM-2.5 (Google, 200M) (zero-shot, ctx 512)|18.4588|19.7017|-6.308|-10.217|-3.415|0.000647|-3.411|1688
+SIG|PEMS04|B|TimesFM-3.0 (Google) multivariate (zero-shot, ctx 512)|18.4588|19.1348|-3.533|-7.001|-0.804|0.0292|-2.181|1688
+SIG|PEMS03|A|Climatology quantiles|14.3384|25.9336|-44.711|-56.350|-32.656|7.46e-05|-3.961|870
+SIG|PEMS03|A|Graph WaveNet (IJCAI'19, official code)|14.3384|14.6990|-2.453|-3.294|-1.243|3.94e-06|-4.615|870
+SIG|PEMS03|A|Last value|14.3384|23.8866|-39.973|-42.949|-36.009|1.07e-47|-14.508|870
+SIG|PEMS03|A|STAEformer (CIKM'23, official code)|14.3384|15.4464|-7.173|-10.791|-4.610|3.81e-05|-4.119|870
+SIG|PEMS03|A|STID (CIKM'22, official code)|14.3384|15.4983|-7.484|-14.118|-2.345|0.023|-2.274|870
+SIG|PEMS03|B|TimesFM-3.0 (Google) multivariate (zero-shot, ctx 512)|14.3384|14.1480|1.345|-1.776|5.348|0.479|0.709|870
+SIG|PEMS07|A|Climatology quantiles|19.5628|29.9765|-34.740|-36.430|-33.195|3.41e-198|-30.035|937
+SIG|PEMS07|A|Graph WaveNet (IJCAI'19, official code)|19.5628|23.3888|-16.358|-17.523|-15.374|4.67e-107|-21.978|937
+SIG|PEMS07|A|Last value|19.5628|35.6336|-45.100|-46.620|-44.059|2.28e-265|-34.802|937
+SIG|PEMS07|A|STID (CIKM'22, official code)|19.5628|19.6154|-0.268|-0.487|0.009|0.0314|-2.151|937
+SIG|PEMS07|B|TimesFM-3.0 (Google) multivariate (zero-shot, ctx 512)|19.5628|20.2699|-3.488|-5.449|-1.627|0.000401|-3.540|937
+SIG|METR-LA|A|Climatology quantiles|2.9194|3.8992|-25.127|-27.568|-22.843|7.17e-37|-12.685|1051
+SIG|METR-LA|A|Graph WaveNet (IJCAI'19, official code)|2.9194|3.0473|-4.197|-5.037|-3.327|2.61e-20|-9.234|1051
+SIG|METR-LA|A|Last value|2.9194|5.0379|-42.051|-46.391|-37.534|7.81e-27|-10.725|1051
+SIG|METR-LA|A|STAEformer (CIKM'23, official code)|2.9194|3.0908|-5.544|-6.175|-4.794|1.71e-32|-11.869|1051
+SIG|METR-LA|A|STID (CIKM'22, official code)|2.9194|3.1243|-6.557|-7.552|-5.537|1.33e-24|-10.238|1051
+SIG|METR-LA|B|TimesFM-3.0 (Google) multivariate (zero-shot, ctx 512)|2.9194|3.4013|-14.167|-16.266|-11.513|3.52e-19|-8.951|1051
+SIG|PEMS-BAY|A|Climatology quantiles|1.5193|2.5326|-40.010|-43.842|-37.221|1.3e-45|-14.176|1734
+SIG|PEMS-BAY|A|Graph WaveNet (IJCAI'19, official code)|1.5193|1.5693|-3.186|-3.858|-2.198|8.31e-11|-6.495|1734
+SIG|PEMS-BAY|A|Last value|1.5193|2.1715|-30.037|-32.010|-27.942|1.45e-35|-12.447|1734
+SIG|PEMS-BAY|A|STAEformer (CIKM'23, official code)|1.5193|1.5950|-4.747|-5.196|-4.234|1.05e-43|-13.864|1734
+SIG|PEMS-BAY|A|STID (CIKM'22, official code)|1.5193|1.5608|-2.658|-3.630|-1.898|2.24e-09|-5.980|1734
+SIG|PEMS-BAY|B|TimesFM-3.0 (Google) multivariate (zero-shot, ctx 512)|1.5193|1.6609|-8.525|-11.440|-5.238|7.3e-07|-4.953|1734

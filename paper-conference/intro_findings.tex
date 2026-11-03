@@ -1,0 +1,7 @@
+Under a 12-step context PWM-Dyn has the lowest MAE of the four trained models on five of six traffic networks and is
+second on PEMS08, where STAEformer leads by 1.4\% even though its run was cut short; against the fully trained STID the
+margins are significant on three networks and indistinguishable from zero on PEMS08 and PEMS04. Against zero-shot
+TimesFM~3.0 it has lower MAE on seven of eight tasks and lower interval score on seven of eight, and loses on PEMS03.
+With 30\% of sensors dark it beats per-sensor climatology on seven of eight tasks while specialists without a
+missing-data mechanism fail, but climatology beats it on PEMS07. An ablation shows that a climatology input added in an earlier
+version cost accuracy under the short context; removing it, chosen on validation, gave the reported model.

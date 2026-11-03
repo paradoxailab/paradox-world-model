@@ -2,7 +2,7 @@
 \label{sec:bench}
 
 \benchname{} scores every model, specialist or foundation model, with one function on frozen windows. Version
-1.1, used here, has ten tasks (Table~\ref{tab:tasks}): six traffic networks with their standard literature
+1.1, used here, has eight tasks (Table~\ref{tab:tasks}): six traffic networks with their standard literature
 protocols (12 five-minute steps in, 12 out; chronological 60/20/20 split for PeMS flow, 70/10/20 for the two
 speed datasets) and two Indian monsoon rainfall regions from the IMD $0.25^\circ$ daily grid~\citep{nandi2024imdlib}
 (30 days in, 7 out; 2000--2018 train, 2019--2021 validation, 2022--2024 test). Values and time features of the
@@ -11,7 +11,8 @@ releases~\citep{li2018dcrnn,guo2019astgcn}; a script rebuilds them, so nothing i
 
 \begin{table}[t]
 \caption{\benchname{}-1.1 tasks. Windows: official test windows (every 2nd; every 6th on the four tasks added in
-1.1, so that foundation models fit a free-GPU budget). All models on a task are scored on the same windows.}
+1.1, so that foundation models fit a free-GPU budget). All models on a task are scored on the same windows; on METR-LA, 88 of them contain no valid (non-zero) target
+and drop out of every metric and test.}
 \label{tab:tasks}
 \scriptsize
 \setlength{\tabcolsep}{3pt}

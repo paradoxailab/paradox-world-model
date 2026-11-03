@@ -12,13 +12,13 @@ re-running published specialists under one pipeline changes their rankings~\cite
 
 We ask a narrow question with a fixed protocol: on real sensor networks, how does a small model trained from
 scratch on the network's own history compare with (a)~published specialists run with their authors' code and
-(b)~zero-shot foundation models, on the same windows, with the same point and probabilistic scores, when a third of
+(b)~zero-shot foundation models, on the same windows, with the same point and probabilistic scores, when 30\% of
 the sensors go dark, and with tests that say whether the differences are larger than noise?
 
 \paragraph{Contributions.}
 \begin{itemize}
-\item \textbf{PWM-Dyn} (\S\ref{sec:model}), a $3\times10^5$-parameter graph-diffusion model with explicit missing-data
-inputs, three quantile heads and split-conformal calibration, trained in 9--52 GPU-minutes per seed on a free T4.
+\item \textbf{PWM-Dyn} (\S\ref{sec:model}), a 0.3--0.4M-parameter graph-diffusion model with explicit missing-data
+inputs, a three-quantile head and split-conformal calibration, trained in 9--52 GPU-minutes per seed on a free T4.
 \item \textbf{\benchname{}} (\S\ref{sec:bench}), an open benchmark of six traffic networks and two monsoon rainfall
 regions with four tracks (standard context, open context, dead sensors, zero-shot transfer), one scorer for point,
 quantile and interval quality, saved forecasts and paired significance tests.

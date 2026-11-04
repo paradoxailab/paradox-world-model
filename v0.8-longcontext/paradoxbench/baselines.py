@@ -15,9 +15,9 @@ from paradoxbench.score import task_data, truth, record
 
 def climatology(ds, idx):
     _, b = ds.bounds["train"]
-    traffic = ds.period == 288
-    key = (ds.dow * 288 + ds.period_idx) if traffic else ds.period_idx
-    nk, w = (7 * 288, 1) if traffic else (366, 7)
+    traffic = ds.period != 366
+    key = (ds.dow * ds.period + ds.period_idx) if traffic else ds.period_idx
+    nk, w = (7 * ds.period, 1) if traffic else (366, 7)
     tr = ds.raw[:b]
     tbl = np.zeros((3, nk, ds.N), np.float32)
     for k in range(nk):
@@ -37,7 +37,7 @@ def run(task):
     H = ds.out_len
     meta = {"type": "baseline", "params": 0, "trained_on": f"{task} train split"}
     last = np.repeat(np.nan_to_num(ds.raw[idx - 1])[:, None], H, 1)
-    seas_lag = 288 if ds.period == 288 else 365
+    seas_lag = ds.period if ds.period != 366 else 365
     seas = np.nan_to_num(ds.raw[idx[:, None] - seas_lag + np.arange(H)[None]])
     c10, c50, c90 = climatology(ds, idx)
     for tr in ("A", "B"):
@@ -46,7 +46,7 @@ def run(task):
     record(task, "B", "Seasonal naive", None, seas, None, {**meta, "context_steps": seas_lag + H}, ds)
     record(task, "R", "Climatology quantiles", c10, c50, c90, {**meta, "context_steps": 0}, ds)
     # 1.2 Track G: last OBSERVED reading after the replayed outage (climatology median if none), and climatology
-    if ds.period != 288:                     # Track G is defined for the traffic tasks only
+    if ds.period == 366:                     # Track G is defined for the traffic tasks only
         return
     gaps, _ = replay_gaps(ds, idx)
     hist = ds.raw[idx[:, None] + np.arange(-ds.in_len, 0)[None]]          # [W, L, N]

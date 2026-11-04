@@ -13,9 +13,10 @@ Change nothing in this file without bumping the benchmark version.
 """
 import numpy as np
 
-VERSION = "ParadoxBench-1.2"
+VERSION = "ParadoxBench-1.3"
 STRIDE = 2            # official windows = every 2nd test window (ParadoxBench-1 tasks)
-STRIDE_BY_LOADER = {"PEMS03": 6, "PEMS07": 6, "METR-LA": 6, "PEMS-BAY": 6}   # 1.1 tasks
+STRIDE_BY_LOADER = {"PEMS03": 6, "PEMS07": 6, "METR-LA": 6, "PEMS-BAY": 6,   # 1.1 tasks
+                    "UK-M25": 6}                                               # 1.3 task (15-min steps: every 90 min)
 HIDDEN_SEED = 2026    # robustness track: sensors withheld at test time
 HIDDEN_SHARE = 0.30
 LEVEL = 0.80          # prediction-interval level scored (q10..q90)
@@ -35,8 +36,16 @@ TASKS = {
     "PEMS07":  ("PEMS07", "Caltrans District 7 highway flow, 883 sensors, 5-min", "vehicles / 5 min", 12, 12, 512),
     "METR-LA": ("METR-LA", "Los Angeles loop-detector speed, 207 sensors, 5-min", "mph", 12, 12, 512),
     "PEMS-BAY": ("PEMS-BAY", "Bay Area loop-detector speed, 325 sensors, 5-min", "mph", 12, 12, 512),
+    # ParadoxBench-1.3: present-day data (National Highways WebTRIS, 2025-07-01 .. 2026-06-30, the latest published)
+    "UK-M25":  ("UK-M25", "England motorways around London (M25 + radials), MIDAS loops, 15-min", "vehicles / 15 min", 12, 12, 512),
 }
 NEW_IN_1_1 = ("PEMS03", "PEMS07", "METR-LA", "PEMS-BAY")
+NEW_IN_1_3 = ("UK-M25",)
+
+
+def windows_per_day(ds):
+    """Block length of the significance tests: one day of official windows (rainfall keeps the 1.1 setting)."""
+    return (ds.period if ds.period in (96, 288) else 288) // stride_for(ds)
 
 
 def stride_for(ds):

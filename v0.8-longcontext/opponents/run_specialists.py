@@ -56,7 +56,7 @@ class Windows:
         v = np.nan_to_num(ds.raw[:b])                       # repositories z-score the raw series, zeros included
         self.mean, self.std = float(v.mean()), float(v.std())
         self.val = np.nan_to_num(ds.raw).astype(np.float32)
-        self.tod = (ds.period_idx % 288).astype(np.float32) / 288.0
+        self.tod = (ds.period_idx % ds.period).astype(np.float32) / ds.period
         self.dow = ds.dow.astype(np.float32)
 
     def batch(self, idx, hide=None):
@@ -83,7 +83,7 @@ class Runner:
             from arch.stid_arch import STID                   # noqa: E402  (official class, unchanged)
             self.net = STID(num_nodes=N, input_len=12, input_dim=3, embed_dim=32, output_len=12, num_layer=3,
                             if_node=True, node_dim=32, if_T_i_D=True, if_D_i_W=True, temp_dim_tid=32,
-                            temp_dim_diw=32, time_of_day_size=288, day_of_week_size=7)
+                            temp_dim_diw=32, time_of_day_size=ds.period, day_of_week_size=7)
             self.cfg = dict(lr=2e-3, wd=1e-4, bs=64, epochs=100, milestones=[1, 50, 80], gamma=0.5, clip=5.0,
                             patience=None, loss="masked_mae")
         elif kind == "gwnet":

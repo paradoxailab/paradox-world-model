@@ -11,7 +11,7 @@ import numpy as np
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, ROOT)
-from paradoxbench.spec import stride_for
+from paradoxbench.spec import stride_for, windows_per_day
 from paradoxbench.score import truth, task_data, slug
 from paradoxbench.significance import compare
 
@@ -112,7 +112,7 @@ def main(a):
                 qb = np.load(sub_path(o))["q50"]
                 if qb.shape != qa.shape:
                     continue
-                c = compare(qa, qb, y, valid, 288 // stride_for(ds))
+                c = compare(qa, qb, y, valid, windows_per_day(ds))
                 c.update(task=t, track=tr, pwm=p["model"], opponent=o["model"])
                 out["significance"].append(c)
                 L.append(f"| {t} | {tr} | {o['model']} | {c['MAE_a']:.2f} | {c['MAE_b']:.2f} | {c['rel_diff_pct']:+.1f}% | "

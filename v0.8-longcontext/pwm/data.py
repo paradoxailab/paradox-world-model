@@ -74,9 +74,9 @@ class SeriesData:
         """v0.4: per-location median of the TRAIN split at the same time of week (traffic, +-1 slot)
         or day of year (rainfall, +-7 days), in normalised target space. Shape [keys, N]."""
         _, b = self.bounds["train"]
-        traffic = self.period == 288
-        self.key = (self.dow * 288 + self.period_idx) if traffic else self.period_idx
-        nk, w = (7 * 288, 1) if traffic else (366, 7)
+        traffic = self.period != 366                  # v0.8: any sub-daily traffic step (288 = 5 min, 96 = 15 min)
+        self.key = (self.dow * self.period + self.period_idx) if traffic else self.period_idx
+        nk, w = (7 * self.period, 1) if traffic else (366, 7)
         tr = np.where(self.observed[:b], self.norm[:b], np.nan)
         if self.mask_zero:
             tr = np.where(self.raw[:b] > 1e-4, tr, np.nan)
@@ -172,7 +172,10 @@ def load_pems(name, lc=False, stats=None, profile=False):
 EXTRA = {"PEMS03": ((0.6, 0.2), "vehicles / 5 min", False),
          "PEMS07": ((0.6, 0.2), "vehicles / 5 min", False),
          "METR-LA": ((0.7, 0.1), "mph", True),
-         "PEMS-BAY": ((0.7, 0.1), "mph", True)}
+         "PEMS-BAY": ((0.7, 0.1), "mph", True),
+         # v0.8: present-day task from National Highways' live WebTRIS API (tools/fetch_webtris.py), 15-min steps
+         "UK-M25": ((0.7, 0.1), "vehicles / 15 min", False)}
+STEPS_PER_DAY = {"UK-M25": 96}
 
 
 def load_extra(name, lc=False, stats=None, profile=False):
@@ -186,9 +189,10 @@ def load_extra(name, lc=False, stats=None, profile=False):
     n_tr, n_va = int(round(T * ftr)), int(round(T * fva))
     bounds = {"train": (0, n_tr), "val": (n_tr, n_tr + n_va), "test": (n_tr + n_va, T)}
     A_raw = A.astype(np.float32).copy()
-    return SeriesData(name, raw, _row_norm(A), z["tod"], z["dow"], 288, 12, 12, bounds,
+    spd = STEPS_PER_DAY.get(name, 288)
+    return SeriesData(name, raw, _row_norm(A), z["tod"], z["dow"], spd, 12, 12, bounds,
                       transform="none", mask_zero=True, units=units,
-                      lag=288 if lc else 0, lag_pre=12, stats=stats,
+                      lag=spd if lc else 0, lag_pre=12, stats=stats,
                       profile=(24, 12) if profile else None, A_raw=A_raw)
 
 

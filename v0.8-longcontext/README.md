@@ -1,23 +1,39 @@
-# PWM-Dyn v0.8 (prepared, not yet run): close the remaining gaps to TimesFM 3.0, with no extra data
+# PWM-Dyn v0.8 (prepared, not yet run): significant wins over TimesFM 3.0 on every metric, no extra data, present-day data
 
 v0.7 beats TimesFM 3.0 zero-shot on 28 of 36 traffic metric pairs (Track B). It still loses all of PEMS03, where our
-model reads 12 steps and TimesFM reads 512, and MAPE on PEMS08 / PEMS04. v0.8 keeps v0.7's frozen real-condition
-recipe and adds:
+model reads 12 steps and TimesFM reads 512, and MAPE on PEMS08 / PEMS04. v0.8 targets those, and adds a task built
+from data up to the latest published month.
 
-- the long-context input (the same series' own history, 300 steps, inside TimesFM's 512) on every network, with the
-  online correction window cut so the total look-back stays within 512;
-- a relative-error loss term (`--rel_w`), kept only if validation MAPE falls by at least 2% while validation MAE rises
-  by at most 0.3% and RMSE by at most 0.5% (rule in `run_v08.py`);
-- rainfall re-trained with the v0.7 recipe (standard and long context).
+**New task UK-M25 (ParadoxBench-1.3, present-day data).** National Highways' live WebTRIS API (MIDAS loop sensors,
+free, Open Government Licence v3.0): 190 sensors on the M25 and the radial motorways around London, 15-minute vehicle
+counts, **2025-07-01 to 2026-06-29** (WebTRIS publishes with a lag of about four months; 2026-06-29 was the latest
+complete day on 2026-11-04). Real outages are kept: 6.9% of readings are missing. Splits 70/10/20 by time, so the test
+period is about 5 May to 29 June 2026. Built by `tools/fetch_webtris.py` (selection rules fixed before downloading);
+no data is re-hosted.
 
-Every model still trains only on its own network's training split. Track B picks, per network on validation,
-between the v0.7 standard ensemble and the v0.8 long-context ensemble. Run it with the v0.7 session's output attached:
+**What v0.8 changes** (every choice made on validation by rules fixed in `run_v08.py` before the run):
+- long-context input (the series' own history, 300 steps on 5-minute data, inside TimesFM's 512) on every network,
+  with the online-correction window cut so the total look-back stays within 512;
+- width / depth chosen on validation: 96 or 128 channels, 3 or 4 blocks; a larger model is kept only if it is at
+  least 0.5% better (all stay under one million parameters);
+- a relative-error loss term (`--rel_w`) for MAPE, kept only if validation MAPE falls by at least 2% while MAE rises
+  by at most 0.3% and RMSE by at most 0.5%;
+- rainfall re-trained with the v0.7 recipe.
+
+**Opponents.** TimesFM 3.0 multivariate zero-shot is re-run where no saved forecast exists (PEMS08, PEMS04, UK-M25,
+both rainfall regions), so every metric can be tested; STID (official code) is trained on UK-M25.
+**Tests on every metric.** Diebold–Mariano and day-block bootstrap on per-window losses of MAE, squared error (RMSE),
+absolute percentage error (MAPE), pinball loss (QL) and interval score (IS80); significant = p < 0.05 and a 95%
+interval that excludes 0.
+
+Every model still trains only on its own network's training split. Run it on Kaggle (GPU T4 x2, Internet on), with
+the v0.7 session's output (`notebook8ffe55b5c8`) and the UK-M25 data notebook's output (`notebooke7bbb29c74`) attached:
 
 ```
+!pip install -q timesfm imdlib torchinfo 2>&1 | tail -1
 !git clone -q -b v0.8 https://github.com/paradoxailab/paradox-world-model /kaggle/working/repo
 %cd /kaggle/working/repo/v0.8-longcontext
-!pip install -q imdlib 2>&1 | tail -1
-!python tools/fetch_all.py 2>&1 | tail -2
+!python tools/fetch_all.py --opponents 2>&1 | tail -2
 !python run_v08.py --roots /kaggle/input 2>&1
 ```
 

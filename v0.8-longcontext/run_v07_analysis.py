@@ -13,10 +13,10 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, ROOT)
 from paradoxbench.spec import stride_for, windows_per_day
 from paradoxbench.score import truth, task_data, slug
-from paradoxbench.significance import compare
+from paradoxbench.significance import compare, compare_all
 
 TRAFFIC = ["PEMS08", "PEMS04", "PEMS03", "PEMS07", "METR-LA", "PEMS-BAY"]
-ALL = TRAFFIC + ["IMD-CI", "IMD-WC"]
+ALL = TRAFFIC + ["UK-M25", "IMD-CI", "IMD-WC"]
 RES, SUB = os.path.join(ROOT, "results", "paradoxbench"), os.path.join(ROOT, "submissions")
 
 
@@ -66,7 +66,7 @@ def main(a):
                       ("G", "Track G (replayed real outages, new in ParadoxBench-1.2)")):
         L += [f"## {title}: test MAE", "", "| Task | " + " | ".join(c for c, _ in cols) + " |",
               "|---" * (len(cols) + 1) + "|"]
-        for t in (TRAFFIC if tr == "G" else ALL):
+        for t in ([x for x in ALL if not x.startswith("IMD")] if tr == "G" else ALL):
             L.append(f"| {t} | " + " | ".join(cell(pick(rs, t, tr, p)) for _, p in cols) + " |")
         L.append("")
     L += ["## Track B (open context), every metric: new PWM-Dyn entry vs TimesFM 3.0", "",
@@ -117,6 +117,30 @@ def main(a):
                 out["significance"].append(c)
                 L.append(f"| {t} | {tr} | {o['model']} | {c['MAE_a']:.2f} | {c['MAE_b']:.2f} | {c['rel_diff_pct']:+.1f}% | "
                          f"[{c['rel_ci95_pct'][0]:+.1f}, {c['rel_ci95_pct'][1]:+.1f}] | {c['p_value']:.2g} |")
+    # v0.8: every metric, new PWM-Dyn Track B entry vs TimesFM 3.0, paired on the same windows
+    L += ["", f"## Every metric, Track B: {NEW} vs TimesFM 3.0 (significant = DM p < 0.05 and bootstrap CI excludes 0)", "",
+          "| Task | Metric | PWM | TimesFM | Rel. diff | 95% CI | DM p | Significant |", "|---|---|---|---|---|---|---|---|"]
+    out["all_metric"] = []
+    for t in ALL:
+        p, o = pick(rs, t, "B", NEW), pick(rs, t, "B", "TimesFM-3.0")
+        if not (p and o and os.path.exists(sub_path(p)) and os.path.exists(sub_path(o))):
+            continue
+        ds = task_data(t)
+        _, y, valid = truth(t, "B", ds)
+        za, zb = np.load(sub_path(p)), np.load(sub_path(o))
+        sa = {k: za[k] for k in ("q10", "q50", "q90") if k in za.files}
+        sb = {k: zb[k] for k in ("q10", "q50", "q90") if k in zb.files}
+        if sa["q50"].shape != sb["q50"].shape:
+            continue
+        for k, c in compare_all(sa, sb, y, valid, windows_per_day(ds)).items():
+            c.update(task=t, metric=k, pwm=p["model"], opponent=o["model"])
+            out["all_metric"].append(c)
+            L.append(f"| {t} | {k} | {c['loss_a']:.4g} | {c['loss_b']:.4g} | {c['rel_diff_pct']:+.1f}% | "
+                     f"[{c['rel_ci95_pct'][0]:+.1f}, {c['rel_ci95_pct'][1]:+.1f}] | {c['p_value']:.2g} | "
+                     f"{'yes' if c['significant'] else 'no'} |")
+            print("SIGM|" + "|".join([t, k, p["model"], o["model"], f"{c['loss_a']:.6g}", f"{c['loss_b']:.6g}",
+                                      f"{c['rel_diff_pct']:.3f}", f"{c['rel_ci95_pct'][0]:.3f}", f"{c['rel_ci95_pct'][1]:.3f}",
+                                      f"{c['p_value']:.3g}", str(c["significant"])]), flush=True)
     stem = a.tag.replace(".", "")
     json.dump(out, open(os.path.join(ROOT, "results", f"{stem}_summary.json"), "w"), indent=1)
     fz = os.path.join(ROOT, "results", f"{stem}_frozen_config.json")

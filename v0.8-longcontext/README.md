@@ -1,3 +1,28 @@
+# PWM-Dyn v0.8 (prepared, not yet run): close the remaining gaps to TimesFM 3.0, with no extra data
+
+v0.7 beats TimesFM 3.0 zero-shot on 28 of 36 traffic metric pairs (Track B). It still loses all of PEMS03, where our
+model reads 12 steps and TimesFM reads 512, and MAPE on PEMS08 / PEMS04. v0.8 keeps v0.7's frozen real-condition
+recipe and adds:
+
+- the long-context input (the same series' own history, 300 steps, inside TimesFM's 512) on every network, with the
+  online correction window cut so the total look-back stays within 512;
+- a relative-error loss term (`--rel_w`), kept only if validation MAPE falls by at least 2% while validation MAE rises
+  by at most 0.3% and RMSE by at most 0.5% (rule in `run_v08.py`);
+- rainfall re-trained with the v0.7 recipe (standard and long context).
+
+Every model still trains only on its own network's training split. Track B picks, per network on validation,
+between the v0.7 standard ensemble and the v0.8 long-context ensemble. Run it with the v0.7 session's output attached:
+
+```
+!git clone -q -b v0.8 https://github.com/paradoxailab/paradox-world-model /kaggle/working/repo
+%cd /kaggle/working/repo/v0.8-longcontext
+!pip install -q imdlib 2>&1 | tail -1
+!python tools/fetch_all.py 2>&1 | tail -2
+!python run_v08.py --roots /kaggle/input 2>&1
+```
+
+The v0.7 description follows, unchanged.
+
 # PWM-Dyn v0.7: real-world conditions (ParadoxBench-1.2)
 
 v0.6 was strong on clean benchmark data but lost to plain per-sensor climatology on PEMS07 when sensors went dark,

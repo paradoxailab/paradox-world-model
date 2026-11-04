@@ -3,7 +3,8 @@
 **Paradox AI Lab** · [paradoxailab.com](https://paradoxailab.com) · contact.paradoxailab@gmail.com
 Authors: Aditya Kumar, Anupam Singh
 
-**Current version: PWM-Dyn v0.6 · ParadoxBench-1.1 (2026-11-03).** Paper: [`paper-conference/named/PWM-Dyn_ParadoxBench_v0.6.pdf`](paper-conference/named/PWM-Dyn_ParadoxBench_v0.6.pdf)
+**Current version: PWM-Dyn v0.7 · ParadoxBench-1.2 (2026-11-04)**, built for real operating conditions (sensor outages);
+see [`v0.7-realworld/`](v0.7-realworld). v0.6 (2026-11-03) remains the best model on clean data. Paper: [`paper-conference/named/PWM-Dyn_ParadoxBench_v0.6.pdf`](paper-conference/named/PWM-Dyn_ParadoxBench_v0.6.pdf)
 (an anonymous build for double-blind review is in [`paper-conference/`](paper-conference)).
 
 PWM-Dyn is a small (0.3–0.4 M parameters) physical-dynamics model that forecasts how traffic and rainfall
@@ -18,7 +19,30 @@ Indian rainfall regions), four tracks (standard, open context, dead-sensor robus
 transfer), one scorer, frozen test windows, saved forecasts, paired significance tests, and a
 submission format anyone can use.
 
-## Headline: v0.6 on ParadoxBench-1.1 (test MAE, lower is better)
+## Headline: v0.7 under real operating conditions (ParadoxBench-1.2)
+
+Real detector networks lose readings in bursts: in METR-LA's own training data, 53% of outage windows are fully
+dark and 69% include the latest reading. v0.7 forecasts from the last reading that actually arrived (or the
+sensor's own usual pattern) and is trained on burst outages. The new **Track G** replays real METR-LA outage
+patterns on 30% of sensors in every test window. Test MAE, v0.7 vs v0.6, scored on the affected sensors:
+
+| Network | v0.7 | v0.6 | Change | Per-sensor climatology |
+|---|---|---|---|---|
+| PEMS08 | **18.09** | 23.03 | −21.5% | 22.26 |
+| PEMS04 | **21.05** | 24.89 | −15.4% | 25.02 |
+| PEMS03 | **18.39** | 22.04 | −16.6% | 26.07 |
+| PEMS07 | **25.01** | 31.72 | −21.2% | 30.03 |
+| METR-LA | 3.147 | **3.101** | +1.5% | 3.894 |
+| PEMS-BAY | **1.959** | 2.196 | −10.8% | 2.531 |
+
+All six differences are significant. Under real outages v0.6 was worse than climatology on PEMS08 and PEMS07; v0.7
+beats it everywhere, and on fully dark sensors it now beats climatology on PEMS07 as well. The cost is 0.4–1.8% higher
+MAE on clean data (Track A), so v0.6 stays the clean-data entry. With online error correction (Track B), v0.7 beats
+TimesFM 3.0 zero-shot on 28 of 36 traffic metric pairs; it still loses PEMS03 and MAPE on PEMS08 / PEMS04. Full
+tables: [`v0.7-realworld/README.md`](v0.7-realworld/README.md#results-kaggle-2026-11-04-notebook8ffe55b5c8-232-min-on-gpu-t4-x2-commit-b0f6a08) ·
+leaderboard: [`results/LEADERBOARD_1.2.md`](results/LEADERBOARD_1.2.md).
+
+## v0.6 on ParadoxBench-1.1 (clean data) (test MAE, lower is better)
 
 Track A (12-step context, every model trained on the network). STID, Graph WaveNet and STAEformer were
 trained with their authors' official code on our exact windows; † = stopped by its wall-clock budget
@@ -80,7 +104,8 @@ Full tables, interval coverage and run provenance: [RESULTS.md](RESULTS.md).
 | Folder | What it is |
 |---|---|
 | [`v0.3-colab/`](v0.3-colab) | The original study: PWM-Dyn v0.3, Google Colab notebook (`PWM_Colab.ipynb`), TimesFM opponent harness, gpt-oss explanation layer, provenance audit; plus the Kaggle notebook that completed the opponent rounds |
-| [`v0.6-conference/`](v0.6-conference) | **Current.** PWM-Dyn v0.6, ParadoxBench-1.1 (adds PEMS03, PEMS07, METR-LA, PEMS-BAY), opponent harness for STID / Graph WaveNet / STAEformer, validation ablation, Diebold–Mariano and block-bootstrap tests, results |
+| [`v0.7-realworld/`](v0.7-realworld) | **Current.** PWM-Dyn v0.7 (fallback base, burst-outage training, online correction), ParadoxBench-1.2 Track G (real-outage replay), validation-only ablation, results |
+| [`v0.6-conference/`](v0.6-conference) | PWM-Dyn v0.6, ParadoxBench-1.1 (adds PEMS03, PEMS07, METR-LA, PEMS-BAY), opponent harness for STID / Graph WaveNet / STAEformer, validation ablation, Diebold–Mariano and block-bootstrap tests, results |
 | [`paper-conference/`](paper-conference) | Conference paper (ACM sigconf): anonymous review build, and the named version in `named/` |
 | [`v0.4-paradoxbench/`](v0.4-paradoxbench) | PWM-Dyn v0.4/v0.4.1 and the **ParadoxBench-1** benchmark (`paradoxbench/`, spec in [`SPEC.md`](v0.4-paradoxbench/paradoxbench/SPEC.md)); Kaggle notebooks for the v0.4 study, the v0.4.1 recipe check and the stopped v0.5 sweep |
 | [`results/`](results) | ParadoxBench-1 leaderboard (`LEADERBOARD.md`) and every scored row as JSON, transcribed from the Kaggle run logs |
@@ -89,6 +114,7 @@ Full tables, interval coverage and run provenance: [RESULTS.md](RESULTS.md).
 
 ## Reproduce
 
+- **v0.7 / ParadoxBench-1.2 (Kaggle):** see [`v0.7-realworld/README.md`](v0.7-realworld/README.md#run).
 - **v0.6 / ParadoxBench-1.1 (Kaggle):** see [`v0.6-conference/README.md`](v0.6-conference/README.md): `tools/fetch_all.py --opponents`, `tools/prepare_traffic_data.py`, then `run_v06_pwm.py --frozen`, `run_v06_opponents.py` and `run_v06_analysis.py` on GPU T4 x2.
 - **v0.3 (Colab):** open `v0.3-colab/PWM_Colab.ipynb` in Google Colab with a T4 GPU and run top to bottom.
 - **ParadoxBench / v0.4–v0.5 (Kaggle):** import `v0.4-paradoxbench/notebooks/kaggle_paradoxbench_v04.ipynb`

@@ -1,0 +1,59 @@
+v0.7 Kaggle run 2026-11-03/04 (UTC), notebook8ffe55b5c8, GPU T4 x2, 13952.5 s (successful), repo commit b0f6a08 (branch v0.7)
+724 | 0.00s - Debugger warning: It seems that frozen modules are being used, which may
+PWM-Dyn v0.7 study, GPUs: 2, budget 258 min
+[ablation gpu0 22:11:56] step budget 33500 -> 100 epochs
+[ablation gpu1 22:11:56] step budget 33500 -> 100 epochs
+[ablation gpu0 22:20:46] step budget 33500 -> 100 epochs
+[ablation gpu1 22:20:50] step budget 33500 -> 100 epochs
+[ablation gpu0 22:29:53] step budget 33500 -> 45 epochs
+[ablation gpu1 22:30:31] step budget 33500 -> 45 epochs
+[ablation gpu0 22:39:07] step budget 33500 -> 45 epochs
+[ablation gpu1 22:39:36] step budget 33500 -> 45 epochs
+[ablation] PEMS08 base: validation MAE clean 14.610 dark 23.952 gaps 24.642
+[ablation] PEMS08 fallback: validation MAE clean 14.721 dark 22.688 gaps 26.201
+[ablation] PEMS08 robust: validation MAE clean 14.805 dark 22.318 gaps 18.576
+[ablation] PEMS08 robust-ema: validation MAE clean 15.065 dark 22.367 gaps 18.814
+[ablation] METR-LA base: validation MAE clean 2.721 dark 2.923 gaps 2.936
+[ablation] METR-LA fallback: validation MAE clean 2.720 dark 3.224 gaps 3.146
+[ablation] METR-LA robust: validation MAE clean 2.709 dark 3.193 gaps 3.057
+[ablation] METR-LA robust-ema: validation MAE clean 2.713 dark 3.208 gaps 3.072
+[ablation] robust vs base: clean ratio 1.0045, dark/outage ratio 0.9549
+[ablation] fallback vs base: clean ratio 1.0036, dark/outage ratio 1.0463
+[ablation] robust-ema vs robust: clean ratio 1.0095, dark/outage ratio 1.0061
+[ablation] frozen configuration: robust --no_clim --epochs 100 --val_stride 1 --bs 32 --lr 2e-3 --step_budget 33500 --fallback --gap_p 0.2 --gap_mean 6
+[pwm gpu0 22:49:49] step budget 33500 -> 64 epochs
+[pwm gpu1 22:49:49] step budget 33500 -> 64 epochs
+[pwm gpu1 23:42:08] step budget 33500 -> 64 epochs
+[pwm gpu0 23:44:51] step budget 33500 -> 30 epochs
+[pwm gpu0 23:59:36] step budget 33500 -> 30 epochs
+[pwm gpu0 00:14:22] step budget 33500 -> 30 epochs
+[pwm gpu0 00:29:06] step budget 33500 -> 69 epochs
+[pwm gpu1 00:34:04] step budget 33500 -> 69 epochs
+[pwm gpu0 00:46:49] step budget 33500 -> 69 epochs
+[pwm gpu1 00:51:08] step budget 33500 -> 100 epochs
+[pwm gpu0 01:04:31] step budget 33500 -> 100 epochs
+[pwm gpu1 01:04:38] step budget 33500 -> 100 epochs
+[pwm gpu1 01:18:10] step budget 33500 -> 45 epochs
+[pwm gpu0 01:18:42] step budget 33500 -> 45 epochs
+[pwm gpu1 01:27:30] step budget 33500 -> 45 epochs
+[pwm gpu0 01:28:12] step budget 33500 -> 100 epochs
+[pwm gpu1 01:36:55] step budget 33500 -> 100 epochs
+[pwm gpu0 01:37:31] step budget 33500 -> 100 epochs
+[online gpu0 01:47:06] ParadoxBench-online PEMS08: validation MAE without correction 14.653; best beta 0.5 tau 12.0 -> 14.357 (-2.02%)
+[online gpu0 01:47:09] ParadoxBench PEMS08/B PWM-Dyn v0.7 online (3-seed, CQR): MAE 14.002 RMSE 23.224 COV80 80.1% IS80 66.57 QL 4.552
+[online gpu1 01:48:01] ParadoxBench-online PEMS04: validation MAE without correction 18.423; best beta 0.25 tau 12.0 -> 18.327 (-0.52%)
+[online gpu1 01:48:07] ParadoxBench PEMS04/B PWM-Dyn v0.7 online (3-seed, CQR): MAE 18.332 RMSE 30.291 COV80 79.8% IS80 85.35 QL 5.900
+[online gpu1 01:49:05] ParadoxBench-online PEMS03: validation MAE without correction 13.549; best beta 0.25 tau 1.0 -> 13.451 (-0.73%)
+[online gpu1 01:49:11] ParadoxBench PEMS03/B PWM-Dyn v0.7 online (3-seed, CQR): MAE 14.268 RMSE 22.937 COV80 78.4% IS80 66.81 QL 4.605
+[online gpu0 01:51:26] ParadoxBench-online PEMS07: validation MAE without correction 19.391; best beta 0.25 tau 3.0 -> 19.219 (-0.89%)
+[online gpu0 01:51:42] ParadoxBench PEMS07/B PWM-Dyn v0.7 online (3-seed, CQR): MAE 19.605 RMSE 32.595 COV80 79.8% IS80 94.14 QL 6.405
+[online gpu1 01:51:53] ParadoxBench-online METR-LA: validation MAE without correction 2.690; best beta 0.0 tau 1.0 -> 2.690 (+0.00%)
+[online gpu1 01:51:53] ParadoxBench-online METR-LA: correction not selected on validation; Track B = Track A model
+[online gpu1 01:51:55] ParadoxBench METR-LA/B PWM-Dyn v0.7 (3-seed, CQR): MAE 2.918 RMSE 5.874 COV80 80.3% IS80 14.33 QL 0.964
+[online gpu1 01:53:11] ParadoxBench-online PEMS-BAY: validation MAE without correction 1.524; best beta 0.0 tau 1.0 -> 1.524 (+0.00%)
+[online gpu1 01:53:11] ParadoxBench-online PEMS-BAY: correction not selected on validation; Track B = Track A model
+[online gpu1 01:53:18] ParadoxBench PEMS-BAY/B PWM-Dyn v0.7 (3-seed, CQR): MAE 1.533 RMSE 3.468 COV80 79.1% IS80 7.60 QL 0.509
+=== v0.7 PWM session done in 229.7 min ===
+PROVENANCE: PASS: PWM checkpoints contain only PWM-Dyn's own trained parameters; PWM code imports no external model library
+merged 79 rows from 1 roots
+FROZEN|{"ratios": {"robust": {"vs": "base", "clean": 1.0044532278920475, "dark_gaps": 0.9549006213967498}, "fallback": {"vs": "base", "clean": 1.0036194396023643, "dark_gaps": 1.0463036073023642}, "robust-ema": {"vs": "robust", "clean": 1.0094988848125237, "dark_gaps": 1.0060994071250422}}, "chosen": "robust", "args": ["--no_clim", "--epochs", "100", "--val_stride", "1", "--bs", "32", "--lr", "2e-3", "--step_budget", "33500", "--fallback", "--gap_p", "0.2", "--gap_mean", "6"], "val_conditions": {"PEMS08": {"base": {"clean": 14.609538078308105, "dark": 23.952444076538086, "gaps": 24.642105102539062}, "fallback": {"clean": 14.721023559570312, "dark": 22.687829971313477, "gaps": 26.20145606994629}, "robust": {"clean": 14.804548263549805, "dark": 22.31824493408203, "gaps": 18.57604217529297}, "robust-ema": {"clean": 15.064547538757324, "dark": 22.367027282714844, "gaps": 18.81382179260254}}, "METR-LA": {"base": {"clean": 2.720858573913574, "dark": 2.9227774143218994, "gaps": 2.935621500015259}, "fallback": {"clean": 2.7197916507720947, "dark": 3.2242581844329834, "gaps": 3.145761013031006}, "robust": {"clean": 2.708773374557495, "dark": 3.1933202743530273, "gaps": 3.0572509765625}, "robust-ema": {"clean": 2.7126622200012207, "dark": 3.207832098007202, "gaps": 3.0721309185028076}}}}

@@ -14,8 +14,8 @@ contact:
     website: "https://paradoxailab.com"
 url: "https://paradoxailab.com"
 license: Apache-2.0
-version: "0.6.0"
-date-released: "2026-11-03"
+version: "0.7.0"
+date-released: "2026-11-04"
 keywords:
   - spatiotemporal forecasting
   - graph neural networks

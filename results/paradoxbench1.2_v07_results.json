@@ -1,0 +1,4658 @@
+{
+ "benchmark": "ParadoxBench-1.2",
+ "source": "Kaggle notebook8ffe55b5c8 log, 2026-11-04, commit b0f6a08",
+ "rows": [
+  {
+   "task": "METR-LA",
+   "track": "A",
+   "model": "Climatology quantiles",
+   "MAE": 3.8992,
+   "RMSE": 8.4136,
+   "MAPE": 12.482,
+   "QL": 1.2972,
+   "IS80": 19.4204,
+   "COV80": 0.7528,
+   "params": 0,
+   "context": "0",
+   "extra": {}
+  },
+  {
+   "task": "METR-LA",
+   "track": "A",
+   "model": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE": 3.0473,
+   "RMSE": 6.1475,
+   "MAPE": 8.282,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 309400,
+   "context": "12",
+   "extra": {
+    "epochs_run": 60,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 40.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "METR-LA",
+   "track": "A",
+   "model": "Last value",
+   "MAE": 5.0379,
+   "RMSE": 10.979,
+   "MAPE": 12.218,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 0,
+   "context": "1",
+   "extra": {}
+  },
+  {
+   "task": "METR-LA",
+   "track": "A",
+   "model": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE": 2.9194,
+   "RMSE": 5.8762,
+   "MAPE": 7.971,
+   "QL": 0.9645,
+   "IS80": 14.3388,
+   "COV80": 0.8058,
+   "params": 321636,
+   "context": "12",
+   "extra": {
+    "members": [
+     2.9597,
+     2.9589,
+     2.9564
+    ]
+   }
+  },
+  {
+   "task": "METR-LA",
+   "track": "A",
+   "model": "PWM-Dyn v0.7 (3-seed, CQR)",
+   "MAE": 2.9183,
+   "RMSE": 5.8739,
+   "MAPE": 7.914,
+   "QL": 0.9641,
+   "IS80": 14.3324,
+   "COV80": 0.8029,
+   "params": 321828,
+   "context": "12",
+   "extra": {
+    "members": [
+     2.9522,
+     2.9434,
+     2.9618
+    ]
+   }
+  },
+  {
+   "task": "METR-LA",
+   "track": "A",
+   "model": "STAEformer (CIKM'23, official code)",
+   "MAE": 3.0908,
+   "RMSE": 6.3281,
+   "MAPE": 8.701,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 1258980,
+   "context": "12",
+   "extra": {
+    "epochs_run": 12,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 40.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "METR-LA",
+   "track": "A",
+   "model": "STID (CIKM'22, official code)",
+   "MAE": 3.1243,
+   "RMSE": 6.4983,
+   "MAPE": 9.133,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 117868,
+   "context": "12",
+   "extra": {
+    "epochs_run": 100,
+    "stopped_by": "authors' epoch limit",
+    "budget_minutes": 8.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "METR-LA",
+   "track": "B",
+   "model": "Climatology quantiles",
+   "MAE": 3.8992,
+   "RMSE": 8.4136,
+   "MAPE": 12.482,
+   "QL": 1.2972,
+   "IS80": 19.4204,
+   "COV80": 0.7528,
+   "params": 0,
+   "context": "0",
+   "extra": {}
+  },
+  {
+   "task": "METR-LA",
+   "track": "B",
+   "model": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE": 3.0473,
+   "RMSE": 6.1475,
+   "MAPE": 8.282,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 309400,
+   "context": "12",
+   "extra": {
+    "epochs_run": 60,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 40.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "METR-LA",
+   "track": "B",
+   "model": "Last value",
+   "MAE": 5.0379,
+   "RMSE": 10.979,
+   "MAPE": 12.218,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 0,
+   "context": "1",
+   "extra": {}
+  },
+  {
+   "task": "METR-LA",
+   "track": "B",
+   "model": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE": 2.9194,
+   "RMSE": 5.8762,
+   "MAPE": 7.971,
+   "QL": 0.9645,
+   "IS80": 14.3388,
+   "COV80": 0.8058,
+   "params": 321636,
+   "context": "12",
+   "extra": {
+    "members": [
+     2.9597,
+     2.9589,
+     2.9564
+    ]
+   }
+  },
+  {
+   "task": "METR-LA",
+   "track": "B",
+   "model": "PWM-Dyn v0.7 (3-seed, CQR)",
+   "MAE": 2.9183,
+   "RMSE": 5.8737,
+   "MAPE": 7.914,
+   "QL": 0.9641,
+   "IS80": 14.3315,
+   "COV80": 0.8029,
+   "params": 321828,
+   "context": "312",
+   "extra": {
+    "online": {
+     "beta": 0.0,
+     "tau": 1.0,
+     "val_MAE_uncorrected": 2.6900525093078613
+    }
+   }
+  },
+  {
+   "task": "METR-LA",
+   "track": "B",
+   "model": "STAEformer (CIKM'23, official code)",
+   "MAE": 3.0908,
+   "RMSE": 6.3281,
+   "MAPE": 8.701,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 1258980,
+   "context": "12",
+   "extra": {
+    "epochs_run": 12,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 40.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "METR-LA",
+   "track": "B",
+   "model": "STID (CIKM'22, official code)",
+   "MAE": 3.1243,
+   "RMSE": 6.4983,
+   "MAPE": 9.133,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 117868,
+   "context": "12",
+   "extra": {
+    "epochs_run": 100,
+    "stopped_by": "authors' epoch limit",
+    "budget_minutes": 8.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "METR-LA",
+   "track": "B",
+   "model": "Seasonal naive",
+   "MAE": 10.3473,
+   "RMSE": 20.7232,
+   "MAPE": 23.214,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 0,
+   "context": "300",
+   "extra": {}
+  },
+  {
+   "task": "METR-LA",
+   "track": "B",
+   "model": "TimesFM-3.0 (Google) multivariate (zero-shot, ctx 512)",
+   "MAE": 3.4013,
+   "RMSE": 6.9719,
+   "MAPE": 9.747,
+   "QL": 1.1459,
+   "IS80": 17.3698,
+   "COV80": 0.8127,
+   "params": null,
+   "context": "512",
+   "extra": {}
+  },
+  {
+   "task": "METR-LA",
+   "track": "G",
+   "model": "Climatology quantiles",
+   "MAE": 3.8938,
+   "RMSE": 8.409,
+   "MAPE": 12.458,
+   "QL": 1.2951,
+   "IS80": 19.3844,
+   "COV80": 0.7529,
+   "params": 0,
+   "context": "0",
+   "extra": {}
+  },
+  {
+   "task": "METR-LA",
+   "track": "G",
+   "model": "Last observed value (climatology if none)",
+   "MAE": 4.3593,
+   "RMSE": 8.8593,
+   "MAPE": 12.569,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 0,
+   "context": "12",
+   "extra": {}
+  },
+  {
+   "task": "METR-LA",
+   "track": "G",
+   "model": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE": 3.1012,
+   "RMSE": 6.1715,
+   "MAPE": 8.462,
+   "QL": 1.0248,
+   "IS80": 15.2393,
+   "COV80": 0.8046,
+   "params": 321636,
+   "context": "12",
+   "extra": {
+    "members": [
+     3.1393,
+     3.1614,
+     3.1608
+    ]
+   }
+  },
+  {
+   "task": "METR-LA",
+   "track": "G",
+   "model": "PWM-Dyn v0.7 (3-seed, CQR)",
+   "MAE": 3.1466,
+   "RMSE": 6.3005,
+   "MAPE": 8.742,
+   "QL": 1.0519,
+   "IS80": 15.8246,
+   "COV80": 0.8075,
+   "params": 321828,
+   "context": "12",
+   "extra": {
+    "members": [
+     3.1834,
+     3.172,
+     3.1974
+    ]
+   }
+  },
+  {
+   "task": "METR-LA",
+   "track": "R",
+   "model": "Climatology quantiles",
+   "MAE": 4.0743,
+   "RMSE": 8.7614,
+   "MAPE": 13.359,
+   "QL": 1.3543,
+   "IS80": 20.2573,
+   "COV80": 0.7502,
+   "params": 0,
+   "context": "0",
+   "extra": {}
+  },
+  {
+   "task": "METR-LA",
+   "track": "R",
+   "model": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE": 5.889,
+   "RMSE": 10.6855,
+   "MAPE": 19.242,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 309400,
+   "context": "12",
+   "extra": {
+    "epochs_run": 60,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 40.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "METR-LA",
+   "track": "R",
+   "model": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE": 3.364,
+   "RMSE": 6.6923,
+   "MAPE": 9.513,
+   "QL": 1.116,
+   "IS80": 16.6608,
+   "COV80": 0.8059,
+   "params": 321636,
+   "context": "12",
+   "extra": {
+    "members": [
+     3.4072,
+     3.4384,
+     3.4104
+    ]
+   }
+  },
+  {
+   "task": "METR-LA",
+   "track": "R",
+   "model": "PWM-Dyn v0.7 (3-seed, CQR)",
+   "MAE": 3.486,
+   "RMSE": 6.9385,
+   "MAPE": 10.119,
+   "QL": 1.1782,
+   "IS80": 17.9171,
+   "COV80": 0.8132,
+   "params": 321828,
+   "context": "12",
+   "extra": {
+    "members": [
+     3.5254,
+     3.4978,
+     3.5436
+    ]
+   }
+  },
+  {
+   "task": "METR-LA",
+   "track": "R",
+   "model": "STAEformer (CIKM'23, official code)",
+   "MAE": 5.3277,
+   "RMSE": 10.3483,
+   "MAPE": 16.859,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 1258980,
+   "context": "12",
+   "extra": {
+    "epochs_run": 12,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 40.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "METR-LA",
+   "track": "R",
+   "model": "STID (CIKM'22, official code)",
+   "MAE": 5.1107,
+   "RMSE": 10.0486,
+   "MAPE": 16.525,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 117868,
+   "context": "12",
+   "extra": {
+    "epochs_run": 100,
+    "stopped_by": "authors' epoch limit",
+    "budget_minutes": 8.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "A",
+   "model": "Climatology quantiles",
+   "MAE": 2.5326,
+   "RMSE": 5.4791,
+   "MAPE": 5.955,
+   "QL": 0.8617,
+   "IS80": 13.189,
+   "COV80": 0.7474,
+   "params": 0,
+   "context": "0",
+   "extra": {}
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "A",
+   "model": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE": 1.5693,
+   "RMSE": 3.5699,
+   "MAPE": 3.481,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 311760,
+   "context": "12",
+   "extra": {
+    "epochs_run": 30,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 50.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "A",
+   "model": "Last value",
+   "MAE": 2.1715,
+   "RMSE": 5.107,
+   "MAPE": 4.645,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 0,
+   "context": "1",
+   "extra": {}
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "A",
+   "model": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE": 1.5193,
+   "RMSE": 3.4507,
+   "MAPE": 3.337,
+   "QL": 0.5045,
+   "IS80": 7.5382,
+   "COV80": 0.7943,
+   "params": 336740,
+   "context": "12",
+   "extra": {
+    "members": [
+     1.5436,
+     1.5357,
+     1.5349
+    ]
+   }
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "A",
+   "model": "PWM-Dyn v0.7 (3-seed, CQR)",
+   "MAE": 1.533,
+   "RMSE": 3.4685,
+   "MAPE": 3.404,
+   "QL": 0.5088,
+   "IS80": 7.6002,
+   "COV80": 0.791,
+   "params": 336932,
+   "context": "12",
+   "extra": {
+    "members": [
+     1.5446,
+     1.5499,
+     1.5581
+    ]
+   }
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "A",
+   "model": "STAEformer (CIKM'23, official code)",
+   "MAE": 1.595,
+   "RMSE": 3.6296,
+   "MAPE": 3.598,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 1372260,
+   "context": "12",
+   "extra": {
+    "epochs_run": 6,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 55.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "A",
+   "model": "STID (CIKM'22, official code)",
+   "MAE": 1.5608,
+   "RMSE": 3.5965,
+   "MAPE": 3.538,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 121644,
+   "context": "12",
+   "extra": {
+    "epochs_run": 94,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 12.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "B",
+   "model": "Climatology quantiles",
+   "MAE": 2.5326,
+   "RMSE": 5.4791,
+   "MAPE": 5.955,
+   "QL": 0.8617,
+   "IS80": 13.189,
+   "COV80": 0.7474,
+   "params": 0,
+   "context": "0",
+   "extra": {}
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "B",
+   "model": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE": 1.5693,
+   "RMSE": 3.5699,
+   "MAPE": 3.481,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 311760,
+   "context": "12",
+   "extra": {
+    "epochs_run": 30,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 50.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "B",
+   "model": "Last value",
+   "MAE": 2.1715,
+   "RMSE": 5.107,
+   "MAPE": 4.645,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 0,
+   "context": "1",
+   "extra": {}
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "B",
+   "model": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE": 1.5193,
+   "RMSE": 3.4507,
+   "MAPE": 3.337,
+   "QL": 0.5045,
+   "IS80": 7.5382,
+   "COV80": 0.7943,
+   "params": 336740,
+   "context": "12",
+   "extra": {
+    "members": [
+     1.5436,
+     1.5357,
+     1.5349
+    ]
+   }
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "B",
+   "model": "PWM-Dyn v0.7 (3-seed, CQR)",
+   "MAE": 1.533,
+   "RMSE": 3.4685,
+   "MAPE": 3.404,
+   "QL": 0.5088,
+   "IS80": 7.6001,
+   "COV80": 0.791,
+   "params": 336932,
+   "context": "312",
+   "extra": {
+    "online": {
+     "beta": 0.0,
+     "tau": 1.0,
+     "val_MAE_uncorrected": 1.5239280462265015
+    }
+   }
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "B",
+   "model": "STAEformer (CIKM'23, official code)",
+   "MAE": 1.595,
+   "RMSE": 3.6296,
+   "MAPE": 3.598,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 1372260,
+   "context": "12",
+   "extra": {
+    "epochs_run": 6,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 55.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "B",
+   "model": "STID (CIKM'22, official code)",
+   "MAE": 1.5608,
+   "RMSE": 3.5965,
+   "MAPE": 3.538,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 121644,
+   "context": "12",
+   "extra": {
+    "epochs_run": 94,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 12.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "B",
+   "model": "Seasonal naive",
+   "MAE": 3.3677,
+   "RMSE": 7.7262,
+   "MAPE": 7.738,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 0,
+   "context": "300",
+   "extra": {}
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "B",
+   "model": "TimesFM-3.0 (Google) multivariate (zero-shot, ctx 512)",
+   "MAE": 1.6609,
+   "RMSE": 3.9467,
+   "MAPE": 3.766,
+   "QL": 0.5533,
+   "IS80": 8.2931,
+   "COV80": 0.8098,
+   "params": null,
+   "context": "512",
+   "extra": {}
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "G",
+   "model": "Climatology quantiles",
+   "MAE": 2.5315,
+   "RMSE": 5.4707,
+   "MAPE": 5.982,
+   "QL": 0.8611,
+   "IS80": 13.1762,
+   "COV80": 0.7471,
+   "params": 0,
+   "context": "0",
+   "extra": {}
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "G",
+   "model": "Last observed value (climatology if none)",
+   "MAE": 2.6624,
+   "RMSE": 5.9569,
+   "MAPE": 6.049,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 0,
+   "context": "12",
+   "extra": {}
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "G",
+   "model": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE": 2.1957,
+   "RMSE": 4.6645,
+   "MAPE": 5.091,
+   "QL": 0.7434,
+   "IS80": 11.3231,
+   "COV80": 0.7852,
+   "params": 336740,
+   "context": "12",
+   "extra": {
+    "members": [
+     2.2404,
+     2.225,
+     2.2658
+    ]
+   }
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "G",
+   "model": "PWM-Dyn v0.7 (3-seed, CQR)",
+   "MAE": 1.9588,
+   "RMSE": 4.2045,
+   "MAPE": 4.425,
+   "QL": 0.672,
+   "IS80": 10.3655,
+   "COV80": 0.7809,
+   "params": 336932,
+   "context": "12",
+   "extra": {
+    "members": [
+     1.9856,
+     1.9787,
+     1.9782
+    ]
+   }
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "R",
+   "model": "Climatology quantiles",
+   "MAE": 2.7081,
+   "RMSE": 6.0459,
+   "MAPE": 6.877,
+   "QL": 0.9273,
+   "IS80": 14.2778,
+   "COV80": 0.7476,
+   "params": 0,
+   "context": "0",
+   "extra": {}
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "R",
+   "model": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE": 51.758,
+   "RMSE": 53.1677,
+   "MAPE": 82.759,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 311760,
+   "context": "12",
+   "extra": {
+    "epochs_run": 30,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 50.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "R",
+   "model": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE": 2.3057,
+   "RMSE": 5.0367,
+   "MAPE": 5.656,
+   "QL": 0.8117,
+   "IS80": 12.8228,
+   "COV80": 0.7849,
+   "params": 336740,
+   "context": "12",
+   "extra": {
+    "members": [
+     2.3311,
+     2.3423,
+     2.3457
+    ]
+   }
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "R",
+   "model": "PWM-Dyn v0.7 (3-seed, CQR)",
+   "MAE": 2.3905,
+   "RMSE": 5.2078,
+   "MAPE": 5.929,
+   "QL": 0.8546,
+   "IS80": 13.6849,
+   "COV80": 0.7766,
+   "params": 336932,
+   "context": "12",
+   "extra": {
+    "members": [
+     2.4337,
+     2.4089,
+     2.4051
+    ]
+   }
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "R",
+   "model": "STAEformer (CIKM'23, official code)",
+   "MAE": 44.7184,
+   "RMSE": 46.2233,
+   "MAPE": 70.997,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 1372260,
+   "context": "12",
+   "extra": {
+    "epochs_run": 6,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 55.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "R",
+   "model": "STID (CIKM'22, official code)",
+   "MAE": 42.1924,
+   "RMSE": 45.9192,
+   "MAPE": 68.067,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 121644,
+   "context": "12",
+   "extra": {
+    "epochs_run": 94,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 12.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS03",
+   "track": "A",
+   "model": "Climatology quantiles",
+   "MAE": 25.9336,
+   "RMSE": 47.7954,
+   "MAPE": 26.339,
+   "QL": 9.459,
+   "IS80": 154.1017,
+   "COV80": 0.6102,
+   "params": 0,
+   "context": "0",
+   "extra": {}
+  },
+  {
+   "task": "PEMS03",
+   "track": "A",
+   "model": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE": 14.699,
+   "RMSE": 25.1704,
+   "MAPE": 15.608,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 312420,
+   "context": "12",
+   "extra": {
+    "epochs_run": 58,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 40.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS03",
+   "track": "A",
+   "model": "Last value",
+   "MAE": 23.8867,
+   "RMSE": 37.3086,
+   "MAPE": 22.865,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 0,
+   "context": "1",
+   "extra": {}
+  },
+  {
+   "task": "PEMS03",
+   "track": "A",
+   "model": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE": 14.3384,
+   "RMSE": 23.1232,
+   "MAPE": 15.089,
+   "QL": 4.6278,
+   "IS80": 67.1427,
+   "COV80": 0.7843,
+   "params": 340964,
+   "context": "12",
+   "extra": {
+    "members": [
+     14.4496,
+     14.4483,
+     14.6491
+    ]
+   }
+  },
+  {
+   "task": "PEMS03",
+   "track": "A",
+   "model": "PWM-Dyn v0.7 (3-seed, CQR)",
+   "MAE": 14.6034,
+   "RMSE": 23.6425,
+   "MAPE": 15.321,
+   "QL": 4.7147,
+   "IS80": 68.4257,
+   "COV80": 0.7786,
+   "params": 341156,
+   "context": "12",
+   "extra": {
+    "members": [
+     14.8954,
+     14.7303,
+     14.7426
+    ]
+   }
+  },
+  {
+   "task": "PEMS03",
+   "track": "A",
+   "model": "STAEformer (CIKM'23, official code)",
+   "MAE": 15.4464,
+   "RMSE": 26.0273,
+   "MAPE": 17.754,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 1403940,
+   "context": "12",
+   "extra": {
+    "epochs_run": 10,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 40.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS03",
+   "track": "A",
+   "model": "STID (CIKM'22, official code)",
+   "MAE": 15.4983,
+   "RMSE": 26.8327,
+   "MAPE": 16.595,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 122700,
+   "context": "12",
+   "extra": {
+    "epochs_run": 100,
+    "stopped_by": "authors' epoch limit",
+    "budget_minutes": 8.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS03",
+   "track": "B",
+   "model": "Climatology quantiles",
+   "MAE": 25.9336,
+   "RMSE": 47.7954,
+   "MAPE": 26.339,
+   "QL": 9.459,
+   "IS80": 154.1017,
+   "COV80": 0.6102,
+   "params": 0,
+   "context": "0",
+   "extra": {}
+  },
+  {
+   "task": "PEMS03",
+   "track": "B",
+   "model": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE": 14.699,
+   "RMSE": 25.1704,
+   "MAPE": 15.608,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 312420,
+   "context": "12",
+   "extra": {
+    "epochs_run": 58,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 40.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS03",
+   "track": "B",
+   "model": "Last value",
+   "MAE": 23.8867,
+   "RMSE": 37.3086,
+   "MAPE": 22.865,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 0,
+   "context": "1",
+   "extra": {}
+  },
+  {
+   "task": "PEMS03",
+   "track": "B",
+   "model": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE": 14.3384,
+   "RMSE": 23.1232,
+   "MAPE": 15.089,
+   "QL": 4.6278,
+   "IS80": 67.1427,
+   "COV80": 0.7843,
+   "params": 340964,
+   "context": "12",
+   "extra": {
+    "members": [
+     14.4496,
+     14.4483,
+     14.6491
+    ]
+   }
+  },
+  {
+   "task": "PEMS03",
+   "track": "B",
+   "model": "PWM-Dyn v0.7 online (3-seed, CQR)",
+   "MAE": 14.268,
+   "RMSE": 22.9368,
+   "MAPE": 15.122,
+   "QL": 4.6051,
+   "IS80": 66.8143,
+   "COV80": 0.7839,
+   "params": 341156,
+   "context": "312",
+   "extra": {
+    "online": {
+     "beta": 0.25,
+     "tau": 1.0,
+     "val_MAE_uncorrected": 13.54941463470459
+    }
+   }
+  },
+  {
+   "task": "PEMS03",
+   "track": "B",
+   "model": "STAEformer (CIKM'23, official code)",
+   "MAE": 15.4464,
+   "RMSE": 26.0273,
+   "MAPE": 17.754,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 1403940,
+   "context": "12",
+   "extra": {
+    "epochs_run": 10,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 40.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS03",
+   "track": "B",
+   "model": "STID (CIKM'22, official code)",
+   "MAE": 15.4983,
+   "RMSE": 26.8327,
+   "MAPE": 16.595,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 122700,
+   "context": "12",
+   "extra": {
+    "epochs_run": 100,
+    "stopped_by": "authors' epoch limit",
+    "budget_minutes": 8.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS03",
+   "track": "B",
+   "model": "Seasonal naive",
+   "MAE": 30.2828,
+   "RMSE": 56.1677,
+   "MAPE": 27.054,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 0,
+   "context": "300",
+   "extra": {}
+  },
+  {
+   "task": "PEMS03",
+   "track": "B",
+   "model": "TimesFM-3.0 (Google) multivariate (zero-shot, ctx 512)",
+   "MAE": 14.1481,
+   "RMSE": 22.6998,
+   "MAPE": 13.394,
+   "QL": 4.5413,
+   "IS80": 65.4984,
+   "COV80": 0.8068,
+   "params": null,
+   "context": "512",
+   "extra": {}
+  },
+  {
+   "task": "PEMS03",
+   "track": "G",
+   "model": "Climatology quantiles",
+   "MAE": 26.0677,
+   "RMSE": 48.3024,
+   "MAPE": 26.506,
+   "QL": 9.519,
+   "IS80": 155.2317,
+   "COV80": 0.6108,
+   "params": 0,
+   "context": "0",
+   "extra": {}
+  },
+  {
+   "task": "PEMS03",
+   "track": "G",
+   "model": "Last observed value (climatology if none)",
+   "MAE": 29.7106,
+   "RMSE": 48.8583,
+   "MAPE": 28.449,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 0,
+   "context": "12",
+   "extra": {}
+  },
+  {
+   "task": "PEMS03",
+   "track": "G",
+   "model": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE": 22.0433,
+   "RMSE": 35.3389,
+   "MAPE": 40.829,
+   "QL": 7.1948,
+   "IS80": 105.6286,
+   "COV80": 0.7703,
+   "params": 340964,
+   "context": "12",
+   "extra": {
+    "members": [
+     22.3542,
+     22.4828,
+     22.8464
+    ]
+   }
+  },
+  {
+   "task": "PEMS03",
+   "track": "G",
+   "model": "PWM-Dyn v0.7 (3-seed, CQR)",
+   "MAE": 18.3922,
+   "RMSE": 31.3976,
+   "MAPE": 19.441,
+   "QL": 6.1349,
+   "IS80": 92.0863,
+   "COV80": 0.7538,
+   "params": 341156,
+   "context": "12",
+   "extra": {
+    "members": [
+     18.6512,
+     18.66,
+     18.5147
+    ]
+   }
+  },
+  {
+   "task": "PEMS03",
+   "track": "R",
+   "model": "Climatology quantiles",
+   "MAE": 23.3075,
+   "RMSE": 42.9015,
+   "MAPE": 26.822,
+   "QL": 8.5315,
+   "IS80": 139.4065,
+   "COV80": 0.6239,
+   "params": 0,
+   "context": "0",
+   "extra": {}
+  },
+  {
+   "task": "PEMS03",
+   "track": "R",
+   "model": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE": 138.3663,
+   "RMSE": 190.0014,
+   "MAPE": 83.155,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 312420,
+   "context": "12",
+   "extra": {
+    "epochs_run": 58,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 40.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS03",
+   "track": "R",
+   "model": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE": 17.7113,
+   "RMSE": 27.9393,
+   "MAPE": 25.782,
+   "QL": 5.7838,
+   "IS80": 84.9576,
+   "COV80": 0.7767,
+   "params": 340964,
+   "context": "12",
+   "extra": {
+    "members": [
+     17.9188,
+     17.5424,
+     18.3734
+    ]
+   }
+  },
+  {
+   "task": "PEMS03",
+   "track": "R",
+   "model": "PWM-Dyn v0.7 (3-seed, CQR)",
+   "MAE": 19.1423,
+   "RMSE": 31.013,
+   "MAPE": 22.539,
+   "QL": 6.4241,
+   "IS80": 97.0133,
+   "COV80": 0.7443,
+   "params": 341156,
+   "context": "12",
+   "extra": {
+    "members": [
+     19.3082,
+     19.3778,
+     19.2685
+    ]
+   }
+  },
+  {
+   "task": "PEMS03",
+   "track": "R",
+   "model": "STAEformer (CIKM'23, official code)",
+   "MAE": 119.3412,
+   "RMSE": 172.7769,
+   "MAPE": 67.328,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 1403940,
+   "context": "12",
+   "extra": {
+    "epochs_run": 10,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 40.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS03",
+   "track": "R",
+   "model": "STID (CIKM'22, official code)",
+   "MAE": 113.0473,
+   "RMSE": 159.8505,
+   "MAPE": 72.022,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 122700,
+   "context": "12",
+   "extra": {
+    "epochs_run": 100,
+    "stopped_by": "authors' epoch limit",
+    "budget_minutes": 8.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS04",
+   "track": "A",
+   "model": "Climatology quantiles",
+   "MAE": 25.0219,
+   "RMSE": 41.3596,
+   "MAPE": 16.134,
+   "QL": 8.4307,
+   "IS80": 127.8122,
+   "COV80": 0.7152,
+   "params": 0,
+   "context": "0",
+   "extra": {}
+  },
+  {
+   "task": "PEMS04",
+   "track": "A",
+   "model": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE": 19.3683,
+   "RMSE": 30.7451,
+   "MAPE": 14.606,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 311400,
+   "context": "12",
+   "extra": {
+    "epochs_run": 64,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 30.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS04",
+   "track": "A",
+   "model": "Last value",
+   "MAE": 31.5563,
+   "RMSE": 48.2511,
+   "MAPE": 21.331,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 0,
+   "context": "1",
+   "extra": {}
+  },
+  {
+   "task": "PEMS04",
+   "track": "A",
+   "model": "PWM-Dyn ablation clim-vs1 (2-seed, CQR)",
+   "MAE": 19.0649,
+   "RMSE": 31.8909,
+   "MAPE": 12.821,
+   "QL": 6.1159,
+   "IS80": 88.1511,
+   "COV80": 0.798,
+   "params": 335684,
+   "context": "12",
+   "extra": {
+    "members": [
+     19.0934,
+     19.2262
+    ]
+   }
+  },
+  {
+   "task": "PEMS04",
+   "track": "A",
+   "model": "PWM-Dyn ablation noclim-vs1 (2-seed, CQR)",
+   "MAE": 18.416,
+   "RMSE": 30.8372,
+   "MAPE": 12.6,
+   "QL": 5.934,
+   "IS80": 85.9406,
+   "COV80": 0.7991,
+   "params": 334436,
+   "context": "12",
+   "extra": {
+    "members": [
+     18.552,
+     18.5054
+    ]
+   }
+  },
+  {
+   "task": "PEMS04",
+   "track": "A",
+   "model": "PWM-Dyn ablation v03 (2-seed, CQR)",
+   "MAE": 18.472,
+   "RMSE": 30.2666,
+   "MAPE": 12.881,
+   "QL": 5.9478,
+   "IS80": 86.0745,
+   "COV80": 0.8027,
+   "params": 334436,
+   "context": "12",
+   "extra": {
+    "members": [
+     18.6049,
+     18.577
+    ]
+   }
+  },
+  {
+   "task": "PEMS04",
+   "track": "A",
+   "model": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE": 18.4589,
+   "RMSE": 30.7714,
+   "MAPE": 12.687,
+   "QL": 5.9509,
+   "IS80": 86.233,
+   "COV80": 0.7996,
+   "params": 334436,
+   "context": "12",
+   "extra": {
+    "members": [
+     18.5196,
+     18.7023,
+     18.6454
+    ]
+   }
+  },
+  {
+   "task": "PEMS04",
+   "track": "A",
+   "model": "PWM-Dyn v0.7 (3-seed, CQR)",
+   "MAE": 18.5343,
+   "RMSE": 31.0236,
+   "MAPE": 12.996,
+   "QL": 5.9771,
+   "IS80": 86.6413,
+   "COV80": 0.7964,
+   "params": 334628,
+   "context": "12",
+   "extra": {
+    "members": [
+     18.7297,
+     18.6586,
+     18.7625
+    ]
+   }
+  },
+  {
+   "task": "PEMS04",
+   "track": "A",
+   "model": "STAEformer (CIKM'23, official code)",
+   "MAE": 19.2059,
+   "RMSE": 30.6551,
+   "MAPE": 12.921,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 1354980,
+   "context": "12",
+   "extra": {
+    "epochs_run": 12,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 30.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS04",
+   "track": "A",
+   "model": "STID (CIKM'22, official code)",
+   "MAE": 18.4908,
+   "RMSE": 30.0493,
+   "MAPE": 12.455,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 121068,
+   "context": "12",
+   "extra": {
+    "epochs_run": 100,
+    "stopped_by": "authors' epoch limit",
+    "budget_minutes": 6.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS04",
+   "track": "B",
+   "model": "Climatology quantiles",
+   "MAE": 25.0219,
+   "RMSE": 41.3596,
+   "MAPE": 16.134,
+   "QL": 8.4307,
+   "IS80": 127.8122,
+   "COV80": 0.7152,
+   "params": 0,
+   "context": "0",
+   "extra": {}
+  },
+  {
+   "task": "PEMS04",
+   "track": "B",
+   "model": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE": 19.3683,
+   "RMSE": 30.7451,
+   "MAPE": 14.606,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 311400,
+   "context": "12",
+   "extra": {
+    "epochs_run": 64,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 30.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS04",
+   "track": "B",
+   "model": "Last value",
+   "MAE": 31.5563,
+   "RMSE": 48.2511,
+   "MAPE": 21.331,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 0,
+   "context": "1",
+   "extra": {}
+  },
+  {
+   "task": "PEMS04",
+   "track": "B",
+   "model": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE": 18.4589,
+   "RMSE": 30.7714,
+   "MAPE": 12.687,
+   "QL": 5.9509,
+   "IS80": 86.233,
+   "COV80": 0.7996,
+   "params": 334436,
+   "context": "12",
+   "extra": {
+    "members": [
+     18.5196,
+     18.7023,
+     18.6454
+    ]
+   }
+  },
+  {
+   "task": "PEMS04",
+   "track": "B",
+   "model": "PWM-Dyn v0.7 online (3-seed, CQR)",
+   "MAE": 18.3318,
+   "RMSE": 30.2912,
+   "MAPE": 12.812,
+   "QL": 5.9004,
+   "IS80": 85.3532,
+   "COV80": 0.7983,
+   "params": 334628,
+   "context": "312",
+   "extra": {
+    "online": {
+     "beta": 0.25,
+     "tau": 12.0,
+     "val_MAE_uncorrected": 18.422815322875977
+    }
+   }
+  },
+  {
+   "task": "PEMS04",
+   "track": "B",
+   "model": "STAEformer (CIKM'23, official code)",
+   "MAE": 19.2059,
+   "RMSE": 30.6551,
+   "MAPE": 12.921,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 1354980,
+   "context": "12",
+   "extra": {
+    "epochs_run": 12,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 30.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS04",
+   "track": "B",
+   "model": "STID (CIKM'22, official code)",
+   "MAE": 18.4908,
+   "RMSE": 30.0493,
+   "MAPE": 12.455,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 121068,
+   "context": "12",
+   "extra": {
+    "epochs_run": 100,
+    "stopped_by": "authors' epoch limit",
+    "budget_minutes": 6.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS04",
+   "track": "B",
+   "model": "Seasonal naive",
+   "MAE": 40.6718,
+   "RMSE": 66.6411,
+   "MAPE": 27.058,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 0,
+   "context": "300",
+   "extra": {}
+  },
+  {
+   "task": "PEMS04",
+   "track": "G",
+   "model": "Climatology quantiles",
+   "MAE": 25.0158,
+   "RMSE": 41.3808,
+   "MAPE": 16.127,
+   "QL": 8.4297,
+   "IS80": 127.8136,
+   "COV80": 0.716,
+   "params": 0,
+   "context": "0",
+   "extra": {}
+  },
+  {
+   "task": "PEMS04",
+   "track": "G",
+   "model": "Last observed value (climatology if none)",
+   "MAE": 33.0458,
+   "RMSE": 50.7479,
+   "MAPE": 22.511,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 0,
+   "context": "12",
+   "extra": {}
+  },
+  {
+   "task": "PEMS04",
+   "track": "G",
+   "model": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE": 24.8925,
+   "RMSE": 38.967,
+   "MAPE": 21.965,
+   "QL": 8.1118,
+   "IS80": 118.8904,
+   "COV80": 0.7946,
+   "params": 334436,
+   "context": "12",
+   "extra": {
+    "members": [
+     25.7953,
+     25.2474,
+     25.1939
+    ]
+   }
+  },
+  {
+   "task": "PEMS04",
+   "track": "G",
+   "model": "PWM-Dyn v0.7 (3-seed, CQR)",
+   "MAE": 21.0485,
+   "RMSE": 35.0698,
+   "MAPE": 15.371,
+   "QL": 6.9365,
+   "IS80": 102.8538,
+   "COV80": 0.7948,
+   "params": 334628,
+   "context": "12",
+   "extra": {
+    "members": [
+     21.3633,
+     21.1404,
+     21.1831
+    ]
+   }
+  },
+  {
+   "task": "PEMS04",
+   "track": "R",
+   "model": "Climatology quantiles",
+   "MAE": 27.3872,
+   "RMSE": 45.5986,
+   "MAPE": 15.895,
+   "QL": 9.1992,
+   "IS80": 139.0395,
+   "COV80": 0.7132,
+   "params": 0,
+   "context": "0",
+   "extra": {}
+  },
+  {
+   "task": "PEMS04",
+   "track": "R",
+   "model": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE": 132.5054,
+   "RMSE": 169.6801,
+   "MAPE": 60.283,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 311400,
+   "context": "12",
+   "extra": {
+    "epochs_run": 64,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 30.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS04",
+   "track": "R",
+   "model": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE": 25.3294,
+   "RMSE": 42.6187,
+   "MAPE": 16.91,
+   "QL": 8.4018,
+   "IS80": 125.408,
+   "COV80": 0.7832,
+   "params": 334436,
+   "context": "12",
+   "extra": {
+    "members": [
+     25.6524,
+     25.7813,
+     25.3921
+    ]
+   }
+  },
+  {
+   "task": "PEMS04",
+   "track": "R",
+   "model": "PWM-Dyn v0.7 (3-seed, CQR)",
+   "MAE": 25.4198,
+   "RMSE": 43.0957,
+   "MAPE": 18.136,
+   "QL": 8.524,
+   "IS80": 128.6195,
+   "COV80": 0.7809,
+   "params": 334628,
+   "context": "12",
+   "extra": {
+    "members": [
+     25.7735,
+     25.4105,
+     25.4581
+    ]
+   }
+  },
+  {
+   "task": "PEMS04",
+   "track": "R",
+   "model": "STAEformer (CIKM'23, official code)",
+   "MAE": 187.9973,
+   "RMSE": 238.9857,
+   "MAPE": 75.208,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 1354980,
+   "context": "12",
+   "extra": {
+    "epochs_run": 12,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 30.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS04",
+   "track": "R",
+   "model": "STID (CIKM'22, official code)",
+   "MAE": 120.5813,
+   "RMSE": 155.1868,
+   "MAPE": 60.947,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 121068,
+   "context": "12",
+   "extra": {
+    "epochs_run": 100,
+    "stopped_by": "authors' epoch limit",
+    "budget_minutes": 6.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS07",
+   "track": "A",
+   "model": "Climatology quantiles",
+   "MAE": 29.9765,
+   "RMSE": 58.6726,
+   "MAPE": 12.453,
+   "QL": 10.3193,
+   "IS80": 159.6957,
+   "COV80": 0.7623,
+   "params": 0,
+   "context": "0",
+   "extra": {}
+  },
+  {
+   "task": "PEMS07",
+   "track": "A",
+   "model": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE": 23.3888,
+   "RMSE": 36.9204,
+   "MAPE": 10.064,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 322920,
+   "context": "12",
+   "extra": {
+    "epochs_run": 20,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 50.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS07",
+   "track": "A",
+   "model": "Last value",
+   "MAE": 35.6336,
+   "RMSE": 54.3692,
+   "MAPE": 15.549,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 0,
+   "context": "1",
+   "extra": {}
+  },
+  {
+   "task": "PEMS07",
+   "track": "A",
+   "model": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE": 19.5628,
+   "RMSE": 32.6005,
+   "MAPE": 8.171,
+   "QL": 6.3936,
+   "IS80": 93.9935,
+   "COV80": 0.7994,
+   "params": 408164,
+   "context": "12",
+   "extra": {
+    "members": [
+     20.1168,
+     19.6874,
+     19.8283
+    ]
+   }
+  },
+  {
+   "task": "PEMS07",
+   "track": "A",
+   "model": "PWM-Dyn v0.7 (3-seed, CQR)",
+   "MAE": 19.7782,
+   "RMSE": 32.8382,
+   "MAPE": 8.288,
+   "QL": 6.4567,
+   "IS80": 94.8094,
+   "COV80": 0.7981,
+   "params": 408356,
+   "context": "12",
+   "extra": {
+    "members": [
+     20.0218,
+     20.0529,
+     20.1792
+    ]
+   }
+  },
+  {
+   "task": "PEMS07",
+   "track": "A",
+   "model": "STID (CIKM'22, official code)",
+   "MAE": 19.6154,
+   "RMSE": 32.7202,
+   "MAPE": 8.348,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 139500,
+   "context": "12",
+   "extra": {
+    "epochs_run": 84,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 12.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS07",
+   "track": "B",
+   "model": "Climatology quantiles",
+   "MAE": 29.9765,
+   "RMSE": 58.6726,
+   "MAPE": 12.453,
+   "QL": 10.3193,
+   "IS80": 159.6957,
+   "COV80": 0.7623,
+   "params": 0,
+   "context": "0",
+   "extra": {}
+  },
+  {
+   "task": "PEMS07",
+   "track": "B",
+   "model": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE": 23.3888,
+   "RMSE": 36.9204,
+   "MAPE": 10.064,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 322920,
+   "context": "12",
+   "extra": {
+    "epochs_run": 20,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 50.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS07",
+   "track": "B",
+   "model": "Last value",
+   "MAE": 35.6336,
+   "RMSE": 54.3692,
+   "MAPE": 15.549,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 0,
+   "context": "1",
+   "extra": {}
+  },
+  {
+   "task": "PEMS07",
+   "track": "B",
+   "model": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE": 19.5628,
+   "RMSE": 32.6005,
+   "MAPE": 8.171,
+   "QL": 6.3936,
+   "IS80": 93.9935,
+   "COV80": 0.7994,
+   "params": 408164,
+   "context": "12",
+   "extra": {
+    "members": [
+     20.1168,
+     19.6874,
+     19.8283
+    ]
+   }
+  },
+  {
+   "task": "PEMS07",
+   "track": "B",
+   "model": "PWM-Dyn v0.7 online (3-seed, CQR)",
+   "MAE": 19.6055,
+   "RMSE": 32.5955,
+   "MAPE": 8.219,
+   "QL": 6.4054,
+   "IS80": 94.1352,
+   "COV80": 0.798,
+   "params": 408356,
+   "context": "312",
+   "extra": {
+    "online": {
+     "beta": 0.25,
+     "tau": 3.0,
+     "val_MAE_uncorrected": 19.39080810546875
+    }
+   }
+  },
+  {
+   "task": "PEMS07",
+   "track": "B",
+   "model": "STID (CIKM'22, official code)",
+   "MAE": 19.6154,
+   "RMSE": 32.7202,
+   "MAPE": 8.348,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 139500,
+   "context": "12",
+   "extra": {
+    "epochs_run": 84,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 12.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS07",
+   "track": "B",
+   "model": "Seasonal naive",
+   "MAE": 46.77,
+   "RMSE": 76.0732,
+   "MAPE": 20.637,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 0,
+   "context": "300",
+   "extra": {}
+  },
+  {
+   "task": "PEMS07",
+   "track": "B",
+   "model": "TimesFM-3.0 (Google) multivariate (zero-shot, ctx 512)",
+   "MAE": 20.2699,
+   "RMSE": 33.1308,
+   "MAPE": 8.47,
+   "QL": 6.5557,
+   "IS80": 95.3208,
+   "COV80": 0.8097,
+   "params": null,
+   "context": "512",
+   "extra": {}
+  },
+  {
+   "task": "PEMS07",
+   "track": "G",
+   "model": "Climatology quantiles",
+   "MAE": 30.025,
+   "RMSE": 58.6022,
+   "MAPE": 12.44,
+   "QL": 10.3408,
+   "IS80": 160.0988,
+   "COV80": 0.7622,
+   "params": 0,
+   "context": "0",
+   "extra": {}
+  },
+  {
+   "task": "PEMS07",
+   "track": "G",
+   "model": "Last observed value (climatology if none)",
+   "MAE": 39.4945,
+   "RMSE": 63.8845,
+   "MAPE": 17.378,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 0,
+   "context": "12",
+   "extra": {}
+  },
+  {
+   "task": "PEMS07",
+   "track": "G",
+   "model": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE": 31.7158,
+   "RMSE": 53.4485,
+   "MAPE": 18.409,
+   "QL": 10.64,
+   "IS80": 160.6199,
+   "COV80": 0.7941,
+   "params": 408164,
+   "context": "12",
+   "extra": {
+    "members": [
+     33.4481,
+     32.1786,
+     32.376
+    ]
+   }
+  },
+  {
+   "task": "PEMS07",
+   "track": "G",
+   "model": "PWM-Dyn v0.7 (3-seed, CQR)",
+   "MAE": 25.0061,
+   "RMSE": 46.3062,
+   "MAPE": 10.461,
+   "QL": 8.526,
+   "IS80": 130.7484,
+   "COV80": 0.7944,
+   "params": 408356,
+   "context": "12",
+   "extra": {
+    "members": [
+     25.4758,
+     25.3738,
+     25.3559
+    ]
+   }
+  },
+  {
+   "task": "PEMS07",
+   "track": "R",
+   "model": "Climatology quantiles",
+   "MAE": 29.0962,
+   "RMSE": 56.0732,
+   "MAPE": 12.502,
+   "QL": 10.1418,
+   "IS80": 158.7744,
+   "COV80": 0.7704,
+   "params": 0,
+   "context": "0",
+   "extra": {}
+  },
+  {
+   "task": "PEMS07",
+   "track": "R",
+   "model": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE": 310.0349,
+   "RMSE": 363.8492,
+   "MAPE": 98.465,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 322920,
+   "context": "12",
+   "extra": {
+    "epochs_run": 20,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 50.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS07",
+   "track": "R",
+   "model": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE": 30.9518,
+   "RMSE": 55.6289,
+   "MAPE": 15.507,
+   "QL": 10.5326,
+   "IS80": 161.2186,
+   "COV80": 0.7919,
+   "params": 408164,
+   "context": "12",
+   "extra": {
+    "members": [
+     32.0814,
+     30.8418,
+     31.4534
+    ]
+   }
+  },
+  {
+   "task": "PEMS07",
+   "track": "R",
+   "model": "PWM-Dyn v0.7 (3-seed, CQR)",
+   "MAE": 28.3466,
+   "RMSE": 53.9252,
+   "MAPE": 12.199,
+   "QL": 9.8731,
+   "IS80": 154.4598,
+   "COV80": 0.7879,
+   "params": 408356,
+   "context": "12",
+   "extra": {
+    "members": [
+     28.6274,
+     28.6561,
+     28.6868
+    ]
+   }
+  },
+  {
+   "task": "PEMS07",
+   "track": "R",
+   "model": "STID (CIKM'22, official code)",
+   "MAE": 293.0284,
+   "RMSE": 346.2455,
+   "MAPE": 92.188,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 139500,
+   "context": "12",
+   "extra": {
+    "epochs_run": 84,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 12.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS08",
+   "track": "A",
+   "model": "Climatology quantiles",
+   "MAE": 22.1847,
+   "RMSE": 40.7695,
+   "MAPE": 13.608,
+   "QL": 7.6251,
+   "IS80": 117.8299,
+   "COV80": 0.7138,
+   "params": 0,
+   "context": "0",
+   "extra": {}
+  },
+  {
+   "task": "PEMS08",
+   "track": "A",
+   "model": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE": 14.7652,
+   "RMSE": 23.5869,
+   "MAPE": 9.667,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 308660,
+   "context": "12",
+   "extra": {
+    "epochs_run": 100,
+    "stopped_by": "authors' epoch limit",
+    "budget_minutes": 30.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS08",
+   "track": "A",
+   "model": "Last value",
+   "MAE": 25.2973,
+   "RMSE": 38.6553,
+   "MAPE": 15.666,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 0,
+   "context": "1",
+   "extra": {}
+  },
+  {
+   "task": "PEMS08",
+   "track": "A",
+   "model": "PWM-Dyn ablation clim-vs1 (2-seed, CQR)",
+   "MAE": 14.4475,
+   "RMSE": 23.9313,
+   "MAPE": 9.358,
+   "QL": 4.6889,
+   "IS80": 68.4286,
+   "COV80": 0.7976,
+   "params": 318148,
+   "context": "12",
+   "extra": {
+    "members": [
+     14.6504,
+     14.5469
+    ]
+   }
+  },
+  {
+   "task": "PEMS08",
+   "track": "A",
+   "model": "PWM-Dyn ablation noclim-vs1 (2-seed, CQR)",
+   "MAE": 14.1383,
+   "RMSE": 23.3063,
+   "MAPE": 9.213,
+   "QL": 4.5952,
+   "IS80": 67.1641,
+   "COV80": 0.7988,
+   "params": 316900,
+   "context": "12",
+   "extra": {
+    "members": [
+     14.3192,
+     14.376
+    ]
+   }
+  },
+  {
+   "task": "PEMS08",
+   "track": "A",
+   "model": "PWM-Dyn ablation v03 (2-seed, CQR)",
+   "MAE": 14.2282,
+   "RMSE": 23.3851,
+   "MAPE": 9.347,
+   "QL": 4.6233,
+   "IS80": 67.5585,
+   "COV80": 0.7989,
+   "params": 316900,
+   "context": "12",
+   "extra": {
+    "members": [
+     14.2859,
+     14.3879
+    ]
+   }
+  },
+  {
+   "task": "PEMS08",
+   "track": "A",
+   "model": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE": 14.1202,
+   "RMSE": 23.4564,
+   "MAPE": 9.243,
+   "QL": 4.5891,
+   "IS80": 67.0727,
+   "COV80": 0.7972,
+   "params": 316900,
+   "context": "12",
+   "extra": {
+    "members": [
+     14.2187,
+     14.2359,
+     14.5238
+    ]
+   }
+  },
+  {
+   "task": "PEMS08",
+   "track": "A",
+   "model": "PWM-Dyn v0.7 (3-seed, CQR)",
+   "MAE": 14.2194,
+   "RMSE": 23.5359,
+   "MAPE": 9.34,
+   "QL": 4.6139,
+   "IS80": 67.3206,
+   "COV80": 0.7983,
+   "params": 317092,
+   "context": "12",
+   "extra": {
+    "members": [
+     14.4279,
+     14.4519,
+     14.4231
+    ]
+   }
+  },
+  {
+   "task": "PEMS08",
+   "track": "A",
+   "model": "STAEformer (CIKM'23, official code)",
+   "MAE": 13.929,
+   "RMSE": 23.1657,
+   "MAPE": 9.361,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 1223460,
+   "context": "12",
+   "extra": {
+    "epochs_run": 25,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 30.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS08",
+   "track": "A",
+   "model": "STID (CIKM'22, official code)",
+   "MAE": 14.1816,
+   "RMSE": 23.2132,
+   "MAPE": 9.271,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 116684,
+   "context": "12",
+   "extra": {
+    "epochs_run": 100,
+    "stopped_by": "authors' epoch limit",
+    "budget_minutes": 6.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS08",
+   "track": "B",
+   "model": "Climatology quantiles",
+   "MAE": 22.1847,
+   "RMSE": 40.7695,
+   "MAPE": 13.608,
+   "QL": 7.6251,
+   "IS80": 117.8299,
+   "COV80": 0.7138,
+   "params": 0,
+   "context": "0",
+   "extra": {}
+  },
+  {
+   "task": "PEMS08",
+   "track": "B",
+   "model": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE": 14.7652,
+   "RMSE": 23.5869,
+   "MAPE": 9.667,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 308660,
+   "context": "12",
+   "extra": {
+    "epochs_run": 100,
+    "stopped_by": "authors' epoch limit",
+    "budget_minutes": 30.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS08",
+   "track": "B",
+   "model": "Last value",
+   "MAE": 25.2973,
+   "RMSE": 38.6553,
+   "MAPE": 15.666,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 0,
+   "context": "1",
+   "extra": {}
+  },
+  {
+   "task": "PEMS08",
+   "track": "B",
+   "model": "PWM-Dyn v0.6-LC (3-seed, CQR)",
+   "MAE": 14.1845,
+   "RMSE": 23.3757,
+   "MAPE": 9.27,
+   "QL": 4.5953,
+   "IS80": 66.9366,
+   "COV80": 0.7981,
+   "params": 322756,
+   "context": "300",
+   "extra": {
+    "members": [
+     14.4347,
+     14.4634,
+     14.3162
+    ]
+   }
+  },
+  {
+   "task": "PEMS08",
+   "track": "B",
+   "model": "PWM-Dyn v0.7 online (3-seed, CQR)",
+   "MAE": 14.0018,
+   "RMSE": 23.2243,
+   "MAPE": 9.154,
+   "QL": 4.5525,
+   "IS80": 66.5655,
+   "COV80": 0.8006,
+   "params": 317092,
+   "context": "312",
+   "extra": {
+    "online": {
+     "beta": 0.5,
+     "tau": 12.0,
+     "val_MAE_uncorrected": 14.653099060058594
+    }
+   }
+  },
+  {
+   "task": "PEMS08",
+   "track": "B",
+   "model": "STAEformer (CIKM'23, official code)",
+   "MAE": 13.929,
+   "RMSE": 23.1657,
+   "MAPE": 9.361,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 1223460,
+   "context": "12",
+   "extra": {
+    "epochs_run": 25,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 30.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS08",
+   "track": "B",
+   "model": "STID (CIKM'22, official code)",
+   "MAE": 14.1816,
+   "RMSE": 23.2132,
+   "MAPE": 9.271,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 116684,
+   "context": "12",
+   "extra": {
+    "epochs_run": 100,
+    "stopped_by": "authors' epoch limit",
+    "budget_minutes": 6.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS08",
+   "track": "B",
+   "model": "Seasonal naive",
+   "MAE": 36.5428,
+   "RMSE": 60.7711,
+   "MAPE": 24.616,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 0,
+   "context": "300",
+   "extra": {}
+  },
+  {
+   "task": "PEMS08",
+   "track": "G",
+   "model": "Climatology quantiles",
+   "MAE": 22.26,
+   "RMSE": 41.0241,
+   "MAPE": 13.559,
+   "QL": 7.653,
+   "IS80": 118.2896,
+   "COV80": 0.7136,
+   "params": 0,
+   "context": "0",
+   "extra": {}
+  },
+  {
+   "task": "PEMS08",
+   "track": "G",
+   "model": "Last observed value (climatology if none)",
+   "MAE": 29.1734,
+   "RMSE": 45.9541,
+   "MAPE": 17.994,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 0,
+   "context": "12",
+   "extra": {}
+  },
+  {
+   "task": "PEMS08",
+   "track": "G",
+   "model": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE": 23.0276,
+   "RMSE": 37.4055,
+   "MAPE": 19.751,
+   "QL": 7.6018,
+   "IS80": 112.9171,
+   "COV80": 0.7951,
+   "params": 316900,
+   "context": "12",
+   "extra": {
+    "members": [
+     23.5815,
+     23.5238,
+     24.2528
+    ]
+   }
+  },
+  {
+   "task": "PEMS08",
+   "track": "G",
+   "model": "PWM-Dyn v0.7 (3-seed, CQR)",
+   "MAE": 18.0858,
+   "RMSE": 31.9956,
+   "MAPE": 11.653,
+   "QL": 6.0961,
+   "IS80": 92.4526,
+   "COV80": 0.7867,
+   "params": 317092,
+   "context": "12",
+   "extra": {
+    "members": [
+     18.2223,
+     18.3099,
+     18.4069
+    ]
+   }
+  },
+  {
+   "task": "PEMS08",
+   "track": "R",
+   "model": "Climatology quantiles",
+   "MAE": 21.7815,
+   "RMSE": 41.0791,
+   "MAPE": 13.914,
+   "QL": 7.4107,
+   "IS80": 113.4131,
+   "COV80": 0.7242,
+   "params": 0,
+   "context": "0",
+   "extra": {}
+  },
+  {
+   "task": "PEMS08",
+   "track": "R",
+   "model": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE": 216.2057,
+   "RMSE": 260.5802,
+   "MAPE": 91.975,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 308660,
+   "context": "12",
+   "extra": {
+    "epochs_run": 100,
+    "stopped_by": "authors' epoch limit",
+    "budget_minutes": 30.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS08",
+   "track": "R",
+   "model": "PWM-Dyn v0.6-LC (3-seed, CQR)",
+   "MAE": 19.2451,
+   "RMSE": 34.8006,
+   "MAPE": 12.753,
+   "QL": 6.6182,
+   "IS80": 102.3201,
+   "COV80": 0.7633,
+   "params": 322756,
+   "context": "300",
+   "extra": {
+    "members": [
+     19.3132,
+     19.6416,
+     19.603
+    ]
+   }
+  },
+  {
+   "task": "PEMS08",
+   "track": "R",
+   "model": "PWM-Dyn v0.7 (3-seed, CQR)",
+   "MAE": 18.8567,
+   "RMSE": 33.6837,
+   "MAPE": 13.14,
+   "QL": 6.5682,
+   "IS80": 102.7631,
+   "COV80": 0.7568,
+   "params": 317092,
+   "context": "12",
+   "extra": {
+    "members": [
+     18.8808,
+     19.0267,
+     19.2061
+    ]
+   }
+  },
+  {
+   "task": "PEMS08",
+   "track": "R",
+   "model": "STAEformer (CIKM'23, official code)",
+   "MAE": 186.5119,
+   "RMSE": 233.6494,
+   "MAPE": 79.955,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 1223460,
+   "context": "12",
+   "extra": {
+    "epochs_run": 25,
+    "stopped_by": "wall-clock budget",
+    "budget_minutes": 30.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS08",
+   "track": "R",
+   "model": "STID (CIKM'22, official code)",
+   "MAE": 198.0907,
+   "RMSE": 239.6566,
+   "MAPE": 85.309,
+   "QL": null,
+   "IS80": null,
+   "COV80": null,
+   "params": 116684,
+   "context": "12",
+   "extra": {
+    "epochs_run": 100,
+    "stopped_by": "authors' epoch limit",
+    "budget_minutes": 6.0,
+    "seed": 0
+   }
+  },
+  {
+   "task": "PEMS04",
+   "track": "B",
+   "model": "TimesFM-2.5 (Google, 200M) (zero-shot, ctx 512)",
+   "MAE": 19.7017,
+   "RMSE": 31.701,
+   "MAPE": 13.216,
+   "QL": 6.3372,
+   "IS80": 91.6073,
+   "COV80": 0.8204,
+   "params": null,
+   "context": "512",
+   "extra": {
+    "source": "v0.4 study row, same official windows (v0.6-conference/results/v06_rows_and_tests.txt)"
+   }
+  },
+  {
+   "task": "PEMS04",
+   "track": "B",
+   "model": "TimesFM-3.0 (Google) multivariate (zero-shot, ctx 512)",
+   "MAE": 19.1348,
+   "RMSE": 31.0243,
+   "MAPE": 12.595,
+   "QL": 6.1366,
+   "IS80": 88.4227,
+   "COV80": 0.8071,
+   "params": null,
+   "context": "512",
+   "extra": {
+    "source": "v0.4 study row, same official windows (v0.6-conference/results/v06_rows_and_tests.txt)"
+   }
+  },
+  {
+   "task": "PEMS08",
+   "track": "B",
+   "model": "TimesFM-2.5 (Google, 200M) (zero-shot, ctx 512)",
+   "MAE": 15.0375,
+   "RMSE": 24.0925,
+   "MAPE": 9.44,
+   "QL": 4.8574,
+   "IS80": 70.5353,
+   "COV80": 0.8236,
+   "params": null,
+   "context": "512",
+   "extra": {
+    "source": "v0.4 study row, same official windows (v0.6-conference/results/v06_rows_and_tests.txt)"
+   }
+  },
+  {
+   "task": "PEMS08",
+   "track": "B",
+   "model": "TimesFM-3.0 (Google) multivariate (zero-shot, ctx 512)",
+   "MAE": 14.5493,
+   "RMSE": 23.5668,
+   "MAPE": 9.15,
+   "QL": 4.6864,
+   "IS80": 67.8441,
+   "COV80": 0.8074,
+   "params": null,
+   "context": "512",
+   "extra": {
+    "source": "v0.4 study row, same official windows (v0.6-conference/results/v06_rows_and_tests.txt)"
+   }
+  }
+ ],
+ "significance_v07_vs": [
+  {
+   "task": "PEMS08",
+   "track": "A",
+   "opponent": "Climatology quantiles",
+   "MAE_v07": 14.2194,
+   "MAE_opp": 22.1847,
+   "rel_diff_pct": -35.905,
+   "ci95": [
+    -37.103,
+    -34.169
+   ],
+   "p": 1.99e-160,
+   "dm": -26.989,
+   "windows": 1775
+  },
+  {
+   "task": "PEMS08",
+   "track": "A",
+   "opponent": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE_v07": 14.2194,
+   "MAE_opp": 14.7652,
+   "rel_diff_pct": -3.697,
+   "ci95": [
+    -4.195,
+    -3.512
+   ],
+   "p": 3.96e-57,
+   "dm": -15.929,
+   "windows": 1775
+  },
+  {
+   "task": "PEMS08",
+   "track": "A",
+   "opponent": "Last value",
+   "MAE_v07": 14.2194,
+   "MAE_opp": 25.2973,
+   "rel_diff_pct": -43.791,
+   "ci95": [
+    -45.434,
+    -42.611
+   ],
+   "p": 2.45e-136,
+   "dm": -24.852,
+   "windows": 1775
+  },
+  {
+   "task": "PEMS08",
+   "track": "A",
+   "opponent": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE_v07": 14.2194,
+   "MAE_opp": 14.1201,
+   "rel_diff_pct": 0.703,
+   "ci95": [
+    0.206,
+    0.993
+   ],
+   "p": 0.000757,
+   "dm": 3.368,
+   "windows": 1775
+  },
+  {
+   "task": "PEMS08",
+   "track": "A",
+   "opponent": "STAEformer (CIKM'23, official code)",
+   "MAE_v07": 14.2194,
+   "MAE_opp": 13.929,
+   "rel_diff_pct": 2.085,
+   "ci95": [
+    1.289,
+    2.584
+   ],
+   "p": 1.19e-08,
+   "dm": 5.702,
+   "windows": 1775
+  },
+  {
+   "task": "PEMS08",
+   "track": "A",
+   "opponent": "STID (CIKM'22, official code)",
+   "MAE_v07": 14.2194,
+   "MAE_opp": 14.1816,
+   "rel_diff_pct": 0.266,
+   "ci95": [
+    -0.394,
+    0.61
+   ],
+   "p": 0.318,
+   "dm": 0.998,
+   "windows": 1775
+  },
+  {
+   "task": "PEMS08",
+   "track": "B",
+   "opponent": "Climatology quantiles",
+   "MAE_v07": 14.0018,
+   "MAE_opp": 22.1847,
+   "rel_diff_pct": -36.885,
+   "ci95": [
+    -38.134,
+    -34.991
+   ],
+   "p": 5.87e-154,
+   "dm": -26.432,
+   "windows": 1775
+  },
+  {
+   "task": "PEMS08",
+   "track": "B",
+   "opponent": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE_v07": 14.0018,
+   "MAE_opp": 14.7652,
+   "rel_diff_pct": -5.17,
+   "ci95": [
+    -5.611,
+    -4.859
+   ],
+   "p": 2.9e-104,
+   "dm": -21.684,
+   "windows": 1775
+  },
+  {
+   "task": "PEMS08",
+   "track": "B",
+   "opponent": "Last value",
+   "MAE_v07": 14.0018,
+   "MAE_opp": 25.2973,
+   "rel_diff_pct": -44.651,
+   "ci95": [
+    -46.175,
+    -43.456
+   ],
+   "p": 3.63e-142,
+   "dm": -25.386,
+   "windows": 1775
+  },
+  {
+   "task": "PEMS08",
+   "track": "B",
+   "opponent": "PWM-Dyn v0.6-LC (3-seed, CQR)",
+   "MAE_v07": 14.0018,
+   "MAE_opp": 14.1845,
+   "rel_diff_pct": -1.288,
+   "ci95": [
+    -2.374,
+    -0.379
+   ],
+   "p": 0.00847,
+   "dm": -2.633,
+   "windows": 1775
+  },
+  {
+   "task": "PEMS08",
+   "track": "B",
+   "opponent": "STAEformer (CIKM'23, official code)",
+   "MAE_v07": 14.0018,
+   "MAE_opp": 13.929,
+   "rel_diff_pct": 0.523,
+   "ci95": [
+    -0.207,
+    1.12
+   ],
+   "p": 0.134,
+   "dm": 1.497,
+   "windows": 1775
+  },
+  {
+   "task": "PEMS08",
+   "track": "B",
+   "opponent": "STID (CIKM'22, official code)",
+   "MAE_v07": 14.0018,
+   "MAE_opp": 14.1816,
+   "rel_diff_pct": -1.268,
+   "ci95": [
+    -1.931,
+    -0.808
+   ],
+   "p": 8.84e-06,
+   "dm": -4.444,
+   "windows": 1775
+  },
+  {
+   "task": "PEMS08",
+   "track": "R",
+   "opponent": "Climatology quantiles",
+   "MAE_v07": 18.8567,
+   "MAE_opp": 21.7815,
+   "rel_diff_pct": -13.428,
+   "ci95": [
+    -14.524,
+    -11.939
+   ],
+   "p": 1.83e-61,
+   "dm": -16.542,
+   "windows": 1775
+  },
+  {
+   "task": "PEMS08",
+   "track": "R",
+   "opponent": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE_v07": 18.8567,
+   "MAE_opp": 216.2057,
+   "rel_diff_pct": -91.278,
+   "ci95": [
+    -91.746,
+    -91.0
+   ],
+   "p": 0.0,
+   "dm": -56.574,
+   "windows": 1775
+  },
+  {
+   "task": "PEMS08",
+   "track": "R",
+   "opponent": "PWM-Dyn v0.6-LC (3-seed, CQR)",
+   "MAE_v07": 18.8567,
+   "MAE_opp": 19.2451,
+   "rel_diff_pct": -2.018,
+   "ci95": [
+    -3.353,
+    -0.186
+   ],
+   "p": 0.0157,
+   "dm": -2.415,
+   "windows": 1775
+  },
+  {
+   "task": "PEMS08",
+   "track": "R",
+   "opponent": "STAEformer (CIKM'23, official code)",
+   "MAE_v07": 18.8567,
+   "MAE_opp": 186.512,
+   "rel_diff_pct": -89.89,
+   "ci95": [
+    -90.441,
+    -89.546
+   ],
+   "p": 0.0,
+   "dm": -52.272,
+   "windows": 1775
+  },
+  {
+   "task": "PEMS08",
+   "track": "R",
+   "opponent": "STID (CIKM'22, official code)",
+   "MAE_v07": 18.8567,
+   "MAE_opp": 198.0907,
+   "rel_diff_pct": -90.481,
+   "ci95": [
+    -90.989,
+    -90.161
+   ],
+   "p": 0.0,
+   "dm": -47.933,
+   "windows": 1775
+  },
+  {
+   "task": "PEMS08",
+   "track": "G",
+   "opponent": "Climatology quantiles",
+   "MAE_v07": 18.0858,
+   "MAE_opp": 22.26,
+   "rel_diff_pct": -18.752,
+   "ci95": [
+    -19.381,
+    -17.516
+   ],
+   "p": 2.48e-135,
+   "dm": -24.759,
+   "windows": 1775
+  },
+  {
+   "task": "PEMS08",
+   "track": "G",
+   "opponent": "Last observed value (climatology if none)",
+   "MAE_v07": 18.0858,
+   "MAE_opp": 29.1734,
+   "rel_diff_pct": -38.006,
+   "ci95": [
+    -39.544,
+    -36.664
+   ],
+   "p": 4e-125,
+   "dm": -23.792,
+   "windows": 1775
+  },
+  {
+   "task": "PEMS08",
+   "track": "G",
+   "opponent": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE_v07": 18.0858,
+   "MAE_opp": 23.0276,
+   "rel_diff_pct": -21.46,
+   "ci95": [
+    -22.673,
+    -20.403
+   ],
+   "p": 0.0,
+   "dm": -41.475,
+   "windows": 1775
+  },
+  {
+   "task": "PEMS04",
+   "track": "A",
+   "opponent": "Climatology quantiles",
+   "MAE_v07": 18.5343,
+   "MAE_opp": 25.0219,
+   "rel_diff_pct": -25.928,
+   "ci95": [
+    -35.089,
+    -19.183
+   ],
+   "p": 1.88e-06,
+   "dm": -4.766,
+   "windows": 1688
+  },
+  {
+   "task": "PEMS04",
+   "track": "A",
+   "opponent": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE_v07": 18.5343,
+   "MAE_opp": 19.3683,
+   "rel_diff_pct": -4.306,
+   "ci95": [
+    -4.954,
+    -3.938
+   ],
+   "p": 8.81e-60,
+   "dm": -16.307,
+   "windows": 1688
+  },
+  {
+   "task": "PEMS04",
+   "track": "A",
+   "opponent": "Last value",
+   "MAE_v07": 18.5343,
+   "MAE_opp": 31.5562,
+   "rel_diff_pct": -41.266,
+   "ci95": [
+    -43.129,
+    -39.548
+   ],
+   "p": 6.87e-90,
+   "dm": -20.104,
+   "windows": 1688
+  },
+  {
+   "task": "PEMS04",
+   "track": "A",
+   "opponent": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE_v07": 18.5343,
+   "MAE_opp": 18.4588,
+   "rel_diff_pct": 0.409,
+   "ci95": [
+    0.248,
+    0.536
+   ],
+   "p": 9.06e-08,
+   "dm": 5.345,
+   "windows": 1688
+  },
+  {
+   "task": "PEMS04",
+   "track": "A",
+   "opponent": "STAEformer (CIKM'23, official code)",
+   "MAE_v07": 18.5343,
+   "MAE_opp": 19.2059,
+   "rel_diff_pct": -3.497,
+   "ci95": [
+    -4.383,
+    -3.113
+   ],
+   "p": 1.21e-27,
+   "dm": -10.895,
+   "windows": 1688
+  },
+  {
+   "task": "PEMS04",
+   "track": "A",
+   "opponent": "STID (CIKM'22, official code)",
+   "MAE_v07": 18.5343,
+   "MAE_opp": 18.4908,
+   "rel_diff_pct": 0.235,
+   "ci95": [
+    -1.572,
+    1.445
+   ],
+   "p": 0.755,
+   "dm": 0.312,
+   "windows": 1688
+  },
+  {
+   "task": "PEMS04",
+   "track": "B",
+   "opponent": "Climatology quantiles",
+   "MAE_v07": 18.3318,
+   "MAE_opp": 25.0219,
+   "rel_diff_pct": -26.737,
+   "ci95": [
+    -35.798,
+    -20.034
+   ],
+   "p": 9.12e-07,
+   "dm": -4.91,
+   "windows": 1688
+  },
+  {
+   "task": "PEMS04",
+   "track": "B",
+   "opponent": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE_v07": 18.3318,
+   "MAE_opp": 19.3683,
+   "rel_diff_pct": -5.351,
+   "ci95": [
+    -5.972,
+    -5.005
+   ],
+   "p": 1.37e-97,
+   "dm": -20.965,
+   "windows": 1688
+  },
+  {
+   "task": "PEMS04",
+   "track": "B",
+   "opponent": "Last value",
+   "MAE_v07": 18.3318,
+   "MAE_opp": 31.5562,
+   "rel_diff_pct": -41.907,
+   "ci95": [
+    -43.731,
+    -40.209
+   ],
+   "p": 3e-92,
+   "dm": -20.371,
+   "windows": 1688
+  },
+  {
+   "task": "PEMS04",
+   "track": "B",
+   "opponent": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE_v07": 18.3318,
+   "MAE_opp": 18.4588,
+   "rel_diff_pct": -0.688,
+   "ci95": [
+    -0.926,
+    -0.498
+   ],
+   "p": 3.77e-11,
+   "dm": -6.613,
+   "windows": 1688
+  },
+  {
+   "task": "PEMS04",
+   "track": "B",
+   "opponent": "STAEformer (CIKM'23, official code)",
+   "MAE_v07": 18.3318,
+   "MAE_opp": 19.2059,
+   "rel_diff_pct": -4.551,
+   "ci95": [
+    -5.425,
+    -4.179
+   ],
+   "p": 3.97e-51,
+   "dm": -15.041,
+   "windows": 1688
+  },
+  {
+   "task": "PEMS04",
+   "track": "B",
+   "opponent": "STID (CIKM'22, official code)",
+   "MAE_v07": 18.3318,
+   "MAE_opp": 18.4908,
+   "rel_diff_pct": -0.86,
+   "ci95": [
+    -2.656,
+    0.347
+   ],
+   "p": 0.251,
+   "dm": -1.149,
+   "windows": 1688
+  },
+  {
+   "task": "PEMS04",
+   "track": "R",
+   "opponent": "Climatology quantiles",
+   "MAE_v07": 25.4198,
+   "MAE_opp": 27.3872,
+   "rel_diff_pct": -7.184,
+   "ci95": [
+    -14.612,
+    -1.819
+   ],
+   "p": 0.0538,
+   "dm": -1.929,
+   "windows": 1688
+  },
+  {
+   "task": "PEMS04",
+   "track": "R",
+   "opponent": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE_v07": 25.4198,
+   "MAE_opp": 132.5055,
+   "rel_diff_pct": -80.816,
+   "ci95": [
+    -81.596,
+    -79.765
+   ],
+   "p": 7.21e-298,
+   "dm": -36.888,
+   "windows": 1688
+  },
+  {
+   "task": "PEMS04",
+   "track": "R",
+   "opponent": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE_v07": 25.4198,
+   "MAE_opp": 25.3294,
+   "rel_diff_pct": 0.357,
+   "ci95": [
+    -2.063,
+    3.148
+   ],
+   "p": 0.782,
+   "dm": 0.276,
+   "windows": 1688
+  },
+  {
+   "task": "PEMS04",
+   "track": "R",
+   "opponent": "STAEformer (CIKM'23, official code)",
+   "MAE_v07": 25.4198,
+   "MAE_opp": 187.9972,
+   "rel_diff_pct": -86.479,
+   "ci95": [
+    -86.997,
+    -85.736
+   ],
+   "p": 2.28e-301,
+   "dm": -37.106,
+   "windows": 1688
+  },
+  {
+   "task": "PEMS04",
+   "track": "R",
+   "opponent": "STID (CIKM'22, official code)",
+   "MAE_v07": 25.4198,
+   "MAE_opp": 120.5813,
+   "rel_diff_pct": -78.919,
+   "ci95": [
+    -80.457,
+    -77.709
+   ],
+   "p": 3.52e-91,
+   "dm": -20.251,
+   "windows": 1688
+  },
+  {
+   "task": "PEMS04",
+   "track": "G",
+   "opponent": "Climatology quantiles",
+   "MAE_v07": 21.0485,
+   "MAE_opp": 25.0157,
+   "rel_diff_pct": -15.859,
+   "ci95": [
+    -24.989,
+    -9.594
+   ],
+   "p": 0.00117,
+   "dm": -3.247,
+   "windows": 1688
+  },
+  {
+   "task": "PEMS04",
+   "track": "G",
+   "opponent": "Last observed value (climatology if none)",
+   "MAE_v07": 21.0485,
+   "MAE_opp": 33.0458,
+   "rel_diff_pct": -36.305,
+   "ci95": [
+    -38.819,
+    -34.282
+   ],
+   "p": 5.05e-78,
+   "dm": -18.699,
+   "windows": 1688
+  },
+  {
+   "task": "PEMS04",
+   "track": "G",
+   "opponent": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE_v07": 21.0485,
+   "MAE_opp": 24.8925,
+   "rel_diff_pct": -15.442,
+   "ci95": [
+    -16.797,
+    -14.492
+   ],
+   "p": 1.99e-113,
+   "dm": -22.634,
+   "windows": 1688
+  },
+  {
+   "task": "PEMS03",
+   "track": "A",
+   "opponent": "Climatology quantiles",
+   "MAE_v07": 14.6034,
+   "MAE_opp": 25.9336,
+   "rel_diff_pct": -43.689,
+   "ci95": [
+    -55.286,
+    -31.718
+   ],
+   "p": 8.5e-05,
+   "dm": -3.93,
+   "windows": 870
+  },
+  {
+   "task": "PEMS03",
+   "track": "A",
+   "opponent": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE_v07": 14.6034,
+   "MAE_opp": 14.699,
+   "rel_diff_pct": -0.651,
+   "ci95": [
+    -1.8,
+    0.879
+   ],
+   "p": 0.339,
+   "dm": -0.956,
+   "windows": 870
+  },
+  {
+   "task": "PEMS03",
+   "track": "A",
+   "opponent": "Last value",
+   "MAE_v07": 14.6034,
+   "MAE_opp": 23.8866,
+   "rel_diff_pct": -38.864,
+   "ci95": [
+    -42.126,
+    -34.474
+   ],
+   "p": 1.49e-41,
+   "dm": -13.503,
+   "windows": 870
+  },
+  {
+   "task": "PEMS03",
+   "track": "A",
+   "opponent": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE_v07": 14.6034,
+   "MAE_opp": 14.3384,
+   "rel_diff_pct": 1.848,
+   "ci95": [
+    1.21,
+    2.654
+   ],
+   "p": 1.06e-06,
+   "dm": 4.88,
+   "windows": 870
+  },
+  {
+   "task": "PEMS03",
+   "track": "A",
+   "opponent": "STAEformer (CIKM'23, official code)",
+   "MAE_v07": 14.6034,
+   "MAE_opp": 15.4464,
+   "rel_diff_pct": -5.458,
+   "ci95": [
+    -8.551,
+    -3.311
+   ],
+   "p": 0.000182,
+   "dm": -3.743,
+   "windows": 870
+  },
+  {
+   "task": "PEMS03",
+   "track": "A",
+   "opponent": "STID (CIKM'22, official code)",
+   "MAE_v07": 14.6034,
+   "MAE_opp": 15.4983,
+   "rel_diff_pct": -5.775,
+   "ci95": [
+    -11.941,
+    -1.095
+   ],
+   "p": 0.0547,
+   "dm": -1.921,
+   "windows": 870
+  },
+  {
+   "task": "PEMS03",
+   "track": "B",
+   "opponent": "Climatology quantiles",
+   "MAE_v07": 14.268,
+   "MAE_opp": 25.9336,
+   "rel_diff_pct": -44.983,
+   "ci95": [
+    -56.568,
+    -33.033
+   ],
+   "p": 6.49e-05,
+   "dm": -3.994,
+   "windows": 870
+  },
+  {
+   "task": "PEMS03",
+   "track": "B",
+   "opponent": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE_v07": 14.268,
+   "MAE_opp": 14.699,
+   "rel_diff_pct": -2.932,
+   "ci95": [
+    -3.739,
+    -1.911
+   ],
+   "p": 3.86e-10,
+   "dm": -6.26,
+   "windows": 870
+  },
+  {
+   "task": "PEMS03",
+   "track": "B",
+   "opponent": "Last value",
+   "MAE_v07": 14.268,
+   "MAE_opp": 23.8866,
+   "rel_diff_pct": -40.268,
+   "ci95": [
+    -43.261,
+    -36.325
+   ],
+   "p": 1.12e-48,
+   "dm": -14.663,
+   "windows": 870
+  },
+  {
+   "task": "PEMS03",
+   "track": "B",
+   "opponent": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE_v07": 14.268,
+   "MAE_opp": 14.3384,
+   "rel_diff_pct": -0.491,
+   "ci95": [
+    -0.862,
+    -0.184
+   ],
+   "p": 0.00461,
+   "dm": -2.833,
+   "windows": 870
+  },
+  {
+   "task": "PEMS03",
+   "track": "B",
+   "opponent": "STAEformer (CIKM'23, official code)",
+   "MAE_v07": 14.268,
+   "MAE_opp": 15.4464,
+   "rel_diff_pct": -7.629,
+   "ci95": [
+    -11.122,
+    -5.25
+   ],
+   "p": 5.03e-06,
+   "dm": -4.564,
+   "windows": 870
+  },
+  {
+   "task": "PEMS03",
+   "track": "B",
+   "opponent": "STID (CIKM'22, official code)",
+   "MAE_v07": 14.268,
+   "MAE_opp": 15.4983,
+   "rel_diff_pct": -7.938,
+   "ci95": [
+    -14.406,
+    -2.962
+   ],
+   "p": 0.0144,
+   "dm": -2.448,
+   "windows": 870
+  },
+  {
+   "task": "PEMS03",
+   "track": "B",
+   "opponent": "TimesFM-3.0 (Google) multivariate (zero-shot, ctx 512)",
+   "MAE_v07": 14.268,
+   "MAE_opp": 14.148,
+   "rel_diff_pct": 0.848,
+   "ci95": [
+    -2.193,
+    4.719
+   ],
+   "p": 0.646,
+   "dm": 0.459,
+   "windows": 870
+  },
+  {
+   "task": "PEMS03",
+   "track": "R",
+   "opponent": "Climatology quantiles",
+   "MAE_v07": 19.1422,
+   "MAE_opp": 23.3075,
+   "rel_diff_pct": -17.871,
+   "ci95": [
+    -29.834,
+    -5.867
+   ],
+   "p": 0.0327,
+   "dm": -2.136,
+   "windows": 870
+  },
+  {
+   "task": "PEMS03",
+   "track": "R",
+   "opponent": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE_v07": 19.1422,
+   "MAE_opp": 138.3663,
+   "rel_diff_pct": -86.166,
+   "ci95": [
+    -87.355,
+    -84.352
+   ],
+   "p": 1.17e-256,
+   "dm": -34.221,
+   "windows": 870
+  },
+  {
+   "task": "PEMS03",
+   "track": "R",
+   "opponent": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE_v07": 19.1422,
+   "MAE_opp": 17.7113,
+   "rel_diff_pct": 8.079,
+   "ci95": [
+    3.063,
+    15.471
+   ],
+   "p": 0.0134,
+   "dm": 2.474,
+   "windows": 870
+  },
+  {
+   "task": "PEMS03",
+   "track": "R",
+   "opponent": "STAEformer (CIKM'23, official code)",
+   "MAE_v07": 19.1422,
+   "MAE_opp": 119.3412,
+   "rel_diff_pct": -83.96,
+   "ci95": [
+    -85.395,
+    -81.792
+   ],
+   "p": 1.82e-201,
+   "dm": -30.285,
+   "windows": 870
+  },
+  {
+   "task": "PEMS03",
+   "track": "R",
+   "opponent": "STID (CIKM'22, official code)",
+   "MAE_v07": 19.1422,
+   "MAE_opp": 113.0474,
+   "rel_diff_pct": -83.067,
+   "ci95": [
+    -84.81,
+    -80.407
+   ],
+   "p": 2.74e-125,
+   "dm": -23.808,
+   "windows": 870
+  },
+  {
+   "task": "PEMS03",
+   "track": "G",
+   "opponent": "Climatology quantiles",
+   "MAE_v07": 18.3922,
+   "MAE_opp": 26.0677,
+   "rel_diff_pct": -29.444,
+   "ci95": [
+    -41.524,
+    -16.807
+   ],
+   "p": 0.00304,
+   "dm": -2.963,
+   "windows": 870
+  },
+  {
+   "task": "PEMS03",
+   "track": "G",
+   "opponent": "Last observed value (climatology if none)",
+   "MAE_v07": 18.3922,
+   "MAE_opp": 29.7106,
+   "rel_diff_pct": -38.095,
+   "ci95": [
+    -41.07,
+    -34.94
+   ],
+   "p": 2.25e-43,
+   "dm": -13.809,
+   "windows": 870
+  },
+  {
+   "task": "PEMS03",
+   "track": "G",
+   "opponent": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE_v07": 18.3922,
+   "MAE_opp": 22.0433,
+   "rel_diff_pct": -16.563,
+   "ci95": [
+    -19.226,
+    -13.028
+   ],
+   "p": 1.23e-28,
+   "dm": -11.102,
+   "windows": 870
+  },
+  {
+   "task": "PEMS07",
+   "track": "A",
+   "opponent": "Climatology quantiles",
+   "MAE_v07": 19.7782,
+   "MAE_opp": 29.9765,
+   "rel_diff_pct": -34.021,
+   "ci95": [
+    -35.716,
+    -32.444
+   ],
+   "p": 3.11e-190,
+   "dm": -29.419,
+   "windows": 937
+  },
+  {
+   "task": "PEMS07",
+   "track": "A",
+   "opponent": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE_v07": 19.7782,
+   "MAE_opp": 23.3888,
+   "rel_diff_pct": -15.437,
+   "ci95": [
+    -16.599,
+    -14.465
+   ],
+   "p": 2.65e-97,
+   "dm": -20.934,
+   "windows": 937
+  },
+  {
+   "task": "PEMS07",
+   "track": "A",
+   "opponent": "Last value",
+   "MAE_v07": 19.7782,
+   "MAE_opp": 35.6336,
+   "rel_diff_pct": -44.496,
+   "ci95": [
+    -46.01,
+    -43.452
+   ],
+   "p": 1.62e-261,
+   "dm": -34.546,
+   "windows": 937
+  },
+  {
+   "task": "PEMS07",
+   "track": "A",
+   "opponent": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE_v07": 19.7782,
+   "MAE_opp": 19.5628,
+   "rel_diff_pct": 1.101,
+   "ci95": [
+    0.97,
+    1.262
+   ],
+   "p": 1.44e-51,
+   "dm": 15.108,
+   "windows": 937
+  },
+  {
+   "task": "PEMS07",
+   "track": "A",
+   "opponent": "STID (CIKM'22, official code)",
+   "MAE_v07": 19.7782,
+   "MAE_opp": 19.6154,
+   "rel_diff_pct": 0.83,
+   "ci95": [
+    0.625,
+    1.086
+   ],
+   "p": 1.65e-11,
+   "dm": 6.734,
+   "windows": 937
+  },
+  {
+   "task": "PEMS07",
+   "track": "B",
+   "opponent": "Climatology quantiles",
+   "MAE_v07": 19.6055,
+   "MAE_opp": 29.9765,
+   "rel_diff_pct": -34.597,
+   "ci95": [
+    -36.362,
+    -32.999
+   ],
+   "p": 1.15e-186,
+   "dm": -29.139,
+   "windows": 937
+  },
+  {
+   "task": "PEMS07",
+   "track": "B",
+   "opponent": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE_v07": 19.6055,
+   "MAE_opp": 23.3888,
+   "rel_diff_pct": -16.176,
+   "ci95": [
+    -17.346,
+    -15.188
+   ],
+   "p": 3.59e-102,
+   "dm": -21.461,
+   "windows": 937
+  },
+  {
+   "task": "PEMS07",
+   "track": "B",
+   "opponent": "Last value",
+   "MAE_v07": 19.6055,
+   "MAE_opp": 35.6336,
+   "rel_diff_pct": -44.98,
+   "ci95": [
+    -46.489,
+    -43.948
+   ],
+   "p": 4.81e-263,
+   "dm": -34.648,
+   "windows": 937
+  },
+  {
+   "task": "PEMS07",
+   "track": "B",
+   "opponent": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE_v07": 19.6055,
+   "MAE_opp": 19.5628,
+   "rel_diff_pct": 0.218,
+   "ci95": [
+    0.033,
+    0.388
+   ],
+   "p": 0.0138,
+   "dm": 2.463,
+   "windows": 937
+  },
+  {
+   "task": "PEMS07",
+   "track": "B",
+   "opponent": "STID (CIKM'22, official code)",
+   "MAE_v07": 19.6055,
+   "MAE_opp": 19.6154,
+   "rel_diff_pct": -0.051,
+   "ci95": [
+    -0.291,
+    0.226
+   ],
+   "p": 0.697,
+   "dm": -0.389,
+   "windows": 937
+  },
+  {
+   "task": "PEMS07",
+   "track": "B",
+   "opponent": "TimesFM-3.0 (Google) multivariate (zero-shot, ctx 512)",
+   "MAE_v07": 19.6055,
+   "MAE_opp": 20.2699,
+   "rel_diff_pct": -3.278,
+   "ci95": [
+    -5.129,
+    -1.533
+   ],
+   "p": 0.000415,
+   "dm": -3.53,
+   "windows": 937
+  },
+  {
+   "task": "PEMS07",
+   "track": "R",
+   "opponent": "Climatology quantiles",
+   "MAE_v07": 28.3466,
+   "MAE_opp": 29.0962,
+   "rel_diff_pct": -2.576,
+   "ci95": [
+    -3.287,
+    -1.927
+   ],
+   "p": 1.58e-14,
+   "dm": -7.681,
+   "windows": 937
+  },
+  {
+   "task": "PEMS07",
+   "track": "R",
+   "opponent": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE_v07": 28.3466,
+   "MAE_opp": 310.035,
+   "rel_diff_pct": -90.857,
+   "ci95": [
+    -91.137,
+    -90.576
+   ],
+   "p": 0.0,
+   "dm": -91.971,
+   "windows": 937
+  },
+  {
+   "task": "PEMS07",
+   "track": "R",
+   "opponent": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE_v07": 28.3466,
+   "MAE_opp": 30.9518,
+   "rel_diff_pct": -8.417,
+   "ci95": [
+    -9.144,
+    -7.748
+   ],
+   "p": 3.8e-135,
+   "dm": -24.742,
+   "windows": 937
+  },
+  {
+   "task": "PEMS07",
+   "track": "R",
+   "opponent": "STID (CIKM'22, official code)",
+   "MAE_v07": 28.3466,
+   "MAE_opp": 293.0285,
+   "rel_diff_pct": -90.326,
+   "ci95": [
+    -90.615,
+    -90.027
+   ],
+   "p": 0.0,
+   "dm": -93.483,
+   "windows": 937
+  },
+  {
+   "task": "PEMS07",
+   "track": "G",
+   "opponent": "Climatology quantiles",
+   "MAE_v07": 25.0061,
+   "MAE_opp": 30.025,
+   "rel_diff_pct": -16.716,
+   "ci95": [
+    -17.622,
+    -15.843
+   ],
+   "p": 1.18e-194,
+   "dm": -29.763,
+   "windows": 937
+  },
+  {
+   "task": "PEMS07",
+   "track": "G",
+   "opponent": "Last observed value (climatology if none)",
+   "MAE_v07": 25.0061,
+   "MAE_opp": 39.4945,
+   "rel_diff_pct": -36.684,
+   "ci95": [
+    -38.468,
+    -35.44
+   ],
+   "p": 3.22e-199,
+   "dm": -30.114,
+   "windows": 937
+  },
+  {
+   "task": "PEMS07",
+   "track": "G",
+   "opponent": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE_v07": 25.0061,
+   "MAE_opp": 31.7158,
+   "rel_diff_pct": -21.156,
+   "ci95": [
+    -21.808,
+    -20.696
+   ],
+   "p": 0.0,
+   "dm": -65.627,
+   "windows": 937
+  },
+  {
+   "task": "METR-LA",
+   "track": "A",
+   "opponent": "Climatology quantiles",
+   "MAE_v07": 2.9183,
+   "MAE_opp": 3.8992,
+   "rel_diff_pct": -25.156,
+   "ci95": [
+    -27.703,
+    -22.874
+   ],
+   "p": 6.28e-36,
+   "dm": -12.514,
+   "windows": 1051
+  },
+  {
+   "task": "METR-LA",
+   "track": "A",
+   "opponent": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE_v07": 2.9183,
+   "MAE_opp": 3.0473,
+   "rel_diff_pct": -4.234,
+   "ci95": [
+    -5.098,
+    -3.378
+   ],
+   "p": 1.3e-20,
+   "dm": -9.308,
+   "windows": 1051
+  },
+  {
+   "task": "METR-LA",
+   "track": "A",
+   "opponent": "Last value",
+   "MAE_v07": 2.9183,
+   "MAE_opp": 5.0379,
+   "rel_diff_pct": -42.073,
+   "ci95": [
+    -46.768,
+    -37.436
+   ],
+   "p": 7.74e-26,
+   "dm": -10.51,
+   "windows": 1051
+  },
+  {
+   "task": "METR-LA",
+   "track": "A",
+   "opponent": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE_v07": 2.9183,
+   "MAE_opp": 2.9194,
+   "rel_diff_pct": -0.039,
+   "ci95": [
+    -0.652,
+    0.436
+   ],
+   "p": 0.885,
+   "dm": -0.145,
+   "windows": 1051
+  },
+  {
+   "task": "METR-LA",
+   "track": "A",
+   "opponent": "STAEformer (CIKM'23, official code)",
+   "MAE_v07": 2.9183,
+   "MAE_opp": 3.0908,
+   "rel_diff_pct": -5.58,
+   "ci95": [
+    -6.363,
+    -4.672
+   ],
+   "p": 6.03e-27,
+   "dm": -10.748,
+   "windows": 1051
+  },
+  {
+   "task": "METR-LA",
+   "track": "A",
+   "opponent": "STID (CIKM'22, official code)",
+   "MAE_v07": 2.9183,
+   "MAE_opp": 3.1243,
+   "rel_diff_pct": -6.593,
+   "ci95": [
+    -7.787,
+    -5.459
+   ],
+   "p": 1.48e-20,
+   "dm": -9.294,
+   "windows": 1051
+  },
+  {
+   "task": "METR-LA",
+   "track": "B",
+   "opponent": "Climatology quantiles",
+   "MAE_v07": 2.9183,
+   "MAE_opp": 3.8992,
+   "rel_diff_pct": -25.156,
+   "ci95": [
+    -27.704,
+    -22.875
+   ],
+   "p": 6.26e-36,
+   "dm": -12.514,
+   "windows": 1051
+  },
+  {
+   "task": "METR-LA",
+   "track": "B",
+   "opponent": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE_v07": 2.9183,
+   "MAE_opp": 3.0473,
+   "rel_diff_pct": -4.235,
+   "ci95": [
+    -5.099,
+    -3.379
+   ],
+   "p": 1.29e-20,
+   "dm": -9.309,
+   "windows": 1051
+  },
+  {
+   "task": "METR-LA",
+   "track": "B",
+   "opponent": "Last value",
+   "MAE_v07": 2.9183,
+   "MAE_opp": 5.0379,
+   "rel_diff_pct": -42.073,
+   "ci95": [
+    -46.768,
+    -37.436
+   ],
+   "p": 7.73e-26,
+   "dm": -10.51,
+   "windows": 1051
+  },
+  {
+   "task": "METR-LA",
+   "track": "B",
+   "opponent": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE_v07": 2.9183,
+   "MAE_opp": 2.9194,
+   "rel_diff_pct": -0.04,
+   "ci95": [
+    -0.653,
+    0.434
+   ],
+   "p": 0.882,
+   "dm": -0.149,
+   "windows": 1051
+  },
+  {
+   "task": "METR-LA",
+   "track": "B",
+   "opponent": "STAEformer (CIKM'23, official code)",
+   "MAE_v07": 2.9183,
+   "MAE_opp": 3.0908,
+   "rel_diff_pct": -5.581,
+   "ci95": [
+    -6.363,
+    -4.673
+   ],
+   "p": 5.82e-27,
+   "dm": -10.752,
+   "windows": 1051
+  },
+  {
+   "task": "METR-LA",
+   "track": "B",
+   "opponent": "STID (CIKM'22, official code)",
+   "MAE_v07": 2.9183,
+   "MAE_opp": 3.1243,
+   "rel_diff_pct": -6.594,
+   "ci95": [
+    -7.789,
+    -5.459
+   ],
+   "p": 1.47e-20,
+   "dm": -9.295,
+   "windows": 1051
+  },
+  {
+   "task": "METR-LA",
+   "track": "B",
+   "opponent": "TimesFM-3.0 (Google) multivariate (zero-shot, ctx 512)",
+   "MAE_v07": 2.9183,
+   "MAE_opp": 3.4013,
+   "rel_diff_pct": -14.201,
+   "ci95": [
+    -16.477,
+    -11.456
+   ],
+   "p": 8.4e-19,
+   "dm": -8.855,
+   "windows": 1051
+  },
+  {
+   "task": "METR-LA",
+   "track": "R",
+   "opponent": "Climatology quantiles",
+   "MAE_v07": 3.486,
+   "MAE_opp": 4.0743,
+   "rel_diff_pct": -14.438,
+   "ci95": [
+    -16.817,
+    -12.347
+   ],
+   "p": 1.49e-22,
+   "dm": -9.771,
+   "windows": 1051
+  },
+  {
+   "task": "METR-LA",
+   "track": "R",
+   "opponent": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE_v07": 3.486,
+   "MAE_opp": 5.889,
+   "rel_diff_pct": -40.805,
+   "ci95": [
+    -42.261,
+    -39.537
+   ],
+   "p": 1.95e-232,
+   "dm": -32.552,
+   "windows": 1051
+  },
+  {
+   "task": "METR-LA",
+   "track": "R",
+   "opponent": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE_v07": 3.486,
+   "MAE_opp": 3.364,
+   "rel_diff_pct": 3.627,
+   "ci95": [
+    2.688,
+    4.659
+   ],
+   "p": 3.93e-11,
+   "dm": 6.607,
+   "windows": 1051
+  },
+  {
+   "task": "METR-LA",
+   "track": "R",
+   "opponent": "STAEformer (CIKM'23, official code)",
+   "MAE_v07": 3.486,
+   "MAE_opp": 5.3277,
+   "rel_diff_pct": -34.568,
+   "ci95": [
+    -37.22,
+    -32.411
+   ],
+   "p": 1.99e-45,
+   "dm": -14.146,
+   "windows": 1051
+  },
+  {
+   "task": "METR-LA",
+   "track": "R",
+   "opponent": "STID (CIKM'22, official code)",
+   "MAE_v07": 3.486,
+   "MAE_opp": 5.1107,
+   "rel_diff_pct": -31.789,
+   "ci95": [
+    -34.524,
+    -29.238
+   ],
+   "p": 5.86e-44,
+   "dm": -13.906,
+   "windows": 1051
+  },
+  {
+   "task": "METR-LA",
+   "track": "G",
+   "opponent": "Climatology quantiles",
+   "MAE_v07": 3.1466,
+   "MAE_opp": 3.8938,
+   "rel_diff_pct": -19.189,
+   "ci95": [
+    -21.7,
+    -16.727
+   ],
+   "p": 1.12e-25,
+   "dm": -10.476,
+   "windows": 1051
+  },
+  {
+   "task": "METR-LA",
+   "track": "G",
+   "opponent": "Last observed value (climatology if none)",
+   "MAE_v07": 3.1466,
+   "MAE_opp": 4.3593,
+   "rel_diff_pct": -27.817,
+   "ci95": [
+    -29.083,
+    -26.228
+   ],
+   "p": 1.97e-74,
+   "dm": -18.253,
+   "windows": 1051
+  },
+  {
+   "task": "METR-LA",
+   "track": "G",
+   "opponent": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE_v07": 3.1466,
+   "MAE_opp": 3.1012,
+   "rel_diff_pct": 1.465,
+   "ci95": [
+    0.784,
+    2.199
+   ],
+   "p": 5.82e-05,
+   "dm": 4.02,
+   "windows": 1051
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "A",
+   "opponent": "Climatology quantiles",
+   "MAE_v07": 1.533,
+   "MAE_opp": 2.5326,
+   "rel_diff_pct": -39.467,
+   "ci95": [
+    -43.423,
+    -36.656
+   ],
+   "p": 5.62e-44,
+   "dm": -13.909,
+   "windows": 1734
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "A",
+   "opponent": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE_v07": 1.533,
+   "MAE_opp": 1.5693,
+   "rel_diff_pct": -2.309,
+   "ci95": [
+    -2.984,
+    -1.346
+   ],
+   "p": 1.29e-06,
+   "dm": -4.842,
+   "windows": 1734
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "A",
+   "opponent": "Last value",
+   "MAE_v07": 1.533,
+   "MAE_opp": 2.1715,
+   "rel_diff_pct": -29.403,
+   "ci95": [
+    -31.41,
+    -27.217
+   ],
+   "p": 1.54e-34,
+   "dm": -12.257,
+   "windows": 1734
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "A",
+   "opponent": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE_v07": 1.533,
+   "MAE_opp": 1.5193,
+   "rel_diff_pct": 0.906,
+   "ci95": [
+    0.615,
+    1.235
+   ],
+   "p": 2.03e-08,
+   "dm": 5.609,
+   "windows": 1734
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "A",
+   "opponent": "STAEformer (CIKM'23, official code)",
+   "MAE_v07": 1.533,
+   "MAE_opp": 1.595,
+   "rel_diff_pct": -3.884,
+   "ci95": [
+    -4.325,
+    -3.316
+   ],
+   "p": 7.3e-30,
+   "dm": -11.351,
+   "windows": 1734
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "A",
+   "opponent": "STID (CIKM'22, official code)",
+   "MAE_v07": 1.533,
+   "MAE_opp": 1.5608,
+   "rel_diff_pct": -1.776,
+   "ci95": [
+    -2.897,
+    -0.922
+   ],
+   "p": 0.000402,
+   "dm": -3.539,
+   "windows": 1734
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "B",
+   "opponent": "Climatology quantiles",
+   "MAE_v07": 1.533,
+   "MAE_opp": 2.5326,
+   "rel_diff_pct": -39.467,
+   "ci95": [
+    -43.423,
+    -36.656
+   ],
+   "p": 5.62e-44,
+   "dm": -13.909,
+   "windows": 1734
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "B",
+   "opponent": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE_v07": 1.533,
+   "MAE_opp": 1.5693,
+   "rel_diff_pct": -2.309,
+   "ci95": [
+    -2.984,
+    -1.346
+   ],
+   "p": 1.29e-06,
+   "dm": -4.842,
+   "windows": 1734
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "B",
+   "opponent": "Last value",
+   "MAE_v07": 1.533,
+   "MAE_opp": 2.1715,
+   "rel_diff_pct": -29.403,
+   "ci95": [
+    -31.41,
+    -27.217
+   ],
+   "p": 1.54e-34,
+   "dm": -12.257,
+   "windows": 1734
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "B",
+   "opponent": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE_v07": 1.533,
+   "MAE_opp": 1.5193,
+   "rel_diff_pct": 0.906,
+   "ci95": [
+    0.615,
+    1.235
+   ],
+   "p": 2.03e-08,
+   "dm": 5.609,
+   "windows": 1734
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "B",
+   "opponent": "STAEformer (CIKM'23, official code)",
+   "MAE_v07": 1.533,
+   "MAE_opp": 1.595,
+   "rel_diff_pct": -3.884,
+   "ci95": [
+    -4.325,
+    -3.316
+   ],
+   "p": 7.3e-30,
+   "dm": -11.351,
+   "windows": 1734
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "B",
+   "opponent": "STID (CIKM'22, official code)",
+   "MAE_v07": 1.533,
+   "MAE_opp": 1.5608,
+   "rel_diff_pct": -1.776,
+   "ci95": [
+    -2.897,
+    -0.922
+   ],
+   "p": 0.000402,
+   "dm": -3.539,
+   "windows": 1734
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "B",
+   "opponent": "TimesFM-3.0 (Google) multivariate (zero-shot, ctx 512)",
+   "MAE_v07": 1.533,
+   "MAE_opp": 1.6609,
+   "rel_diff_pct": -7.697,
+   "ci95": [
+    -10.535,
+    -4.358
+   ],
+   "p": 6.24e-06,
+   "dm": -4.518,
+   "windows": 1734
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "R",
+   "opponent": "Climatology quantiles",
+   "MAE_v07": 2.3905,
+   "MAE_opp": 2.7081,
+   "rel_diff_pct": -11.727,
+   "ci95": [
+    -13.633,
+    -9.971
+   ],
+   "p": 9.22e-20,
+   "dm": -9.098,
+   "windows": 1734
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "R",
+   "opponent": "Graph WaveNet (IJCAI'19, official code)",
+   "MAE_v07": 2.3905,
+   "MAE_opp": 51.758,
+   "rel_diff_pct": -95.381,
+   "ci95": [
+    -95.729,
+    -95.046
+   ],
+   "p": 0.0,
+   "dm": -136.382,
+   "windows": 1734
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "R",
+   "opponent": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE_v07": 2.3905,
+   "MAE_opp": 2.3057,
+   "rel_diff_pct": 3.679,
+   "ci95": [
+    1.44,
+    7.744
+   ],
+   "p": 0.0238,
+   "dm": 2.26,
+   "windows": 1734
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "R",
+   "opponent": "STAEformer (CIKM'23, official code)",
+   "MAE_v07": 2.3905,
+   "MAE_opp": 44.7185,
+   "rel_diff_pct": -94.654,
+   "ci95": [
+    -95.061,
+    -94.261
+   ],
+   "p": 0.0,
+   "dm": -125.914,
+   "windows": 1734
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "R",
+   "opponent": "STID (CIKM'22, official code)",
+   "MAE_v07": 2.3905,
+   "MAE_opp": 42.1924,
+   "rel_diff_pct": -94.334,
+   "ci95": [
+    -94.717,
+    -93.971
+   ],
+   "p": 0.0,
+   "dm": -126.341,
+   "windows": 1734
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "G",
+   "opponent": "Climatology quantiles",
+   "MAE_v07": 1.9588,
+   "MAE_opp": 2.5315,
+   "rel_diff_pct": -22.624,
+   "ci95": [
+    -25.827,
+    -20.318
+   ],
+   "p": 1.08e-26,
+   "dm": -10.695,
+   "windows": 1734
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "G",
+   "opponent": "Last observed value (climatology if none)",
+   "MAE_v07": 1.9588,
+   "MAE_opp": 2.6624,
+   "rel_diff_pct": -26.427,
+   "ci95": [
+    -28.398,
+    -24.177
+   ],
+   "p": 1.67e-36,
+   "dm": -12.619,
+   "windows": 1734
+  },
+  {
+   "task": "PEMS-BAY",
+   "track": "G",
+   "opponent": "PWM-Dyn v0.6 (3-seed, CQR)",
+   "MAE_v07": 1.9588,
+   "MAE_opp": 2.1957,
+   "rel_diff_pct": -10.79,
+   "ci95": [
+    -12.474,
+    -8.316
+   ],
+   "p": 1.02e-17,
+   "dm": -8.572,
+   "windows": 1734
+  }
+ ]
+}

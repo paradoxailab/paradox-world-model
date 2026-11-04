@@ -144,6 +144,44 @@ Every test is in
 Full per-track tables: [`results/LEADERBOARD_1.1.md`](results/LEADERBOARD_1.1.md); every row as JSON:
 [`results/paradoxbench1.1_results.json`](results/paradoxbench1.1_results.json).
 
+## 4. ParadoxBench-1.2: PWM-Dyn v0.7 under real operating conditions (Kaggle, 2026-11-04)
+
+v0.7 adds a fallback base (the last reading that actually arrived, else the sensor's own train-split time-of-week
+median), training on burst outages, and online error correction for Track B. Which changes to keep was decided on
+validation only (seed 0, PEMS08 and METR-LA), by rules written into `v0.7-realworld/run_v07.py` before the run.
+Fallback plus outage training was kept (validation dark/outage MAE −4.5%, clean +0.45%). Fallback alone was worse,
+and weight averaging was dropped. The kept recipe was then trained with fresh seeds 200–202 on six networks, and
+test was scored once. ParadoxBench-1.2 adds **Track G**: in every test window, 30% of sensors get a real outage
+pattern replayed from METR-LA's training split. Notebook `notebook8ffe55b5c8`, commit `b0f6a08`, 232 min on GPU T4 x2.
+
+Test MAE, v0.7 vs v0.6 (both 3-seed ensembles):
+
+| Network | A: clean | R: 30% dark | G: real outages |
+|---|---|---|---|
+| PEMS08 | 14.22 / **14.12** | **18.86** / 19.25 | **18.09** / 23.03 |
+| PEMS04 | 18.53 / **18.46** | 25.42 / 25.33 (tie) | **21.05** / 24.89 |
+| PEMS03 | 14.60 / **14.34** | 19.14 / **17.71** | **18.39** / 22.04 |
+| PEMS07 | 19.78 / **19.56** | **28.35** / 30.95 | **25.01** / 31.72 |
+| METR-LA | 2.918 / 2.919 (tie) | 3.486 / **3.364** | 3.147 / **3.101** |
+| PEMS-BAY | 1.533 / **1.519** | 2.390 / **2.306** | **1.959** / 2.196 |
+
+All differences except the two ties are significant (Diebold–Mariano p < 0.05 and a day-block bootstrap interval
+that excludes 0).
+
+- Under real outages v0.7 cuts error by 11–22% on five networks. It now beats per-sensor climatology on all six,
+  where v0.6 lost on PEMS08 and PEMS07.
+- On fully dark sensors it fixes v0.6's PEMS07 loss to climatology (28.35 vs 29.10), but is worse than v0.6 on
+  PEMS03, METR-LA and PEMS-BAY.
+- On clean data it costs 0.4–1.8%.
+
+Open context (Track B) with online correction vs TimesFM 3.0 zero-shot: PEMS08 14.00 vs 14.55, PEMS04 18.33 vs 19.13,
+PEMS07 19.61 vs 20.27, METR-LA 2.918 vs 3.401, PEMS-BAY 1.533 vs 1.661. PEMS03 is 14.27 vs 14.15, no longer
+significant (p = 0.65). Across MAE, RMSE, MAPE, QL, IS80 and coverage, v0.7 wins 28 of 36 traffic pairs and still
+loses all of PEMS03 and MAPE on PEMS08 and PEMS04. Rainfall was not re-run.
+
+Tables: [`v0.7-realworld/README.md`](v0.7-realworld/README.md) · every row and test:
+[`v0.7-realworld/results/`](v0.7-realworld/results) · leaderboard: [`results/LEADERBOARD_1.2.md`](results/LEADERBOARD_1.2.md).
+
 ## Limitations
 
 PWM-Dyn wins as a regional specialist trained on each network's own history; TimesFM has never seen

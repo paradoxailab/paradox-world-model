@@ -25,14 +25,14 @@ def _cell_losses(q, y):
             "COV80": ((yv >= lo) & (yv <= hi)).astype(float)}
 
 
-def _masks(y):
+def _masks(y, floor=MAPE_FLOOR):
     v = ~np.isnan(y)
-    return {m: (v & (np.nan_to_num(y) >= MAPE_FLOOR)) if m == "MAPE" else v for m in METRICS}
+    return {m: (v & (np.nan_to_num(y) >= floor)) if m == "MAPE" else v for m in METRICS}
 
 
-def score(q, y, horizons=(0, 1, 3)):
+def score(q, y, horizons=(0, 1, 3), floor=MAPE_FLOOR, step_min=15):
     """q [W, n, H, 3], y [W, n, H]. Returns overall metrics and per-horizon MAE / RMSE / MAPE."""
-    c, mk = _cell_losses(q, y), _masks(y)
+    c, mk = _cell_losses(q, y), _masks(y, floor)
     out = {}
     for m in METRICS:
         v = c[m][mk[m]].mean() if mk[m].any() else float("nan")
@@ -41,7 +41,8 @@ def score(q, y, horizons=(0, 1, 3)):
         for m in ("MAE", "RMSE", "MAPE"):
             s, k = c[m][..., h], mk[m][..., h]
             v = s[k].mean() if k.any() else float("nan")
-            out[f"{m}@{15 * (h + 1)}min"] = float(math.sqrt(v) if m == "RMSE" else (100 * v if m == "MAPE" else v))
+            lab = f"{step_min * (h + 1)}min" if step_min < 60 else f"{step_min * (h + 1) // 60}h"
+            out[f"{m}@{lab}"] = float(math.sqrt(v) if m == "RMSE" else (100 * v if m == "MAPE" else v))
     return out
 
 
@@ -73,11 +74,11 @@ def _newey_west(d, L):
     return max(v, 1e-12)
 
 
-def compare(qa, qb, y, per_day, metric="MAE", reps=2000, seed=0):
+def compare(qa, qb, y, per_day, metric="MAE", reps=2000, seed=0, floor=MAPE_FLOOR):
     """Paired test of model a vs model b on one metric. Negative rel_diff = a is better."""
     if metric == "COV80":
         return None
-    ca, cb, mk = _cell_losses(qa, y)[metric], _cell_losses(qb, y)[metric], _masks(y)[metric]
+    ca, cb, mk = _cell_losses(qa, y)[metric], _cell_losses(qb, y)[metric], _masks(y, floor)[metric]
     W = len(y)
     Sa = np.where(mk, ca, 0).reshape(W, -1).sum(1)
     Sb = np.where(mk, cb, 0).reshape(W, -1).sum(1)

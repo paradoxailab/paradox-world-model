@@ -1,0 +1,306 @@
+"""Paradox World Model, Delhi v0.1: a working world-state model of Delhi's air, end to end.
+
+  python tools/fetch_delhi.py        # build data/raw/DELHI.npz from CPCB's public station data
+  python run_delhi.py                # train, test, compare, write results + a next-24-hour forecast for every station
+  python run_delhi.py --quick        # pipeline check in minutes (numbers meaningless)
+
+What it does (every choice made on VALIDATION data by rules written here; test scored once):
+  1  baselines: last observed value, same hour yesterday, hour x month climatology (CQR-calibrated)
+  2  PWM-W Delhi, seeds 0-2: four pollutants forecast together for the next 24 h from all 14 measured variables at
+     all training stations (the noise floor: sigma of validation PM2.5 MAE)
+  3  does the "world" help?  (single seed each, against seed 0; a component is dropped only if removing it improves
+     validation PM2.5 MAE by more than 2 sigma)
+       no-aux    pollutant targets only (no meteorology, no other pollutants)
+       no-graph  stations forecast independently
+       pm25-only one target instead of four
+  4  final: the kept recipe, 3 fresh seeds, ensembled, CQR on validation; Tracks S (training stations), U (stations
+     never trained on), D (30% of stations dark) for every target
+  5  foundation models zero-shot on PM2.5, same windows: Chronos-Bolt, Chronos-2, TimesFM 2.5, TimesFM 3.0
+     (univariate and multivariate), 512 hours of history each; significance tests (Diebold-Mariano + day-block bootstrap)
+  6  the latest forecast: next 24 h for every station from the last data in the file (results/delhi_forecast.json)
+"""
+import argparse, copy, json, os, sys, time
+
+import numpy as np
+import torch
+
+ROOT = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, ROOT)
+from pw.ddata import Delhi, H, SPD, FLOOR, TARGETS
+from pw.dtrain import train, predict, build, DEV
+from pw import evaluate as E
+
+BASE = dict(d=128, layers=3, heads=4, ff=2, experts=0, hier=True, use_aux=True, use_graph=True, bs=32, lr=1.5e-3)
+OPPONENTS = "chronos-bolt,chronos2,tfm25,tfm3,tfm3mv"
+TEST_STRIDE, VAL_STRIDE = 6, 3
+PER_DAY = SPD // TEST_STRIDE
+HZ = (0, 5, 11, 23)
+FINAL = "PWM-W Delhi v0.1"
+CACHE = os.environ.get("PW_CACHE", os.path.join(ROOT, "results", "cache"))
+RES = {"version": FINAL, "runs": {}, "tracks": {}, "opponents": {}, "significance": {}, "decisions": {}}
+T0 = time.time()
+
+
+def log(*a):
+    print(*a, flush=True)
+
+
+def emit(kind, **kw):
+    log("RESULT " + json.dumps({"kind": kind, **kw}, default=float))
+
+
+def save():
+    for d in {os.path.join(ROOT, "results"), CACHE}:
+        os.makedirs(d, exist_ok=True)
+        json.dump(RES, open(os.path.join(d, "delhi_v01_results.json"), "w"), indent=1, default=float)
+
+
+def main(a):
+    q = a.quick
+    D = Delhi()
+    D1 = Delhi(targets=["PM2.5"])
+    log(D.describe())
+    RES["data"] = {"describe": D.describe(), "stations": D.stations, "seen": len(D.seen), "unseen": len(D.unseen),
+                   "unseen_stations": [D.stations[i] for i in D.unseen]}
+    tr = D.origins("train")
+    va = D.origins("val", VAL_STRIDE)
+    te = D.origins("test", TEST_STRIDE)
+    if q:
+        va, te = va[:40], te[:60]
+    steps = 40 if q else a.steps
+    upos = np.arange(D.N)[D.unseen]
+
+    def sc(qq, yy, k):
+        return E.score(qq[:, :, k], yy[:, :, k], horizons=HZ, floor=FLOOR[D.targets[k]], step_min=60)
+
+    preds = {"S": {}, "U": {}, "D": {}}
+
+    def store(name, out, qd):
+        RES["tracks"][name] = out
+        for t, (qq, yy) in qd.items():
+            preds[t][name] = qq
+            preds[t]["_y"] = yy
+        for t in out:
+            if t in ("S", "U", "D"):
+                emit("test", model=name, track=t, **{k: round(v, 3) for k, v in out[t]["PM2.5"].items()
+                                                     if "@" not in k or "MAE" in k})
+        save()
+
+    # ----------------------------------------------------------- 1 baselines
+    Y = D.Y
+
+    def baseline(kind, org, nodes):
+        fo = org[:, None] + np.arange(H)[None]
+        yd = Y[fo - SPD][:, :, nodes]                                       # [W, H, n, K]
+        if kind == "last":
+            hi = Y[org[:, None] + np.arange(-24, 0)[None]][:, :, nodes]
+            li = np.where(~np.isnan(hi), np.arange(24)[None, :, None, None], -1).max(1)
+            v = np.take_along_axis(hi, np.maximum(li, 0)[:, None], 1)[:, 0]
+            p = np.repeat(np.where(li >= 0, v, yd[:, 0])[:, None], H, 1)
+        elif kind == "yday":
+            p = yd
+        else:
+            b = D.bounds["train"][1]
+            key = D.tod * 12 + D.month
+            tab = np.full((24 * 12, D.N, D.K), np.nan, np.float32)
+            for k2 in range(24 * 12):
+                rows = Y[:b][key[:b] == k2][:, :, :]
+                if len(rows):
+                    with np.errstate(all="ignore"):
+                        tab[k2] = np.nanmedian(rows, 0)
+            p = tab[key[fo]][:, :, nodes]
+        p = np.where(np.isnan(p), yd, p)
+        return np.repeat(np.nan_to_num(p).transpose(0, 2, 3, 1)[..., None], 3, -1).astype(np.float32)
+
+    def truth(org, nodes):
+        return Y[org[:, None] + np.arange(H)[None]][:, :, nodes].transpose(0, 2, 3, 1)
+
+    for kind, nm in (("last", "Last observed value"), ("yday", "Same hour yesterday"),
+                     ("clim", "Hour x month climatology")):
+        qv, yv = baseline(kind, va, D.seen), truth(va, D.seen)
+        out, qd = {}, {}
+        dl = [E.fit_cqr(qv[:, :, k], yv[:, :, k]) for k in range(D.K)]
+        for t, nodes in (("S", D.seen), ("U", D.unseen)):
+            qt, yt = baseline(kind, te, nodes), truth(te, nodes)
+            for k in range(D.K):
+                qt[:, :, k] = E.apply_cqr(qt[:, :, k], dl[k])
+            out[t] = {D.targets[k]: sc(qt, yt, k) for k in range(D.K)}
+            qd[t] = (qt[:, :, 0], yt[:, :, 0])
+        store(nm, out, qd)
+
+    # ----------------------------------------------------------- 2-3 runs
+    def fit(name, cfg, data, seed=0):
+        f = os.path.join(CACHE, "runs", name + ".pt")
+        if os.path.exists(f) and not q:
+            z = torch.load(f, map_location="cpu", weights_only=False)
+            m = build(cfg, data); m.load_state_dict(z["state"]); info = z["info"]
+        else:
+            log(f"== {name} (seed {seed}, {(time.time() - T0) / 60:.0f} min elapsed)")
+            m, info = train(cfg, data, tr, data.seen, (va, data.seen), steps=steps, seed=seed, log=lambda *x: None)
+            info["config"] = dict(cfg)
+            os.makedirs(os.path.dirname(f), exist_ok=True)
+            torch.save({"state": m.state_dict(), "info": info}, f)
+        RES["runs"][name] = info
+        emit("run", name=name, **{k: v for k, v in info.items() if k != "config"})
+        save()
+        return m
+
+    def evaluate(name, models, data, tracks=("S", "U", "D"), keep=True):
+        qv, yv = ens(models, data, va, data.seen)
+        dl = [E.fit_cqr(qv[:, :, k], yv[:, :, k]) for k in range(data.K)]
+        out, qd = {"val": {data.targets[k]: sc(qv, yv, k)["MAE"] for k in range(data.K)}}, {}
+        for t in tracks:
+            if t == "U":
+                qt, yt = ens(models, data, te, None); qt, yt = qt[:, upos], yt[:, upos]
+            else:
+                qt, yt = ens(models, data, te, data.seen, dark=0.3 if t == "D" else None)
+            for k in range(data.K):
+                qt[:, :, k] = E.apply_cqr(qt[:, :, k], dl[k])
+            out[t] = {data.targets[k]: sc(qt, yt, k) for k in range(data.K)}
+            qd[t] = (qt[:, :, 0], yt[:, :, 0])
+        if keep:
+            store(name, out, qd)
+        return out, dl
+
+    def ens(models, data, org, nodes, dark=None):
+        qs, y = [], None
+        for m in models:
+            qq, y = predict(m, data, org, nodes, dark=dark)
+            qs.append(qq)
+        return np.sort(np.mean(qs, 0), -1), y
+
+    base = [fit(f"base-s{s}", BASE, D, s) for s in (0, 1, 2)]
+    vb = [RES["runs"][f"base-s{s}"]["val_MAE_PM25"] for s in (0, 1, 2)]
+    sigma = max(float(np.std(vb, ddof=1)), 1e-6)
+    evaluate("PWM-W base (seed 0)", base[:1], D, tracks=("S",))
+    abl = {"no-aux": (dict(BASE, use_aux=False), D), "no-graph": (dict(BASE, use_graph=False), D),
+           "pm25-only": (BASE, D1)}
+    z = {}
+    for nm, (cfg, data) in abl.items():
+        m = fit(nm, cfg, data, 0)
+        evaluate(f"Ablation {nm}", [m], data, tracks=("S",))
+        z[nm] = (RES["runs"]["base-s0"]["val_MAE_PM25"] - RES["runs"][nm]["val_MAE_PM25"]) / sigma
+    dec = {"sigma_val_PM25": sigma, "z_removal_gain": z,
+           "drop_aux": bool(z["no-aux"] > 2), "drop_graph": bool(z["no-graph"] > 2), "single_target": bool(z["pm25-only"] > 2),
+           "rule": "a component is dropped only if removing it improves validation PM2.5 MAE by > 2 sigma"}
+    RES["decisions"] = dec
+    emit("decisions", **dec)
+    rec = dict(BASE, use_aux=not dec["drop_aux"], use_graph=not dec["drop_graph"])
+    data = D1 if dec["single_target"] else D
+
+    # ----------------------------------------------------------- 4 final
+    finals = [fit(f"final-s{s}", rec, data, s) for s in (100, 101, 102)]
+    out, dl = evaluate(FINAL, finals, data)
+    RES["tracks"][FINAL]["params"] = finals[0].n_params()
+    torch.save({"config": rec, "targets": data.targets, "stations": data.stations, "cqr_delta": [d.tolist() for d in dl],
+                "states": [m.state_dict() for m in finals]}, os.path.join(CACHE, "pwm_w_delhi_v01.pt"))
+
+    # ----------------------------------------------------------- 5 foundation models (PM2.5)
+    if a.opponents:
+        from pw import opponents as OPP
+        y2 = D.Y[:, :, 0]
+        for key in a.opponents.split(","):
+            f = os.path.join(CACHE, "opponents", key + ".npz")
+            try:
+                if os.path.exists(f) and not q:
+                    zz = np.load(f); qt, qv, meta = zz["qt"], zz["qv"], json.loads(str(zz["meta"]))
+                else:
+                    qt, meta = OPP.run(key, y2, te, np.arange(D.N), H, ctx=512, log=log)
+                    qv, _ = OPP.run(key, y2, va[::4], np.arange(D.N), H, ctx=512, log=log)
+                    os.makedirs(os.path.dirname(f), exist_ok=True)
+                    np.savez_compressed(f, qt=qt, qv=qv, meta=np.array(json.dumps(meta)))
+                d = E.fit_cqr(qv[:, D.seen], truth(va[::4], D.seen)[:, :, 0])
+                res = {"meta": meta}
+                for t, ix in (("S", D.seen), ("U", D.unseen)):
+                    qq = E.apply_cqr(qt[:, ix], d)
+                    yt = truth(te, ix)[:, :, 0]
+                    res[t] = E.score(qq, yt, horizons=HZ, floor=FLOOR["PM2.5"], step_min=60)
+                    preds[t][meta["name"] + " zero-shot"] = qq
+                    emit("test", model=meta["name"] + " zero-shot (+CQR)", track=t,
+                         **{k: round(v, 3) for k, v in res[t].items() if "@" not in k or "MAE" in k})
+                RES["opponents"][key] = res
+            except Exception as e:
+                log(f"  opponent {key} failed: {type(e).__name__}: {e}")
+                RES["opponents"][key] = {"error": f"{type(e).__name__}: {e}"}
+            save()
+
+    # ----------------------------------------------------------- significance (PM2.5)
+    for t in ("S", "U", "D"):
+        if FINAL not in preds[t]:
+            continue
+        yt = preds[t]["_y"]
+        RES["significance"][t] = {}
+        for other, qo in preds[t].items():
+            if other in ("_y", FINAL):
+                continue
+            r = {m: E.compare(preds[t][FINAL], qo, yt, PER_DAY, m, reps=200 if q else 2000, floor=FLOOR["PM2.5"])
+                 for m in ("MAE", "RMSE", "MAPE", "QL", "IS80")}
+            RES["significance"][t][other] = {m: v for m, v in r.items() if v}
+            emit("sig", track=t, vs=other, **{m: f"{v['verdict']} {v['rel_diff_pct']:+.2f}% p={v['p']:.2g}"
+                                              for m, v in r.items() if v})
+    save()
+
+    # ----------------------------------------------------------- 6 latest forecast for every station
+    qf, _ = ens(finals, data, np.array([data.T]), None)                    # origin = first hour after the data
+    fc = {"first_hour": str(data.dates[data.T]), "hours": H,
+          "note": "next 24 h after the last hour in the data file, from the final 3-seed model (calibrated quantiles "
+                  "not applied); clock as in the CPCB files (IST)",
+          "stations": {}}
+    for i, st in enumerate(data.stations):
+        fc["stations"][st] = {data.targets[k]: {"q10": qf[0, i, k, :, 0].round(1).tolist(),
+                                                "q50": qf[0, i, k, :, 1].round(1).tolist(),
+                                                "q90": qf[0, i, k, :, 2].round(1).tolist()} for k in range(data.K)}
+    json.dump(fc, open(os.path.join(ROOT, "results", "delhi_forecast.json"), "w"))
+    json.dump(fc, open(os.path.join(CACHE, "delhi_forecast.json"), "w"))
+    RES["minutes_total"] = round((time.time() - T0) / 60, 1)
+    save()
+    write_report()
+    log(f"done in {RES['minutes_total']} min")
+
+
+def write_report():
+    R = RES
+    L = [f"# {FINAL} results (generated from results/delhi_v01_results.json)", "", R["data"]["describe"], "",
+         f"Unseen stations (Track U): {', '.join(R['data']['unseen_stations'])}", ""]
+    for t, title in (("S", "Track S: training stations"), ("U", "Track U: stations never trained on"),
+                     ("D", "Track D: training stations, 30% dark")):
+        rows = [(v[t]["PM2.5"]["MAE"], n, v[t]["PM2.5"]) for n, v in R["tracks"].items() if t in v]
+        rows += [(v[t]["MAE"], v["meta"]["name"] + " zero-shot (+CQR)", v[t]) for v in R["opponents"].values() if t in v]
+        if not rows:
+            continue
+        L += [f"## PM2.5, {title} (ug/m3, next 24 h)", "",
+              "| Model | MAE | RMSE | MAPE % | QL | IS80 | COV80 % | MAE@1h | MAE@6h | MAE@12h | MAE@24h |",
+              "|---|---|---|---|---|---|---|---|---|---|---|"]
+        for _, n, s in sorted(rows, key=lambda r: r[0]):
+            L.append(f"| {n} | {s['MAE']:.2f} | {s['RMSE']:.2f} | {s['MAPE']:.1f} | {s['QL']:.2f} | {s['IS80']:.1f} | "
+                     f"{s['COV80']:.1f} | {s['MAE@1h']:.2f} | {s['MAE@6h']:.2f} | {s['MAE@12h']:.2f} | {s['MAE@24h']:.2f} |")
+        L.append("")
+    if FINAL in R["tracks"]:
+        L += ["## All four targets, PWM-W Delhi v0.1 vs the best baseline (Track S)", "",
+              "| Target | PWM-W MAE | PWM-W MAPE % | PWM-W COV80 % | best baseline | its MAE |", "|---|---|---|---|---|---|"]
+        for tg, s in R["tracks"][FINAL]["S"].items():
+            bl = min(((v["S"][tg]["MAE"], n) for n, v in R["tracks"].items()
+                      if n in ("Last observed value", "Same hour yesterday", "Hour x month climatology")), default=(0, "-"))
+            L.append(f"| {tg} | {s['MAE']:.2f} | {s['MAPE']:.1f} | {s['COV80']:.1f} | {bl[1]} | {bl[0]:.2f} |")
+        L.append("")
+    for t, sig in R["significance"].items():
+        L += [f"## Significance, PM2.5 Track {t}: {FINAL} vs each (negative = PWM-W better)", "",
+              "| vs | MAE | RMSE | MAPE | QL | IS80 |", "|---|---|---|---|---|---|"]
+        for other, res in sig.items():
+            cell = lambda m: (f"{res[m]['verdict']} {res[m]['rel_diff_pct']:+.2f}%" if m in res else "-")
+            L.append(f"| {other} | " + " | ".join(cell(m) for m in ("MAE", "RMSE", "MAPE", "QL", "IS80")) + " |")
+        L.append("")
+    L += ["## Runs", "", "| Run | val PM2.5 MAE | params | s/step | min |", "|---|---|---|---|---|"]
+    for n, v in R["runs"].items():
+        L.append(f"| {n} | {v['val_MAE_PM25']:.3f} | {v['params']:,} | {v['sec_per_step']} | {v['seconds'] / 60:.1f} |")
+    L += ["", "Decisions: `" + json.dumps(R.get("decisions", {})) + "`", ""]
+    for d in {os.path.join(ROOT, "results"), CACHE}:
+        open(os.path.join(d, "delhi_v01_report.md"), "w").write("\n".join(L))
+
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--quick", action="store_true")
+    ap.add_argument("--steps", type=int, default=6000)
+    ap.add_argument("--opponents", default=OPPONENTS)
+    main(ap.parse_args())

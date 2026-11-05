@@ -4,9 +4,12 @@ re-hosted: run this to rebuild it.
 
   python tools/fetch_delhi.py            # -> data/raw/DELHI.npz
 
-Every station file has pollutants (PM2.5, PM10, NO, NO2, NOx, NH3, SO2, CO, Ozone, BTX) and meteorology (AT, RH,
-WS, WD, SR, BP). 2017-2023 files are hourly, 2024-25 files are 15-minute; everything is put on one hourly clock
-(15-minute values averaged when at least 2 of the 4 are present).
+The dataset has two file series per station. The 2024-25 files are 15-minute measurements of every pollutant
+(PM2.5, PM10, NO, NO2, NOx, NH3, SO2, CO, Ozone, BTX) and the meteorology (AT, RH, WS, WD, SR, BP): these are used,
+put on an hourly clock (15-minute values averaged when at least 2 of the 4 are present). The 2017-2023 files hold
+only the composite hourly AQI index (capped at 500, no concentrations, no weather) and are NOT used.
+Clock: the files stamp times "+0000"; the hour of peak solar radiation decides whether that is really UTC (peak near
+06-07 h -> shifted to IST) or Indian local time written with a UTC label (peak near 12 h -> kept).
 
 Cleaning rules, fixed before looking at results:
   * values that are not numbers, negative (except temperature), or above a physical ceiling become missing;
@@ -68,6 +71,19 @@ def read_station(path):
     df = pd.read_csv(path, low_memory=False)
     tcol = column(df.columns, "Timestamp") or column(df.columns, "From Date") or df.columns[0]
     t, dayfirst, ok, mono = parse_time(df[tcol].astype(str))
+    if getattr(t.dt, "tz", None) is not None:
+        t = t.dt.tz_localize(None)                       # keep the written clock; checked against the sun below
+    src = column(df.columns, "SR")
+    shift = 0.0
+    if src is not None:
+        sr = pd.to_numeric(df[src], errors="coerce")
+        prof = sr.groupby(t.dt.hour).mean()
+        peak = int(prof.idxmax()) if prof.notna().any() else 12
+        if 4 <= peak <= 8:                                # really UTC: move to Indian time
+            t = t + pd.Timedelta(hours=5, minutes=30)
+            shift = 5.5
+    else:
+        peak = None
     name = str(df[column(df.columns, "Station Name")].dropna().iloc[0]) if column(df.columns, "Station Name") else \
         os.path.basename(path)
     sid = str(df[column(df.columns, "Station ID")].dropna().iloc[0]) if column(df.columns, "Station ID") else name
@@ -85,7 +101,7 @@ def read_station(path):
     return sid, name, mean, {"file": os.path.basename(path), "rows": len(df), "time_col": tcol, "dayfirst": dayfirst,
                              "parsed": round(float(ok), 4), "increasing": round(float(mono), 4),
                              "step_min": float(step), "first": str(mean.index.min()), "last": str(mean.index.max()),
-                             "sample_time": str(df[tcol].iloc[0])}
+                             "sample_time": str(df[tcol].iloc[0]), "solar_peak_hour": peak, "shift_h": shift}
 
 
 def stuck(x, run=24):
@@ -99,8 +115,10 @@ def main():
     import pandas as pd
     out_dir = os.path.join(RAW, "delhi_csv"); os.makedirs(out_dir, exist_ok=True)
     pkg = get(API)["result"]
-    res = [r for r in pkg["resources"] if str(r.get("url", "")).lower().endswith(".csv")]
-    print(f"OpenCity package '{pkg['title']}': {len(res)} CSV resources", flush=True)
+    allr = [r for r in pkg["resources"] if str(r.get("url", "")).lower().endswith(".csv")]
+    res = [r for r in allr if "2024" in str(r.get("name", ""))]
+    print(f"OpenCity package '{pkg['title']}': {len(allr)} CSV resources; using the {len(res)} 2024-25 "
+          f"measurement files (the others are AQI-only)", flush=True)
 
     def dl(r):
         f = os.path.join(out_dir, os.path.basename(r["url"]))

@@ -25,7 +25,7 @@ import torch
 ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, ROOT)
 from pw.data import load_us, load_uk, load_eng, eng_names, unseen_split, US, CITIES, H, SPD, RAW
-from pw.train import train, predict, DEV
+from pw.train import train, predict, build, DEV
 from pw import evaluate as E
 
 V1 = dict(d=128, layers=3, heads=4, ff=2, experts=0, hier=True, weather=True, lc=False, bs=16, lr=2e-3, amp=True,
@@ -41,6 +41,7 @@ TEST_STRIDE, VAL_STRIDE = 8, 4
 PER_DAY = SPD // TEST_STRIDE
 FINAL = "PWM-W v0.2"
 
+CACHE = os.environ.get("PW_CACHE", os.path.join(ROOT, "results", "cache"))   # checkpoints: a dropped session resumes
 RES = {"version": "Paradox World Model v0.2", "cities": {}, "runs": {}, "pretrain": {}, "decisions": {}}
 T0 = time.time()
 
@@ -54,8 +55,15 @@ def emit(kind, **kw):
 
 
 def save():
-    os.makedirs(os.path.join(ROOT, "results"), exist_ok=True)
-    json.dump(RES, open(os.path.join(ROOT, "results", "world_v02_results.json"), "w"), indent=1, default=float)
+    for d in {os.path.join(ROOT, "results"), CACHE}:
+        os.makedirs(d, exist_ok=True)
+        json.dump(RES, open(os.path.join(d, "world_v02_results.json"), "w"), indent=1, default=float)
+
+
+def ckpt(kind, name):
+    d = os.path.join(CACHE, kind)
+    os.makedirs(d, exist_ok=True)
+    return os.path.join(d, name.replace("/", "__") + (".pt" if kind != "opponents" else ".npz"))
 
 
 class City:
@@ -184,10 +192,16 @@ def main(a):
 
     def fit(name, cfg, city, org=None, steps=None, seed=0, init=None):
         log(f"== {name} (seed {seed}, {(time.time() - T0) / 60:.0f} min elapsed)")
-        src = [(city.net, city.tr if org is None else org, city.seen, 1.0)]
-        m, info = train(cfg, src, city.VAL, steps=steps, seed=seed, init=init, log=lambda *x: None)
-        info["config"] = dict(cfg)
-        info.pop("curve", None)
+        f = ckpt("runs", name)
+        if os.path.exists(f) and (not q or os.environ.get("PW_TEST_RESUME")):
+            z = torch.load(f, map_location="cpu", weights_only=False)
+            m = build(cfg); m.load_state_dict(z["state"]); info = z["info"]; info["resumed"] = True
+        else:
+            src = [(city.net, city.tr if org is None else org, city.seen, 1.0)]
+            m, info = train(cfg, src, city.VAL, steps=steps, seed=seed, init=init, log=lambda *x: None)
+            info["config"] = dict(cfg)
+            info.pop("curve", None)
+            torch.save({"state": m.state_dict(), "info": info}, f)
         RES["runs"][name] = info
         emit("run", name=name, seed=seed, val_MAE=round(info["val_MAE"], 4), val_MAPE=round(info["val_MAPE"], 3),
              params=info["params"], active=info["active_params"], sec_per_step=info["sec_per_step"],
@@ -230,10 +244,18 @@ def main(a):
         src = [(n, n.origins("train"), None, float(np.sqrt(n.N * len(n.origins("train"))))) for n in pre]
         big = max(eng or pre, key=lambda n: n.N)
         pval = (big, big.origins("val", 16)[: (24 if q else 600)], None)
-        _, probe = train(cfg, src, None, steps=20 if q else 80, seed=0)
-        steps = st(int(minutes * 60 / max(probe["sec_per_step"], 1e-3)))
-        log(f"== {name}: {probe['sec_per_step']:.3f} s/step -> {steps} steps in {minutes} min")
-        m, info = train(cfg, src, pval, steps=steps, seed=0, log=log, budget_s=minutes * 60 * 1.15)
+        f = ckpt("pretrain", name)
+        if os.path.exists(f) and (not q or os.environ.get("PW_TEST_RESUME")):
+            z = torch.load(f, map_location="cpu", weights_only=False)
+            m = build(cfg); m.load_state_dict(z["state"]); info = z["info"]; info["resumed"] = True
+            log(f"== {name}: resumed from checkpoint")
+        else:
+            _, probe = train(cfg, src, None, steps=20 if q else 80, seed=0)
+            steps = st(int(minutes * 60 / max(probe["sec_per_step"], 1e-3)))
+            log(f"== {name}: {probe['sec_per_step']:.3f} s/step -> {steps} steps in {minutes} min")
+            m, info = train(cfg, src, pval, steps=steps, seed=0, log=log, budget_s=minutes * 60 * 1.15)
+            info.pop("curve", None)
+            torch.save({"state": m.state_dict(), "info": info}, f)
         nm = []
         for n in (eng or pre):                                        # held-out time of the pretraining regions
             org = n.origins("val", 16)[: (16 if q else None)]
@@ -304,9 +326,17 @@ def main(a):
                 continue
             c = cities[cn]
             try:
-                qt, meta = OPP.run(key, c.net.y, c.test, c.all, H, log=log)
                 vo = c.val[::4]
-                qv, _ = OPP.run(key, c.net.y, vo, c.all, H, log=log)
+                f = ckpt("opponents", f"{cn}_{key}")
+                if os.path.exists(f) and (not q or os.environ.get("PW_TEST_RESUME")):
+                    z = np.load(f, allow_pickle=False)
+                    qt, qv, meta = z["qt"], z["qv"], json.loads(str(z["meta"]))
+                    log(f"  {key} on {cn}: resumed from cached forecasts")
+                else:
+                    qt, meta = OPP.run(key, c.net.y, c.test, c.all, H, log=log)
+                    qv, _ = OPP.run(key, c.net.y, vo, c.all, H, log=log)
+                    np.savez_compressed(f, qt=qt.astype(np.float32), qv=qv.astype(np.float32),
+                                        meta=np.array(json.dumps(meta)))
                 d = E.fit_cqr(qv[:, c.seen], c.truth(vo, c.seen))
                 out = {"meta": meta}
                 for t, ix in (("S", c.seen), ("U", c.unseen)):
@@ -376,7 +406,9 @@ def write_report():
         L.append(f"| {n} | {v['val_MAE']:.4f} | {v.get('val_MAPE') or float('nan'):.3f} | {v['params']:,} | "
                  f"{v['active_params']:,} | {v['sec_per_step']} | {v['seconds'] / 60:.1f} |")
     L += ["", "Decisions (validation rules): `" + json.dumps(R.get("decisions", {})) + "`", ""]
-    open(os.path.join(ROOT, "results", "world_v02_report.md"), "w").write("\n".join(L))
+    for d in {os.path.join(ROOT, "results"), CACHE}:
+        os.makedirs(d, exist_ok=True)
+        open(os.path.join(d, "world_v02_report.md"), "w").write("\n".join(L))
 
 
 if __name__ == "__main__":

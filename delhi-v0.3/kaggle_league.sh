@@ -7,6 +7,6 @@ for f in /kaggle/input/*/raw/*.npz; do cp -n "$f" $PW_RAW/; done
 cp -n /kaggle/input/*/out/cache/* $PW_CACHE/ 2>/dev/null
 ls -la $PW_RAW
 pip install -q timesfm chronos-forecasting 2>&1 | tail -2
-python run_weather.py --league METAR
+python run_weather.py --league WMO
 [ -f $PW_RAW/WX_CPCB.npz ] && python run_weather.py --league CPCB
 ls -la $PW_OUT

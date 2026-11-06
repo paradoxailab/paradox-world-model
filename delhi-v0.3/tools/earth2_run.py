@@ -126,7 +126,7 @@ def save(path, key, V, days, done):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--league", default="METAR")
+    ap.add_argument("--league", default="WMO")
     ap.add_argument("--models", default="fcn3,sfno,graphcast")
     ap.add_argument("--budget_h", type=float, default=7.0)
     a = ap.parse_args()
@@ -135,7 +135,7 @@ def main():
     z = np.load(os.path.join(RAW, f"WX_{a.league}.npz"))
     T = z["X"].shape[0]
     if str(z["tz"]) != "GMT":
-        raise SystemExit("earth2_run expects a UTC league (METAR)")
+        raise SystemExit("earth2_run expects a UTC league (WMO or METAR)")
     start = np.datetime64(str(z["start"])[:10])
     te = bounds(a.league, T)["test"]
     days = [str(start + np.timedelta64(int(k // 24), "D")) + "T00:00" for k in range(te[0], te[1] - 23, 24)]

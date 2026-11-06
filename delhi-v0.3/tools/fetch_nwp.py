@@ -117,7 +117,7 @@ def fetch(model_id, pts, varnames, a, b, start, T0, Tw, tz, cache):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--league", default="METAR")
+    ap.add_argument("--league", default="WMO")
     ap.add_argument("--parts", default="score,hybrid")
     a = ap.parse_args()
     z = np.load(os.path.join(RAW, f"WX_{a.league}.npz"))

@@ -72,7 +72,7 @@ def gather(F, org):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--league", default="METAR")
+    ap.add_argument("--league", default="WMO")
     ap.add_argument("--steps", type=int, default=6000)
     ap.add_argument("--opponents", default="chronos2,tfm25,tfm3")
     ap.add_argument("--e2_only", action="store_true", help="re-score only the Earth-2 runs from saved predictions")
@@ -258,7 +258,7 @@ def main():
 
     # ---------------- live forecast ----------------
     qlive = np.mean([WT.predict(m, D, np.array([D.T]))[0] for m in finals], 0)[0]
-    live = {"first_hour": str(D.dates[D.T]), "timezone": a.league == "METAR" and "UTC" or "Asia/Kolkata",
+    live = {"first_hour": str(D.dates[D.T]), "timezone": "UTC" if a.league in ("METAR", "WMO") else "Asia/Kolkata",
             "stations": D.stations, "targets": TARGETS,
             "q10_q50_q90": np.round(qlive, 2).tolist()}
     json.dump(live, open(os.path.join(OUT, f"wx_forecast_{tag}.json"), "w"))

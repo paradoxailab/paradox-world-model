@@ -21,6 +21,8 @@ from pw.leagues import LEAGUES, bounds
 RAW = os.environ.get("PW_RAW", os.path.join(ROOT, "data", "raw"))
 HIST = "https://www.ncei.noaa.gov/pub/data/noaa/isd-history.csv"
 DATA = "https://www.ncei.noaa.gov/data/global-hourly/access/{y}/{sid}.csv"
+ADS = ("https://www.ncei.noaa.gov/access/services/data/v1?dataset=global-hourly&stations={sid}"
+       "&startDate={y}-01-01&endDate={y}-12-31&format=csv")
 UA = {"User-Agent": "paradox-world-model-data-builder"}
 DELHI = (28.58, 77.21)
 MAX_KM, MAX_ELEV, MAX_N, MIN_COV = 500.0, 1000.0, 24, 0.10
@@ -32,8 +34,9 @@ def get(url, tries=8):
     import requests
     for k in range(tries):
         try:
-            r = requests.get(url, timeout=600, headers=UA)
+            r = requests.get(url, timeout=600, headers=UA, allow_redirects=True)
             if r.status_code == 404:
+                print(f"    404 {url} (final {r.url})", flush=True)
                 return None
             r.raise_for_status()
             return r.text
@@ -136,7 +139,10 @@ def main():
         X = np.full((T, len(VARS)), np.nan, np.float32)
         for y in range(int(c["end"][:4]), int(start[:4]) - 1, -1):          # latest year first
             txt = get(DATA.format(y=y, sid=s["sid"]))
-            if not txt:
+            if not txt or "DATE" not in txt[:400]:
+                txt = get(ADS.format(y=y, sid=s["sid"]))
+            if not txt or "DATE" not in txt[:400]:
+                print(f"    {s['sid']} {y}: no data ({(txt or '')[:120]!r})", flush=True)
                 continue
             Xy = parse(txt, start, T)
             if Xy is not None:

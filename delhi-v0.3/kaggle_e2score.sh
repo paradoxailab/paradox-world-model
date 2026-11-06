@@ -6,5 +6,5 @@ export PW_RAW=/kaggle/working/raw PW_OUT=/kaggle/working/out
 mkdir -p $PW_RAW $PW_OUT
 find /kaggle/input -path "*raw/*.npz" -exec cp -n {} $PW_RAW/ \;
 find /kaggle/input -name "wx_*" -type f -exec cp -n {} $PW_OUT/ \;
-python run_weather.py --league WMO --e2_only
-cat $PW_OUT/wx_wmo_report.md | head -120
+python run_weather.py --league METAR --e2_only
+cat $PW_OUT/wx_metar_report.md | head -120

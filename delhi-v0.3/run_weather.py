@@ -75,7 +75,10 @@ def main():
     ap.add_argument("--league", default="METAR")
     ap.add_argument("--steps", type=int, default=6000)
     ap.add_argument("--opponents", default="chronos2,tfm25,tfm3")
+    ap.add_argument("--e2_only", action="store_true", help="re-score only the Earth-2 runs from saved predictions")
     a = ap.parse_args()
+    if a.e2_only:
+        return e2_only(a.league)
     os.makedirs(OUT, exist_ok=True); os.makedirs(CACHE, exist_ok=True)
     tag = a.league.lower()
     t_all = time.time()
@@ -250,37 +253,8 @@ def main():
                 log(f"RESULT {a.league} {ours} vs {nm} on {v}: {vd} (MAE {a0['rel_diff_pct']:+.1f}% vs latest run, "
                     f"{a1['rel_diff_pct']:+.1f}% vs bias-corrected)")
 
-    # ---------------- Earth-2 runs (00 UTC starts, +6/12/18 h) ----------------
-    e2 = {}
-    p2 = os.path.join(RAW, f"E2_{a.league}.npz")
-    if os.path.exists(p2):
-        z2 = np.load(p2)
-        meta2 = json.loads(str(z2["meta"])) if "meta" in z2.files else {}
-        for key in [f[:-2] for f in z2.files if f.endswith("_v")]:
-            V, days = z2[f"{key}_v"][:, D.keep], [np.datetime64(str(d)).astype("datetime64[h]") for d in z2[f"{key}_days"]]
-            if not len(days):
-                continue
-            o_e = np.array([int((d - D.start).astype(int)) for d in days])
-            pos = {o: i for i, o in enumerate(te)}
-            sel = [(j, pos[o]) for j, o in enumerate(o_e) if o in pos]
-            if len(sel) < 10:
-                continue
-            jj, ww = map(np.array, zip(*sel))
-            qe = np.full((len(ww), D.N, D.K, H), np.nan, np.float32)
-            for li, ld in enumerate((6, 12, 18)):
-                qe[:, :, :, ld] = V[jj, :, li, :]
-            nm = meta2.get("models", {}).get(key, {}).get("name", key)
-            for k, v in enumerate(TARGETS):
-                m = obs[ww][:, :, k] & np.isfinite(qe[:, :, k])
-                if m.sum() < 100:
-                    continue
-                yk = np.where(m, Y[ww][:, :, k], np.nan)
-                r = EV.compare(q_pw[ww][:, :, k], det(qe[:, :, k]), yk, 1, "MAE")
-                mae_o = float(np.abs(q_pw[ww][:, :, k, :, 1] - np.nan_to_num(Y[ww][:, :, k]))[m].mean())
-                mae_e = float(np.abs(qe[:, :, k] - np.nan_to_num(Y[ww][:, :, k]))[m].mean())
-                e2.setdefault(nm, {})[v] = {"days": int(len(ww)), "MAE PWM-W": mae_o, "MAE model": mae_e, "test": r}
-                log(f"RESULT {a.league} PWM-W (pure) vs {nm} on {v} (+6/12/18 h, {len(ww)} days): "
-                    f"{r['verdict'] if r else 'n/a'} (MAE {mae_o:.3f} vs {mae_e:.3f} {UNITS[v]})")
+    np.savez_compressed(os.path.join(OUT, f"wx_{tag}_preds.npz"), te=te, Y=Y, q_pw=q_pw, keep=D.keep)
+    e2 = earth2(D, te, Y, q_pw, a.league)
 
     # ---------------- live forecast ----------------
     qlive = np.mean([WT.predict(m, D, np.array([D.T]))[0] for m in finals], 0)[0]
@@ -290,10 +264,67 @@ def main():
     json.dump(live, open(os.path.join(OUT, f"wx_forecast_{tag}.json"), "w"))
 
     res.update(table=table, tests=tests, verdicts=verdicts, earth2=e2, nwp_identifiers=nwp_meta,
-               foundation_models=fm_meta, minutes=round((time.time() - t_all) / 60, 1))
+               foundation_models=fm_meta, minutes=round((time.time() - t_all) / 60, 1), log=LOG)
     json.dump(res, open(os.path.join(OUT, f"wx_{tag}_results.json"), "w"), indent=1, default=float)
     report(res, a.league, tag)
     log(f"done in {res['minutes']} min")
+
+
+def earth2(D, te, Y, q_pw, league):
+    """Models we ran ourselves: 00 UTC starts, read at +6/12/18 h. Each is also scored after removing its mean
+    error per station, lead and variable computed on the TEST days themselves (generous to it)."""
+    e2 = {}
+    p2 = os.path.join(RAW, f"E2_{league}.npz")
+    if not os.path.exists(p2):
+        log("no Earth-2 runs found (E2 file missing)")
+        return e2
+    z2 = np.load(p2)
+    meta2 = json.loads(str(z2["meta"])) if "meta" in z2.files else {}
+    obs = np.isfinite(Y)
+    pos = {int(o): i for i, o in enumerate(te)}
+    for key in [f[:-2] for f in z2.files if f.endswith("_v")]:
+        V = z2[f"{key}_v"][:, D.keep]
+        o_e = [int((np.datetime64(str(d)).astype("datetime64[h]") - D.start).astype(int)) for d in z2[f"{key}_days"]]
+        sel = [(j, pos[o]) for j, o in enumerate(o_e) if o in pos]
+        if len(sel) < 10:
+            continue
+        jj, ww = map(np.array, zip(*sel))
+        qe = np.full((len(ww), D.N, D.K, H), np.nan, np.float32)
+        for li, ld in enumerate((6, 12, 18)):
+            qe[:, :, :, ld] = V[jj, :, li, :]
+        with np.errstate(all="ignore"):
+            bias = np.nanmean(qe - np.where(obs[ww], Y[ww], np.nan), 0, keepdims=True)
+        qb = qe - np.nan_to_num(bias)
+        nm = meta2.get("models", {}).get(key, {}).get("name", key)
+        for k, v in enumerate(TARGETS):
+            m = obs[ww][:, :, k] & np.isfinite(qe[:, :, k])
+            if m.sum() < 100:
+                continue
+            yk = np.where(m, Y[ww][:, :, k], np.nan)
+            r0 = EV.compare(q_pw[ww][:, :, k], det(qe[:, :, k]), yk, 1, "MAE")
+            r1 = EV.compare(q_pw[ww][:, :, k], det(qb[:, :, k]), yk, 1, "MAE")
+            mae = lambda q: float(np.abs(q - np.nan_to_num(Y[ww][:, :, k]))[m].mean())
+            vd = "BEATS" if r0 and r1 and r0["verdict"] == r1["verdict"] == "WIN" else \
+                 ("LOSES TO" if r0 and r1 and "LOSS" in (r0["verdict"], r1["verdict"]) else "TIES / MIXED")
+            e2.setdefault(nm, {})[v] = {"days": int(len(ww)), "MAE PWM-W": mae(q_pw[ww][:, :, k, :, 1]),
+                                        "MAE model": mae(qe[:, :, k]), "MAE model bias-removed": mae(qb[:, :, k]),
+                                        "test": r0, "test_bias_removed": r1, "verdict": vd}
+            log(f"RESULT {league} PWM-W (pure) vs {nm} on {v} (+6/12/18 h, {len(ww)} days): {vd} (MAE "
+                f"{mae(q_pw[ww][:, :, k, :, 1]):.3f} vs {mae(qe[:, :, k]):.3f}, bias-removed {mae(qb[:, :, k]):.3f} {UNITS[v]})")
+    return e2
+
+
+def e2_only(league):
+    tag = league.lower()
+    z = np.load(os.path.join(OUT, f"wx_{tag}_preds.npz"))
+    D = Wx(league)
+    assert np.array_equal(D.keep, z["keep"])
+    res = json.load(open(os.path.join(OUT, f"wx_{tag}_results.json")))
+    LOG.extend(res.get("log", []))
+    res["earth2"] = earth2(D, z["te"], z["Y"], z["q_pw"], league)
+    res["log"] = LOG
+    json.dump(res, open(os.path.join(OUT, f"wx_{tag}_results.json"), "w"), indent=1, default=float)
+    report(res, league, tag)
 
 
 def report(res, league, tag):
@@ -320,9 +351,8 @@ def report(res, league, tag):
         L += ["", "## Models we ran ourselves (Earth2Studio, 00 UTC GFS start, +6/12/18 h)", ""]
         for nm, d in res["earth2"].items():
             for v, x in d.items():
-                t = x["test"]
-                L.append(f"- {nm}, {v}: PWM-W {x['MAE PWM-W']:.3f} vs {x['MAE model']:.3f} {UNITS[v]} over "
-                         f"{x['days']} days -> {t['verdict'] if t else 'n/a'}")
+                L.append(f"- {nm}, {v}: PWM-W {x['MAE PWM-W']:.3f} vs {x['MAE model']:.3f} (bias removed "
+                         f"{x['MAE model bias-removed']:.3f}) {UNITS[v]} over {x['days']} days -> {x['verdict']}")
     L += ["", "Not tested: GenCast and WeatherNext (no public forecast archive; data needs a Google Cloud access "
           "request).", "", "## Log", "", "```", *LOG[-400:], "```"]
     open(os.path.join(OUT, f"wx_{tag}_report.md"), "w").write("\n".join(L))

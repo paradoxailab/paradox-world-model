@@ -2,7 +2,7 @@
 "Global Hourly": METAR and SYNOP reports, quality-controlled by NOAA NCEI; free, public). Nothing is re-hosted.
 
 Station rule (fixed before looking at any values): every Indian ISD station within 500 km of Delhi (Safdarjung,
-28.58 N 77.21 E), below 1,000 m, whose ISD record spans 2021-01-01 .. 2026-09-01 (the station list lags); nearest first; kept if at least
+28.58 N 77.21 E), below 1,000 m, whose ISD record spans 2021-01-01 .. 2025-08-01 (NOAA's Indian records end on 2025-08-24); nearest first; kept if at least
 10% of hours have a temperature in both the training and the test period (3-hourly SYNOP stations qualify; scoring
 uses observed hours only); at most 24 stations.
 Hourly value = the report nearest the top of the hour within +-15 minutes; NOAA's suspect/erroneous quality
@@ -130,7 +130,7 @@ def main():
     lim = {"AT": (-15, 52), "RH": (1, 100.5), "WS": (0, 40), "WD": (0, 360), "DP": (-40, 40), "P": (900, 1100),
            "VIS": (0, 4)}
     keep, Xs = [], []
-    for s in stations(start, "2026-09-01"):
+    for s in stations(start, "2025-08-01"):
         if len(keep) >= MAX_N:
             break
         X = np.full((T, len(VARS)), np.nan, np.float32)

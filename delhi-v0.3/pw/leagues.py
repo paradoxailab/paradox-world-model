@@ -1,14 +1,14 @@
 """The weather leagues of v0.3 and their fixed rules (written down before any score was computed).
 
-METAR  World Meteorological Organization-grade airport observations (hourly METAR reports via the Iowa
-       Environmental Mesonet archive). The two Delhi airports (Palam VIDP, Safdarjung VIDD) and the nearest
-       north-Indian airports below 1,000 m (a network of up to 16). Times in UTC.
+METAR  Airport reports via the Iowa Environmental Mesonet archive, which is current to the present day but holds
+       good records only for a few Indian airports (in practice Delhi Palam, VIDP). Times in UTC.
        TRAIN 2021-01-01 .. 2025-10-31, VALIDATION 2025-11-01 .. 2026-01-31, TEST 2026-02-01 .. 2026-10-31.
        The test period lies after every global AI model in the league was operational and archived.
-WMO    Same periods and targets as METAR, from NOAA's Integrated Surface Database (METAR + SYNOP reports,
-       NOAA quality control): Delhi Safdarjung and Palam and the Indian stations within 500 km below 1,000 m
-       (up to 24; 3-hourly SYNOP stations included, scored on observed hours only). The main league, because the
-       IEM archive holds only Palam among the Delhi stations with good coverage.
+WMO    NOAA's Integrated Surface Database (METAR + SYNOP reports, NOAA quality control): Delhi Safdarjung and
+       Palam and the Indian stations within 500 km below 1,000 m (up to 24; 3-hourly SYNOP stations included,
+       scored on observed hours only). NOAA's Indian records end on 2025-08-24, so:
+       TRAIN 2021-01-01 .. 2024-11-30, VALIDATION 2024-12-01 .. 2025-02-28, TEST 2025-03-01 .. 2025-08-20
+       (spring heat, pre-monsoon and monsoon). NOAA AIGFS was not yet archived then.
 CPCB   Delhi's CPCB / DPCC / IMD air-quality stations' own weather sensors (temperature, humidity, wind speed),
        2024-01-01 .. 2025-12-31, Indian time; same split as the air-quality league (last 182 days TEST, 61 days
        before VALIDATION). These sensors are not WMO-sited (roof tops, obstructed wind), so every global model is
@@ -25,8 +25,8 @@ NWP_VARS = {"AT": "temperature_2m", "RH": "relative_humidity_2m", "WS": "wind_sp
 LEAGUES = {
     "METAR": dict(start="2021-01-01", end="2026-11-05", tz="GMT",
                   val=("2025-11-01", "2026-01-31"), test=("2026-02-01", "2026-10-31")),
-    "WMO": dict(start="2021-01-01", end="2026-11-05", tz="GMT",
-                val=("2025-11-01", "2026-01-31"), test=("2026-02-01", "2026-10-31")),
+    "WMO": dict(start="2021-01-01", end="2025-08-23", tz="GMT",
+                val=("2024-12-01", "2025-02-28"), test=("2025-03-01", "2025-08-20")),
     "CPCB": dict(start="2024-01-01", end="2025-12-31", tz="Asia/Kolkata", test_days=182, val_days=61),
 }
 

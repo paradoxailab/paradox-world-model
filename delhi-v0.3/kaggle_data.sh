@@ -11,6 +11,8 @@ find /kaggle/input -path "*out/*" -maxdepth 6 -type f ! -path "*cache*" -exec cp
 ls $PW_RAW
 [ -f $PW_RAW/WX_WMO.npz ] || python tools/fetch_isd.py
 [ -f $PW_RAW/WX_WMO.npz ] && python tools/fetch_nwp.py --league WMO       # cached requests are not repeated
+[ -f $PW_RAW/WX_METAR.npz ] || python tools/fetch_metar.py
+[ -f $PW_RAW/WX_METAR.npz ] && python tools/fetch_nwp.py --league METAR
 [ -f $PW_RAW/DELHI.npz ] || python tools/fetch_delhi.py
 [ -f $PW_RAW/WX_CPCB.npz ] || python tools/fetch_cpcb_wx.py
 python tools/fetch_nwp.py --league CPCB

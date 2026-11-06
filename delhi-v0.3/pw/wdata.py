@@ -113,7 +113,7 @@ class Wx:
         np.fill_diagonal(D, np.inf)
         k = min(k, self.N - 1)
         nn_ = np.sort(D, 1)[:, :k]
-        sig = float(np.median(nn_)) + 1e-6
+        sig = (float(np.median(nn_)) if nn_.size else 1.0) + 1e-6
         A = np.zeros((self.N, self.N))
         for i in range(self.N):
             for j in np.argsort(D[i])[:k]:
@@ -122,7 +122,7 @@ class Wx:
         return (A / max(A.max(), 1e-6)).astype(np.float32)
 
     def _regions(self, per=5):
-        k = max(2, self.N // per)
+        k = min(self.N, max(2, self.N // per))
         X = np.stack([self.lat, self.lon * math.cos(math.radians(self.lat.mean()))], -1)
         rng = np.random.default_rng(0)
         C = X[rng.choice(len(X), k, replace=False)]

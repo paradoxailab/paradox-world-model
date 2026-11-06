@@ -9,5 +9,6 @@ find /kaggle/input -path "*out/cache/*" -type f -exec cp -n {} $PW_CACHE/ \;
 ls -la $PW_RAW
 pip install -q timesfm chronos-forecasting 2>&1 | tail -2
 python run_weather.py --league WMO
+[ -f $PW_RAW/WX_METAR.npz ] && python run_weather.py --league METAR
 [ -f $PW_RAW/WX_CPCB.npz ] && python run_weather.py --league CPCB
 ls -la $PW_OUT

@@ -8,7 +8,8 @@ We keep 2 m temperature, 2 m humidity (when the model predicts it) and 10 m wind
 nearest each station. Days are processed in a spread-out order (every 8th day first, then the gaps), so a run
 stopped by its time budget still covers the whole test period evenly. Results are saved after every day.
 
-  python tools/earth2_run.py --league METAR --models fcn3,sfno,graphcast --budget_h 7
+  python tools/earth2_run.py --league WMO --models sfno,graphcast,fcn3,graphcast_small,aurora --budget_h 7
+(a model that cannot be installed, loaded or fit in memory is reported as not run; its time goes to the others)
   -> data/raw/E2_METAR.npz : <model>_v [days, N, 3 leads (6/12/18 h), 3 targets], <model>_days, meta
 """
 import argparse, datetime as dt, json, os, subprocess, sys, time, traceback
@@ -21,13 +22,19 @@ from pw.leagues import LEAGUES, bounds
 
 RAW = os.environ.get("PW_RAW", os.path.join(ROOT, "data", "raw"))
 LEADS = (6, 12, 18)
-PIP = {"fcn3": "earth2studio[fcn3]", "sfno": "earth2studio[sfno]", "graphcast": "earth2studio[graphcast]"}
+EXTRA = {"fcn3": "fcn3", "sfno": "sfno", "graphcast": "graphcast", "graphcast_small": "graphcast", "aurora": "aurora"}
+CLS = {"fcn3": "FCN3", "sfno": "SFNO", "graphcast": "GraphCastOperational", "graphcast_small": "GraphCastSmall",
+       "aurora": "Aurora"}
 NAMES = {"fcn3": "NVIDIA FourCastNet 3 (Earth-2)", "sfno": "NVIDIA FourCastNet SFNO (Earth-2)",
-         "graphcast": "Google DeepMind GraphCast Operational"}
+         "graphcast": "Google DeepMind GraphCast Operational (0.25 deg)",
+         "graphcast_small": "Google DeepMind GraphCast Small (1 deg, ERA5-trained)",
+         "aurora": "Microsoft Aurora (0.25 deg)"}
+GIT = "git+https://github.com/NVIDIA/earth2studio.git"
 
 
 def install(key):
-    for spec in (PIP[key], "earth2studio"):
+    e = EXTRA[key]
+    for spec in (f"earth2studio[{e}]", f"earth2studio[{e}] @ {GIT}", "earth2studio"):
         r = subprocess.run([sys.executable, "-m", "pip", "install", "-q", spec], capture_output=True, text=True)
         print(f"  pip install {spec}: {'ok' if r.returncode == 0 else 'FAILED ' + r.stderr[-400:]}", flush=True)
         if r.returncode == 0:
@@ -37,8 +44,7 @@ def install(key):
 
 def load(key, dev):
     import earth2studio.models.px as px
-    cls = {"fcn3": "FCN3", "sfno": "SFNO", "graphcast": "GraphCastOperational"}[key]
-    M = getattr(px, cls)
+    M = getattr(px, CLS[key])
     return M.load_model(M.load_default_package()).to(dev)
 
 
@@ -58,6 +64,8 @@ def rh_from(t_c, d_c):
 def run_model(key, days, lat, lon, budget_s, path, dev):
     import torch
     from earth2studio.data import GFS, fetch_data
+    from earth2studio.utils.coords import map_coords
+    from earth2studio.utils.time import to_time_array
     model = load(key, dev)
     ic = model.input_coords()
     vars_out = list(model.output_coords(ic)["variable"])
@@ -76,9 +84,13 @@ def run_model(key, days, lat, lon, budget_s, path, dev):
             break
         t0 = time.time()
         try:
-            when = np.array([np.datetime64(days[di])])
+            when = to_time_array([days[di]])
+            kw = {}
+            if hasattr(model, "interp_method"):
+                kw = dict(interp_to=ic, interp_method=getattr(model, "interp_method", "nearest"))
             x, coords = fetch_data(source=src, time=when, variable=ic["variable"], lead_time=ic["lead_time"],
-                                   device=dev)
+                                   device=dev, **kw)
+            x, coords = map_coords(x, coords, ic)
             it = model.create_iterator(x, coords)
             with torch.inference_mode():
                 for step, (y, c) in enumerate(it):
@@ -127,7 +139,7 @@ def save(path, key, V, days, done):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--league", default="WMO")
-    ap.add_argument("--models", default="fcn3,sfno,graphcast")
+    ap.add_argument("--models", default="sfno,graphcast,fcn3,graphcast_small,aurora")
     ap.add_argument("--budget_h", type=float, default=7.0)
     a = ap.parse_args()
     import torch
@@ -142,7 +154,6 @@ def main():
     path = os.path.join(RAW, f"E2_{a.league}.npz")
     keys = [k for k in a.models.split(",") if k]
     meta = {"days_total": len(days), "models": {}}
-    per = a.budget_h * 3600 / max(len(keys), 1)
     t_all = time.time()
     for k, key in enumerate(keys):
         left = a.budget_h * 3600 - (time.time() - t_all)
@@ -152,7 +163,7 @@ def main():
         try:
             if not install(key):
                 raise RuntimeError("could not install")
-            n = run_model(key, days, z["lat"], z["lon"], min(left, per * (1.5 if k == 0 else 1.0)), path, dev)
+            n = run_model(key, days, z["lat"], z["lon"], left / (len(keys) - k), path, dev)
             meta["models"][key] = {"name": NAMES[key], "days": n}
         except Exception as e:
             traceback.print_exc()

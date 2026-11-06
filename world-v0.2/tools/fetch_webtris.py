@@ -27,7 +27,7 @@ BOXES = {"UK-M25": (51.20, 51.80, -0.65, 0.35), "UK-MAN": (53.30, 53.65, -2.60, 
 EXCLUDE_MARGIN = 0.15                    # degrees: pretraining sites must also stay clear of the target boxes' edges
 
 
-def get(url, params=None, tries=6):
+def get(url, params=None, tries=8):
     import requests
     for k in range(tries):
         try:
@@ -39,7 +39,7 @@ def get(url, params=None, tries=6):
         except Exception:
             if k == tries - 1:
                 raise
-            time.sleep(3 * (k + 1))
+            time.sleep(min(60, 5 * (k + 1)))
 
 
 def key(row, *names):
@@ -112,6 +112,20 @@ def thin(sites, k):
     return sites[::step][:k], step
 
 
+FAILED = []
+
+
+def fetch_site_safe(sid, start, end, cache):
+    """A site the API keeps failing on (e.g. HTTP 500 after all retries) is recorded and left missing, instead of
+    stopping the whole download; the coverage rule then drops it like any other site with too little data."""
+    try:
+        return fetch_site(sid, start, end, cache)
+    except Exception as e:
+        FAILED.append((sid, f"{type(e).__name__}: {str(e)[:120]}"))
+        T = ((end - start).days + 1) * 96
+        return sid, np.full(T, np.nan, np.float32), np.full(T, np.nan, np.float32)
+
+
 def download(pick, start, end, threads, label):
     cache = os.path.join(RAW, "webtris_cache"); os.makedirs(cache, exist_ok=True)
     T = ((end - start).days + 1) * 96
@@ -119,11 +133,13 @@ def download(pick, start, end, threads, label):
     col = {int(s["Id"]): i for i, s in enumerate(pick)}
     done, t0 = 0, time.time()
     with cf.ThreadPoolExecutor(threads) as ex:
-        for sid, v, s in ex.map(lambda s: fetch_site(int(s["Id"]), start, end, cache), pick):
+        for sid, v, s in ex.map(lambda s: fetch_site_safe(int(s["Id"]), start, end, cache), pick):
             vol[:, col[sid]], spd[:, col[sid]] = v, s
             done += 1
             if done % 50 == 0:
                 print(f"  {label}: {done}/{len(pick)} sites ({(time.time() - t0) / 60:.1f} min)", flush=True)
+    if FAILED:
+        print(f"  {label}: {len(FAILED)} sites failed after all retries and are left missing: {FAILED[:5]}", flush=True)
     return vol, spd
 
 

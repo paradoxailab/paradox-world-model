@@ -94,6 +94,13 @@ class Wx:
         self.month = (days.astype("datetime64[M]").astype(np.int64) % 12).astype(np.int64)
         doy = (days - days.astype("datetime64[Y]")).astype(np.int64)
         self.doy = np.stack([np.sin(2 * math.pi * doy / 365.25), np.cos(2 * math.pi * doy / 365.25)], -1).astype(np.float32)
+        # sun elevation (sine) at every station and hour: deterministic geometry, no observation involved
+        utc_off = 5.5 if str(z["tz"]) == "Asia/Kolkata" else 0.0
+        hh = (hours.astype(np.int64) % 24).astype(np.float64) - utc_off                      # UTC hour of day
+        dec = np.deg2rad(23.44) * np.sin(2 * math.pi * (284 + doy) / 365.0)
+        ha = np.deg2rad(15.0 * (hh[:, None] + self.lon[None] / 15.0 - 12.0))
+        la = np.deg2rad(self.lat)[None]
+        self.sun = (np.sin(la) * np.sin(dec)[:, None] + np.cos(la) * np.cos(dec)[:, None] * np.cos(ha)).astype(np.float32)
         self.A = self._graph()
         self.regions = self._regions()
         self.NWP, self.Cn = None, 0
@@ -166,6 +173,7 @@ class Wx:
         self.t_sd, self.t_mu, self.t_sl = f(self.sd), f(self.mu_lvl), f(self.sd_lvl)
         self.t_st, self.t_A, self.t_reg = f(self.static), f(self.A), f(self.regions)
         self.t_tod, self.t_mon, self.t_doy = f(self.tod), f(self.month), f(self.doy)
+        self.t_sun = f(self.sun)
         if self.NWP is not None:
             self.t_nwp, self.t_nwpo = f(np.nan_to_num(self.NWP)), f(np.isfinite(self.NWP))
         self._dev = dev
@@ -206,6 +214,7 @@ class Wx:
                "st": self.t_st[nd], "m7": m7, "sd": sd,
                "y": g(self.t_y, fo), "yo": g(self.t_o, fo) & (fo_raw < self.T)[:, None, None, :],
                "tod": self.t_tod[o], "mon": self.t_mon[o], "doy": self.t_doy[o],
+               "sun": self.t_sun[fo_raw][:, :, nd].permute(0, 2, 1),
                "A": self.t_A[nd][:, nd], "reg": self.t_reg[nd]}
         if self.NWP is not None:
             w = self.t_nwp[fo_raw][:, :, nd]                                                     # [B, H, n, M, K]

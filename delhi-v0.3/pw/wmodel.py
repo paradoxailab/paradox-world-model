@@ -1,6 +1,7 @@
 """PWM-W Weather: the PWM-W world model on a network of weather stations.
 
-Each station is a token built from its last 72 h of temperature / humidity / wind, its last 24 h of the other
+Each station is a token built from the sun's elevation over it in the 24 forecast hours, its last 72 h of temperature,
+humidity and wind, its last 24 h of the other
 channels, its recent daily cycle, its weekly level and its position; tokens get hour-of-day, month and day-of-year,
 then mix across the station graph with PWM-W's multi-scale graph attention and region / global tokens
 (pw/model.Block). The head gives, for each target and each of the next 24 hours, the 10/50/90% quantiles as offsets
@@ -24,7 +25,7 @@ class WxModel(nn.Module):
         self.cfg = dict(K=K, Ca=Ca, Cn=Cn, d=d, layers=layers, heads=heads, ff=ff, experts=experts, hier=hier,
                         use_graph=use_graph, use_nwp=use_nwp)
         self.K, self.use_graph, self.use_nwp = K, use_graph, bool(use_nwp and Cn)
-        fin = K * (2 * LH + 2 * SPD + 4) + 2 * Ca * L + 3 + 2
+        fin = K * (2 * LH + 2 * SPD + 4) + 2 * Ca * L + 3 + 2 + H
         fin += 2 * Cn * H if self.use_nwp else 0
         self.inp = nn.Sequential(nn.Linear(fin, 2 * d), nn.GELU(), nn.Linear(2 * d, d))
         self.tod, self.mon = nn.Embedding(24, d), nn.Embedding(12, d)
@@ -39,7 +40,7 @@ class WxModel(nn.Module):
              torch.stack([b["any_o"], b["age"], b["lvl"], b["mf"]], -1)]
         f = torch.cat(f, -1).reshape(B, n, -1)
         f = torch.cat([f, (b["ax"] * b["ao"]).reshape(B, n, -1), b["ao"].reshape(B, n, -1),
-                       b["st"][None].expand(B, n, -1), b["doy"][:, None].expand(B, n, -1)], -1)
+                       b["st"][None].expand(B, n, -1), b["doy"][:, None].expand(B, n, -1), b["sun"]], -1)
         if self.use_nwp:
             f = torch.cat([f, b["nwp"].reshape(B, n, -1), b["nwpo"].reshape(B, n, -1)], -1)
         x = self.inp(f) + (self.tod(b["tod"]) + self.mon(b["mon"]))[:, None]

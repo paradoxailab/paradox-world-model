@@ -59,8 +59,12 @@ def stations(start, end):
     for c in ("LAT", "LON", "ELEV"):
         h[c] = pd.to_numeric(h[c], errors="coerce")
     h = h.dropna(subset=["LAT", "LON"])
-    h = h[(h["BEGIN"].fillna("99999999") <= start.replace("-", "")) & (h["END"].fillna("0") >= end.replace("-", ""))]
     h["km"] = [km(DELHI, (a, b)) for a, b in zip(h["LAT"], h["LON"])]
+    near = h[h["km"] <= MAX_KM].sort_values("km")
+    print("nearest Indian ISD stations (id, name, km, elev, begin, end):", flush=True)
+    for r in near.head(40).itertuples():
+        print(f"    {r.USAF}{r.WBAN} {str(r.NAME)[:26]:26s} {r.km:5.0f} {r.ELEV} {r.BEGIN} {r.END}", flush=True)
+    h = h[(h["BEGIN"].fillna("99999999") <= start.replace("-", "")) & (h["END"].fillna("0") >= end.replace("-", ""))]
     h = h[(h["km"] <= MAX_KM) & ~(h["ELEV"] >= MAX_ELEV)].sort_values("km")
     out = [dict(sid=f"{r.USAF}{r.WBAN}", name=str(r.NAME).title(), icao=str(r.ICAO) if isinstance(r.ICAO, str) else "",
                 lat=float(r.LAT), lon=float(r.LON), elev=float(r.ELEV), km=r.km)

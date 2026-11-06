@@ -11,7 +11,7 @@ observations, can forecast the next 24 hours at those stations better than the g
 - **PWM-W (pure):** inductive graph world model over the station network. Its inputs are past observations only;
   nothing from any global model goes in. The model setting is chosen on validation data alone, and the entry is
   the mean of 3 seeds.
-- **PWM-W hybrid:** the same model, plus ECMWF IFS and AIFS forecasts issued at least 48 hours earlier as extra
+- **PWM-W hybrid:** the same model, plus ECMWF IFS (0.25°) and AIFS forecasts issued at least 48 hours earlier as extra
   inputs. It is reported separately and never counted as the pure model.
 
 **Global weather models.** These are the real operational forecasts, archived by the Open-Meteo Previous Runs API:

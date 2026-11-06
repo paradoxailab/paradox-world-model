@@ -46,7 +46,7 @@ NWP_MODELS = {
 # day0 = latest run (lead 0-6 h, often issued after the origin: generous to the global models)
 # day1 = the value forecast 24 h before the valid time;  day2 = 48 h before (always available at the origin)
 SUFFIXES = {"day0": "", "day1": "_previous_day1", "day2": "_previous_day2"}
-HYBRID_INPUTS = ["ECMWF IFS 9 km (physics)", "ECMWF AIFS (AI)"]      # day2 only: strictly available at the origin
+HYBRID_INPUTS = ["ECMWF IFS 0.25 (physics)", "ECMWF AIFS (AI)"]      # day2 only: strictly available at the origin
 
 
 def hours(start, end):

@@ -36,7 +36,8 @@ LEAGUES = {
 NWP_MODELS = {
     "ECMWF AIFS (AI)": ["ecmwf_aifs025_single", "ecmwf_aifs025"],
     "NOAA AIGFS (AI, GraphCast-based)": ["ncep_aigfs025", "gfs_aigfs025", "ncep_aigfs", "aigfs025"],
-    "DWD AICON (AI)": ["dwd_aicon", "dwd_aicon_global", "icon_aicon", "aicon_global"],
+    "DWD AICON (AI)": ["dwd_aicon", "dwd_aicon_global", "icon_aicon", "aicon_global", "dwd_ai_icon", "aicon",
+                       "icon_ai", "dwd_aicon_seamless"],
     "ECMWF IFS 9 km (physics)": ["ecmwf_ifs", "ecmwf_ifs_hres"],
     "ECMWF IFS 0.25 (physics)": ["ecmwf_ifs025"],
     "NOAA GFS (physics)": ["ncep_gfs_seamless", "gfs_seamless", "ncep_gfs025", "gfs_global"],

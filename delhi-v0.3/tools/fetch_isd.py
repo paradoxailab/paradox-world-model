@@ -2,7 +2,7 @@
 "Global Hourly": METAR and SYNOP reports, quality-controlled by NOAA NCEI; free, public). Nothing is re-hosted.
 
 Station rule (fixed before looking at any values): every Indian ISD station within 500 km of Delhi (Safdarjung,
-28.58 N 77.21 E), below 1,000 m, whose ISD record spans 2021-01-01 .. 2026-11-01; nearest first; kept if at least
+28.58 N 77.21 E), below 1,000 m, whose ISD record spans 2021-01-01 .. 2026-09-01 (the station list lags); nearest first; kept if at least
 10% of hours have a temperature in both the training and the test period (3-hourly SYNOP stations qualify; scoring
 uses observed hours only); at most 24 stations.
 Hourly value = the report nearest the top of the hour within +-15 minutes; NOAA's suspect/erroneous quality
@@ -54,11 +54,12 @@ def stations(start, end):
     import pandas as pd
     h = pd.read_csv(io.StringIO(get(HIST)), dtype=str)
     h = h.rename(columns={"STATION NAME": "NAME", "ELEV(M)": "ELEV"})
+    print(f"ISD history: {len(h)} stations, {int((h['CTRY'] == 'IN').sum())} in India", flush=True)
     h = h[(h["CTRY"] == "IN")].copy()
     for c in ("LAT", "LON", "ELEV"):
         h[c] = pd.to_numeric(h[c], errors="coerce")
     h = h.dropna(subset=["LAT", "LON"])
-    h = h[(h["BEGIN"] <= start.replace("-", "")) & (h["END"] >= end.replace("-", ""))]
+    h = h[(h["BEGIN"].fillna("99999999") <= start.replace("-", "")) & (h["END"].fillna("0") >= end.replace("-", ""))]
     h["km"] = [km(DELHI, (a, b)) for a, b in zip(h["LAT"], h["LON"])]
     h = h[(h["km"] <= MAX_KM) & ~(h["ELEV"] >= MAX_ELEV)].sort_values("km")
     out = [dict(sid=f"{r.USAF}{r.WBAN}", name=str(r.NAME).title(), icao=str(r.ICAO) if isinstance(r.ICAO, str) else "",
@@ -125,7 +126,7 @@ def main():
     lim = {"AT": (-15, 52), "RH": (1, 100.5), "WS": (0, 40), "WD": (0, 360), "DP": (-40, 40), "P": (900, 1100),
            "VIS": (0, 4)}
     keep, Xs = [], []
-    for s in stations(start, "2026-11-01"):
+    for s in stations(start, "2026-09-01"):
         if len(keep) >= MAX_N:
             break
         X = np.full((T, len(VARS)), np.nan, np.float32)

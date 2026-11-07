@@ -51,22 +51,30 @@ def importable(key):
     return r.returncode == 0
 
 
-def pip(specs, label):
+def pip(specs, label, extra=()):
     t0 = time.time()
-    r = subprocess.run([sys.executable, "-m", "pip", "install", "-q", *specs], capture_output=True, text=True)
-    print(f"  pip install {label}: {'ok' if r.returncode == 0 else 'FAILED ' + r.stderr[-400:]} "
+    r = subprocess.run([sys.executable, "-m", "pip", "install", "-q", *extra, *specs], capture_output=True, text=True)
+    err = (r.stderr or "").strip().splitlines()
+    print(f"  pip install {label}: {'ok' if r.returncode == 0 else 'FAILED ' + ' | '.join(err[-6:])[-600:]} "
           f"({time.time() - t0:.0f}s)", flush=True)
     return r.returncode == 0
 
 
+_BASE = []
+
+
 def install(key):
-    """Install earth2studio (main) with the exact dependency revisions it pins, then check the class imports in a
-    fresh interpreter. Each model then runs in its own subprocess, so one model's packages cannot break another."""
-    if importable(key):
-        return True
-    pip([E2S, PSN], "earth2studio (main) + physicsnemo (pinned revision)")
-    pip(DEPS[key], f"{key} dependencies (pinned revisions)")
-    return importable(key)
+    """earth2studio (main) with the exact dependency revisions it pins. Packages built from source (makani,
+    torch-harmonics) are built against the installed torch (--no-build-isolation). Each dependency is installed on
+    its own so one failure is visible; the model itself then runs in a fresh subprocess."""
+    if not _BASE:
+        pip(["setuptools", "wheel", "ninja"], "build tools")
+        _BASE.append(pip([E2S, PSN], "earth2studio (main) + physicsnemo (pinned revision)"))
+    ok = True
+    for d in DEPS[key]:
+        git = "git+" in d
+        ok &= pip([d], d.split(" @ ")[0], extra=("--no-build-isolation",) if git else ())
+    return importable(key) and ok
 
 
 def load(key, dev):

@@ -33,7 +33,7 @@ import torch
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, ROOT)
-from pw.ddata import Delhi, H, SPD, FLOOR, TARGETS
+from pw.ddata import Delhi, H, SPD, FLOOR, TARGETS, RAW
 from pw.dtrain import train, predict, build, DEV
 from pw import evaluate as E
 
@@ -241,6 +241,44 @@ def main(a):
                 RES["opponents"][key] = {"error": f"{type(e).__name__}: {e}"}
             save()
 
+    # ----------------------------------------------------------- 5b CAMS (ECMWF Copernicus) PM2.5 forecasts
+    pc = os.path.join(RAW, "DELHI_cams.npz")
+    if os.path.exists(pc):
+        zc = np.load(pc)
+        names = [str(x) for x in zc["stations"]]
+        C = np.full((D.T + 2 * H, D.N), np.nan, np.float32)
+        for i, stn in enumerate(D.stations):
+            if stn in names:
+                c = zc["pm25"][:, names.index(stn)]
+                n_ = min(len(c), len(C))
+                C[:n_, i] = c[:n_]
+        Yp = D.Y[:, :, 0]
+        def cams_at(org, nodes, bc):
+            tt = org[:, None] + np.arange(H)[None]
+            v = C[tt][:, :, nodes].transpose(0, 2, 1)                                   # [W, n, H]
+            if bc:                                     # trailing 30-day bias, same hour of day, only days before org
+                lag = tt[:, :, None] - 24 * np.arange(1, 31)[None, None]
+                lag = np.clip(lag, 0, D.T - 1)
+                e = (C[lag] - Yp[lag])[..., nodes]                                     # [W, H, 30, n]
+                with np.errstate(all="ignore"):
+                    b = np.where(np.isfinite(e).sum(2) >= 10, np.nanmean(e, 2), 0.0)
+                v = v - b.transpose(0, 2, 1)
+            return np.repeat(v[..., None], 3, -1).astype(np.float32)
+        for bc, nm in ((False, "CAMS global (ECMWF Copernicus), latest forecast"),
+                       (True, "CAMS global (ECMWF Copernicus), latest forecast + local bias correction")):
+            res = {"meta": {"name": nm, "source": "Open-Meteo air-quality archive, domain cams_global"}}
+            for t, ix in (("S", D.seen), ("U", D.unseen)):
+                qq, yt = cams_at(te, ix, bc), truth(te, ix)[:, :, 0]
+                ok = np.isfinite(qq[..., 1])
+                if ok.mean() < 0.5:
+                    continue
+                yt = np.where(ok, yt, np.nan)
+                res[t] = E.score(qq, yt, horizons=HZ, floor=FLOOR["PM2.5"], step_min=60)
+                preds[t][nm] = qq
+                emit("test", model=nm, track=t, **{k: round(v, 3) for k, v in res[t].items() if "@" not in k or "MAE" in k})
+            RES["opponents"]["cams" + ("_bc" if bc else "")] = res
+        save()
+
     # ----------------------------------------------------------- significance (PM2.5)
     for t in ("S", "U", "D"):
         if FINAL not in preds[t]:
@@ -250,7 +288,8 @@ def main(a):
         for other, qo in preds[t].items():
             if other in ("_y", FINAL):
                 continue
-            r = {m: E.compare(preds[t][FINAL], qo, yt, PER_DAY, m, reps=200 if q else 2000, floor=FLOOR["PM2.5"])
+            yo = np.where(np.isfinite(qo[..., 1]), yt, np.nan)            # hours the opponent covers
+            r = {m: E.compare(preds[t][FINAL], qo, yo, PER_DAY, m, reps=200 if q else 2000, floor=FLOOR["PM2.5"])
                  for m in ("MAE", "RMSE", "MAPE", "QL", "IS80")}
             RES["significance"][t][other] = {m: v for m, v in r.items() if v}
             emit("sig", track=t, vs=other, **{m: f"{v['verdict']} {v['rel_diff_pct']:+.2f}% p={v['p']:.2g}"

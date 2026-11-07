@@ -17,6 +17,6 @@ Opponents: TimesFM 3.0 (univariate and multivariate; evaluation only, non-commer
 Chronos-2, Chronos-Bolt, zero-shot, same windows, significance tests. TimesFM 3.0 is never used as a backbone.
 
 ```
-python tools/fetch_delhi.py && python tools/fetch_wxfc.py && python tools/backbone.py   # GPU for the backbone
+python tools/fetch_delhi.py && python tools/fetch_wxfc.py && python tools/fetch_cams.py && python tools/backbone.py   # GPU for the backbone
 python run_delhi.py
 ```

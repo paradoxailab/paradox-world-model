@@ -3,7 +3,70 @@
 ParadoxAI Lab. The question for this round is whether a small world model, trained only on Delhi's own station
 observations, can forecast the next 24 hours at those stations better than the global AI weather models.
 
-**Status:** code ready; Kaggle runs pending. Results will be added here when they are in.
+**Status:** METAR and WMO leagues done; the CPCB league and the runs of FourCastNet / GraphCast / GenCast Mini that
+we do ourselves are still running.
+
+## Results
+
+All numbers below come from real held-out data. A "BEATS" verdict follows the strict pre-set rule: a significantly
+lower MAE than both the global model's latest run and that run after a local bias correction. Significance means
+Diebold–Mariano p < 0.05 and a day-block bootstrap 95% interval below zero.
+
+### METAR league
+
+Six airports: Delhi Palam, Jaipur, Amritsar, Lucknow, Udaipur and Bhopal. Test period 2026-02-01 to 2026-10-31,
+with 1,089 forecast origins. Values are MAE.
+
+| Entry | Temp °C | RH % | Wind m/s |
+|---|---|---|---|
+| **PWM-W pure** (observations only) | 1.260 | 6.235 | 1.015 |
+| PWM-W pure, 1–6 h | 0.948 | 4.875 | 0.928 |
+| PWM-W pure, 13–24 h | 1.411 | 6.880 | 1.053 |
+| PWM-W hybrid (global forecasts ≥ 48 h old as inputs) | 1.170 | 5.943 | 0.962 |
+| TimesFM 3.0 | 1.341 | 6.523 | 1.032 |
+| Chronos-2 | 1.357 | 6.615 | 1.036 |
+| TimesFM 2.5 | 1.403 | 6.737 | 1.042 |
+| ECMWF AIFS, latest run + bias correction | **0.872** | **5.311** | **0.910** |
+| ECMWF AIFS, run 24 h before + bias correction | 1.034 | 6.095 | 0.957 |
+| NOAA AIGFS (GraphCast-based), latest run + bias correction | 1.216 | – | 1.025 |
+| NOAA GFS, latest run | 2.296 | 19.13 | 1.243 |
+
+**Verdicts, pure model**
+
+| Opponent | Verdict |
+|---|---|
+| NOAA GFS | **BEATS** on all three variables |
+| NOAA AIGFS | Ties on wind; loses on temperature by 3.6% vs bias-corrected |
+| ECMWF AIFS, ECMWF IFS, DWD ICON | Loses on all three |
+
+**Verdicts, hybrid:** **BEATS AIGFS** on temperature and wind, and **BEATS GFS** on all three variables.
+
+In the first 6 hours the pure model beats every global model's 24 h-old forecast. Its error then grows with lead
+time.
+
+### WMO league
+
+Twenty NOAA ISD stations around Delhi, including Safdarjung and Palam. Test period 2025-03-01 to 2025-08-20, with
+689 origins.
+
+**Verdicts, pure model**
+
+| Variable | Verdict |
+|---|---|
+| Wind speed | **BEATS ECMWF AIFS, ECMWF IFS 9 km, ECMWF IFS 0.25, DWD ICON and NOAA GFS** (16–19% below the bias-corrected ECMWF forecasts) |
+| Humidity | **BEATS** IFS 9 km and GFS; ties IFS 0.25; loses to AIFS and ICON |
+| Temperature | **BEATS** GFS; loses to AIFS, IFS and ICON |
+
+Removing the station graph clearly worsens validation (0.3948 vs 0.3864).
+
+TimesFM 2.5 ran out of GPU memory in this run, so it is missing here (fixed in v0.4).
+
+### What does not hold
+
+- **Temperature:** ECMWF's models with a local bias correction stay ahead of a station-only model after the first
+  hours.
+- **The strict rule is generous to the global models.** Their "latest run" is often issued after our forecast start.
+  v0.4 also reports a fairer comparison against the newest run published before the start.
 
 ## Entries
 

@@ -22,14 +22,25 @@ from pw.leagues import LEAGUES, bounds
 
 RAW = os.environ.get("PW_RAW", os.path.join(ROOT, "data", "raw"))
 LEADS = (6, 12, 18)
-EXTRA = {"fcn3": "fcn3", "sfno": "sfno", "graphcast": "graphcast", "graphcast_small": "graphcast", "aurora": "aurora"}
 CLS = {"fcn3": "FCN3", "sfno": "SFNO", "graphcast": "GraphCastOperational", "graphcast_small": "GraphCastSmall",
        "aurora": "Aurora"}
 NAMES = {"fcn3": "NVIDIA FourCastNet 3 (Earth-2)", "sfno": "NVIDIA FourCastNet SFNO (Earth-2)",
          "graphcast": "Google DeepMind GraphCast Operational (0.25 deg)",
          "graphcast_small": "Google DeepMind GraphCast Small (1 deg, ERA5-trained)",
          "aurora": "Microsoft Aurora (0.25 deg)"}
-GIT = "git+https://github.com/NVIDIA/earth2studio.git"
+
+
+E2S = "earth2studio @ git+https://github.com/NVIDIA/earth2studio.git"
+# the git revisions earth2studio's own pyproject pins ([tool.uv.sources]); pip does not read those, so name them
+PSN = "nvidia-physicsnemo @ git+https://github.com/NVIDIA/physicsnemo.git@bf0ad4f43275b84a7beab35127d57a99cd359260"
+MAKANI = "makani @ git+https://github.com/NVIDIA/makani.git@b38fcb2799d7dbc146fa60459f3f9823394a8bf1"
+THARM = "torch-harmonics @ git+https://github.com/NVIDIA/torch-harmonics.git@a632ca748a12bd9f74dbc1e00653317810991f74"
+WNEXT = "weathernext @ git+https://github.com/google-deepmind/weathernext.git@9c034db1ff412d5db6cbe6bb0c5c9afc5a267719"
+DEPS = {"sfno": [MAKANI, THARM, "pynvml>=12.0.0", "ruamel-yaml>=0.18.10", "scipy>=1.10.0", "moviepy"],
+        "fcn3": [MAKANI, THARM, "ruamel.yaml>=0.18.14", "scipy>=1.10.0", "moviepy"],
+        "graphcast": [WNEXT, "dm-haiku>=0.0.14", "jax[cuda12]>=0.4.26", "flax>=0.10.6", "dm-tree>=0.1.9"],
+        "graphcast_small": [WNEXT, "dm-haiku>=0.0.14", "jax[cuda12]>=0.4.26", "flax>=0.10.6", "dm-tree>=0.1.9"],
+        "aurora": ["microsoft-aurora>=2.0.0"]}
 
 
 def importable(key):
@@ -40,19 +51,22 @@ def importable(key):
     return r.returncode == 0
 
 
+def pip(specs, label):
+    t0 = time.time()
+    r = subprocess.run([sys.executable, "-m", "pip", "install", "-q", *specs], capture_output=True, text=True)
+    print(f"  pip install {label}: {'ok' if r.returncode == 0 else 'FAILED ' + r.stderr[-400:]} "
+          f"({time.time() - t0:.0f}s)", flush=True)
+    return r.returncode == 0
+
+
 def install(key):
-    """Install until the model class actually imports (earth2studio and physicsnemo versions must match)."""
-    e = EXTRA[key]
+    """Install earth2studio (main) with the exact dependency revisions it pins, then check the class imports in a
+    fresh interpreter. Each model then runs in its own subprocess, so one model's packages cannot break another."""
     if importable(key):
         return True
-    for specs in ([f"earth2studio[{e}] @ {GIT}"],                     # current main follows current physicsnemo
-                  [f"earth2studio[{e}]", "nvidia-physicsnemo<2"],     # released earth2studio + physicsnemo 1.x
-                  [f"earth2studio[{e}]", "nvidia-physicsnemo==1.1.1"]):
-        r = subprocess.run([sys.executable, "-m", "pip", "install", "-q", *specs], capture_output=True, text=True)
-        print(f"  pip install {' '.join(specs)}: {'ok' if r.returncode == 0 else 'FAILED ' + r.stderr[-300:]}", flush=True)
-        if r.returncode == 0 and importable(key):
-            return True
-    return False
+    pip([E2S, PSN], "earth2studio (main) + physicsnemo (pinned revision)")
+    pip(DEPS[key], f"{key} dependencies (pinned revisions)")
+    return importable(key)
 
 
 def load(key, dev):
@@ -151,12 +165,12 @@ def save(path, key, V, days, done):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--league", default="WMO")
+    ap.add_argument("--league", default="METAR")
     ap.add_argument("--models", default="sfno,graphcast,fcn3,graphcast_small,aurora")
     ap.add_argument("--budget_h", type=float, default=7.0)
+    ap.add_argument("--one", default="")                 # internal: run a single model in this process
+    ap.add_argument("--budget_s", type=float, default=0)
     a = ap.parse_args()
-    import torch
-    dev = "cuda" if torch.cuda.is_available() else "cpu"
     z = np.load(os.path.join(RAW, f"WX_{a.league}.npz"))
     T = z["X"].shape[0]
     if str(z["tz"]) != "GMT":
@@ -165,6 +179,12 @@ def main():
     te = bounds(a.league, T)["test"]
     days = [str(start + np.timedelta64(int(k // 24), "D")) + "T00:00" for k in range(te[0], te[1] - 23, 24)]
     path = os.path.join(RAW, f"E2_{a.league}.npz")
+    if a.one:
+        import torch
+        dev = "cuda" if torch.cuda.is_available() else "cpu"
+        n = run_model(a.one, days, z["lat"], z["lon"], a.budget_s, path, dev)
+        print(f"E2 ONE {a.one} {n}", flush=True)
+        return
     keys = [k for k in a.models.split(",") if k]
     meta = {"days_total": len(days), "models": {}}
     t_all = time.time()
@@ -175,9 +195,15 @@ def main():
         print(f"== {NAMES[key]}", flush=True)
         try:
             if not install(key):
-                raise RuntimeError("could not install")
-            n = run_model(key, days, z["lat"], z["lon"], left / (len(keys) - k), path, dev)
+                raise RuntimeError("could not install / import")
+            r = subprocess.run([sys.executable, os.path.abspath(__file__), "--league", a.league, "--one", key,
+                                "--budget_s", str(left / (len(keys) - k))], capture_output=True, text=True)
+            print(r.stdout[-6000:], r.stderr[-3000:], flush=True)
+            done = [l for l in r.stdout.splitlines() if l.startswith("E2 ONE")]
+            n = int(done[-1].split()[-1]) if done else 0
             meta["models"][key] = {"name": NAMES[key], "days": n}
+            if not n:
+                meta["models"][key]["error"] = (r.stderr.strip().splitlines() or ["no days completed"])[-1][:300]
         except Exception as e:
             traceback.print_exc()
             meta["models"][key] = {"name": NAMES[key], "days": 0, "error": str(e)[:300]}

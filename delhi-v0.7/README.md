@@ -20,6 +20,23 @@ chosen on that same validation period, so the comparison is tilted against the r
 
   LEAGUES="CPCB" bash kaggle_v07.sh      (attach pwm-weather-data and pwm-weather-v06-fm)
 
+## v0.7 result on CPCB: rolling updates not adopted (negative)
+
+Simulated on the validation period, weekly rolling updates made the ensemble worse: 0.4727 against 0.4650 for the
+frozen models. The final model is therefore v0.6's. All test numbers reproduced v0.6 exactly.
+
+v0.7 also saved the hybrid's forecasts, which allowed the first clean hybrid comparison on CPCB against the
+foundation models: **it ties all three on every variable** (no significant difference).
+
+| Hybrid vs | Temp | RH | Wind |
+|---|---|---|---|
+| Chronos-2 | +3.0% (tie) | −0.6% (tie) | −2.5% (tie) |
+| TimesFM 3.0 | +0.6% (tie) | −0.7% (tie) | −1.9% (tie) |
+| TimesFM 2.5 | −2.9% (tie) | −3.2% (tie) | −2.8% (tie) |
+
+Standing on CPCB: pure PWM-W beats every global model but trails Chronos-2 and TimesFM 3.0 by 4–7%; the hybrid
+beats every global model and ties the foundation models.
+
 ## Earth-2 results: models we ran ourselves (METAR league)
 
 Setup:

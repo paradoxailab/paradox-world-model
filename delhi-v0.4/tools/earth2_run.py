@@ -23,11 +23,12 @@ from pw.leagues import LEAGUES, bounds
 RAW = os.environ.get("PW_RAW", os.path.join(ROOT, "data", "raw"))
 LEADS = (6, 12, 18)
 CLS = {"fcn3": "FCN3", "sfno": "SFNO", "graphcast": "GraphCastOperational", "graphcast_small": "GraphCastSmall",
-       "aurora": "Aurora"}
+       "aurora": "Aurora", "gencast_mini": "GenCastMini"}
 NAMES = {"fcn3": "NVIDIA FourCastNet 3 (Earth-2)", "sfno": "NVIDIA FourCastNet SFNO (Earth-2)",
          "graphcast": "Google DeepMind GraphCast Operational (0.25 deg)",
          "graphcast_small": "Google DeepMind GraphCast Small (1 deg, ERA5-trained)",
-         "aurora": "Microsoft Aurora (0.25 deg)"}
+         "aurora": "Microsoft Aurora (0.25 deg)",
+         "gencast_mini": "Google DeepMind GenCast Mini (1 deg, one ensemble member)"}
 
 
 E2S = "earth2studio @ git+https://github.com/NVIDIA/earth2studio.git"
@@ -40,7 +41,8 @@ DEPS = {"sfno": [MAKANI, THARM, "pynvml>=12.0.0", "ruamel-yaml>=0.18.10", "scipy
         "fcn3": [MAKANI, THARM, "ruamel.yaml>=0.18.14", "scipy>=1.10.0", "moviepy"],
         "graphcast": [WNEXT, "dm-haiku>=0.0.14", "jax[cuda12]>=0.4.26", "flax>=0.10.6", "dm-tree>=0.1.9"],
         "graphcast_small": [WNEXT, "dm-haiku>=0.0.14", "jax[cuda12]>=0.4.26", "flax>=0.10.6", "dm-tree>=0.1.9"],
-        "aurora": ["microsoft-aurora>=2.0.0"]}
+        "aurora": ["microsoft-aurora>=2.0.0"],
+        "gencast_mini": [WNEXT, "dm-haiku>=0.0.14", "jax[cuda12]>=0.4.26", "flax>=0.10.6", "dm-tree>=0.1.9"]}
 
 
 def importable(key):
@@ -174,7 +176,7 @@ def save(path, key, V, days, done):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--league", default="METAR")
-    ap.add_argument("--models", default="sfno,graphcast,fcn3,graphcast_small,aurora")
+    ap.add_argument("--models", default="sfno,graphcast,gencast_mini,fcn3,aurora,graphcast_small")
     ap.add_argument("--budget_h", type=float, default=7.0)
     ap.add_argument("--one", default="")                 # internal: run a single model in this process
     ap.add_argument("--budget_s", type=float, default=0)

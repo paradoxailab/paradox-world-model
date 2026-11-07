@@ -9,9 +9,11 @@ calibration, and compare it with STID, Graph WaveNet and STAEformer trained with
 windows under a fixed compute budget, and with zero-shot TimesFM 2.5 and 3.0. Configurations were chosen on
 validation and the reported models use fresh seeds; four networks were never used during development. Under a
 12-step context a three-seed PWM-Dyn ensemble has the lowest MAE on five of six traffic networks (0.3--4.2\% below the best trained opponent
-on the four new ones), is statistically tied with STID on two, and trails a budget-capped STAEformer on PEMS08. Against
-TimesFM 3.0 it has lower MAE and interval score on seven of eight tasks (five of
-six traffic networks) and loses on PEMS03. With 30\% of sensors dark it beats per-sensor
-climatology on seven of eight tasks, where specialists without a missing-data mechanism fail. An ablation traces an earlier
-accuracy loss to a climatology input. Code, benchmark and forecasts are released.
+on the four new ones), is not significantly different from STID on three (PEMS08, PEMS04, PEMS07), and trails a
+budget-capped STAEformer on PEMS08. Against TimesFM 3.0 it has lower MAE and interval score on seven of eight tasks
+(five of six traffic networks; the MAE difference is significant on four; rainfall entries from the previous model
+version) and loses
+on PEMS03. With 30\% of sensors dark it beats per-sensor
+climatology on seven of eight tasks, where specialists without a missing-data mechanism fail. An ablation traces most of an
+earlier accuracy loss on PEMS04 to a climatology input. Code, benchmark and forecasts are released.
 \end{abstract}

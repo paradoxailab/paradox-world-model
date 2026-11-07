@@ -190,6 +190,21 @@
 \newblock
 
 
+\bibitem[Liu et~al\mbox{.}(2025)]%
+        {sundial}
+\bibfield{author}{\bibinfo{person}{Yong Liu}, \bibinfo{person}{Guo Qin},
+  \bibinfo{person}{Zhiyuan Shi}, \bibinfo{person}{Zhi Chen},
+  \bibinfo{person}{Caiyin Yang}, \bibinfo{person}{Xiangdong Huang},
+  \bibinfo{person}{Jianmin Wang}, {and} \bibinfo{person}{Mingsheng Long}.}
+  \bibinfo{year}{2025}\natexlab{}.
+\newblock \showarticletitle{Sundial: A Family of Highly Capable Time Series
+  Foundation Models}. In \bibinfo{booktitle}{\emph{Proceedings of the 42nd
+  International Conference on Machine Learning (ICML)}}.
+  \bibinfo{pages}{39295--39317}.
+\newblock
+\showeprint[arxiv]{2502.00816}
+
+
 \bibitem[Nandi et~al\mbox{.}(2024)]%
         {nandi2024imdlib}
 \bibfield{author}{\bibinfo{person}{Saswata Nandi}, \bibinfo{person}{Pratiman
@@ -265,18 +280,6 @@
   Conference on Learning Representations (ICLR)}}.
 \newblock
 \showeprint[arxiv]{2409.16040}
-
-
-\bibitem[{THUML, Tsinghua University}(2026)]%
-        {sundial}
-\bibfield{author}{\bibinfo{person}{{THUML, Tsinghua University}}.}
-  \bibinfo{year}{2026}\natexlab{}.
-\newblock \bibinfo{title}{Sundial / Timer time-series foundation model family}.
-\newblock
-  \bibinfo{howpublished}{\url{https://dag-upb-ts-arena.hf.space/models/family/sundial}}.
-\newblock
-\newblock
-\shownote{Accessed 2026-10-31}.
 
 
 \bibitem[Woo et~al\mbox{.}(2024)]%

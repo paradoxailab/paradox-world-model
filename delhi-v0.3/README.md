@@ -3,8 +3,8 @@
 ParadoxAI Lab. The question for this round is whether a small world model, trained only on Delhi's own station
 observations, can forecast the next 24 hours at those stations better than the global AI weather models.
 
-**Status:** METAR and WMO leagues done; the CPCB league and the runs of FourCastNet / GraphCast / GenCast Mini that
-we do ourselves are still running.
+**Status:** METAR, WMO and CPCB leagues done; the runs of FourCastNet / GraphCast / GenCast Mini that we do
+ourselves are still running.
 
 ## Results
 
@@ -58,6 +58,29 @@ Twenty NOAA ISD stations around Delhi, including Safdarjung and Palam. Test peri
 | Temperature | **BEATS** GFS; loses to AIFS, IFS and ICON |
 
 Removing the station graph clearly worsens validation (0.3948 vs 0.3864).
+
+TimesFM 2.5 ran out of GPU memory in this run, so it is missing here (fixed in v0.4).
+
+### CPCB league
+
+Twenty-five of Delhi's own CPCB, DPCC and IMD stations (the ones with enough data). Test period 2025-07-03 to
+2025-12-31.
+
+**Verdicts, pure model**
+
+| Variable | Verdict |
+|---|---|
+| Temperature and wind | **BEATS ECMWF AIFS, ECMWF IFS 9 km, ECMWF IFS 0.25, DWD ICON and NOAA GFS** (bias-corrected: 21–31% lower MAE on temperature, 28–54% on wind) |
+| Humidity | **BEATS** IFS and GFS; ties AIFS and ICON |
+
+**Verdicts, hybrid:** beats all five on all three variables.
+
+**Caveat.** These sensors are not WMO-sited: many are on rooftops, and their wind sensors are sheltered. Station
+positions were also found by name with OpenStreetMap. A model trained on the sensors learns their quirks. A global
+model with a mean bias correction cannot learn quirks that change with the hour and the weather. So this result
+says "PWM-W forecasts what Delhi's air-quality stations will read better than the global models do", which is
+useful for air-quality work. It is not a claim of better weather forecasting than ECMWF. The WMO and METAR leagues
+are the clean weather tests.
 
 TimesFM 2.5 ran out of GPU memory in this run, so it is missing here (fixed in v0.4).
 

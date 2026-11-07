@@ -352,7 +352,7 @@ def main():
 
     extra_q = {"q_h": entries["PWM-W hybrid (uses global forecasts)"]} if "PWM-W hybrid (uses global forecasts)" in entries else {}
     np.savez_compressed(os.path.join(OUT, f"wx_{tag}_preds.npz"), te=te, Y=Y, q_pw=q_pw, keep=D.keep, **extra_q)
-    e2 = earth2(D, te, Y, q_pw, a.league)
+    e2 = earth2(D, te, Y, q_pw, a.league, entries.get("PWM-W hybrid (uses global forecasts)"))
 
     # ---------------- live forecast ----------------
     qlive = np.mean([WT.predict(m.to(WT.DEV), D, np.array([D.T]))[0] for m in finals], 0)[0]
@@ -438,7 +438,15 @@ def fm_only(a):
     json.dump(res, open(p, "w"), indent=1, default=float)
 
 
-def earth2(D, te, Y, q_pw, league):
+def earth2(D, te, Y, q_pw, league, q_h=None):
+    """Score PWM-W (pure) and, when available, the hybrid against the Earth-2 runs."""
+    e2 = {"PWM-W (pure)": _earth2_one(D, te, Y, q_pw, league, "PWM-W (pure)")}
+    if q_h is not None:
+        e2["PWM-W hybrid (uses global forecasts)"] = _earth2_one(D, te, Y, q_h, league, "PWM-W hybrid (uses global forecasts)")
+    return e2
+
+
+def _earth2_one(D, te, Y, q_pw, league, who):
     """Models we ran ourselves: 00 UTC starts, read at +6/12/18 h. Each is also scored after removing its mean
     error per station, lead and variable computed on the TEST days themselves (generous to it)."""
     e2 = {}
@@ -496,7 +504,7 @@ def earth2(D, te, Y, q_pw, league):
                                         "test_trailing_bias": r2, "verdict_trailing_bias": vt,
                                         "MAE PWM-W (trailing hours)": maet(q_pw[ww][:, :, k, :, 1]),
                                         "MAE model trailing-bias-corrected": maet(qt[:, :, k])}
-            log(f"RESULT {league} PWM-W (pure) vs {nm} on {v} (+6/12/18 h, {len(ww)} days): "
+            log(f"RESULT {league} {who} vs {nm} on {v} (+6/12/18 h, {len(ww)} days): "
                 f"[oracle bias, test-period mean removed] {vd} (MAE {mae(q_pw[ww][:, :, k, :, 1]):.3f} vs raw "
                 f"{mae(qe[:, :, k]):.3f}, oracle-debiased {mae(qb[:, :, k]):.3f}); [trailing 30-day bias, operational] "
                 f"{vt} (MAE {maet(q_pw[ww][:, :, k, :, 1]):.3f} vs {maet(qt[:, :, k]):.3f}) {UNITS[v]}")
@@ -512,7 +520,7 @@ def e2_only(league):
     assert np.array_equal(D.keep, z["keep"])
     res = json.load(open(os.path.join(OUT, f"wx_{tag}_results.json")))
     LOG.extend(res.get("log", []))
-    res["earth2"] = earth2(D, z["te"], z["Y"], z["q_pw"], league)
+    res["earth2"] = earth2(D, z["te"], z["Y"], z["q_pw"], league, z["q_h"] if "q_h" in z.files else None)
     res["log"] = LOG
     json.dump(res, open(os.path.join(OUT, f"wx_{tag}_results.json"), "w"), indent=1, default=float)
     report(res, league, tag)
@@ -542,10 +550,13 @@ def report(res, league, tag):
                     f"{v} {x['verdict']} ({x['vs_raw_pct']:+.1f}% / {x['vs_bc_pct']:+.1f}%)" for v, x in dv.items()))
     if res["earth2"]:
         L += ["", "## Models we ran ourselves (Earth2Studio, 00 UTC GFS start, +6/12/18 h)", ""]
-        for nm, d in res["earth2"].items():
-            for v, x in d.items():
-                L.append(f"- {nm}, {v}: PWM-W {x['MAE PWM-W']:.3f} vs {x['MAE model']:.3f} (bias removed "
-                         f"{x['MAE model bias-removed']:.3f}) {UNITS[v]} over {x['days']} days -> {x['verdict']}")
+        for who, models in res["earth2"].items():
+            for nm, d in models.items():
+                for v, x in d.items():
+                    L.append(f"- {who} vs {nm}, {v}: {x['MAE PWM-W']:.3f} vs {x['MAE model']:.3f} raw, "
+                             f"{x['MAE model bias-removed']:.3f} oracle-debiased -> {x['verdict']}; trailing-bias "
+                             f"{x.get('MAE model trailing-bias-corrected', float('nan')):.3f} -> "
+                             f"{x.get('verdict_trailing_bias')} ({UNITS[v]}, {x['days']} days)")
     L += ["", "Not tested: GenCast and WeatherNext (no public forecast archive; data needs a Google Cloud access "
           "request).", "", "## Log", "", "```", *LOG[-400:], "```"]
     open(os.path.join(OUT, f"wx_{tag}_report.md"), "w").write("\n".join(L))

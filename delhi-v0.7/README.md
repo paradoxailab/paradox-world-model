@@ -20,6 +20,35 @@ chosen on that same validation period, so the comparison is tilted against the r
 
   LEAGUES="CPCB" bash kaggle_v07.sh      (attach pwm-weather-data and pwm-weather-v06-fm)
 
+## Earth-2 results: models we ran ourselves (METAR league)
+
+Setup:
+- Each model starts from the real NOAA GFS analysis at 00 UTC on each test day (2026-02-01 to 2026-10-31).
+- Forecasts are read at the six airports at +6, +12 and +18 h.
+- The PWM-W entry is v0.4's pure model (station observations only), on the same hours.
+- Every model is also scored after a bias correction, in two ways:
+  - **oracle:** its mean error over the test period itself is removed. This is generous to the model.
+  - **operational:** a trailing 30-day correction from its own earlier days.
+
+| Model (days) | Variable | PWM-W | Model raw | Model, trailing bias-corrected | Verdict (operational) |
+|---|---|---|---|---|---|
+| NVIDIA FourCastNet SFNO (273) | Temp °C | 1.446 | 1.832 | **1.278** | PWM-W **loses** |
+| NVIDIA FourCastNet SFNO (273) | Wind m/s | 1.055 | 1.204 | 1.052 | tie |
+| GenCast Mini, 1°, one member (88) | Temp °C | 1.813 | 2.953 | **1.202** | PWM-W **loses** |
+| GenCast Mini, 1°, one member (88) | Wind m/s | 1.036 | 1.219 | 1.067 | tie (beats it after oracle correction) |
+
+**Plain reading:**
+- Pure PWM-W beats both models' raw forecasts on temperature and wind.
+- Once each model's local bias is removed, both beat pure PWM-W on temperature, and wind is a tie.
+- The fair test for these models is the hybrid, which already beats the bias-corrected ECMWF AIFS and IFS under the
+  issued-before-start rule. v0.7 saves the hybrid's forecasts so it can be scored against them too.
+- GenCast Mini's days are spread across the test period, so its trailing correction uses fewer days.
+
+**Models that could not be run on Kaggle's free T4 GPU (15 GB):**
+- GraphCast Operational (0.25°), FourCastNet 3 and Aurora: out of memory, even in half precision.
+- GraphCast Small (1°): ran for 273 days, but every stored value is missing. Probably it needs a 6-hour
+  precipitation input that GFS analyses do not provide; not verified.
+
 ---
 
 # PWM-W Delhi v0.6: learning from a larger station network

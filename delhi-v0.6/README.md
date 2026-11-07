@@ -45,6 +45,34 @@ wind forecast. v0.6 fixes this (see below). The WMO and METAR TimesFM 2.5 number
      saved. `kaggle_v06_fm.sh` re-scores those saved forecasts against the three models, so the comparison does
      not need a full retrain.
 
+## v0.6 results: CPCB league
+
+**Validation choice:**
+- P4 (P0 plus training on the WMO stations) scored 0.4735, against P0's 0.4922 ± 0.0038. That is about 5 sigma
+  better, so P4 is adopted. P5 scored 0.4774 and v0.4's choice, P1, scored 0.4797.
+- The hybrid stays H1: H1 scored 0.4586, H2 0.4788 and H3 0.4932.
+
+**Pure PWM-W against the global models** (test 2025-07-03 to 2025-12-31). Values are MAE differences against the
+bias-corrected forecast; negative means PWM-W is better.
+
+| Opponent | Temp | RH | Wind |
+|---|---|---|---|
+| ECMWF AIFS | BEATS −27.7% | **BEATS −7.1%** (was a tie in v0.4) | BEATS −50.2% |
+| ECMWF IFS 9 km | BEATS −49.3% | BEATS −36.8% | BEATS −56.2% |
+| ECMWF IFS 0.25 | BEATS −33.6% | BEATS −25.2% | BEATS −45.1% |
+| DWD ICON | BEATS −33.3% | BEATS −22.4% | BEATS −34.9% |
+| NOAA GFS | BEATS −46.3% | BEATS −45.3% | BEATS −55.9% |
+
+- These verdicts use the issued-before-start rule.
+- Under the strict rule (the latest run, often issued after our start) every cell is also BEATS, except humidity
+  against AIFS, which ties (−5.0%, not significant).
+- PWM-W also beats the bias-corrected 4-model ensemble by −27.6% / −11.3% / −37.9%.
+- The hybrid beats every global model on every variable under both rules.
+- Caveat: these are rooftop air-quality-station sensors, which sit far from the global models' grid-box averages.
+  That is why the raw global forecasts do so badly here.
+
+**Against the foundation models:** pending; `kaggle_v06_fm.sh` is re-scoring them now.
+
 ## v0.5 result (negative)
 
 Adding cloud cover, radiation, dew point, pressure and wind direction to the learned-correction hybrid (H3) scored

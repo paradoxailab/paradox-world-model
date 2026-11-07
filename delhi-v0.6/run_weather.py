@@ -85,7 +85,11 @@ def main():
     ap.add_argument("--steps", type=int, default=6000)
     ap.add_argument("--opponents", default="chronos2,tfm25,tfm3")
     ap.add_argument("--e2_only", action="store_true", help="re-score only the Earth-2 runs from saved predictions")
+    ap.add_argument("--fm_only", action="store_true", help="re-score saved predictions against the foundation models")
     a = ap.parse_args()
+    if a.fm_only:
+        os.makedirs(CACHE, exist_ok=True)
+        return fm_only(a)
     if a.e2_only:
         return e2_only(a.league)
     os.makedirs(OUT, exist_ok=True); os.makedirs(CACHE, exist_ok=True)
@@ -257,35 +261,7 @@ def main():
         for m in hm:
             m.cpu()
     torch.cuda.empty_cache()
-    for key in [k for k in a.opponents.split(",") if k]:
-        f = os.path.join(CACHE, f"wx_{tag}_{key}_v6.npz")      # v0.6: older caches are not reused (see README)
-        try:
-            if os.path.exists(f):
-                zz = np.load(f); q, meta = zz["q"], json.loads(str(zz["meta"]))
-            else:
-                qq = []
-                for k in range(D.K):
-                    y = np.concatenate([Yfull[:, :, k], np.full((H, D.N), np.nan, np.float32)])
-                    qk = None
-                    for chunk in (2048, 512, 128, 32):
-                        try:
-                            qk, meta = OPP.run(key, y, te, np.arange(D.N), H, ctx=512, chunk=chunk, log=log)
-                            break
-                        except torch.cuda.OutOfMemoryError:
-                            gc.collect(); torch.cuda.empty_cache()
-                            log(f"    {key}: out of GPU memory at chunk {chunk}, retrying smaller")
-                    if qk is None:                       # never fall back to another variable's forecast
-                        raise RuntimeError(f"{key} ran out of GPU memory on {TARGETS[k]} at every chunk size")
-                    qq.append(qk)
-                    gc.collect(); torch.cuda.empty_cache()
-                q = np.stack(qq, 2)                                                       # [W, n, K, H, 3]
-                np.savez_compressed(f, q=q, meta=np.array(json.dumps(meta)))
-            entries[meta["name"]] = q
-            kinds[meta["name"]] = "tsfm"
-            fm_meta[key] = meta
-        except Exception as e:
-            log(f"opponent {key}: NOT RUN ({str(e)[:200]})")
-        torch.cuda.empty_cache()
+    run_fms(a.opponents, tag, D, te, entries, kinds, fm_meta)
 
     # ---------------- scoring ----------------
     obs = np.isfinite(Y)
@@ -349,7 +325,8 @@ def main():
                         log(f"RESULT {a.league} {ours} vs {opp} on {v}: {t['verdict']} (MAE {t['rel_diff_pct']:+.1f}%, "
                             f"p={t['p']:.2g}, 95% CI {t['ci95_pct'][0]:+.1f}..{t['ci95_pct'][1]:+.1f}%)")
 
-    np.savez_compressed(os.path.join(OUT, f"wx_{tag}_preds.npz"), te=te, Y=Y, q_pw=q_pw, keep=D.keep)
+    extra_q = {"q_h": entries["PWM-W hybrid (uses global forecasts)"]} if "PWM-W hybrid (uses global forecasts)" in entries else {}
+    np.savez_compressed(os.path.join(OUT, f"wx_{tag}_preds.npz"), te=te, Y=Y, q_pw=q_pw, keep=D.keep, **extra_q)
     e2 = earth2(D, te, Y, q_pw, a.league)
 
     # ---------------- live forecast ----------------
@@ -364,6 +341,76 @@ def main():
     json.dump(res, open(os.path.join(OUT, f"wx_{tag}_results.json"), "w"), indent=1, default=float)
     report(res, a.league, tag)
     log(f"done in {res['minutes']} min")
+
+
+def run_fms(opponents, tag, D, te, entries, kinds, fm_meta):
+    """Time-series foundation models on exactly the scored windows. A model that cannot run is NOT RUN; a forecast
+    is never reused across variables."""
+    from pw import opponents as OPP
+    for key in [k for k in opponents.split(",") if k]:
+        f = os.path.join(CACHE, f"wx_{tag}_{key}_v6.npz")      # v0.6: older caches are not reused (see README)
+        try:
+            if os.path.exists(f):
+                zz = np.load(f); q, meta = zz["q"], json.loads(str(zz["meta"]))
+            else:
+                qq = []
+                for k in range(D.K):
+                    y = np.concatenate([D.Y[:, :, k], np.full((H, D.N), np.nan, np.float32)])
+                    qk = None
+                    for chunk in (2048, 512, 128, 32):
+                        try:
+                            qk, meta = OPP.run(key, y, te, np.arange(D.N), H, ctx=512, chunk=chunk, log=log)
+                            break
+                        except torch.cuda.OutOfMemoryError:
+                            gc.collect(); torch.cuda.empty_cache()
+                            log(f"    {key}: out of GPU memory at chunk {chunk}, retrying smaller")
+                    if qk is None:
+                        raise RuntimeError(f"{key} ran out of GPU memory on {TARGETS[k]} at every chunk size")
+                    qq.append(qk)
+                    gc.collect(); torch.cuda.empty_cache()
+                q = np.stack(qq, 2)                                                       # [W, n, K, H, 3]
+                np.savez_compressed(f, q=q, meta=np.array(json.dumps(meta)))
+            entries[meta["name"]] = q
+            kinds[meta["name"]] = "tsfm"
+            fm_meta[key] = meta
+        except Exception as e:
+            log(f"opponent {key}: NOT RUN ({str(e)[:200]})")
+        torch.cuda.empty_cache()
+
+
+def fm_only(a):
+    """Re-score saved PWM-W test forecasts against the foundation models only (used when the FM step failed)."""
+    tag = a.league.lower()
+    z = np.load(os.path.join(OUT, f"wx_{tag}_preds.npz"))
+    D = Wx(a.league)
+    assert np.array_equal(D.keep, z["keep"])
+    te, Y = z["te"], z["Y"]
+    entries = {"PWM-W (pure)": z["q_pw"]}
+    kinds = {"PWM-W (pure)": "ours"}
+    if "q_h" in z.files:
+        entries["PWM-W hybrid (uses global forecasts)"] = z["q_h"]; kinds["PWM-W hybrid (uses global forecasts)"] = "hybrid"
+    fm_meta = {}
+    run_fms(a.opponents, tag, D, te, entries, kinds, fm_meta)
+    obs = np.isfinite(Y)
+    tests = {}
+    for ours in [n for n in entries if kinds[n] in ("ours", "hybrid")]:
+        for name in [n for n in entries if kinds[n] == "tsfm"]:
+            for k, v in enumerate(TARGETS):
+                m = obs[:, :, k] & np.isfinite(entries[name][:, :, k, :, 1]) & np.isfinite(entries[ours][:, :, k, :, 1])
+                yk = np.where(m, Y[:, :, k], np.nan)
+                t = EV.compare(entries[ours][:, :, k], entries[name][:, :, k], yk, 4, "MAE")
+                tests.setdefault(ours, {}).setdefault(name, {})[v] = {"all": t}
+                mae = lambda q: float(np.abs(q[:, :, k, :, 1] - np.nan_to_num(Y[:, :, k]))[m].mean())
+                log(f"RESULT {a.league} {ours} vs {name} on {v}: {t['verdict']} (MAE {t['rel_diff_pct']:+.1f}%, "
+                    f"p={t['p']:.2g}, 95% CI {t['ci95_pct'][0]:+.1f}..{t['ci95_pct'][1]:+.1f}%; MAE {mae(entries[ours]):.3f} "
+                    f"vs {mae(entries[name]):.3f})")
+    p = os.path.join(OUT, f"wx_{tag}_results.json")
+    res = json.load(open(p)) if os.path.exists(p) else {"league": a.league}
+    for ours, d in tests.items():
+        res.setdefault("tests", {}).setdefault(ours, {}).update(d)
+    res["foundation_models"] = fm_meta
+    res.setdefault("log", []).extend(LOG)
+    json.dump(res, open(p, "w"), indent=1, default=float)
 
 
 def earth2(D, te, Y, q_pw, league):

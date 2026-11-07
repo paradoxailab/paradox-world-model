@@ -40,6 +40,10 @@ wind forecast. v0.6 fixes this (see below). The WMO and METAR TimesFM 2.5 number
    - A forecast is never reused across variables; a model that cannot run is reported as NOT RUN.
    - The model's own batch size now follows the chunk size, so smaller chunks actually use less memory.
    - All foundation-model forecasts are recomputed.
+   - The first v0.6 CPCB run hit a bug in this new runner code: it read the model's name after freeing the model.
+     All three foundation models therefore show as NOT RUN in that log. PWM-W's own results were unaffected and
+     saved. `kaggle_v06_fm.sh` re-scores those saved forecasts against the three models, so the comparison does
+     not need a full retrain.
 
 ## v0.5 result (negative)
 

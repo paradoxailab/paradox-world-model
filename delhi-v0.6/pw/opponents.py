@@ -116,8 +116,9 @@ def run(key, y, org, nodes, H, ctx=1024, chunk=2048, log=print):
         out.append(np.asarray(fc(c[i:i + chunk]), np.float32))
         if i == 0:
             log(f"    {fc.name}: first {min(chunk, len(c))} of {len(c)} series in {time.time() - t0:.0f}s")
+    meta = {"name": fc.name, "licence": fc.licence, "params": fc.params, "context_steps": ctx}
     del fc
     q = np.concatenate(out).reshape(len(org), len(nodes), H, 3)
     q = np.sort(np.maximum(q, 0), -1)
-    return q, {"name": fc.name, "licence": fc.licence, "params": fc.params, "context_steps": ctx,
-               "minutes": round((time.time() - t0) / 60, 2)}
+    meta["minutes"] = round((time.time() - t0) / 60, 2)
+    return q, meta

@@ -32,12 +32,25 @@ NAMES = {"fcn3": "NVIDIA FourCastNet 3 (Earth-2)", "sfno": "NVIDIA FourCastNet S
 GIT = "git+https://github.com/NVIDIA/earth2studio.git"
 
 
+def importable(key):
+    r = subprocess.run([sys.executable, "-c", f"import earth2studio.models.px as p; getattr(p, '{CLS[key]}')"],
+                       capture_output=True, text=True)
+    if r.returncode:
+        print(f"    import check failed: {r.stderr.strip().splitlines()[-1][:200] if r.stderr.strip() else '?'}", flush=True)
+    return r.returncode == 0
+
+
 def install(key):
+    """Install until the model class actually imports (earth2studio and physicsnemo versions must match)."""
     e = EXTRA[key]
-    for spec in (f"earth2studio[{e}]", f"earth2studio[{e}] @ {GIT}", "earth2studio"):
-        r = subprocess.run([sys.executable, "-m", "pip", "install", "-q", spec], capture_output=True, text=True)
-        print(f"  pip install {spec}: {'ok' if r.returncode == 0 else 'FAILED ' + r.stderr[-400:]}", flush=True)
-        if r.returncode == 0:
+    if importable(key):
+        return True
+    for specs in ([f"earth2studio[{e}] @ {GIT}"],                     # current main follows current physicsnemo
+                  [f"earth2studio[{e}]", "nvidia-physicsnemo<2"],     # released earth2studio + physicsnemo 1.x
+                  [f"earth2studio[{e}]", "nvidia-physicsnemo==1.1.1"]):
+        r = subprocess.run([sys.executable, "-m", "pip", "install", "-q", *specs], capture_output=True, text=True)
+        print(f"  pip install {' '.join(specs)}: {'ok' if r.returncode == 0 else 'FAILED ' + r.stderr[-300:]}", flush=True)
+        if r.returncode == 0 and importable(key):
             return True
     return False
 

@@ -230,6 +230,12 @@ def main():
     # ---------------- time-series foundation models ----------------
     from pw import opponents as OPP
     fm_meta = {}
+    for m in finals:                                   # free the GPU for the foundation models
+        m.cpu()
+    if Dh.NWP is not None:
+        for m in hm:
+            m.cpu()
+    torch.cuda.empty_cache()
     for key in [k for k in a.opponents.split(",") if k]:
         f = os.path.join(CACHE, f"wx_{tag}_{key}.npz")
         try:
@@ -239,7 +245,13 @@ def main():
                 qq = []
                 for k in range(D.K):
                     y = np.concatenate([Yfull[:, :, k], np.full((H, D.N), np.nan, np.float32)])
-                    qk, meta = OPP.run(key, y, te, np.arange(D.N), H, ctx=512, chunk=4096, log=log)
+                    for chunk in (4096, 1024, 256):
+                        try:
+                            qk, meta = OPP.run(key, y, te, np.arange(D.N), H, ctx=512, chunk=chunk, log=log)
+                            break
+                        except torch.cuda.OutOfMemoryError:
+                            torch.cuda.empty_cache()
+                            log(f"    {key}: out of GPU memory at chunk {chunk}, retrying smaller")
                     qq.append(qk)
                 q = np.stack(qq, 2)                                                       # [W, n, K, H, 3]
                 np.savez_compressed(f, q=q, meta=np.array(json.dumps(meta)))
@@ -316,7 +328,7 @@ def main():
     e2 = earth2(D, te, Y, q_pw, a.league)
 
     # ---------------- live forecast ----------------
-    qlive = np.mean([WT.predict(m, D, np.array([D.T]))[0] for m in finals], 0)[0]
+    qlive = np.mean([WT.predict(m.to(WT.DEV), D, np.array([D.T]))[0] for m in finals], 0)[0]
     live = {"first_hour": str(D.dates[D.T]), "timezone": "UTC" if a.league in ("METAR", "WMO") else "Asia/Kolkata",
             "stations": D.stations, "targets": TARGETS,
             "q10_q50_q90": np.round(qlive, 2).tolist()}

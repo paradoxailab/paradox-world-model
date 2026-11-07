@@ -1,9 +1,63 @@
-# PWM-W Delhi v0.3: weather league against the global AI weather models
+# PWM-W Delhi v0.4: learned-correction hybrid and a fair comparison
 
-ParadoxAI Lab. The question for this round is whether a small world model, trained only on Delhi's own station
-observations, can forecast the next 24 hours at those stations better than the global AI weather models.
+ParadoxAI Lab. v0.4 builds on v0.3 (the weather league against the global models). The question: can learned local
+correction beat the global AI weather models at stations, using only forecasts that exist when our forecast is made?
 
-**Status:** code ready; Kaggle runs pending. Results will be added here when they are in.
+## What is new in v0.4
+
+1. **Learned-correction hybrid (H2).** The base forecast is the bias-corrected mean of ECMWF IFS 0.25, ECMWF AIFS,
+   DWD ICON and NOAA GFS. Each uses its newest run published before the forecast start: the 24 h-old run for hours
+   0–16, the 48 h-old run after that. PWM-W then learns the correction from the station network's own
+   observations. Validation picked this design over v0.3's inputs-only hybrid (validation 0.348 vs 0.372; the pure
+   model scores 0.393).
+2. **A fair comparison, reported alongside the strict one.**
+   - ISSUED-BEFORE-START scores each global model on its newest run published before our forecast start.
+   - STRICT, as in v0.3, scores it on its latest run, which is often issued after our start (generous to it).
+   - Both rules require significance against the raw forecast and against the bias-corrected one.
+3. **A strong new opponent:** the bias-corrected 4-model ensemble on its own.
+4. **Joint training across station networks (P4).** Validation improved from 0.3934 to 0.3920, which is below the
+   2-sigma bar, so it was not adopted.
+5. **Fixes:** GPU memory is freed before the foundation-model opponents (TimesFM 2.5 had run out of memory in v0.3).
+
+## Results: METAR league
+
+Six airports, including Delhi Palam. Test period 2026-02-01 to 2026-10-31, 1,089 origins. Differences are MAE
+(negative means PWM-W is better); every verdict passed significance.
+
+**Hybrid under the ISSUED-BEFORE-START rule** (newest run published before the start, bias-corrected)
+
+| Opponent | Temp | RH | Wind |
+|---|---|---|---|
+| **ECMWF AIFS** | **BEATS −4.4%** | **BEATS −11.8%** | **BEATS −7.4%** |
+| ECMWF IFS 9 km | BEATS −21.0% | BEATS −24.2% | BEATS −13.4% |
+| ECMWF IFS 0.25 | BEATS −19.4% | BEATS −22.0% | BEATS −12.7% |
+| DWD ICON | BEATS −22.1% | BEATS −23.6% | BEATS −11.0% |
+| NOAA AIGFS (GraphCast-based) | BEATS −21.0% | – | BEATS −17.7% |
+| NOAA GFS | BEATS −37.2% | BEATS −41.4% | BEATS −29.3% |
+| Bias-corrected 4-model ensemble | WIN −6.9% | WIN −11.5% | WIN −3.6% |
+
+**Hybrid under the STRICT rule** (latest run + bias correction)
+
+| Opponent | Verdict |
+|---|---|
+| Wind | **BEATS** AIFS, IFS 9 km, IFS 0.25, ICON, AIGFS and GFS |
+| Humidity | **BEATS** IFS and ICON; **loses** to AIFS (+3.3%) |
+| Temperature | **Loses** to AIFS (+15.6%) and IFS 0.25 (+3.3%); ties IFS 9 km and ICON; **BEATS** AIGFS and GFS |
+
+**Pure PWM-W** (station observations only) against the time-series foundation models, each forecasting from a
+station's own last 512 hours. PWM-W wins everywhere, p < 0.01.
+
+| Opponent | Temp | RH | Wind |
+|---|---|---|---|
+| TimesFM 3.0 | −5.8% | −4.3% | −1.5% |
+| TimesFM 2.5 | −10.0% | −7.3% | −2.4% |
+| Chronos-2 | −6.9% | −5.6% | −1.8% |
+
+**Bottom line:** with the forecasts that actually exist at forecast time, the hybrid beats ECMWF AIFS, IFS, ICON,
+AIGFS and GFS at these airports. Against AIFS's freshest run, often issued after our forecast start, it still loses
+on temperature and humidity.
+
+The WMO and CPCB leagues are running (`kaggle_v04.sh`).
 
 ## Entries
 

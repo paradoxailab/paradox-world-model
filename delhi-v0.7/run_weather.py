@@ -461,8 +461,18 @@ def earth2(D, te, Y, q_pw, league):
         for li, ld in enumerate((6, 12, 18)):
             qe[:, :, :, ld] = V[jj, :, li, :]
         with np.errstate(all="ignore"):
-            bias = np.nanmean(qe - np.where(obs[ww], Y[ww], np.nan), 0, keepdims=True)
+            err = qe - np.where(obs[ww], Y[ww], np.nan)
+            bias = np.nanmean(err, 0, keepdims=True)
+            # operational version: trailing 30-day bias from this model's own earlier days (>= 10 needed)
+            dd = np.array([o_e[j] for j in jj]) // 24
+            tb = np.full_like(qe, np.nan)
+            for r in range(len(ww)):
+                prev = (dd < dd[r]) & (dd >= dd[r] - 30)
+                if prev.sum() >= 10:
+                    cnt = np.isfinite(err[prev]).sum(0)
+                    tb[r] = np.where(cnt >= 10, np.nanmean(err[prev], 0), np.nan)
         qb = qe - np.nan_to_num(bias)
+        qt = qe - tb                                                  # NaN where no trailing bias is available
         nm = meta2.get("models", {}).get(key, {}).get("name", key)
         for k, v in enumerate(TARGETS):
             m = obs[ww][:, :, k] & np.isfinite(qe[:, :, k])
@@ -472,13 +482,26 @@ def earth2(D, te, Y, q_pw, league):
             r0 = EV.compare(q_pw[ww][:, :, k], det(qe[:, :, k]), yk, 1, "MAE")
             r1 = EV.compare(q_pw[ww][:, :, k], det(qb[:, :, k]), yk, 1, "MAE")
             mae = lambda q: float(np.abs(q - np.nan_to_num(Y[ww][:, :, k]))[m].mean())
+            mt = m & np.isfinite(qt[:, :, k])
+            r2 = EV.compare(q_pw[ww][:, :, k], det(qt[:, :, k]), np.where(mt, Y[ww][:, :, k], np.nan), 1, "MAE") \
+                if mt.sum() >= 100 else None
+            maet = lambda q: float(np.abs(q - np.nan_to_num(Y[ww][:, :, k]))[mt].mean()) if mt.any() else float("nan")
             vd = "BEATS" if r0 and r1 and r0["verdict"] == r1["verdict"] == "WIN" else \
                  ("LOSES TO" if r0 and r1 and "LOSS" in (r0["verdict"], r1["verdict"]) else "TIES / MIXED")
+            vt = "BEATS" if r0 and r2 and r0["verdict"] == r2["verdict"] == "WIN" else \
+                 ("LOSES TO" if r0 and r2 and "LOSS" in (r0["verdict"], r2["verdict"]) else "TIES / MIXED")
             e2.setdefault(nm, {})[v] = {"days": int(len(ww)), "MAE PWM-W": mae(q_pw[ww][:, :, k, :, 1]),
                                         "MAE model": mae(qe[:, :, k]), "MAE model bias-removed": mae(qb[:, :, k]),
-                                        "test": r0, "test_bias_removed": r1, "verdict": vd}
-            log(f"RESULT {league} PWM-W (pure) vs {nm} on {v} (+6/12/18 h, {len(ww)} days): {vd} (MAE "
-                f"{mae(q_pw[ww][:, :, k, :, 1]):.3f} vs {mae(qe[:, :, k]):.3f}, bias-removed {mae(qb[:, :, k]):.3f} {UNITS[v]})")
+                                        "test": r0, "test_bias_removed": r1, "verdict": vd,
+                                        "test_trailing_bias": r2, "verdict_trailing_bias": vt,
+                                        "MAE PWM-W (trailing hours)": maet(q_pw[ww][:, :, k, :, 1]),
+                                        "MAE model trailing-bias-corrected": maet(qt[:, :, k])}
+            log(f"RESULT {league} PWM-W (pure) vs {nm} on {v} (+6/12/18 h, {len(ww)} days): "
+                f"[oracle bias, test-period mean removed] {vd} (MAE {mae(q_pw[ww][:, :, k, :, 1]):.3f} vs raw "
+                f"{mae(qe[:, :, k]):.3f}, oracle-debiased {mae(qb[:, :, k]):.3f}); [trailing 30-day bias, operational] "
+                f"{vt} (MAE {maet(q_pw[ww][:, :, k, :, 1]):.3f} vs {maet(qt[:, :, k]):.3f}) {UNITS[v]}")
+        if not any(np.isfinite(qe[:, :, k]).any() for k in range(D.K)):
+            log(f"Earth-2 {nm}: {len(ww)} days stored but every value is missing (no usable forecast)")
     return e2
 
 

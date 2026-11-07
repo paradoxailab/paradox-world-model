@@ -44,8 +44,9 @@ wind forecast. v0.6 fixes this (see below). The WMO and METAR TimesFM 2.5 number
 ## v0.5 result (negative)
 
 Adding cloud cover, radiation, dew point, pressure and wind direction to the learned-correction hybrid (H3) scored
-0.3539 on METAR validation, against 0.3481 for v0.4's design. It was **not adopted**, so v0.5's test result is v0.4's
-design.
+0.3539 on METAR validation, against 0.3481 for v0.4's design. It was **not adopted**. The v0.5 run then retrained
+v0.4's design from scratch, and its test results reproduced v0.4's numbers exactly, a useful check that the pipeline
+is deterministic.
 
   LEAGUES="CPCB" bash kaggle_v06.sh
 

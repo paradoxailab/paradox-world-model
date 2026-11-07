@@ -71,7 +71,16 @@ bias-corrected forecast; negative means PWM-W is better.
 - Caveat: these are rooftop air-quality-station sensors, which sit far from the global models' grid-box averages.
   That is why the raw global forecasts do so badly here.
 
-**Against the foundation models:** pending; `kaggle_v06_fm.sh` is re-scoring them now.
+**Against the foundation models:** the gap narrowed but is not closed. Differences are pure PWM-W's MAE;
+positive means the foundation model is better. All are significant except the ties.
+
+| Opponent | Temp | RH | Wind |
+|---|---|---|---|
+| Chronos-2 | +6.8% (v0.4: +8.3%) | +3.7% (v0.4: +6.9%) | +4.9% (v0.4: +6.0%) |
+| TimesFM 3.0 | +4.3% (v0.4: +5.7%) | +3.6% (v0.4: +6.8%) | +5.5% (v0.4: +6.7%) |
+| TimesFM 2.5 | tie, +0.7% | tie, +0.9% (v0.4: +4.1%) | +4.6% (v0.4's number was invalid) |
+
+On these rooftop sensors, pure PWM-W still loses to Chronos-2 and TimesFM 3.0. v0.7 tries rolling updates.
 
 ## v0.5 result (negative)
 

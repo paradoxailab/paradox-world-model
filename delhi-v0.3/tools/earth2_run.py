@@ -115,9 +115,17 @@ def run_model(key, days, lat, lon, budget_s, path, dev):
     V = np.full((len(days), len(lat), len(LEADS), 3), np.nan, np.float32)
     done = np.zeros(len(days), bool)
     t_start = time.time()
-    for n, di in enumerate(order(len(days))):
+    amp = False                                   # full precision first; half precision if the T4 runs out of memory
+    queue = list(order(len(days)))
+    n = -1
+    while queue:
+        di = queue.pop(0)
+        n += 1
         if time.time() - t_start > budget_s:
             print(f"  time budget reached after {done.sum()} days", flush=True)
+            break
+        if n >= 4 and not done.any():
+            print(f"  {NAMES[key]}: no day succeeded in the first attempts - stopping this model", flush=True)
             break
         t0 = time.time()
         try:
@@ -129,7 +137,7 @@ def run_model(key, days, lat, lon, budget_s, path, dev):
                                    device=dev, **kw)
             x, coords = map_coords(x, coords, ic)
             it = model.create_iterator(x, coords)
-            with torch.inference_mode():
+            with torch.inference_mode(), torch.autocast("cuda", dtype=torch.float16, enabled=amp and dev == "cuda"):
                 for step, (y, c) in enumerate(it):
                     lead = int(np.asarray(c["lead_time"]).ravel()[-1] / np.timedelta64(1, "h"))
                     if lead in LEADS:
@@ -153,6 +161,17 @@ def run_model(key, days, lat, lon, budget_s, path, dev):
                         break
             done[di] = True
         except Exception as e:
+            oom = "out of memory" in str(e).lower()
+            try:
+                del it, x
+            except Exception:
+                pass
+            torch.cuda.empty_cache()
+            if oom and not amp:
+                amp = True
+                queue.insert(0, di)
+                print(f"    out of GPU memory in full precision - switching to float16 for {NAMES[key]}", flush=True)
+                continue
             print(f"    {days[di]}: FAILED {str(e)[:200]}", flush=True)
             if n < 2:
                 traceback.print_exc()
@@ -161,6 +180,7 @@ def run_model(key, days, lat, lon, budget_s, path, dev):
         if n % 10 == 0:
             save(path, key, V, days, done)
     save(path, key, V, days, done)
+    print(f"  {NAMES[key]}: {int(done.sum())} days, precision {'float16' if amp else 'float32'}", flush=True)
     del model
     torch.cuda.empty_cache()
     return int(done.sum())
@@ -190,6 +210,15 @@ def main():
     days = [str(start + np.timedelta64(int(k // 24), "D")) + "T00:00" for k in range(te[0], te[1] - 23, 24)]
     path = os.path.join(RAW, f"E2_{a.league}.npz")
     if a.one:
+        try:                                        # public model weights on Google Cloud Storage: read anonymously
+            import gcsfs
+            _init = gcsfs.GCSFileSystem.__init__
+            def _anon(self, *aa, **kk):
+                kk["token"] = "anon"
+                _init(self, *aa, **kk)
+            gcsfs.GCSFileSystem.__init__ = _anon
+        except Exception as e:
+            print(f"  (gcsfs patch skipped: {e})", flush=True)
         import torch
         dev = "cuda" if torch.cuda.is_available() else "cpu"
         n = run_model(a.one, days, z["lat"], z["lon"], a.budget_s, path, dev)
@@ -206,8 +235,11 @@ def main():
         try:
             if not install(key):
                 raise RuntimeError("could not install / import")
+            env = dict(os.environ, PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True", NO_GCE_CHECK="True",
+                       XLA_PYTHON_CLIENT_PREALLOCATE="false")
+            env.pop("GOOGLE_APPLICATION_CREDENTIALS", None)
             r = subprocess.run([sys.executable, os.path.abspath(__file__), "--league", a.league, "--one", key,
-                                "--budget_s", str(left / (len(keys) - k))], capture_output=True, text=True)
+                                "--budget_s", str(left / (len(keys) - k))], capture_output=True, text=True, env=env)
             print(r.stdout[-6000:], r.stderr[-3000:], flush=True)
             done = [l for l in r.stdout.splitlines() if l.startswith("E2 ONE")]
             n = int(done[-1].split()[-1]) if done else 0

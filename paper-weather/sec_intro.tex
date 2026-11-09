@@ -1,0 +1,42 @@
+\section{Introduction}
+
+Machine-learned global weather models now forecast the atmosphere at least as well as physics-based systems on
+standard grid-level scores \citep{lam2023graphcast,price2025gencast,lang2024aifs}. ECMWF runs its AI model, AIFS,
+operationally, and NOAA runs a GraphCast-based system (AIGFS). In parallel, time-series foundation models such as
+TimesFM \citep{das2024timesfm} and Chronos \citep{ansari2024chronos,ansari2025chronos2} forecast any series
+zero-shot from its own history.
+
+Many decisions in India depend on a narrower question: what will the thermometer, hygrometer and anemometer at
+this airport or this monitoring station read over the next day? Global models answer it only through a grid cell
+of roughly 9--28 km, which misses local siting and land use. Foundation models see one sensor at a time and no
+weather physics. The classical answer is statistical post-processing of numerical forecasts at stations
+\citep{glahn1972mos,gneiting2005emos,rasp2018postprocessing}.
+
+We ask how far a small model can go that is trained only on a station network's own history, optionally with the
+global forecasts that exist when the forecast is made. Our model, \pwm, has about one million parameters, more
+than 100 times fewer than Chronos-2 (120M) and TimesFM 2.5 (200M). We report its development version by
+version under a fixed rule, including the changes that failed.
+
+\paragraph{Contributions.}
+\begin{itemize}
+\item \textbf{Three north-Indian station leagues} (\S\ref{sec:data}): airports, NOAA's quality-controlled stations
+around Delhi, and Delhi's air-quality stations' own weather sensors. The opponents are real archived operational
+forecasts of five global systems. Each is scored under two rules: its \emph{latest run}, which is often issued
+after our forecast starts, and its \emph{newest run issued before} our forecast starts. Each is also scored raw and
+after a trailing local bias correction. TimesFM 2.5, TimesFM 3.0 and Chronos-2 complete the field.
+\item \textbf{\pwm} (\S\ref{sec:model}), an inductive station-graph world model, in a pure form (observations only)
+and a hybrid form that also reads bias-corrected forecasts from four global models, either as inputs or as a base
+it learns to correct.
+\item \textbf{A version-by-version record} (\S\ref{sec:versions}) from v0.3 to v0.8. Each change was adopted only if
+it beat the default setting on validation by more than two seed standard deviations. Several proposals failed
+this test, and we report them alongside the ones that passed.
+\item \textbf{Results with losses stated} (\S\ref{sec:results}):
+\begin{itemize}
+\item at the airports, the hybrid beats AIFS, IFS, ICON, AIGFS and GFS on every variable they forecast under the issued-before
+rule, but loses to AIFS's freshest run on temperature and humidity;
+\item the pure model beats all three foundation models at the airport and WMO stations;
+\item on the CPCB sensors the pure model still trails the foundation models on wind, while the hybrid ties or
+beats them;
+\item bias-corrected FourCastNet and GenCast Mini, which we ran ourselves, beat the pure model on temperature.
+\end{itemize}
+\end{itemize}

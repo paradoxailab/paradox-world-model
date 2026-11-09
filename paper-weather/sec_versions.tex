@@ -1,0 +1,65 @@
+\section{Version-by-version record}\label{sec:versions}
+
+Table~\ref{tab:versions} lists every change from v0.3 to v0.8, the validation evidence and the decision. The
+validation numbers are the score of \S\ref{sec:protocol}, where lower is better. Changes that failed the rule are
+reported in the same way as changes that passed.
+
+\begin{table*}[t]
+\caption{Every change, the validation evidence, and the decision. Val: validation MAE in units of network spread
+(lower is better); $\pm$: seed standard deviation of P0. Test effects are reported in \S\ref{sec:results}.}
+\label{tab:versions}
+\small
+\begin{tabular}{@{}lp{5.9cm}p{6.3cm}l@{}}
+\toprule
+Version & Change & Validation evidence & Decision \\
+\midrule
+v0.3 & First release: three leagues, pure model with candidates P1 (wider), P2 (no graph), P3 (sparse experts);
+hybrid H1 with IFS 0.25 and AIFS runs at least 48 h old; STRICT rule only &
+WMO: removing the graph is worse (0.3948 vs 0.3864) & P0 kept \\
+\addlinespace
+v0.4 & ISSUED-BEFORE rule; four models in the hybrid; learned-correction hybrid H2; bias-corrected four-model
+ensemble added as an opponent; cross-network training P4 (airports $\leftrightarrow$ WMO); fixed position scaling &
+H2 vs H1: METAR 0.348 vs 0.372; WMO 0.3732 vs 0.3783; CPCB 0.4710 vs 0.4540.
+P4: METAR 0.3920 vs P0 0.3934 $\pm$ 0.0012; WMO 0.3889 vs 0.3879 $\pm$ 0.0010.
+CPCB: P1 0.4797 vs P0 0.4922 $\pm$ 0.0038 (v0.6 rerun) &
+\begin{tabular}[t]{@{}l@{}}H2 (METAR, WMO)\\ H1 (CPCB)\\ P4 rejected\\ P1 (CPCB)\end{tabular} \\
+\addlinespace
+v0.5 & Hybrid H3: H2 plus cloud cover, solar radiation, dew point, pressure and wind direction from the same runs &
+METAR 0.3539 vs H2 0.3481; CPCB (in the v0.6 run) 0.4932 vs H1 0.4586 & rejected \\
+\addlinespace
+v0.6 & Cross-network training for CPCB, with the 20 WMO stations as partner (hours before CPCB validation only);
+fix to the foundation-model runner & CPCB: P4 0.4735 vs P0 0.4922 $\pm$ 0.0038 (P1 0.4797) & P4 (CPCB) \\
+\addlinespace
+v0.7 & Weekly rolling fine-tuning on hours observed before each week, simulated on validation &
+CPCB: rolling 0.4727 vs frozen 0.4650 & rejected \\
+\addlinespace
+v0.8 & 14-day encoder (P6), weight averaging (P7), both (P8), all on top of P4 &
+CPCB: P6 0.4714, P7 0.4721, P8 0.4678 vs P0 0.4922 $\pm$ 0.0038 & P8 (CPCB) \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\paragraph{What each version changed in practice.}
+\begin{itemize}
+\item \textbf{v0.3} set up the leagues. It compared global models only under STRICT, which our own analysis showed
+to favour them, because their latest run often postdates our forecast start.
+\item \textbf{v0.4} added the ISSUED-BEFORE rule and the learned-correction hybrid. At the airports this moved the
+hybrid's MAE from 1.170 to 1.008 °C (temperature), 5.94 to 5.49\% (humidity) and 0.962 to 0.889 m/s (wind).
+Cross-network training between the airports and the WMO stations did not pass the rule, and was not used there.
+\item \textbf{v0.5} added more predictors from the global runs. It failed in both leagues where it was tried. A
+fresh retraining of v0.4's design reproduced v0.4's test numbers exactly, which confirms that the pipeline is
+deterministic.
+\item \textbf{v0.6} targeted the CPCB league, the one league where the pure model lost to the foundation models.
+That league has 16 months of training data. Cross-network training with the WMO stations improved validation by
+about $5\sigma$. The same version fixed a bug that had invalidated v0.4's TimesFM 2.5 wind comparison on CPCB:
+after running out of GPU memory on wind, the runner had reused the humidity forecast. We withdrew that number.
+\item \textbf{v0.7} tested weekly retraining. Simulated on the validation period, it made the forecast worse, and it
+was rejected.
+\item \textbf{v0.8} let the model read the 14 days it already received hour by hour instead of only as an average,
+and averaged its weights. On one seed, each change alone improved on P4 by less than $1\sigma$; together (P8)
+they scored $6.4\sigma$ better than P0, most of which is P4's own gain. P8's
+margin over v0.6's P4 (0.0057) is smaller than $2\sigma$, as was P4's margin over v0.4's P1 (0.0062). The rule
+compares every candidate with P0, so its preference among passing candidates is not decisive.
+\end{itemize}
+Versions 0.6--0.8 were run on CPCB only. The airport and WMO results below use v0.4's chosen designs: P0 for the
+pure model and H2 for the hybrid.

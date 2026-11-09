@@ -1,0 +1,166 @@
+\section{Results}\label{sec:results}
+
+Differences are relative MAE: negative means \pwm is better. Every non-tie verdict passed both significance tests.
+
+\subsection{Airports (METAR, v0.4 design)}
+
+\begin{table}[t]
+\caption{Airports, temperature MAE (°C), test 2026-02 to 2026-10. BC: trailing 30-day bias correction.
+Latest: the run used under STRICT. Issued-before: the newest run published before the forecast starts.}
+\label{tab:metar_at}
+\small
+\begin{tabular}{@{}lr@{}}
+\toprule
+Entry & MAE \\
+\midrule
+ECMWF AIFS, latest run + BC & 0.872 \\
+ECMWF IFS 0.25, latest run + BC & 0.976 \\
+ECMWF IFS 9 km, latest run + BC & 0.986 \\
+DWD ICON, latest run + BC & 1.005 \\
+\textbf{\pwm hybrid} & \textbf{1.008} \\
+ECMWF AIFS, issued-before + BC & 1.054 \\
+Four-model ensemble, issued-before + BC & 1.083 \\
+\textbf{\pwm pure} & \textbf{1.263} \\
+TimesFM 3.0 & 1.341 \\
+Chronos-2 & 1.357 \\
+TimesFM 2.5 & 1.403 \\
+NOAA GFS, latest run, raw & 2.296 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\caption{Airports: the hybrid against each global model under ISSUED-BEFORE (vs.\ the bias-corrected run); all
+BEATS. Bottom rows: the pure model against the foundation models (all wins, $p<0.01$).}
+\label{tab:metar_rel}
+\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Opponent & Temp & RH & Wind \\
+\midrule
+ECMWF AIFS & $-4.4\%$ & $-11.8\%$ & $-7.4\%$ \\
+ECMWF IFS 9 km & $-21.0\%$ & $-24.2\%$ & $-13.4\%$ \\
+ECMWF IFS 0.25 & $-19.4\%$ & $-22.0\%$ & $-12.7\%$ \\
+DWD ICON & $-22.1\%$ & $-23.6\%$ & $-11.0\%$ \\
+NOAA AIGFS & $-21.0\%$ & -- & $-17.7\%$ \\
+NOAA GFS & $-37.2\%$ & $-41.4\%$ & $-29.3\%$ \\
+Four-model ensemble & $-6.9\%$ & $-11.5\%$ & $-3.6\%$ \\
+\midrule
+\multicolumn{4}{@{}l}{\emph{Pure model vs.\ foundation models}} \\
+TimesFM 3.0 & $-5.8\%$ & $-4.3\%$ & $-1.5\%$ \\
+TimesFM 2.5 & $-10.0\%$ & $-7.3\%$ & $-2.4\%$ \\
+Chronos-2 & $-6.9\%$ & $-5.6\%$ & $-1.8\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Under ISSUED-BEFORE, the hybrid beats every global model on every variable it forecasts (Table~\ref{tab:metar_rel}). Under
+STRICT, against each model's freshest run, the picture is mixed:
+\begin{itemize}
+\item \textbf{Wind:} the hybrid still beats all six models.
+\item \textbf{Humidity:} it beats IFS and ICON and loses to AIFS ($+3.3\%$).
+\item \textbf{Temperature:} it loses to AIFS ($+15.6\%$) and IFS 0.25 ($+3.3\%$), ties IFS 9 km and ICON, and beats
+AIGFS and GFS.
+\end{itemize}
+The pure model, with no global input, beats all three foundation models on every variable. Against the
+bias-corrected four-model ensemble it loses on temperature ($+16.6\%$) and wind ($+10.2\%$) and ties on humidity:
+at airports, with good global forecasts available, the hybrid is the model to use.
+
+\subsection{WMO stations (v0.4 design)}
+
+\begin{itemize}
+\item \textbf{Pure model, ISSUED-BEFORE:}
+\begin{itemize}
+\item it beats IFS 0.25 on all three variables ($-3.3\%$, $-15.7\%$, $-22.2\%$), ICON on all three, and GFS;
+\item it beats AIFS on humidity ($-2.8\%$) and wind ($-18.8\%$) but loses on temperature ($+14.1\%$);
+\item it beats TimesFM 2.5, TimesFM 3.0 and Chronos-2 on every variable ($p<10^{-5}$).
+\end{itemize}
+\item \textbf{Hybrid:} it beats IFS, ICON and GFS on all variables, beats AIFS on humidity and wind, and ties AIFS on
+temperature ($-1.7\%$). It beats the four-model ensemble by $2.4\%$, $4.9\%$ and $16.6\%$.
+\end{itemize}
+
+\subsection{Delhi air-quality station sensors (CPCB)}
+
+\begin{table}[t]
+\caption{CPCB: the pure model (v0.6) against each global model under ISSUED-BEFORE, vs.\ the bias-corrected run.
+All BEATS. Under STRICT every cell is also BEATS except humidity vs.\ AIFS (tie, $-5.0\%$).}
+\label{tab:cpcb_global}
+\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Opponent & Temp & RH & Wind \\
+\midrule
+ECMWF AIFS & $-27.7\%$ & $-7.1\%$ & $-50.2\%$ \\
+ECMWF IFS 9 km & $-49.3\%$ & $-36.8\%$ & $-56.2\%$ \\
+ECMWF IFS 0.25 & $-33.6\%$ & $-25.2\%$ & $-45.1\%$ \\
+DWD ICON & $-33.3\%$ & $-22.4\%$ & $-34.9\%$ \\
+NOAA GFS & $-46.3\%$ & $-45.3\%$ & $-55.9\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\caption{CPCB: the pure model against the foundation models, by version. Positive values mean the foundation model is
+better. W/L: significant win/loss; T: tie. v0.4's TimesFM 2.5 wind comparison was invalid (\S\ref{sec:versions}).}
+\label{tab:cpcb_fm}
+\small
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+Opponent & Version & Temp & RH & Wind \\
+\midrule
+\multirow{3}{*}{Chronos-2} & v0.4 & $+8.3$ L & $+6.9$ L & $+6.0$ L \\
+ & v0.6 & $+6.8$ L & $+3.7$ L & $+4.9$ L \\
+ & v0.8 & $+5.0$ L & $+1.4$ T & $+3.8$ L \\
+\midrule
+\multirow{3}{*}{TimesFM 3.0} & v0.4 & $+5.7$ L & $+6.8$ L & $+6.7$ L \\
+ & v0.6 & $+4.3$ L & $+3.6$ L & $+5.5$ L \\
+ & v0.8 & $+2.5$ T & $+1.3$ T & $+4.4$ L \\
+\midrule
+\multirow{3}{*}{TimesFM 2.5} & v0.4 & $+2.1$ T & $+4.1$ L & invalid \\
+ & v0.6 & $+0.7$ T & $+0.9$ T & $+4.6$ L \\
+ & v0.8 & $-1.0$ T & $-1.3$ T & $+3.5$ L \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{itemize}
+\item \textbf{Against the global models} (Table~\ref{tab:cpcb_global}), the pure model wins by large margins, because
+a global model with a mean bias correction cannot learn the quirks of rooftop sensors. In v0.8 the pure model beats
+the bias-corrected four-model ensemble by $28.8\%$, $13.2\%$ and $38.5\%$.
+\item \textbf{Against the foundation models} (Table~\ref{tab:cpcb_fm}), v0.6 and v0.8 narrowed every gap, and three
+losses became ties. Wind is still lost to all three.
+\item \textbf{The v0.8 hybrid} ties all three foundation models on temperature and humidity. It beats Chronos-2
+($-3.3\%$, $p=0.03$) and TimesFM 2.5 ($-3.6\%$, $p=0.02$) on wind and ties TimesFM 3.0 ($-2.7\%$). These two wind
+wins would not survive a correction for the nine hybrid-versus-foundation-model tests on this league
+(\S\ref{sec:limits}).
+\end{itemize}
+
+\subsection{Models we ran ourselves (airports)}
+
+We ran NVIDIA Earth2Studio models from the real GFS analysis at 00 UTC on each test day, and read each station at
++6, +12 and +18 h (Table~\ref{tab:e2}). FourCastNet SFNO completed all 273 days, and GenCast Mini
+(1°, one member) completed 88. GraphCast at 0.25°, FourCastNet 3 and Aurora did not fit in the 15 GB memory of the
+free T4 GPU. GraphCast Small ran but returned only missing values, probably because it needs a precipitation input
+that GFS analyses lack; we did not verify this.
+
+\begin{table}[t]
+\caption{Airports at +6/12/18 h from 00 UTC: the pure model against models we ran. MAE; BC: trailing 30-day bias
+correction from the model's own earlier days. The hybrid has not yet been scored here.}
+\label{tab:e2}
+\small
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}llrrrl@{}}
+\toprule
+Model (days) & Var & \pwm & Raw & BC & Verdict \\
+\midrule
+FourCastNet SFNO (273) & Temp & 1.446 & 1.832 & 1.278 & loses \\
+ & Wind & 1.055 & 1.204 & 1.052 & tie \\
+GenCast Mini (88) & Temp & 1.813 & 2.953 & 1.202 & loses \\
+ & Wind & 1.036 & 1.219 & 1.067 & tie \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The pure model beats both raw forecasts. Once their local bias is removed, both beat it on temperature, and wind is a
+tie.

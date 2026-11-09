@@ -1,0 +1,45 @@
+\section{Limitations}\label{sec:limits}
+
+\paragraph{Test-set reuse across versions.}
+All decisions were made on validation, but the test periods were scored after every version. The test results then
+shaped which ideas we tried next. For example, the CPCB losses motivated v0.6--v0.8. Later CPCB gains are therefore
+exposed to adaptive overfitting to the test period. Clean evidence will come from data never scored before. To that
+end we have started a prospective real-time track: live airport forecasts are logged before the weather happens and
+scored afterwards.
+
+\paragraph{Multiple comparisons.}
+Each league involves dozens of tests. Verdicts with very small $p$-values, such as the WMO foundation-model wins
+($p<10^{-5}$), survive a Holm correction. Borderline ones, such as the two CPCB hybrid wind wins ($p=0.02$, $0.03$), would not survive.
+
+\paragraph{One design per league.}
+The final designs differ across leagues: v0.4's design is used at the airports and the WMO stations, and v0.8's on
+CPCB. Versions 0.6--0.8 have not yet been run at the airports or the WMO stations.
+
+\paragraph{Missing baseline.}
+Our post-processing baseline is the bias-corrected four-model mean. A tuned gradient-boosted or neural
+post-processor \citep{rasp2018postprocessing} trained on the same inputs would be a stronger opponent for the
+hybrid.
+
+\paragraph{Scale and siting.}
+The leagues are small: six airports, 20 WMO stations and 25 CPCB sensors, all in north India, with a single test period
+of six to nine months each. The CPCB sensors are not sited to WMO standards. Results there describe forecasts of what those sensors will
+read.
+
+\paragraph{Opponents we could not run.}
+GraphCast at 0.25°, FourCastNet 3 and Aurora exceeded the memory of the free T4 GPU. GenCast and WeatherNext at full
+resolution have no public archive. Our GenCast run is the small 1° model with one member, on 88 days.
+
+\paragraph{Data dependencies.}
+The archived global forecasts come from a third-party service \citep{openmeteo}. TimesFM 3.0 is used for evaluation
+only, under its non-commercial licence.
+
+\section{Conclusion}
+
+Trained only on a network's own history, a one-million-parameter station-graph model beats TimesFM 2.5, TimesFM 3.0
+and Chronos-2 on every variable at the airports and the WMO stations.
+Used as a learned correction of global forecasts, the same model beats every operational global model at
+north-Indian airports when all are limited to forecasts that exist at the forecast start. The hybrid does not beat AIFS's
+freshest runs on airport temperature and humidity. The pure model does not beat the foundation models on wind at
+Delhi's rooftop sensors, or bias-corrected FourCastNet SFNO and GenCast Mini on airport temperature; the hybrid has
+not yet been scored against those two. We report the full development record, including
+the rejected changes, so that others can judge which gains are robust.

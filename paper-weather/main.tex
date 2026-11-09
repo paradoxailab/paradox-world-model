@@ -1,0 +1,76 @@
+%% PWM-W India weather paper. Named build: pdflatex main.tex. Anonymous build: pdflatex anon.tex (sets \anontrue).
+\providecommand{\setanon}{}
+\setanon
+\ifdefined\anonbuild
+\documentclass[sigconf,anonymous,review]{acmart}
+\else
+\documentclass[sigconf]{acmart}
+\fi
+\settopmatter{printacmref=false}
+\setcopyright{none}
+\renewcommand\footnotetextcopyrightpermission[1]{}
+\ifdefined\anonbuild
+\acmConference[Submission]{Under review}{2027}{}
+\else
+\acmConference[Preprint]{ParadoxAI Lab technical report}{November 2026}{India}
+\fi
+\acmBooktitle{}\acmDOI{}\acmISBN{}
+
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{xspace}
+\newcommand{\pwm}{PWM-W\xspace}
+\citestyle{acmauthoryear}
+\setlength{\emergencystretch}{1.5em}
+
+\begin{document}
+
+\title{A Small Station-Graph World Model for 0--24 h Weather in North India: A Version-by-Version Record Against
+Global AI Weather Models and Time-Series Foundation Models}
+
+\ifdefined\anonbuild
+\author{Anonymous Authors}
+\affiliation{\institution{Anonymous Institution}\country{}}
+\else
+\author{Aditya Kumar}
+\affiliation{\institution{ParadoxAI Lab}\country{India}}
+\email{contact.paradoxailab@gmail.com}
+\author{Anupam Singh}
+\affiliation{\institution{ParadoxAI Lab}\country{India}}
+\renewcommand{\shortauthors}{Kumar and Singh}
+\fi
+
+\input{abstract}
+\keywords{weather forecasting, station forecasts, post-processing, graph neural networks, time-series foundation
+models, AI weather models, India, benchmarking}
+
+\maketitle
+
+\input{sec_intro}
+\input{sec_related}
+\input{sec_data}
+\input{sec_model}
+\input{sec_protocol}
+\input{sec_versions}
+\input{sec_results}
+\input{sec_limits}
+
+\ifdefined\anonbuild
+\else
+\begin{acks}
+Observations: Iowa Environmental Mesonet (airport reports), NOAA Integrated Surface Database, and the Central
+Pollution Control Board of India (station sensors, via OpenCity). Archived operational forecasts: Open-Meteo
+(Previous Runs API; models by ECMWF, NOAA and DWD). Model runs: NVIDIA Earth2Studio. Foundation-model opponents:
+open weights of Google TimesFM 2.5 and 3.0 (3.0 under a non-commercial research licence) and Amazon Chronos-2.
+Use of AI tools: Claude (Anthropic) assisted with writing code, running experiments and drafting the text. Every
+reported number comes from the logged run output, and the authors take full responsibility for the content.
+\end{acks}
+\fi
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{refs}
+
+\appendix
+\input{appendix}
+
+\end{document}

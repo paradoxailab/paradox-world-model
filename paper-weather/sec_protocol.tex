@@ -1,0 +1,35 @@
+\section{Protocol}\label{sec:protocol}
+
+\paragraph{Opponents.}
+\begin{itemize}
+\item \textbf{Global models} (\S\ref{sec:data}), each scored on four versions: raw and bias-corrected, under each of
+the two run rules below. The bias correction is the trailing 30-day mean error at that station and hour of day,
+taken from days before the valid time, with at least 10 such days required.
+\item \textbf{The bias-corrected mean of IFS 0.25, AIFS, ICON and GFS}, issued before the forecast starts: a
+classical model-output-statistics baseline.
+\item \textbf{TimesFM 2.5} (200M parameters), \textbf{TimesFM 3.0} and \textbf{Chronos-2} (120M), zero-shot on each
+station's last 512 hours. TimesFM 3.0 is used under its non-commercial research licence.
+\item \textbf{Three simple baselines}: the same hour yesterday, the 14-day daily cycle, and the daily cycle plus the
+latest anomaly.
+\end{itemize}
+
+\paragraph{Two rules for global models.}
+\begin{itemize}
+\item \textbf{STRICT} scores a global model on its latest run. That run is often issued after our forecast starts,
+which favours the global model.
+\item \textbf{ISSUED-BEFORE} scores it on its newest run published before our forecast starts: the 1-day-old run for
+hours 0--16 and the 2-day-old run after. This is what a forecaster could actually have used.
+\end{itemize}
+Under either rule, \pwm \emph{beats} a global model on a variable only if its mean absolute error (MAE) is
+significantly lower than both the raw and the bias-corrected forecast.
+
+\paragraph{Significance.}
+A difference counts only if the Diebold--Mariano test \citep{diebold1995dm} gives $p<0.05$ and a day-block bootstrap
+\citep{kunsch1989bootstrap} 95\% interval excludes zero. Otherwise we call it a tie. Each comparison uses only the
+hours where both forecasts and the observation exist.
+
+\paragraph{Model choice on validation only.}
+Three seeds of the default setting, P0, give a seed standard deviation $\sigma$. A candidate replaces P0 only if its
+validation score is lower by more than $2\sigma$. The validation score is MAE in units of each variable's network
+spread, averaged over the three variables. The best passing candidate is retrained with three fresh seeds for the
+test. The same rule decides between hybrid designs. Appendix~\ref{app:variants} lists every candidate.

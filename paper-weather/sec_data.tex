@@ -1,0 +1,52 @@
+\section{Leagues and data}\label{sec:data}
+
+Every league forecasts 2 m temperature (°C), relative humidity (\%) and 10 m wind speed (m/s) for the next 24
+hours. Forecast origins are every 6 hours, and only observations up to the hour before the origin are used.
+Stations and splits were fixed by rules written before any score was seen (Table~\ref{tab:leagues}).
+
+\begin{table}[t]
+\caption{The three leagues. Origins: test forecasts, one every 6 h.}
+\label{tab:leagues}
+\footnotesize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{@{}llll@{}}
+\toprule
+ & METAR & WMO & CPCB \\
+\midrule
+Source & IEM (METAR) & NOAA ISD & CPCB/DPCC/IMD \\
+Stations & 6 airports & 20 & 25 \\
+Clock & UTC & UTC & IST \\
+Train & 2021-01--2025-10 & 2021-01--2024-11 & 2024-01--2025-05-02 \\
+Validation & 2025-11--2026-01 & 2024-12--2025-02 & 2025-05-03--07-02 \\
+Test & 2026-02--2026-10 & 2025-03--2025-08-20 & 2025-07-03--12-31 \\
+Test origins & 1,089 & 689 & 725 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{METAR (airports).}
+These are routine airport reports from the Iowa Environmental Mesonet archive. The candidates were every Indian
+station within 600 km of Delhi Palam and below 1,000 m, of which at most 16 could be kept, and a station was kept
+only if at least 60\% of its hours had a temperature in both periods. Six airports qualified: Delhi Palam, Jaipur,
+Amritsar, Lucknow, Udaipur and Bhopal. Each hourly value is the report nearest the top of the hour, within
+$\pm$15 min.
+
+\paragraph{WMO (NOAA ISD).}
+These are quality-controlled synoptic and METAR records from NOAA's Integrated Surface Database \citep{smith2011isd}.
+We took the nearest stations within 500 km of Delhi and below 1,000 m with at least 10\% coverage, up to 24.
+Of these 24, 20 passed the model's coverage rule, including Delhi Safdarjung and Palam. Many report only every 3 hours, so many hours are missing,
+and scores use observed hours only. NOAA's Indian records end on 2025-08-24, which fixes the test period.
+
+\paragraph{CPCB (Delhi air-quality stations).}
+These are the weather sensors at Delhi's air-quality monitoring stations. Stations were located by name with
+OpenStreetMap, and 25 of 37 passed the coverage rule. Runs of identical readings of 12 h or longer are masked as
+stuck. The sensors are not sited to WMO standards: many are on rooftops, and wind is often sheltered (19.6\% of wind
+hours are missing). The league therefore tests forecasts of what these sensors will read, which matters for
+air-quality work. It is not a test of free-air weather.
+
+\paragraph{Archived operational forecasts.}
+Open-Meteo's Previous Runs API \citep{openmeteo} stores the forecasts that operational models actually issued. It
+gives each model's latest run and its runs from 1 and 2 days earlier, which we read at each station's nearest
+0.05° point. The models are ECMWF AIFS \citep{lang2024aifs}, ECMWF IFS at 9 km and at 0.25°, DWD ICON, NOAA GFS and
+NOAA AIGFS (GraphCast-based). AIGFS has a short archive and no humidity, so it appears in the METAR
+league only.

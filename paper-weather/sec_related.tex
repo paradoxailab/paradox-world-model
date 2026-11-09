@@ -1,0 +1,25 @@
+\section{Related work}
+
+\paragraph{Global AI weather models.}
+These include GraphCast \citep{lam2023graphcast}, Pangu-Weather \citep{bi2023pangu}, FourCastNet
+\citep{pathak2022fourcastnet} and its spherical successor SFNO \citep{bonev2023sfno}, the diffusion ensemble GenCast
+\citep{price2025gencast}, ECMWF's operational AIFS \citep{lang2024aifs} and Aurora \citep{bodnar2025aurora}. All
+learn from reanalysis on global grids of 0.25° or coarser, and they are evaluated mainly on grid-level scores
+\citep{rasp2024weatherbench2}. We use their real operational output at stations, and we run FourCastNet SFNO and
+GenCast Mini ourselves.
+
+\paragraph{Station post-processing.}
+Model output statistics \citep{glahn1972mos} and ensemble MOS \citep{gneiting2005emos} correct numerical forecasts
+at stations. Neural post-processing improves on them \citep{rasp2018postprocessing}. Our hybrid belongs to this
+family. Its differences are that it is a graph model over the whole station network, and that it is trained
+jointly with a pure observation-only forecaster that shares its architecture.
+
+\paragraph{Time-series foundation models.}
+TimesFM \citep{das2024timesfm}, Chronos \citep{ansari2024chronos}, Chronos-2 \citep{ansari2025chronos2}, Moirai
+\citep{woo2024moirai} and Sundial \citep{sundial} forecast unseen series zero-shot. They are strong baselines for
+any single sensor, but they see neither the station network nor the weather physics.
+
+\paragraph{Spatio-temporal graph models.}
+DCRNN \citep{li2018dcrnn}, Graph WaveNet \citep{wu2019graphwavenet} and STID \citep{shao2022stid} model sensor
+networks. \pwm follows the inductive line, in which no per-sensor embedding is used, so the same weights run on
+networks of any size.

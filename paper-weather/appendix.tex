@@ -1,0 +1,50 @@
+\section{Candidates and training settings}\label{app:variants}
+
+\begin{table}[h]
+\caption{Pure-model candidates. $^a$Width/layers/heads; feed-forward ratio 2. Exp.: sparse experts. Cross: half of the batches come from the
+partner network (airports $\leftrightarrow$ WMO; WMO for CPCB). 14-day: day-by-day encoder. EMA: weight averaging,
+decay 0.998.}
+\label{tab:variants}
+\small
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{@{}lllcccl@{}}
+\toprule
+ID & Size$^a$ & Graph & Exp. & Cross & Extras & Ver. \\
+\midrule
+P0 & 128/3/4 & yes & -- & -- & -- & v0.3 \\
+P1 & 192/4/6 & yes & -- & -- & -- & v0.3 \\
+P2 & 128/3/4 & no & -- & -- & -- & v0.3 \\
+P3 & 128/3/4 & yes & 4 & -- & -- & v0.3 \\
+P4 & 128/3/4 & yes & -- & yes & -- & v0.4 \\
+P5 & 192/4/6 & yes & -- & yes & -- & v0.6 \\
+P6 & 128/3/4 & yes & -- & yes & 14-day & v0.8 \\
+P7 & 128/3/4 & yes & -- & yes & EMA & v0.8 \\
+P8 & 128/3/4 & yes & -- & yes & 14-day, EMA & v0.8 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Hybrid designs.}
+H1 adds the bias-corrected forecasts as inputs (v0.3 used IFS 0.25 and AIFS runs at least 48 h old; from v0.4 on,
+the four models' newest runs issued before the forecast start). H2 also makes their mean the base (v0.4). H3 adds
+cloud cover, shortwave radiation, dew point, sea-level pressure and wind direction from the same runs (v0.5). Each
+is trained on the league's best pure setting. Designs are compared on one seed in the order H1, H2, H3, and a design
+replaces the current choice only if it is better by more than $2\sigma$.
+
+\paragraph{Training.}
+\begin{itemize}
+\item AdamW, learning rate $1.5\times10^{-3}$, weight decay $10^{-4}$, batch 32 origins, 6{,}000 steps.
+\item Linear warm-up over 300 steps, then cosine decay to 10\% of the peak rate.
+\item Validation every 500 steps; the best checkpoint is kept.
+\item Mixed precision on a single Kaggle GPU.
+\item Training origins are every hour; validation and test origins are every 6 hours.
+\end{itemize}
+
+\paragraph{Rolling fine-tuning (v0.7, rejected).}
+Every 168 hours, each final model is fine-tuned for 500 steps at learning rate $3\times10^{-4}$, using only hours
+observed before that week, with half of the batches drawn from the last 720 hours.
+
+\paragraph{Splits.}
+Training, validation and test periods are given in \S\ref{sec:data}. Normalisation statistics come from the
+training period only. On top of each league's station selection, the pipeline keeps a station only if at least 25\% of its training-period temperature hours and of its
+test-period target hours are observed, a rule fixed before any scoring.

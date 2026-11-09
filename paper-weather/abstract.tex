@@ -1,0 +1,20 @@
+\begin{abstract}
+Global AI weather models such as ECMWF's AIFS now match or beat physics-based forecasts on grid averages, and
+zero-shot time-series foundation models such as Google's TimesFM and Amazon's Chronos forecast any series without
+training. Neither is built for what many users in India need: the next 24 hours of temperature, humidity and wind
+at a specific station. We study whether a small model trained only on a station network's own history can do
+better. \pwm is a graph world model of about one million parameters in which every station is a token. It comes in two forms:
+a pure form that uses observations only, and a hybrid that also reads global forecasts published before the
+forecast starts. We test it in three north-Indian leagues: six airports (METAR), 20 NOAA stations around Delhi
+(WMO) and 25 Delhi air-quality stations' weather sensors (CPCB). The opponents are real archived operational
+forecasts of AIFS, IFS, ICON, GFS and NOAA's GraphCast-based AIGFS, scored raw and after a trailing local bias
+correction, together with TimesFM 2.5 and 3.0 and Chronos-2. Every change from version 0.3 to 0.8 was adopted only
+if it beat the default setting on validation by more than two seed standard deviations, and several proposed
+changes failed that test. At the airports, the hybrid beats every global model on every variable it forecasts when each is scored on its newest
+run published before the forecast starts (AIFS by 4.4\%, 11.8\% and 7.4\%). Against AIFS's freshest run it still
+loses on temperature and humidity. The pure model beats all three foundation models on every variable at the
+airport and WMO stations. On the noisier CPCB sensors, cross-network training, a 14-day encoder and weight averaging
+turned four of its losses into ties, but it still trails Chronos-2 on temperature and all three foundation models on wind. Bias-corrected FourCastNet and GenCast
+Mini beat the pure model on airport temperature. We report every result, including the losses, and the test-reuse
+risk of a version-by-version study.
+\end{abstract}

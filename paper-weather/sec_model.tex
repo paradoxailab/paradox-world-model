@@ -1,0 +1,49 @@
+\section{The \pwm model}\label{sec:model}
+
+\paragraph{Station tokens.}
+Each station becomes one token, built by a two-layer MLP from:
+\begin{itemize}
+\item its last 72 hours of temperature, humidity and wind, with observed flags;
+\item its last 24 hours of the other channels (wind direction, dew point or solar radiation, pressure, visibility or
+PM$_{2.5}$, depending on the league);
+\item its mean daily cycle over the last 14 days and its trailing 7-day level;
+\item the sine of the sun's elevation at the station for each of the 24 forecast hours;
+\item its position, at a fixed scale that is the same in every network, and the day of year.
+\end{itemize}
+Hour-of-day and month embeddings are added. There is no per-station embedding, so the same weights run on any
+station network.
+
+\paragraph{Mixing across stations.}
+Three blocks of multi-scale graph attention mix the tokens. Each head's attention bias is a learned mixture of the
+$k$-nearest-neighbour graph, its square and the identity, so different heads specialise in different ranges. Region
+tokens, pooled over spectral clusters, and a global token carry information between distant stations. The model has
+width 128 and 4 heads.
+
+\paragraph{Output.}
+A linear head gives the 10\%, 50\% and 90\% quantiles for each variable and each of the 24 hours. They are
+expressed as offsets, in units of the network's spread, from a base: the recent daily cycle plus the latest anomaly.
+Training minimises the quantile (pinball) loss \citep{koenker1978quantiles}. Training randomly darkens stations and
+blanks bursts of hours before the origin, so that the model learns to handle real outages. The reported forecast is
+the mean of three seeds. Intervals are calibrated on validation by conformalised quantile regression
+\citep{romano2019cqr}, but this paper scores only the median.
+
+\paragraph{Hybrid.}
+The hybrid also reads global forecasts, using for each model the newest run issued before the forecast starts: the
+1-day-old run for hours 0--16 and the 2-day-old run after. Each forecast is bias-corrected by its trailing 30-day
+error at that station and hour of day. Two hybrid designs compete on validation:
+\begin{itemize}
+\item \textbf{H1} adds the corrected forecasts of IFS 0.25, AIFS, ICON and GFS as inputs;
+\item \textbf{H2} replaces the base with their mean, a model-output-statistics base, and learns only the correction.
+\end{itemize}
+
+\paragraph{Additions in later versions (\S\ref{sec:versions}).}
+\begin{itemize}
+\item \textbf{Cross-network training (v0.6).} Half of the training batches come from another station network. It uses only
+that network's hours before this league's validation period, with its own normalisation statistics from those hours
+alone. Other channels are matched by name, and the clock is shifted to the league's.
+\item \textbf{14-day encoder (v0.8).} The full 14 $\times$ 24-hour history, previously only averaged into a daily
+cycle, passes day by day through a small MLP with attention pooling over days.
+\item \textbf{Weight averaging (v0.8).} An exponential moving average of the weights (decay 0.998) is what gets
+validated and used.
+\end{itemize}
+The final models have 0.93--1.13M parameters.

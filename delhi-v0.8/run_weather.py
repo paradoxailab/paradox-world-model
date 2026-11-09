@@ -50,6 +50,9 @@ VARIANTS = {
     "P6": dict(d=128, layers=3, heads=4, ff=2, experts=0, use_graph=True, joint=True, longctx=True),  # 14-day encoder
     "P7": dict(d=128, layers=3, heads=4, ff=2, experts=0, use_graph=True, joint=True, ema=True),     # weight averaging
     "P8": dict(d=128, layers=3, heads=4, ff=2, experts=0, use_graph=True, joint=True, longctx=True, ema=True),
+    # v0.9 PWM-X: 21-day patch transformer with per-window normalisation (+ self-supervised patch reconstruction)
+    "P9": dict(d=128, layers=3, heads=4, ff=2, experts=0, use_graph=True, joint=True, xarch=True, ema=True),
+    "P10": dict(d=128, layers=3, heads=4, ff=2, experts=0, use_graph=True, joint=True, xarch=True, ssl=True, ema=True),
 }
 JOINT = {"METAR": ["WMO"], "WMO": ["METAR"], "CPCB": ["WMO"]}   # partners: used only before this league's VALIDATION,
 #   with their own normalisation statistics also computed only from before it; other channels matched by name
@@ -100,6 +103,7 @@ def main():
     ap.add_argument("--opponents", default="chronos2,tfm25,tfm3")
     ap.add_argument("--e2_only", action="store_true", help="re-score only the Earth-2 runs from saved predictions")
     ap.add_argument("--fm_only", action="store_true", help="re-score saved predictions against the foundation models")
+    ap.add_argument("--variants", default="", help="comma list to run (P0 always); default all")
     ap.add_argument("--rolling", type=int, default=0, help="v0.7 rolling updates (rejected on CPCB validation; off)")
     a = ap.parse_args()
     if a.fm_only:
@@ -139,8 +143,11 @@ def main():
     # ---------------- pure PWM-W: validation-only choice ----------------
     res = {"league": a.league, "stations": D.stations, "variants": {}}
     vals = {}
+    only = set(x for x in a.variants.split(",") if x) | {"P0"} if a.variants else None
     for name, cfg in VARIANTS.items():
         if cfg.get("joint") and not extra:
+            continue
+        if only is not None and name not in only:
             continue
         seeds = (0, 1, 2) if name == "P0" else (0,)
         for s in seeds:

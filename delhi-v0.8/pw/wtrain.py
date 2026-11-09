@@ -9,7 +9,7 @@ from pw.wmodel import WxModel
 
 DEV = "cuda" if torch.cuda.is_available() else "cpu"
 QS = torch.tensor([0.1, 0.5, 0.9])
-MKEYS = ("d", "layers", "heads", "ff", "experts", "hier", "use_graph", "use_nwp", "longctx")
+MKEYS = ("d", "layers", "heads", "ff", "experts", "hier", "use_graph", "use_nwp", "longctx", "xarch", "ssl", "xlayers")
 
 
 def build(cfg, data):
@@ -96,6 +96,8 @@ def train(cfg, data, org, nodes=None, val=None, steps=6000, seed=0, log=print, e
             loss = pinball(q, b)
             if cfg.get("experts"):
                 loss = loss + 0.01 * model.moe_aux()
+            if cfg.get("ssl"):
+                loss = loss + float(cfg.get("ssl_w", 0.1)) * model.ssl_loss
         opt.zero_grad(set_to_none=True)
         scaler.scale(loss).backward()
         scaler.unscale_(opt)
@@ -140,6 +142,8 @@ def finetune(model, cfg, data, org, recent=None, steps=500, lr=3e-4, seed=0, rec
             loss = pinball(q, b)
             if cfg.get("experts"):
                 loss = loss + 0.01 * m.moe_aux()
+            if cfg.get("ssl"):
+                loss = loss + float(cfg.get("ssl_w", 0.1)) * m.ssl_loss
         opt.zero_grad(set_to_none=True)
         scaler.scale(loss).backward()
         scaler.unscale_(opt)

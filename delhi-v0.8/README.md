@@ -22,6 +22,24 @@ The fixed validation period is used only to pick the checkpoint; this is disclos
 
   LEAGUES="CPCB METAR WMO" bash kaggle_v09_threshold.sh
 
+## 1b. PWM-X: a new architecture, same data
+
+The idea is the one behind DeepSeek's efficiency wins over far larger models: get more out of the same data and
+compute through architecture, not size. No design is copied from DeepSeek or from the foundation models. PWM-X
+targets where PWM-W still loses, the CPCB rooftop sensors, mostly wind.
+- **21-day memory per station and across stations.** Each station's last 21 days go in as 24-hour patches through a
+  temporal transformer. The station graph then mixes the stations. TimesFM and Chronos read about the same span
+  (512 h), but one sensor at a time.
+- **Per-window normalisation.** Each window's own level and scale is removed before encoding, against sensor drift.
+- **Self-supervised patch reconstruction (P10).** 15% of patches are hidden during training and must be rebuilt: a
+  second task on the same Indian data.
+
+P9 is PWM-X and P10 is PWM-X with the self-supervised task. Both sit on v0.6's cross-network training and v0.8's
+weight averaging. The same validation rule applies: a candidate replaces P0 only if better by more than 2 sigma,
+and the best passing candidate (P8 included) is used.
+
+  LEAGUES=CPCB VARIANTS=P8,P9,P10 bash kaggle_v08.sh
+
 ## 2. Real-time forecasts for Indian airports
 
 `kaggle_live.sh` makes a real forecast for the next 24 hours:

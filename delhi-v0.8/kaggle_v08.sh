@@ -14,7 +14,7 @@ ls -la $PW_RAW $PW_CACHE
 pip install -q timesfm chronos-forecasting 2>&1 | tail -2
 for L in ${LEAGUES:-CPCB}; do
   python tools/fetch_nwp.py --league $L --parts hybrid            # day1/day2 runs of IFS, AIFS, ICON, GFS
-  python run_weather.py --league $L 2>&1 | tee $PW_OUT/run_$L.log
+  python run_weather.py --league $L ${VARIANTS:+--variants $VARIANTS} 2>&1 | tee $PW_OUT/run_$L.log
   python tools/summarize.py $PW_OUT/wx_$(echo $L | tr A-Z a-z)_results.json > $PW_OUT/tests_$L.txt
 done
 rm -rf $PW_RAW/nwp_cache

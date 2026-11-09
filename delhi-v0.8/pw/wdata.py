@@ -22,6 +22,7 @@ from pw.leagues import TARGETS, bounds, SUFFIXES, DAY1_MAX_I
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RAW = os.environ.get("PW_RAW", os.path.join(ROOT, "data", "raw"))
 SPD, L, H, LH, PD = 24, 24, 24, 72, 14
+LC = 21 * SPD                      # v0.9 PWM-X context: 21 days (TimesFM/Chronos read 512 h here)
 
 
 def haversine(lat, lon):
@@ -289,7 +290,14 @@ class Wx:
         age = (LH - 1 - last_i).clamp(max=LH) / LH
         base = prof + anom[..., None]                                                            # [B, n, K, H]
         z = lambda v: (v - m7[..., None]) / sd[None, None, :, None]
-        out = {"pd": (pv - m7[..., None, None]) / sd[None, None, :, None, None] * po, "pdo": po,                                                     # v0.8: full 14 x 24 h history
+        # v0.9 PWM-X: the last 21 days hour by hour in real units (hours before the record start are masked)
+        lci = o[:, None] + torch.arange(-LC, 0, device=dev)[None]
+        lcok = (lci >= 0)
+        lci = lci.clamp(min=0)
+        lcv = g(self.t_y, lci) * lcok[:, None, None, :]
+        lco = g(self.t_o, lci).float() * lcok[:, None, None, :]
+        out = {"lc": lcv.reshape(B, n, self.K, LC // SPD, SPD), "lco": lco.reshape(B, n, self.K, LC // SPD, SPD),
+               "pd": (pv - m7[..., None, None]) / sd[None, None, :, None, None] * po, "pdo": po,                                                     # v0.8: full 14 x 24 h history
                "hx": z(hx) * ho, "ho": ho, "ax": g(self.t_a, hi), "ao": g(self.t_ao, hi).float(),
                "prof": z(prof), "pok": (pc >= 3).float(), "base": base, "any_o": any_o, "age": age,
                "lvl": (m7 - self.t_mu) / self.t_sl, "mf": self.t_mf[o - 1][:, nd].float(),

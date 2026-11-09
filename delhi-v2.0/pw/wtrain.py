@@ -14,7 +14,51 @@ MKEYS = ("d", "layers", "heads", "ff", "experts", "hier", "use_graph", "use_nwp"
 
 def build(cfg, data):
     cx = data.Cx if cfg.get("nwp_extra") else 0
-    return WxModel(data.K, data.Ca, data.Cn, Cx=cx, **{k: cfg[k] for k in MKEYS if k in cfg}).to(DEV)
+    m = WxModel(data.K, data.Ca, data.Cn, Cx=cx, **{k: cfg[k] for k in MKEYS if k in cfg}).to(DEV)
+    if cfg.get("init"):
+        load_init(m, cfg["init"], data)
+    return m
+
+
+def load_init(model, path, data):
+    """v2.0: start from the India-wide pretrained weights. Every tensor whose shape matches is copied. The input
+    layer's other-channel columns are moved to this network's channel order by name (a channel the pretraining did
+    not have starts at zero); if the input layer's size differs (e.g. the hybrid's extra inputs), the columns they
+    share are copied and the rest keep their fresh initialisation."""
+    import os
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"pretrained weights not found: {path}")
+    ck = torch.load(path, map_location="cpu", weights_only=False)
+    src, own = ck["state"], model.state_dict()
+    names_src, names_dst = list(ck.get("aux_names", [])), list(getattr(data, "aux_names", []))
+    K, Ca_s, Ca_d = model.K, len(names_src), len(names_dst)
+    from pw.wdata import LH, SPD, L
+    pre = K * (2 * LH + 2 * SPD + 4)                                   # columns before the other channels
+    n_copy = 0
+    for k, v in src.items():
+        if k not in own:
+            continue
+        if own[k].shape == v.shape and k != "inp.0.weight":
+            own[k] = v.clone(); n_copy += 1
+    if "inp.0.weight" in src and names_src:
+        ws, wd = src["inp.0.weight"], own["inp.0.weight"].clone()
+        if ws.shape[0] == wd.shape[0]:
+            wd[:, :pre] = ws[:, :pre]
+            for blk in range(2):                                           # values*observed, then observed flags
+                for j, nm in enumerate(names_dst):
+                    dst = slice(pre + blk * Ca_d * L + j * L, pre + blk * Ca_d * L + (j + 1) * L)
+                    if nm in names_src:
+                        i = names_src.index(nm)
+                        wd[:, dst] = ws[:, pre + blk * Ca_s * L + i * L: pre + blk * Ca_s * L + (i + 1) * L]
+                    else:
+                        wd[:, dst] = 0.0
+            tail_s, tail_d = pre + 2 * Ca_s * L, pre + 2 * Ca_d * L
+            n_tail = 3 + 2 + 24                                                 # station, day of year, sun (H = 24)
+            wd[:, tail_d:tail_d + n_tail] = ws[:, tail_s:tail_s + n_tail]
+            own["inp.0.weight"] = wd; n_copy += 1
+    model.load_state_dict(own)
+    print(f"    init from {os.path.basename(path)}: {n_copy} tensors copied; other channels {names_src} -> {names_dst}",
+          flush=True)
 
 
 def augment(b, drop_p=0.1, gap_p=0.2, gap_mean=6.0):
@@ -73,6 +117,7 @@ def train(cfg, data, org, nodes=None, val=None, steps=6000, seed=0, log=print, e
     station networks; the model is inductive over stations). Validation uses `data` only."""
     torch.manual_seed(seed)
     gen = np.random.default_rng(seed)
+    steps = int(cfg.get("steps", steps))
     model = build(cfg, data)
     amp = bool(cfg.get("amp", True)) and DEV == "cuda"
     opt = torch.optim.AdamW(model.parameters(), lr=cfg.get("lr", 1.5e-3), weight_decay=1e-4)
@@ -88,7 +133,7 @@ def train(cfg, data, org, nodes=None, val=None, steps=6000, seed=0, log=print, e
         model.train()
         if extra and gen.random() < 0.5:
             dx, ox = extra[gen.integers(len(extra))]
-            b = augment(dx.batch(gen.choice(ox, cfg.get("bs", 32)), None, DEV))
+            b = augment(dx.batch(gen.choice(ox, cfg.get("bs", 32)), dx.subset(gen, cfg.get("sub", 48)), DEV))
         else:
             b = augment(data.batch(gen.choice(org, cfg.get("bs", 32)), nodes, DEV))
         with torch.autocast("cuda", dtype=torch.float16, enabled=amp):

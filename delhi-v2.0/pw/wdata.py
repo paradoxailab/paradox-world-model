@@ -17,7 +17,7 @@ import math, os
 import numpy as np
 import torch
 
-from pw.leagues import TARGETS, bounds, SUFFIXES, DAY1_MAX_I
+from pw.leagues import TARGETS, bounds, SUFFIXES, DAY1_MAX_I, LEAGUES
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RAW = os.environ.get("PW_RAW", os.path.join(ROOT, "data", "raw"))
@@ -53,6 +53,8 @@ class Wx:
         cov_tr = np.isfinite(X[a:b, :, names.index("AT")]).mean(0)
         cov_te = np.isfinite(X[te0:te1, :, :3]).mean((0, 2))
         keep = np.where((cov_tr >= min_cov * 0.5) & (cov_te >= min_cov * 0.5))[0]   # rule fixed in advance
+        if LEAGUES[league].get("keep_train_only"):                                # v2.0 corpus: training coverage only
+            keep = np.where(cov_tr >= min_cov * 0.2)[0]
         self.train_hours = train_hours
         if train_hours is not None:
             # data-threshold study: the model may use ONLY the last `train_hours` hours before validation, for
@@ -144,6 +146,16 @@ class Wx:
             self.month = (hours.astype("datetime64[D]").astype("datetime64[M]").astype(np.int64) % 12).astype(np.int64)
         self._dev = None
         return shared, shift
+
+    def subset(self, gen, n=48):
+        """v2.0: a spatially coherent group of stations for one training batch of a large network (a random station
+        and its n-1 nearest), so the graph inside the batch is a real neighbourhood."""
+        if self.N <= n:
+            return None
+        if getattr(self, "_near", None) is None:
+            D = haversine(self.lat, self.lon)
+            self._near = np.argsort(D, 1)[:, :n]
+        return np.sort(self._near[int(gen.integers(self.N))])
 
     def _graph(self, k=6):
         D = haversine(self.lat, self.lon)

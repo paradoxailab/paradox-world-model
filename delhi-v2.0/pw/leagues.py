@@ -31,6 +31,10 @@ LEAGUES = {
     # v0.9 real-time: the METAR stations from 2021-01-01 up to the latest report (tools/fetch_live_metar.py). The
     # last 3 days are the "test" block (2 observed days + the 24 h being forecast), the 45 days before validation.
     "LIVE": dict(start="2021-01-01", end="", tz="GMT", test_days=3, val_days=45),
+    # v2.0 pretraining corpus: every Indian NOAA ISD station with records overlapping 2024 (tools/fetch_india.py).
+    # It ends 2024-11-30, before the earliest validation period of any league, and is never scored. Its last 30 days
+    # are only the pretraining's checkpoint-selection block. Stations are kept on training coverage alone.
+    "INDIA": dict(start="2015-01-01", end="2024-11-30", tz="GMT", test_days=1, val_days=30, keep_train_only=True),
 }
 
 # Global forecast systems scored from Open-Meteo's archive of their real operational runs (Previous Runs API).

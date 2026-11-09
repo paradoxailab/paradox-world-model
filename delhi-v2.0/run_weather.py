@@ -60,6 +60,14 @@ VARIANTS = {
     # v0.9 PWM-X: 21-day patch transformer with per-window normalisation (+ self-supervised patch reconstruction)
     "P9": dict(d=128, layers=3, heads=4, ff=2, experts=0, use_graph=True, joint=True, xarch=True, ema=True),
     "P10": dict(d=128, layers=3, heads=4, ff=2, experts=0, use_graph=True, joint=True, xarch=True, ssl=True, ema=True),
+    # v2.0 PWM-India: the India-wide corpus (WX_INDIA, 2015-2024-11) as an extra joint-training partner.
+    #   P11 = P10 + the corpus (same 1.26M model: isolates the effect of data)
+    #   P12 = 10.1M model (width 288, 6 graph layers, 8 heads, 4 patch layers), started from India-wide pretraining
+    #         (pretrain_india.py) and fine-tuned with the corpus as partner
+    "P11": dict(d=128, layers=3, heads=4, ff=2, experts=0, use_graph=True, joint=True, xarch=True, ssl=True, ema=True,
+                india=True),
+    "P12": dict(d=288, layers=6, heads=8, ff=2, experts=0, use_graph=True, joint=True, xarch=True, ssl=True, ema=True,
+                xlayers=4, india=True, pretrained=True, lr=7e-4),
 }
 JOINT = {"METAR": ["WMO"], "WMO": ["METAR"], "CPCB": ["WMO"]}   # partners: used only before this league's VALIDATION,
 #   with their own normalisation statistics also computed only from before it; other channels matched by name
@@ -137,6 +145,7 @@ def main():
     ap.add_argument("--e2_only", action="store_true", help="re-score only the Earth-2 runs from saved predictions")
     ap.add_argument("--fm_only", action="store_true", help="re-score saved predictions against the foundation models")
     ap.add_argument("--variants", default="", help="comma list to run (P0 always); default all")
+    ap.add_argument("--init", default="", help="v2.0: India-wide pretrained weights (pretrain_india.py) for P12")
     ap.add_argument("--no_v10", action="store_true", help="skip the v1.0 ensemble and self-correction steps")
     ap.add_argument("--rolling", type=int, default=0, help="v0.7 rolling updates (rejected on CPCB validation; off)")
     a = ap.parse_args()
@@ -173,6 +182,34 @@ def main():
             log(f"joint-training partner {partner}: {D2.N} stations, {len(o2)} origins ending before {v0}; "
                 f"shared other channels {shared}; clock shift {shift:+d} h")
     extra = extra or None
+    # v2.0: the India-wide corpus as one more partner, for the variants that ask for it
+    extra_india = list(extra or [])
+    if os.path.exists(os.path.join(RAW, "WX_INDIA.npz")):
+        st = np.load(os.path.join(RAW, "WX_INDIA.npz"))["start"]
+        cut = int((v0 - np.datetime64(str(st)).astype("datetime64[h]")).astype(int))
+        DI = Wx("INDIA", stats_until=cut)
+        shared, shift = DI.align_to(D)
+        oi = np.concatenate([DI.origins(sp, 1) for sp in ("train", "val", "test")])
+        oi = np.unique(oi[oi + H <= cut])
+        extra_india.append((DI, oi))
+        log(f"India-wide corpus: {DI.N} stations, {len(oi)} origins ending before {v0} "
+            f"(corpus ends {DI.start + np.timedelta64(DI.T - 1, 'h')}); shared other channels {shared}; clock shift {shift:+d} h")
+    extra_india = extra_india or None
+    init_ok = bool(a.init) and os.path.exists(a.init)
+    if a.init and not init_ok:
+        log(f"pretrained weights {a.init} not found: P12 is skipped")
+
+    def partners(c):
+        if not c.get("joint"):
+            return None
+        return extra_india if c.get("india") else extra
+
+    def with_init(c):
+        c = dict(c)
+        if c.pop("pretrained", False):
+            c["init"] = a.init
+        c.pop("india", None)
+        return c
 
     # ---------------- pure PWM-W: validation-only choice ----------------
     res = {"league": a.league, "stations": D.stations, "variants": {}}
@@ -181,13 +218,17 @@ def main():
     for name, cfg in VARIANTS.items():
         if cfg.get("joint") and not extra:
             continue
+        if cfg.get("india") and (extra_india is None or len(extra_india) == len(extra or [])):
+            continue
+        if cfg.get("pretrained") and not init_ok:
+            continue
         if only is not None and name not in only:
             continue
         seeds = (0, 1, 2) if name == "P0" else (0,)
         for s in seeds:
             log(f"variant {name} seed {s}: {cfg}")
-            m, info = WT.train(dict(cfg), D, tr, None, va, a.steps, seed=s, log=log,
-                               extra=extra if cfg.get("joint") else None)
+            m, info = WT.train(with_init(cfg), D, tr, None, va, a.steps, seed=s, log=log,
+                               extra=partners(cfg))
             vals.setdefault(name, []).append(info["val_score"])
             res["variants"].setdefault(name, []).append(info)
     sig = float(np.std(vals["P0"], ddof=1))
@@ -201,8 +242,8 @@ def main():
     cfg = dict(VARIANTS[best])
     finals, qv = [], []
     for s in (100, 101, 102):
-        m, info = WT.train(dict(cfg), D, tr, None, va, a.steps, seed=s, log=log,
-                           extra=extra if cfg.get("joint") else None)
+        m, info = WT.train(with_init(cfg), D, tr, None, va, a.steps, seed=s, log=log,
+                           extra=partners(cfg))
         finals.append(m)
         res.setdefault("final", []).append(info)
     qs, ys = zip(*[WT.predict(m, D, te) for m in finals])
@@ -230,8 +271,8 @@ def main():
     if rest and not a.no_v10:
         n2 = rest[0]
         cfg2 = dict(VARIANTS[n2])
-        fin2 = [WT.train(dict(cfg2), D, tr, None, va, a.steps, seed=s, log=log,
-                         extra=extra if cfg2.get("joint") else None)[0] for s in (100, 101, 102)]
+        fin2 = [WT.train(with_init(cfg2), D, tr, None, va, a.steps, seed=s, log=log,
+                         extra=partners(cfg2))[0] for s in (100, 101, 102)]
         q_v2 = np.mean([WT.predict(m, D, va)[0] for m in fin2], 0)
         s1, s2 = EV_val(q_v, yv, D.sd), EV_val((q_v + q_v2) / 2, yv, D.sd)
         adopt = s1 - s2 > 2 * sig
@@ -270,7 +311,7 @@ def main():
     if Dh.NWP is not None:
         trh = Dh.origins("train", 1, need_nwp=True)
         log(f"hybrid: {Dh.Cn} global-forecast channels from {Dh.nwp_models}, {len(trh)} training origins from 2024")
-        hcfg = dict(cfg, use_nwp=True)
+        hcfg = dict(with_init(cfg), use_nwp=True)
         hcfg.pop("joint", None)
         hv = {}
         # H3 (v0.5): H2 + further predictors from the same runs (cloud, radiation, dew point, pressure, wind dir.)

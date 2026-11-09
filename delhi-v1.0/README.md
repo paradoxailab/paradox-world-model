@@ -45,7 +45,7 @@ PWM-X narrowed every gap but did not close the wind gap or the Chronos-2 tempera
 |---|---|---|---|---|---|
 | CPCB | P10 (0.4597; P0 0.4922 ± 0.0038) | 0.4561 vs 0.4564: not adopted | 0.4561 vs 0.4686 (worse): not adopted | H1 | 0.4440 vs 0.4512: not adopted |
 | Airports | **P10** (0.3869; P0 0.3939 ± 0.0006) | 0.3836 vs 0.3842: not adopted | 0.3836 vs 0.3919 (worse): not adopted | H2 | 0.3469 vs 0.3539: not adopted |
-| WMO | P10 (0.3838; P0 0.3879 ± 0.0010) | pending | pending | pending | pending |
+| WMO | P10 (0.3838; P0 0.3879 ± 0.0010) | no passing partner of the other family | 0.3816 vs 0.3922 (worse): not adopted | H1 (0.4078) | 0.4047 vs 0.4134: not adopted |
 
 Self-correction from the model's own trailing errors made validation **worse** in every case: PWM-W's errors do not
 persist over 30 days the way a global model's local bias does. It is rejected.
@@ -62,8 +62,11 @@ Hybrid vs the same ensemble: WIN on all three (−7.3 / −10.0 / −3.1%). All 
 
 **CPCB:** identical to the PWM-X run above (neither v1.0 step adopted).
 
-**WMO:** the hybrid's global-forecast refetch hit Open-Meteo's daily request limit, so the WMO hybrid may be built on
-incomplete inputs; its result will be checked before it is reported.
+**WMO, test 2025-03 to 2025-08** (PWM-X): the pure model beats all three foundation models on every variable —
+Chronos-2 −11.0 / −7.8 / −3.4 %, TimesFM 2.5 −14.6 / −10.9 / −3.6 %, TimesFM 3.0 −10.7 / −7.4 / −2.7 % (all p < 1e-7).
+Against the bias-corrected four-model ensemble: temperature LOSS (+11.6%), humidity tie, wind WIN (−11.5%).
+The WMO **hybrid is not valid in this run**: the refetch of its global-forecast inputs hit Open-Meteo's daily request
+limit, so it trained on 8,016 origins instead of ~34,000 and scored worse than the pure model; it must be rerun.
 
 ## Run (Kaggle, GPU)
 

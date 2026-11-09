@@ -21,6 +21,27 @@ rejected on validation and are switched off.
 
   LEAGUES="CPCB" bash kaggle_v08.sh      (attach pwm-weather-data and pwm-weather-v06-fm)
 
+## v0.8 result on CPCB
+
+**Validation.** P0 scored 0.4922 ± 0.0038; the candidates scored P4 0.4735 (v0.6's choice), P6 0.4714, P7 0.4721 and
+**P8 0.4678**, so P8 is adopted (6.4 sigma better than P0). Both changes help, and they add up.
+
+**Pure PWM-W against the foundation models on CPCB.** Values are MAE differences; positive means the foundation
+model is better.
+
+| | Temp | RH | Wind |
+|---|---|---|---|
+| Chronos-2 | LOSS +5.0% (v0.6 +6.8%) | **tie** +1.4% (v0.6 loss +3.7%) | LOSS +3.8% (v0.6 +4.9%) |
+| TimesFM 3.0 | **tie** +2.5% (v0.6 loss +4.3%) | **tie** +1.3% (v0.6 loss +3.6%) | LOSS +4.4% (v0.6 +5.5%) |
+| TimesFM 2.5 | tie −1.0% | tie −1.3% | LOSS +3.5% (v0.6 +4.6%) |
+
+Three losses became ties. Wind is now the remaining gap on CPCB: these rooftop wind sensors miss 19.6% of hours.
+
+**Hybrid against the foundation models on CPCB.** Its first wins on CPCB: wind against Chronos-2 (−3.3%, p=0.03)
+and against TimesFM 2.5 (−3.6%, p=0.02). Every other cell is a tie.
+
+Against the global models the pure model now beats the bias-corrected 4-model ensemble by −28.8% / −13.2% / −38.5%.
+
 ---
 
 # PWM-W Delhi v0.7: rolling weekly updates

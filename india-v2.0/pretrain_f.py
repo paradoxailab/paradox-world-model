@@ -34,7 +34,8 @@ def solar(lat, lon, hours):
 class Corpus:
     def __init__(self, path, dev):
         z = np.load(path)
-        X = z["X"].astype(np.float32)                                           # [T, N, 3]
+        names = [str(v) for v in z["vars"]]
+        X = z["X"][..., [names.index(v) for v in ("AT", "RH", "WS")]].astype(np.float32)   # [T, N, 3]
         self.T, self.N = X.shape[:2]
         self.start = np.datetime64(str(z["start"]), "h")
         self.lat, self.lon = z["lat"].astype(np.float64), z["lon"].astype(np.float64)
@@ -93,7 +94,8 @@ def main():
     ap.add_argument("--batch", type=int, default=512)
     ap.add_argument("--lr", type=float, default=6e-4)
     ap.add_argument("--hours", type=float, default=2.5, help="wall-clock cap")
-    ap.add_argument("--corpus", default=os.path.join(RAW, "PRE_INDIA.npz"))
+    ap.add_argument("--corpus", default=next((os.path.join(RAW, f) for f in ("PRE_INDIA.npz", "WX_INDIA.npz")
+                                                if os.path.exists(os.path.join(RAW, f))), os.path.join(RAW, "PRE_INDIA.npz")))
     a = ap.parse_args()
     os.makedirs(OUT, exist_ok=True)
     dev = "cuda" if torch.cuda.is_available() else "cpu"

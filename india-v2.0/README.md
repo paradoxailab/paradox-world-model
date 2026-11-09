@@ -31,8 +31,13 @@ About half of PWM-F's parameters are active for each token (shared expert + 2 of
 
 ## Run (Kaggle, free)
 
-1. CPU notebook, internet on: `bash kaggle_v20_data.sh` (all-India download, several hours)
-2. GPU notebook with step 1's output attached: `LEAGUES="CPCB METAR" VARIANTS="P10,P11,P12" bash kaggle_v20.sh`
+1. Corpus: already built by the `pwm-india-data` notebook (`WX_INDIA.npz`: 187 Indian ISD stations, 2015-01-01 to
+   2024-11-30, 16.3M station-hours, 5.9M with a temperature, 66 MB; from branch `delhi-v2.0`'s collector, same leakage
+   cutoff). `kaggle_v20_data.sh` (a 2010-start collector) is an alternative.
+2. GPU notebook with the corpus attached: `LEAGUES="CPCB" VARIANTS="P10,P11,P12" PRE_HOURS=1.5 bash kaggle_v20.sh`
+
+Branches `delhi-v1.1` (a whole-graph PWM-F with regional pretraining networks) and `delhi-v2.0` (PWM-X pretrained on
+the corpus) are earlier drafts of the same step; v2.0 here consolidates them and is the version that is run.
 
 ## Results
 

@@ -10,7 +10,7 @@ SRC = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "paper.md")
 
 TITLE = ("PWM-Dyn and ParadoxBench: A Provenance-Audited Physical Dynamics Model, "
          "Benchmarked Against Zero-Shot Foundation Models on US Traffic and Indian Rainfall")
-AUTHOR = r"Aditya Kumar \qquad Anupam Singh\\[3pt] \small Paradox AI Lab, India\\ \small \href{https://paradoxailab.com}{\texttt{paradoxailab.com}}"
+AUTHOR = r"Aditya Kumar \qquad Anupam Singh\\[3pt] \small ParadoxAI Lab, India\\ \small \href{https://paradoxailab.com}{\texttt{paradoxailab.com}}"
 
 md = open(SRC).read()
 md = md.replace("\r", "")

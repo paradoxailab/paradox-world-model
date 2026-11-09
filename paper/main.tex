@@ -95,14 +95,14 @@
 Model, Benchmarked Against Zero-Shot Foundation Models on US Traffic and
 Indian Rainfall}
 
-\author{Aditya Kumar \qquad Anupam Singh\\[3pt] \small Paradox AI Lab, India\\ \small \href{https://paradoxailab.com}{\texttt{paradoxailab.com}}}
+\author{Aditya Kumar \qquad Anupam Singh\\[3pt] \small ParadoxAI Lab, India\\ \small \href{https://paradoxailab.com}{\texttt{paradoxailab.com}}}
 \date{November 2026}
 
 \begin{document}
 \maketitle
 \begin{abstract}
 We present PWM-Dyn, the first trained component of the Paradox World
-Model (PWM): a 0.3M-parameter spatiotemporal dynamics model that
+Model (PWM): a 0.32--0.42M-parameter spatiotemporal dynamics model that
 forecasts how physical conditions evolve and propagate over real
 networks --- highway-sensor graphs and gridded rainfall --- with
 calibrated quantile uncertainty and robustness to dead sensors. It is
@@ -118,12 +118,13 @@ open-context track, where Google's TimesFM 2.5 and 3.0 compete zero-shot
 with up to 512 steps or 365 days of history, PWM-Dyn has lower MAE,
 pinball loss and interval score than both on all four tasks: MAE 14.15
 vs 14.55 (TimesFM 3.0) on PEMS08, 19.02 vs 19.13 on PEMS04, 2.84 vs 2.92
-and 3.41 vs 3.62 on the two rainfall regions; TimesFM 3.0 keeps a 2.5\%
-lower RMSE on PEMS04. Split-conformal calibration lifts PWM's 80\%
+and 3.42 vs 3.62 on the two rainfall regions; TimesFM 3.0 keeps a 2.5\%
+lower RMSE on PEMS04. No significance test was run for v0.4/v0.4.1, and a comparable
+PEMS08 margin in our later v0.6 study was not significant ($p=0.064$). Split-conformal calibration lifts PWM's 80\%
 rainfall-interval coverage from 55\% to 83--85\% without changing the
 median. With 30\% of sensors dark, PWM beats per-sensor climatology by
 9--14\% MAE on traffic. The margins are narrow where it matters: PEMS04
-is a near-tie, PWM's edge over median climatology on rainfall is 2--7\%,
+is a near-tie, PWM's edge over median climatology on rainfall is 2--6\%,
 a PEMS04-trained PWM transferred to PEMS08 (MAE 16.36) trails zero-shot
 TimesFM 3.0, and under the standard 12-step context PWM-Dyn v0.4 does
 not recover our earlier v0.3 result (PEMS08 MAE 14.18). Every PWM win is
@@ -151,9 +152,9 @@ fairness choice auditable.
 We ask a concrete question: \textbf{on real physical forecasting tasks,
 how does a small specialist trained from scratch on a region compare
 with a frontier zero-shot time-series foundation model?} The question
-matters for teams outside hyperscale labs --- if a 0.3M-parameter
+matters for teams outside hyperscale labs --- if a 0.32--0.42M-parameter
 regional model with honest uncertainty can match or beat a
-200M--1B-parameter zero-shot foundation model on the region's own
+200M-parameter zero-shot foundation model (TimesFM 2.5) on the region's own
 physics, then capable physical-world intelligence is buildable at
 startup scale, domain by domain.
 
@@ -179,7 +180,7 @@ Contributions:
   (Apache-2.0) and TimesFM 3.0 (univariate and multivariate) on US
   highway traffic (PEMS08, PEMS04) and Indian monsoon-belt rainfall (IMD
   0.25° central India, 2000--2024), under rules that favour the
-  foundation model (it receives 17--42× longer input history than PWM).
+  foundation model (it receives 12--43× longer input history than PWM).
 \item
   \textbf{An honest placement} of the results in the global landscape,
   separating measured comparisons, author-published numbers on the same
@@ -218,7 +219,7 @@ Comparable to PWM-Dyn?
 \bottomrule\noalign{}
 \endlastfoot
 Traffic / spatiotemporal & STAEformer
-(\href{https://arxiv.org/pdf/2308.10425}{HKUST-GZ et al., CN}) & PEMS08,
+(\href{https://arxiv.org/pdf/2308.10425}{SUSTech / U.~Tokyo et al., CN/JP}) & PEMS08,
 12→12, 6:2:2 & MAE 13.46 / RMSE 23.25 / MAPE 8.88\% & \textbf{Yes ---
 identical protocol} \\
 Traffic / spatiotemporal & PDFormer (Beihang, CN) & PEMS08 & MAE 13.58 &
@@ -231,7 +232,7 @@ Traffic / spatiotemporal & GMAN / AGCRN / STGCN (CN) & PEMS08 & MAE
 15.31--16.08 & Yes \\
 Zero-shot TS foundation & TimesFM 2.5 / 3.0
 (\href{https://github.com/google-research/timesfm}{Google, US}) &
-fev-bench, GIFT-Eval, TIME (3.0 ranks \#1 on all three) & --- &
+fev-bench, GIFT-Eval, TIME & --- &
 \textbf{Yes --- measured head-to-head in this paper} \\
 Zero-shot TS foundation & Chronos (Amazon, US); Moirai (Salesforce, US);
 TimeGPT (Nixtla, US/MX) & GIFT-Eval etc. & --- & Possible future
@@ -239,8 +240,8 @@ opponents (same harness) \\
 Zero-shot TS foundation &
 \href{https://arxiv.org/pdf/2409.16040}{Time-MoE} (CN-led, billion-scale
 MoE);
-\href{https://dag-upb-ts-arena.hf.space/models/family/sundial}{Sundial /
-Timer (THUML Tsinghua, CN)} & zero-shot TS suites & --- & Possible
+Sundial (Liu et al., ICML 2025) /
+Timer (THUML Tsinghua, CN) & zero-shot TS suites & --- & Possible
 future opponents \\
 Global weather & WeatherNext 2 / GenCast /
 \href{https://arxiv.org/pdf/2212.12794}{GraphCast} (Google DeepMind,
@@ -248,8 +249,8 @@ US/UK) & \href{https://sites.research.google/weatherbench}{WeatherBench
 2} & GenCast beats ECMWF ENS on \textgreater96\% of targets & No --- PWM
 has no WB2 entry (needs ERA5 + multi-GPU) \\
 Global weather & Pangu-Weather (Huawei, CN); FengWu (Shanghai AI Lab,
-CN); FuXi (Fudan, CN) & WeatherBench 2 / vs ECMWF & first AI models to
-beat operational NWP deterministic scores & No --- same reason \\
+CN); FuXi (Fudan, CN) & WeatherBench 2 / vs ECMWF & Pangu-Weather was
+the first AI model to beat operational NWP deterministic scores & No --- same reason \\
 Global weather & Aurora (Microsoft, US); AIFS (ECMWF, EU) & WB2 /
 operational & --- & No \\
 Interactive / video worlds & Genie 3 (DeepMind, US/UK); Marble (World
@@ -307,7 +308,7 @@ graph (road distances; geographic grid) & pinball + L1 against held-out
 future readings, from random init; random sensor-masking forces use of
 neighbours & graph diffusion + periodic embeddings emit
 10/50/90th-percentile offsets from the last observed state & native
-quantile heads, coverage-audited & 0.3M params; regional observations;
+quantile heads, coverage-audited & 0.32--0.42M params; regional observations;
 minutes per seed on one T4 \\
 TimesFM 2.5/3.0 (Google, US) & any series as patched tokens; no built-in
 spatial structure & decoder-only next-patch prediction, pretrained once
@@ -324,8 +325,8 @@ Pangu-Weather (Huawei); FengWu (Shanghai AI Lab); FuXi (Fudan) --- CN &
 same global fields; 3D Earth-specific transformers & supervised against
 reanalysis; FuXi cascades models by lead time; Pangu aggregates models
 of different step sizes & autoregressive field rollout & ensembles via
-perturbation (varies) & first AI models to beat operational NWP
-deterministic scores \\
+perturbation (varies) & Pangu-Weather: first AI model to beat
+operational NWP deterministic scores \\
 V-JEPA 2 (Meta, US) & latent embeddings of video patches &
 joint-embedding predictive: predict representations of masked/future
 video, not pixels & predicts in latent space; downstream heads/planners
@@ -499,12 +500,12 @@ Learned graph factors (transductive) &
 GraphMix block × 3 & proj Linear(5·96 → 96), FFN 96→192→96, 2 LayerNorms
 & 3 × 83,712 = 251,136 & 251,136 & 251,136 \\
 Quantile head & Linear(96 → H × 3) & 3,492 & 3,492 & 2,037 \\
-\textbf{Total} & & \textbf{316,900} & \textbf{334,436} & \textbf{304,757
+\textbf{Total} & & \textbf{316,900} & \textbf{334,436} & \textbf{304,629
 + 128 × N} \\
 \end{longtable}
 
-For comparison, TimesFM 2.5 has 200 M parameters and TimesFM 3.0 is
-larger still; PWM-Dyn's three graph blocks (79 \% of its parameters) are
+For comparison, TimesFM 2.5 has 200 M parameters (TimesFM 3.0's size is
+not stated in its model card); PWM-Dyn's three graph blocks (79 \% of its parameters) are
 the only part of the model that grows with depth, and nothing grows with
 the length of the history except the first linear layer.
 
@@ -741,7 +742,7 @@ complete) \\
 Uncertainty & 3 quantiles from one head, sorted; pinball loss & Quantile
 heads (10 quantiles) & Point forecast only & Deterministic (ensembles
 via perturbation) \\
-Parameters & 0.30--0.33 M & 200 M (2.5); larger (3.0) &
+Parameters & 0.32--0.42 M & 200 M (2.5); not stated (3.0) &
 \textasciitilde1--0.1 M & 37 M / 256 M \\
 Licence of weights & Paradox; released with the kit & 2.5 Apache-2.0;
 3.0 non-commercial research & Per repo & Per repo \\
@@ -762,15 +763,14 @@ calibration fix}
 
 PWM-Dyn has lower point error than every TimesFM round on all three
 datasets (7 of 7; §5.2), by 2.5 \% to 6.1 \% MAE, while seeing 12 steps
-of history where TimesFM sees 512, and with 0.3 M parameters against 200
-M. Three design choices account for the margin; only the first is
-ablated (§5.4: removing the road graph costs 0.22--0.45 MAE, about half
-of PWM's 0.86 margin over TimesFM 2.5 on PEMS08), the other two are
-design arguments: (1) the physical graph --- a sensor's next hour is
+of history where TimesFM sees 512, and with 0.32 M parameters against 200
+M. Three design choices account for the margin; none is cleanly
+ablated here (§5.4 reports only unlogged early CPU runs, in which removing the road graph cost 0.22--0.45 MAE),
+so all three are design arguments: (1) the physical graph --- a sensor's next hour is
 largely explained by what its upstream neighbours are doing now, which a
 single-series model cannot see and which TimesFM 3.0's geometry-free
 cross-series attention only partly recovers (its multivariate mode
-closes about half the gap to PWM on traffic); (2) explicit periodic
+narrows the gap slightly: 0.45 to 0.37 MAE on PEMS08); (2) explicit periodic
 position --- PWM knows it is 08:05 on a Tuesday, TimesFM must infer it
 from the context window; (3) in-distribution training --- PWM has seen
 this network's own training period. The third is also the honest caveat:
@@ -830,9 +830,9 @@ Split
 \bottomrule\noalign{}
 \endlastfoot
 PEMS08 & Caltrans PeMS (San Bernardino, US) & 17,856 steps × 170
-sensors, 270 road links & 5 min & 12 → 12 steps (1h → 1h) &
+sensors, 295 links & 5 min & 12 → 12 steps (1h → 1h) &
 chronological 60/20/20 \\
-PEMS04 & Caltrans PeMS (Bay Area, US) & 16,992 × 307, 418 links & 5 min
+PEMS04 & Caltrans PeMS (Bay Area, US) & 16,992 × 307, 340 links & 5 min
 & 12 → 12 & 60/20/20 \\
 IMD central India & India Meteorological Department 0.25° gridded daily
 rainfall & 2000--2024, monsoon-belt grid cells with \textgreater90\%
@@ -863,8 +863,8 @@ provenance audit (§8) makes this machine-checkable.
 
 \section{Results}
 
-\textbf{5.1 Preliminary CPU results (measured, single seed, 2-core CPU,
-completed 2026-10-30).} PWM-Dyn v0.1 (transductive, 40 epochs,
+\textbf{5.1 Preliminary CPU results (single seed, 2-core CPU, completed
+2026-10-30; these early runs' logs were not preserved, so treat them as indicative).} PWM-Dyn v0.1 (transductive, 40 epochs,
 \textasciitilde40 min on 2 CPU cores) on the PEMS08 test set:
 \textbf{MAE 14.37, RMSE 23.28, MAPE 9.47\%}, 80\%-interval coverage
 79.0\%. Against the published leaderboard this sits between STID (14.21)
@@ -908,8 +908,8 @@ Placement vs published leaderboard (authors' numbers)
 \bottomrule\noalign{}
 \endlastfoot
 PEMS08 & \textbf{MAE 14.18 / RMSE 23.31} & 79.7\% & 23.27 & 25.30 &
-\textbf{3rd}: behind STAEformer 13.46 and PDFormer 13.58; ahead of STID
-14.21, GWNet 14.40, DCRNN 15.22, GMAN, AGCRN, STGCN \\
+\textbf{3rd}: behind STAEformer 13.46 and PDFormer 13.58; level with STID
+(14.21 published; 14.18 in our later re-run; difference not significant); ahead of GWNet 14.40, DCRNN 15.22, GMAN, AGCRN, STGCN \\
 PEMS04 & \textbf{MAE 18.50 / RMSE 30.41} & 79.8\% & 26.39 & 31.56 &
 \textbf{4th}: behind STAEformer 18.22, PDFormer 18.36, STID 18.38; ahead
 of GWNet 18.53, STNorm 18.96, GMAN 19.14, MTGNN 19.17, AGCRN, STGCN,
@@ -970,7 +970,7 @@ IMD rainfall & TimesFM 3.0 multivariate (Google) & 2.92 & 10.65 & 86.3\%
 \end{longtable}
 
 PWM-Dyn beats both Google foundation models on this task at
-\textasciitilde220× fewer parameters per member, under input asymmetry
+\textasciitilde600× fewer parameters than TimesFM 2.5 (PEMS08 model), under input asymmetry
 favouring the opponent (42.7 h vs 1 h of history). Both zero-shot models
 nonetheless outperform several trained specialists (DCRNN, GMAN, AGCRN,
 STGCN) --- strong evidence for foundation-model generality, and for the
@@ -997,8 +997,8 @@ the wrong ensemble rule for skewed variables; a pooled-quantile
 before PWM's rainfall uncertainty can be trusted, and we flag this as a
 known defect rather than tune it post hoc on test data.
 
-\textbf{5.4 Ablations (measured on v0.1/v0.2).} Removing the real road
-graph raises test MAE by 0.22--0.45 depending on variant --- the
+\textbf{5.4 Ablations (unlogged early CPU runs on v0.1/v0.2; no run log is
+preserved).} Removing the real road graph raised test MAE by 0.22--0.45 depending on variant --- the
 physical graph helps, but less than architecture differences among
 leaderboard models; strengthening spatial propagation (e.g.~attention
 along road paths) is the clearest route toward the leaderboard's top and
@@ -1011,7 +1011,8 @@ where Google's TimesFM 2.5 and 3.0 compete zero-shot with up to 512
 steps (traffic) or 365 days (rainfall) of history, PWM-Dyn has the
 lowest MAE, pinball loss (QL) and interval score (IS80) on all four
 tasks (Table 6.3a), with 80 \% interval coverage within 0.2--4.7 points
-of nominal. The margins are small on traffic (MAE 2.8 \% below TimesFM
+of nominal. No significance test was run for these margins; a comparable PEMS08 margin
+in our later v0.6 study was not significant ($p=0.064$). The margins are small on traffic (MAE 2.8 \% below TimesFM
 3.0 on PEMS08, 0.6 \% on PEMS04, where TimesFM 3.0 keeps a 2.5 \% lower
 RMSE) and larger on rainfall (2.9 \% and 5.7 \%). Every number in this
 section comes from two Kaggle runs on 2× Tesla T4 --- the v0.4 study
@@ -1192,10 +1193,9 @@ Under the standard 12-step context, neither v0.4 (PEMS08 test MAE 14.53)
 nor v0.4.1 (14.50) recovers v0.3's 14.18 (PEMS04: 19.21 and 19.02
 against 18.50). The v0.3 figure was scored on every test window rather
 than every second one, but TimesFM 3.0 scores the same under both window
-sets (14.55), so the gap is real. We have not isolated its cause --- the
-climatology input and dark-sensor fallback, which help on dark sensors
-and with long context, are the leading suspects --- and we report it
-rather than tune against test data.
+sets (14.55), so the gap is real. A later validation ablation (v0.6) traces most of
+the PEMS04 loss to the climatology input; we report the gap rather than
+tune against test data.
 
 \subsection{ParadoxBench-1 leaderboard}
 
@@ -1236,10 +1236,10 @@ IMD-WC
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-PWM-Dyn v0.4.1 & 0.3 M & 300 / 12 steps & \textbf{14.15} &
+PWM-Dyn v0.4.1 & 0.32 M & 300 / 12 steps & \textbf{14.15} &
 \textbf{19.02} & --- & --- \\
-PWM-Dyn v0.4 & 0.3--0.4 M & 300 steps / 30 days & 14.38 & 19.17 &
-\textbf{2.84} & \textbf{3.41} \\
+PWM-Dyn v0.4 & 0.32--0.42 M & 300 steps / 30 days & 14.38 & 19.18 &
+\textbf{2.84} & \textbf{3.42} \\
 TimesFM 3.0 multivariate (Google, zero-shot) & not stated & 512 steps /
 365 days & 14.55 & 19.13 & 2.92 & 3.62 \\
 TimesFM 2.5 (Google, zero-shot) & 200 M & 512 steps / 365 days & 15.04 &
@@ -1369,8 +1369,8 @@ IMD-WC & +5.7 / +6.0 / +6.5 / +7.2 & +6.9 / +5.1 / +9.7 / +11.9 \\
 
 \textbf{Where PWM-Dyn wins.} It is ahead on 30 of these 32 comparisons.
 The clearest margins are on rainfall uncertainty: after conformal
-calibration PWM's 80 \% intervals are both tighter and closer to nominal
-than TimesFM's, giving 7--13 \% lower interval scores. On PEMS08 it
+calibration PWM's intervals give 7--13 \% lower interval scores, with 80 \%
+coverage closer to nominal than TimesFM 3.0's. On PEMS08 it
 leads TimesFM 3.0 on every metric, with a model roughly 600× smaller
 than TimesFM 2.5.
 
@@ -1388,7 +1388,7 @@ forecasts PEMS08 zero-shot at MAE 14.55; PWM-Dyn trained only on PEMS04
 and transferred to PEMS08 reaches 16.36 (Track Z) --- far better than
 any baseline that ignores the network's history, but 12 \% behind
 Google's model. PWM-Dyn wins where it has trained on the network's own
-history, and that is the claim this section supports: a 0.3 M-parameter
+history, and that is the claim this section supports: a 0.32--0.42 M-parameter
 specialist, trained in minutes on a free GPU, is at least level with
 2026's zero-shot foundation models on the physical tasks it was built
 for.
@@ -1396,7 +1396,7 @@ for.
 \section{Honest claims and limitations}
 
 What these results show: a provenance-verified specialist, trained from
-scratch at 0.3M parameters, places mid-leaderboard on a standard traffic
+scratch at 0.32--0.42M parameters, places mid-leaderboard on a standard traffic
 benchmark, produces near-nominal uncertainty intervals, survives sensor
 dropout, and can be compared like-for-like with Google's zero-shot
 foundation models on two countries' physical data.
@@ -1462,10 +1462,9 @@ What they do not show:
   opponents harness, audit, report generator) is public at
   github.com/paradoxailab/paradox-world-model (Apache-2.0), with the
   ParadoxBench package and both Kaggle notebooks; all datasets are
-  public (Caltrans PeMS mirrors; IMD via imdlib). One free T4 reproduces
-  PWM training and evaluation in under 2 hours; the seven zero-shot
-  TimesFM rounds take a further \textasciitilde8 GPU-hours (the slowest,
-  TimesFM 3.0 univariate on PEMS08, \textasciitilde2 h).
+  public (Caltrans PeMS mirrors; IMD via imdlib). PWM training and
+  evaluation fit on one free T4; the Kaggle run of the zero-shot TimesFM opponents took 5 h 28 min on
+  2×T4.
 \end{itemize}
 
 \section*{Acknowledgements}
@@ -1473,10 +1472,10 @@ What they do not show:
 
 Benchmark opponents: Google TimesFM team (open weights). Data: Caltrans
 PeMS; India Meteorological Department (imdlib). PWM-Dyn was designed,
-trained and audited at Paradox AI Lab. Use of AI tools: Claude
+trained and audited at ParadoxAI Lab. Use of AI tools: Claude
 (Anthropic) assisted with writing code, running experiments and drafting
-the text. The authors reviewed the code, checked every reported number
-against the run logs, and take full responsibility for the content.
+the text. Every table is regenerated by a script from the logged result
+lines, and the authors take full responsibility for the content.
 
 \nocite{*}
 \bibliography{refs}

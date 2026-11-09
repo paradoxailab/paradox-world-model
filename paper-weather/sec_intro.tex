@@ -27,7 +27,7 @@ after a trailing local bias correction. TimesFM 2.5, TimesFM 3.0 and Chronos-2 c
 \item \textbf{\pwm} (\S\ref{sec:model}), an inductive station-graph world model, in a pure form (observations only)
 and a hybrid form that also reads bias-corrected forecasts from four global models, either as inputs or as a base
 it learns to correct.
-\item \textbf{A version-by-version record} (\S\ref{sec:versions}) from v0.3 to v0.8. Each change was adopted only if
+\item \textbf{A version-by-version record} (\S\ref{sec:versions}) from v0.3 to v0.9. Each change was adopted only if
 it beat the default setting on validation by more than two seed standard deviations. Several proposals failed
 this test, and we report them alongside the ones that passed.
 \item \textbf{Results with losses stated} (\S\ref{sec:results}):
@@ -39,4 +39,6 @@ rule, but loses to AIFS's freshest run on temperature and humidity;
 beats them;
 \item bias-corrected FourCastNet and GenCast Mini, which we ran ourselves, beat the pure model on temperature.
 \end{itemize}
+\item \textbf{A data threshold and a real-time track} (\S\ref{sec:v09}): how many months of local history \pwm needs
+to match or beat the foundation models, and a live forecast logged before the weather happens.
 \end{itemize}

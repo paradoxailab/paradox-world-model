@@ -2,7 +2,7 @@
 
 **Title:** PWM-Dyn and ParadoxBench: A Provenance-Audited Physical Dynamics Model, Benchmarked Against Zero-Shot Foundation Models on US Traffic and Indian Rainfall
 
-**Authors:** Aditya Kumar, Anupam Singh (Paradox AI Lab, India)
+**Authors:** Aditya Kumar, Anupam Singh (ParadoxAI Lab, India)
 
 **Primary category:** cs.LG (Machine Learning). **Cross-lists:** stat.ML; physics.ao-ph
 

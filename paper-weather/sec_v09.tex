@@ -1,0 +1,93 @@
+\section{Version 0.9: how much data, and a new encoder}\label{sec:v09}
+
+\subsection{Data threshold}
+
+How much of a network's own history does \pwm need to match the foundation models, which use no training data?
+For each budget of $M$ months, we train \pwm on only the last $M$ months before the validation period. The training
+windows, their inputs and every normalisation statistic all lie inside the budget, and no partner network is used.
+The setting is fixed in advance: P8 without cross-network training (width 128, 3 layers, 14-day encoder, weight
+averaging), the mean of 3 seeds. The fixed validation period picks only the training checkpoint, so ``$M$ months''
+means $M$ months of training data plus that period. Stations, test windows and significance tests are the league's.
+The WMO league was still running at the time of writing.
+
+\begin{table*}[t]
+\caption{Data threshold: pure \pwm trained on the last $M$ months only, against each foundation model (relative MAE;
+positive means the foundation model is better). W/L: significant win/loss; T: tie. CPCB has 16.3 months of training
+data in total; the airports have 58.8.}
+\label{tab:threshold}
+\small
+\setlength{\tabcolsep}{3.2pt}
+\begin{tabular}{@{}llrrrrrrrrr@{}}
+\toprule
+ & & \multicolumn{3}{c}{Chronos-2} & \multicolumn{3}{c}{TimesFM 2.5} & \multicolumn{3}{c}{TimesFM 3.0} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}\cmidrule(l){9-11}
+League & $M$ & Temp & RH & Wind & Temp & RH & Wind & Temp & RH & Wind \\
+\midrule
+\multirow{6}{*}{CPCB} & 1 & $+61.3$ L & $+70.5$ L & $+36.6$ L & $+52.1$ L & $+66.0$ L & $+36.1$ L & $+57.5$ L & $+70.4$ L & $+37.4$ L \\
+ & 2 & $+50.9$ L & $+36.8$ L & $+22.9$ L & $+42.3$ L & $+33.2$ L & $+22.5$ L & $+47.4$ L & $+36.7$ L & $+23.6$ L \\
+ & 3 & $+39.5$ L & $+30.2$ L & $+19.3$ L & $+31.5$ L & $+26.7$ L & $+18.9$ L & $+36.2$ L & $+30.0$ L & $+20.0$ L \\
+ & 6 & $+19.1$ L & $+14.8$ L & $+15.7$ L & $+12.3$ L & $+11.8$ L & $+15.3$ L & $+16.3$ L & $+14.7$ L & $+16.4$ L \\
+ & 12 & $+10.2$ L & $+7.6$ L & $+6.1$ L & $+3.9$ L & $+4.8$ L & $+5.8$ L & $+7.6$ L & $+7.5$ L & $+6.8$ L \\
+ & 16.3 & $+7.9$ L & $+6.4$ L & $+4.9$ L & $+1.7$ T & $+3.6$ L & $+4.5$ L & $+5.3$ L & $+6.3$ L & $+5.5$ L \\
+\midrule
+\multirow{8}{*}{Airports} & 1 & $+46.1$ L & $+63.7$ L & $+23.1$ L & $+41.2$ L & $+60.7$ L & $+22.3$ L & $+47.8$ L & $+66.0$ L & $+23.6$ L \\
+ & 2 & $+12.0$ L & $+17.3$ L & $+11.5$ L & $+8.3$ L & $+15.2$ L & $+10.8$ L & $+13.3$ L & $+18.9$ L & $+11.9$ L \\
+ & 3 & $+11.2$ L & $+16.1$ L & $+10.6$ L & $+7.5$ L & $+14.0$ L & $+9.9$ L & $+12.5$ L & $+17.8$ L & $+11.1$ L \\
+ & 6 & $+5.9$ L & $+6.3$ L & $+6.2$ L & $+2.4$ L & $+4.3$ L & $+5.5$ L & $+7.2$ L & $+7.7$ L & $+6.6$ L \\
+ & 12 & $+0.9$ T & $+1.2$ T & $+2.1$ L & $-2.5$ W & $-0.6$ T & $+1.5$ L & $+2.1$ L & $+2.7$ L & $+2.5$ L \\
+ & 24 & $-1.9$ W & $-1.3$ T & $-0.2$ T & $-5.2$ W & $-3.0$ W & $-0.8$ T & $-0.8$ T & $+0.1$ T & $+0.2$ T \\
+ & 48 & $-6.3$ W & $-5.2$ W & $-2.1$ W & $-9.4$ W & $-6.9$ W & $-2.7$ W & $-5.2$ W & $-3.9$ W & $-1.7$ W \\
+ & 58.8 & $-7.4$ W & $-5.9$ W & $-2.6$ W & $-10.5$ W & $-7.6$ W & $-3.3$ W & $-6.3$ W & $-4.5$ W & $-2.3$ W \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+The answer is clear at the airports (Table~\ref{tab:threshold}). With 12 months of history \pwm mostly ties. With
+24 months it loses nowhere. With 48 months it beats all three foundation models on every variable. On the CPCB
+sensors, 16 months of local history are not enough: training on the network alone, it still loses on almost every
+comparison. Cross-network training (v0.6) and the later encoders recover much of that gap, as shown below. At the airports,
+the step from 12 to 48 months moved every comparison by 4--7 percentage points; on CPCB, PWM-X's encoder moved the
+same comparisons by 0.6--1.6 points.
+
+\subsection{PWM-X: a 21-day patch encoder}
+
+PWM-X adds a second encoder to each station token. It reads the station's last 21 days as 21 daily patches of
+the three targets and their observed flags. Each window is normalised by its own masked mean and standard deviation,
+which is how the foundation models see a series. A two-layer transformer encodes the patches, and attention pooling
+plus the last patch feed a zero-initialised projection added to the token. P10 also hides 15\% of the patches during
+training and reconstructs them, a self-supervised loss with weight 0.1. P9 has 1,251,709 parameters and P10
+1,260,997. Both run on top of P4 (cross-network training) with weight averaging.
+
+On CPCB validation, P9 scored 0.4606 and P10 0.4597, against P8's 0.4678 and P0's 0.4922 $\pm$ 0.0038; the rule
+chose P10. Its margin over P8 (0.0081) only just exceeds $2\sigma$ (0.0076). The hybrid on P10 chose H1 (validation
+0.4506; H2 0.4607, H3 0.4958), slightly worse than v0.8's hybrid (0.4444).
+
+\begin{table}[t]
+\caption{CPCB test: pure PWM-X (P10) against the foundation models (relative MAE; positive means they are better).
+v0.8 (P8) in brackets.}
+\label{tab:pwmx}
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Opponent & Temp & RH & Wind \\
+\midrule
+Chronos-2 & $+3.4$ L [$+5.0$ L] & $+0.3$ T [$+1.4$ T] & $+3.2$ L [$+3.8$ L] \\
+TimesFM 2.5 & $-2.5$ T [$-1.0$ T] & $-2.3$ T [$-1.3$ T] & $+2.9$ L [$+3.5$ L] \\
+TimesFM 3.0 & $+1.0$ T [$+2.5$ T] & $+0.2$ T [$+1.3$ T] & $+3.8$ L [$+4.4$ L] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+PWM-X narrowed all nine gaps (Table~\ref{tab:pwmx}) but changed no verdict: wind still loses to all three, and
+temperature to Chronos-2. The pure model beats every global model on every variable under both rules, and the
+bias-corrected four-model ensemble by 29.9\%, 14.2\% and 38.9\%. The hybrid on PWM-X ties all three foundation models
+on temperature and humidity. It beats Chronos-2 ($-3.0\%$, $p=0.046$) and TimesFM 2.5 ($-3.4\%$, $p=0.031$) on wind
+and ties TimesFM 3.0 ($-2.5\%$), the same pattern as v0.8.
+
+\subsection{A prospective real-time track}
+
+A live version of the pure model, trained on the six airports up to 23 September 2026 and validated to 7 November,
+issues a 24-hour forecast from the latest airport reports and logs it before the weather happens. Every logged
+hour is later scored against the reports. The first forecast was issued on 9 November 2026 at 06 UTC, so no scores
+exist yet. This track is the clean test that the reused test periods of this study cannot give.

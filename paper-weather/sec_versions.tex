@@ -1,6 +1,6 @@
 \section{Version-by-version record}\label{sec:versions}
 
-Table~\ref{tab:versions} lists every change from v0.3 to v0.8, the validation evidence and the decision. The
+Table~\ref{tab:versions} lists every change from v0.3 to v0.9, the validation evidence and the decision. The
 validation numbers are the score of \S\ref{sec:protocol}, where lower is better. Changes that failed the rule are
 reported in the same way as changes that passed.
 
@@ -35,6 +35,10 @@ CPCB: rolling 0.4727 vs frozen 0.4650 & rejected \\
 \addlinespace
 v0.8 & 14-day encoder (P6), weight averaging (P7), both (P8), all on top of P4 &
 CPCB: P6 0.4714, P7 0.4721, P8 0.4678 vs P0 0.4922 $\pm$ 0.0038 & P8 (CPCB) \\
+\addlinespace
+v0.9 & 21-day patch encoder PWM-X (P9), plus masked-patch reconstruction (P10), on P4 with weight averaging;
+data-threshold study (\S\ref{sec:v09}) &
+CPCB: P9 0.4606, P10 0.4597 vs P8 0.4678, P0 0.4922 $\pm$ 0.0038 & P10 (CPCB) \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -61,5 +65,5 @@ they scored $6.4\sigma$ better than P0, most of which is P4's own gain. P8's
 margin over v0.6's P4 (0.0057) is smaller than $2\sigma$, as was P4's margin over v0.4's P1 (0.0062). The rule
 compares every candidate with P0, so its preference among passing candidates is not decisive.
 \end{itemize}
-Versions 0.6--0.8 were run on CPCB only. The airport and WMO results below use v0.4's chosen designs: P0 for the
+Versions 0.6--0.9 were run on CPCB only (the threshold study also covers the airports). The airport and WMO results below use v0.4's chosen designs: P0 for the
 pure model and H2 for the hybrid.

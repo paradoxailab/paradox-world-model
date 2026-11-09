@@ -24,7 +24,7 @@ import fetch_isd as F                                                    # same 
 
 RAW = F.RAW
 START, END = "2015-01-01", "2024-11-30"
-MIN_COV, MAX_N, WORKERS = 0.10, 400, 8
+MIN_COV, MAX_N, WORKERS = 0.10, 400, 4
 LIM = {"AT": (-30, 52), "RH": (1, 100.5), "WS": (0, 40), "WD": (0, 360), "DP": (-50, 40), "P": (900, 1100),
        "VIS": (0, 4)}
 
@@ -48,9 +48,14 @@ def stations():
 
 def one(s, T):
     X = np.full((T, len(F.VARS)), np.nan, np.float32)
+    why = ""
     for y in range(int(END[:4]), int(START[:4]) - 1, -1):                 # latest year first
         txt = F.get(F.DATA.format(y=y, sid=s["sid"]), tries=4)
         if not txt or "DATE" not in txt[:400]:
+            why = why or f"{y} access: {(txt or 'no response')[:100]!r}"
+            txt = F.get(F.ADS.format(y=y, sid=s["sid"]), tries=4)        # NOAA's data-service API, as in fetch_isd
+        if not txt or "DATE" not in txt[:400]:
+            why = why or f"{y} ads: {(txt or 'no response')[:100]!r}"
             continue
         Xy = F.parse(txt, START, T)
         if Xy is not None:
@@ -59,11 +64,20 @@ def one(s, T):
         lo, hi = LIM[v]
         X[(X[:, ci] < lo) | (X[:, ci] > hi), ci] = np.nan
     X[:, 1] = np.minimum(X[:, 1], 100)
+    s["why"] = why
     return X
+
+
+def probe():
+    """Show what NOAA returns for one known station-year before the full run (Delhi Safdarjung, 2024)."""
+    for url in (F.DATA.format(y=2024, sid="42182099999"), F.ADS.format(y=2024, sid="42182099999")):
+        txt = F.get(url, tries=3)
+        print(f"probe {url}\n   -> {len(txt or '')} chars, head {(txt or '')[:160]!r}", flush=True)
 
 
 def main():
     T = int((np.datetime64(END) - np.datetime64(START)).astype(int)) * 24 + 24
+    probe()
     cand = stations()
     keep, Xs, t0 = [], [], time.time()
     with ThreadPoolExecutor(WORKERS) as ex:
@@ -72,9 +86,12 @@ def main():
             ok = cov >= MIN_COV and len(keep) < MAX_N
             print(f"  [{i + 1}/{len(cand)}] {s['sid']} {s['icao']:4s} {s['name'][:28]:28s} {s['lat']:6.2f} {s['lon']:6.2f} "
                   f"{s['elev']:6.0f} m: hourly AT {100 * cov:3.0f}% -> {'kept' if ok else 'dropped'} "
-                  f"({time.time() - t0:.0f}s)", flush=True)
+                  f"({time.time() - t0:.0f}s){'  first failure: ' + s['why'] if s.get('why') and cov < MIN_COV else ''}",
+                  flush=True)
             if ok:
                 keep.append(s); Xs.append(X)
+    if not Xs:
+        raise SystemExit("no station passed the coverage rule: see the probe and 'first failure' lines above")
     X = np.stack(Xs, 1)
     np.savez_compressed(os.path.join(RAW, "WX_INDIA.npz"), X=X, vars=np.array(F.VARS),
                         stations=np.array([f"{s['icao'] or s['sid']} {s['name']}" for s in keep]),

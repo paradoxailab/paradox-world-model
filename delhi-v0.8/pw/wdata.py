@@ -35,7 +35,7 @@ AUX_ALIAS = {"BP": "P"}          # CPCB barometric pressure and ISD/METAR pressu
 
 
 class Wx:
-    def __init__(self, league, hybrid=False, min_cov=0.5, stats_until=None):
+    def __init__(self, league, hybrid=False, min_cov=0.5, stats_until=None, train_hours=None):
         """stats_until: optional hour index; when given, every normalisation statistic uses only hours before it
         (used for a joint-training partner, so nothing from the primary league's validation/test period leaks in)."""
         z = np.load(os.path.join(RAW, f"WX_{league}.npz"), allow_pickle=False)
@@ -52,6 +52,12 @@ class Wx:
         cov_tr = np.isfinite(X[a:b, :, names.index("AT")]).mean(0)
         cov_te = np.isfinite(X[te0:te1, :, :3]).mean((0, 2))
         keep = np.where((cov_tr >= min_cov * 0.5) & (cov_te >= min_cov * 0.5))[0]   # rule fixed in advance
+        self.train_hours = train_hours
+        if train_hours is not None:
+            # data-threshold study: the model may use ONLY the last `train_hours` hours before validation, for
+            # training windows (inputs included) and for every normalisation statistic. Same stations and test.
+            a = max(a, b - int(train_hours))
+            self.bounds["train"] = (a, b)
         X = X[:, keep]
         self.keep = keep
         self.stations = [str(s) for s in z["stations"][keep]]
@@ -221,6 +227,8 @@ class Wx:
     def origins(self, split, stride=1, need_nwp=False):
         a, b = self.bounds[split]
         lo = max(a, PD * SPD + LH)
+        if split == "train" and self.train_hours is not None:
+            lo = max(lo, a + PD * SPD + LH)          # every input hour of a training window lies inside the budget
         if need_nwp and self.NWP is not None:
             lo = max(lo, self.nwp_from + 1)
         return np.arange(lo, b - H + 1)[::stride]

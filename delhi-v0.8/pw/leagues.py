@@ -28,6 +28,9 @@ LEAGUES = {
     "WMO": dict(start="2021-01-01", end="2025-08-23", tz="GMT",
                 val=("2024-12-01", "2025-02-28"), test=("2025-03-01", "2025-08-20")),
     "CPCB": dict(start="2024-01-01", end="2025-12-31", tz="Asia/Kolkata", test_days=182, val_days=61),
+    # v0.9 real-time: the METAR stations from 2021-01-01 up to the latest report (tools/fetch_live_metar.py). The
+    # last 3 days are the "test" block (2 observed days + the 24 h being forecast), the 45 days before validation.
+    "LIVE": dict(start="2021-01-01", end="", tz="GMT", test_days=3, val_days=45),
 }
 
 # Global forecast systems scored from Open-Meteo's archive of their real operational runs (Previous Runs API).

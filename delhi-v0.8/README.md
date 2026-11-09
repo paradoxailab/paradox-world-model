@@ -1,3 +1,43 @@
+# PWM-W v0.9: how little data, and real-time India forecasts
+
+ParadoxAI Lab. Built on v0.8. India only.
+
+## 1. Data threshold: how much local history does PWM-W need to beat TimesFM and Chronos?
+
+`run_threshold.py` retrains PWM-W on only the last M months of each league's own history, for M = 1, 2, 3, 6, 12, 24
+and 48 months and for all of it. The leagues are the airports (METAR), the WMO stations and the Delhi CPCB sensors.
+- Everything inside the budget: training windows, their inputs and every normalisation statistic.
+- No partner network.
+- One setting fixed in advance: v0.8's 14-day encoder plus weight averaging.
+- Three seeds averaged.
+
+Each budget is scored against Google TimesFM 2.5 and 3.0 and Amazon Chronos-2, which use no training data, on the
+same test windows, with the leagues' significance rule.
+
+Two thresholds are reported:
+- **no-loss:** the smallest budget from which PWM-W is never significantly worse;
+- **beat:** the smallest budget from which it is significantly better, at every larger budget.
+
+The fixed validation period is used only to pick the checkpoint; this is disclosed.
+
+  LEAGUES="CPCB METAR WMO" bash kaggle_v09_threshold.sh
+
+## 2. Real-time forecasts for Indian airports
+
+`kaggle_live.sh` makes a real forecast for the next 24 hours:
+1. `tools/fetch_live_metar.py` appends the latest airport reports, from the Iowa Environmental Mesonet, to the
+   archive.
+2. `tools/train_live.py` trains v0.8's setting on every report up to 48 days ago, with the last 45 days for
+   checkpoint choice.
+3. `tools/live_forecast.py` forecasts temperature, humidity and wind, with 10/50/90% ranges, from the hour after
+   the latest report. It also fetches the current ECMWF IFS, ECMWF AIFS, NOAA GFS and DWD ICON forecasts for the same
+   hours from Open-Meteo, appends everything to `live_log.csv`, and scores every logged forecast whose hour has since
+   been observed (`live_scores.json`).
+
+Re-running it carries the log forward, so the score builds up from forecasts made before the weather happened.
+
+---
+
 # PWM-W Delhi v0.8: same data, used better
 
 ParadoxAI Lab. **Goal:** beat Google TimesFM (2.5, 3.0) and Amazon Chronos-2 on every league without training on

@@ -8,12 +8,11 @@ windows, their inputs and every normalisation statistic all lie inside the budge
 The setting is fixed in advance: P8 without cross-network training (width 128, 3 layers, 14-day encoder, weight
 averaging), the mean of 3 seeds. The fixed validation period picks only the training checkpoint, so ``$M$ months''
 means $M$ months of training data plus that period. Stations, test windows and significance tests are the league's.
-The WMO league was still running at the time of writing.
 
 \begin{table*}[t]
 \caption{Data threshold: pure \pwm trained on the last $M$ months only, against each foundation model (relative MAE;
 positive means the foundation model is better). W/L: significant win/loss; T: tie. CPCB has 16.3 months of training
-data in total; the airports have 58.8.}
+data in total; the airports have 58.8 and the WMO stations 47.7.}
 \label{tab:threshold}
 \small
 \setlength{\tabcolsep}{3.2pt}
@@ -38,12 +37,21 @@ League & $M$ & Temp & RH & Wind & Temp & RH & Wind & Temp & RH & Wind \\
  & 24 & $-1.9$ W & $-1.3$ T & $-0.2$ T & $-5.2$ W & $-3.0$ W & $-0.8$ T & $-0.8$ T & $+0.1$ T & $+0.2$ T \\
  & 48 & $-6.3$ W & $-5.2$ W & $-2.1$ W & $-9.4$ W & $-6.9$ W & $-2.7$ W & $-5.2$ W & $-3.9$ W & $-1.7$ W \\
  & 58.8 & $-7.4$ W & $-5.9$ W & $-2.6$ W & $-10.5$ W & $-7.6$ W & $-3.3$ W & $-6.3$ W & $-4.5$ W & $-2.3$ W \\
+\midrule
+\multirow{7}{*}{WMO} & 1 & $+37.3$ L & $+24.1$ L & $+16.4$ L & $+31.6$ L & $+19.9$ L & $+16.2$ L & $+37.7$ L & $+24.7$ L & $+17.3$ L \\
+ & 2 & $+14.2$ L & $+9.5$ L & $+9.9$ L & $+9.5$ L & $+5.8$ L & $+9.6$ L & $+14.6$ L & $+9.9$ L & $+10.6$ L \\
+ & 3 & $+10.6$ L & $+7.1$ L & $+7.2$ L & $+6.0$ L & $+3.4$ L & $+7.0$ L & $+10.9$ L & $+7.5$ L & $+8.0$ L \\
+ & 6 & $+3.4$ L & $+7.2$ L & $+3.1$ L & $-0.8$ T & $+3.6$ L & $+2.9$ L & $+3.8$ L & $+7.7$ L & $+3.8$ L \\
+ & 12 & $-3.5$ W & $-1.9$ W & $-0.4$ T & $-7.4$ W & $-5.3$ W & $-0.6$ T & $-3.1$ W & $-1.5$ W & $+0.3$ T \\
+ & 24 & $-8.7$ W & $-5.6$ W & $-2.2$ W & $-12.4$ W & $-8.8$ W & $-2.4$ W & $-8.4$ W & $-5.2$ W & $-1.5$ W \\
+ & 47.7 & $-11.3$ W & $-8.1$ W & $-3.4$ W & $-14.9$ W & $-11.3$ W & $-3.6$ W & $-11.0$ W & $-7.8$ W & $-2.7$ W \\
 \bottomrule
 \end{tabular}
 \end{table*}
 
 The answer is clear at the airports (Table~\ref{tab:threshold}). With 12 months of history \pwm mostly ties. With
-24 months it loses nowhere. With 48 months it beats all three foundation models on every variable. On the CPCB
+24 months it loses nowhere. With 48 months it beats all three foundation models on every variable. The WMO stations, with more
+stations and more varied sites, get there faster: no losses at 12 months and wins everywhere at 24. On the CPCB
 sensors, 16 months of local history are not enough: training on the network alone, it still loses on almost every
 comparison. Cross-network training (v0.6) and the later encoders recover much of that gap, as shown below. At the airports,
 the step from 12 to 48 months moved every comparison by 4--7 percentage points; on CPCB, PWM-X's encoder moved the

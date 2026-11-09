@@ -8,4 +8,4 @@ version, including the changes that failed validation and the comparisons we los
 - `PWM-W_India_v0.3-v0.9.pdf`: named preprint build (`latexmk -pdf main.tex`)
 - `PWM-W_India_anonymous.pdf`: double-blind conference build (`latexmk -pdf anon.tex`)
 
-v0.9 (PWM-X, the data-threshold study for CPCB and the airports, and the live track) is included; the WMO threshold and v1.0 are still running.
+v0.9 (PWM-X, the data-threshold study for all three leagues, and the live track) is included; v1.0 and v2.0 are in their branches.

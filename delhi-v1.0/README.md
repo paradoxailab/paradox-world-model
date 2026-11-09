@@ -37,6 +37,34 @@ IFS 0.25, AIFS, ICON, GFS) on every variable under both rules, and the bias-corr
 
 PWM-X narrowed every gap but did not close the wind gap or the Chronos-2 temperature gap: v1.0's two steps target these.
 
+## v1.0 results (Kaggle run pwm-v10, 2026-11-09)
+
+**Validation decisions** (both v1.0 steps had to beat the chosen model by > 2 sigma; neither did, anywhere):
+
+| League | Chosen pure | Ensemble (alone vs with partner) | Self-correction (raw vs corrected) | Hybrid design | Hybrid self-correction |
+|---|---|---|---|---|---|
+| CPCB | P10 (0.4597; P0 0.4922 ± 0.0038) | 0.4561 vs 0.4564: not adopted | 0.4561 vs 0.4686 (worse): not adopted | H1 | 0.4440 vs 0.4512: not adopted |
+| Airports | **P10** (0.3869; P0 0.3939 ± 0.0006) | 0.3836 vs 0.3842: not adopted | 0.3836 vs 0.3919 (worse): not adopted | H2 | 0.3469 vs 0.3539: not adopted |
+| WMO | P10 (0.3838; P0 0.3879 ± 0.0010) | pending | pending | pending | pending |
+
+Self-correction from the model's own trailing errors made validation **worse** in every case: PWM-W's errors do not
+persist over 30 days the way a global model's local bias does. It is rejected.
+
+**Airports, test 2026-02 to 2026-10** (PWM-X, newly chosen there):
+
+| | vs Chronos-2 (T / RH / wind) | vs TimesFM 2.5 | vs TimesFM 3.0 |
+|---|---|---|---|
+| Pure | −8.5 / −7.5 / −3.2 % (all WIN) | −11.5 / −9.1 / −3.8 % (all WIN) | −7.4 / −6.2 / −2.8 % (all WIN) |
+| Hybrid | −26.0 / −15.6 / −13.7 % (all WIN) | −28.4 / −17.2 / −14.2 % (all WIN) | −25.1 / −14.5 / −13.4 % (all WIN) |
+
+Pure vs the bias-corrected four-model ensemble: temperature LOSS (+14.6%), humidity tie (−1.3%), wind LOSS (+8.7%).
+Hybrid vs the same ensemble: WIN on all three (−7.3 / −10.0 / −3.1%). All wins p < 1e-6.
+
+**CPCB:** identical to the PWM-X run above (neither v1.0 step adopted).
+
+**WMO:** the hybrid's global-forecast refetch hit Open-Meteo's daily request limit, so the WMO hybrid may be built on
+incomplete inputs; its result will be checked before it is reported.
+
 ## Run (Kaggle, GPU)
 
     LEAGUES="CPCB METAR WMO" VARIANTS="P8,P9,P10" bash kaggle_v10.sh

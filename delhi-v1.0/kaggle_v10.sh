@@ -13,11 +13,9 @@ find /kaggle/input -path "*out/cache/wx_*_v6.npz" -type f -exec cp -n {} $PW_CAC
 ls -la $PW_RAW $PW_CACHE
 pip install -q timesfm chronos-forecasting 2>&1 | tail -2
 for L in ${LEAGUES:-CPCB METAR WMO}; do
-  if python -c "import numpy as np,sys; z=np.load('$PW_RAW/NWP_$L.npz'); sys.exit(0 if {'hybrid','score'} <= set(z.files) else 1)" 2>/dev/null; then
-    echo "NWP_$L.npz attached and complete: not refetched"
-  else
-    python tools/fetch_nwp.py --league $L
-  fi
+  have=$(python -c "import numpy as np; z=np.load('$PW_RAW/NWP_$L.npz'); f=set(z.files); print(','.join(p for p in ('score','hybrid') if p in f))" 2>/dev/null)
+  need=$(python -c "h=set('$have'.split(',')); print(','.join(p for p in ('score','hybrid') if p not in h))")
+  if [ -n "$need" ]; then python tools/fetch_nwp.py --league $L --parts $need; else echo "NWP_$L.npz attached and complete: not refetched"; fi
   python run_weather.py --league $L --variants ${VARIANTS:-P8,P9,P10} 2>&1 | tee $PW_OUT/run_$L.log
   python tools/summarize.py $PW_OUT/wx_$(echo $L | tr A-Z a-z)_results.json > $PW_OUT/tests_$L.txt
 done

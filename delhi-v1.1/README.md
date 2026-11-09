@@ -17,7 +17,7 @@ on the station graph, the sun's position and the calendar, and outputs calibrate
 | Fine-grained experts + a shared expert | DeepSeekMoE | 21-day encoder: 12 small routed experts (top-2) + 1 always-on expert per layer (`pw/moe.py`) |
 | Load balancing without an auxiliary loss | DeepSeek-V3 | a per-expert routing bias nudged towards equal load; it picks experts but never weights them |
 | Large-scale self-supervised pretraining, then fine-tuning | OpenAI (GPT) | forecast + masked-patch reconstruction on all Indian stations, then per-league fine-tuning |
-| Honest, calibrated, inspectable | Anthropic | conformal 10–90% intervals; a pre-registered validation rule decides every change; expert routing is logged per station |
+| Honest, calibrated, inspectable | Anthropic | conformal 10–90% intervals; a pre-registered validation rule decides every change; each station's expert routing can be read from the model |
 | Physics in the structure | PWM-W | station graph, sun elevation, outputs clipped to physical ranges |
 
 Configuration: width 256, 4 graph blocks, 8 heads, 4-layer mixture-of-experts patch encoder (P11 in `run_weather.py`).

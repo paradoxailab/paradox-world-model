@@ -27,11 +27,14 @@ for L, (rank, f) in best.items():
 PY
 find /kaggle/input \( -name "PRE_INDIA.npz" -o -name "WX_INDIA.npz" \) -exec cp -n {} $PW_RAW/ \;
 find /kaggle/input -path "*out/cache/wx_*_v6.npz" -type f -exec cp -n {} $PW_CACHE/ \;
-find /kaggle/input -path "*out/fenc.pt" -exec cp -n {} $PW_OUT/ \;
+[ "${REUSE_FENC:-0}" = 1 ] && find /kaggle/input -path "*out/fenc.pt" -exec cp -n {} $PW_OUT/ \;
 ls -la $PW_RAW $PW_CACHE $PW_OUT
 pip install -q timesfm chronos-forecasting 2>&1 | tail -2
 if [ ! -f $PW_OUT/fenc.pt ]; then
-  python pretrain_f.py --steps ${PRE_STEPS:-40000} --batch 512 --hours ${PRE_HOURS:-2} 2>&1 | tee $PW_OUT/pretrain.log
+  CORPUS=$PW_RAW/WX_INDIA.npz; MIXW=""
+  [ -f $PW_RAW/PRE_INDIA.npz ] && CORPUS=$PW_RAW/PRE_INDIA.npz
+  if [ -f $PW_RAW/WX_CPCBIN.npz ]; then CORPUS=$CORPUS,$PW_RAW/WX_CPCBIN.npz; MIXW="--mix ${MIX:-0.5,0.5}"; fi
+  python pretrain_f.py --steps ${PRE_STEPS:-40000} --batch 512 --hours ${PRE_HOURS:-2} --corpus $CORPUS $MIXW 2>&1 | tee $PW_OUT/pretrain.log
 fi
 for L in ${LEAGUES:-CPCB METAR}; do
   have=$(python -c "import numpy as np; z=np.load('$PW_RAW/NWP_$L.npz'); f=set(z.files); print(','.join(p for p in ('score','hybrid') if p in f))" 2>/dev/null)

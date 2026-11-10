@@ -20,11 +20,11 @@ LC = P * SPD
 QS = torch.tensor([0.1, 0.5, 0.9])
 
 
-def solar(lat, lon, hours):
-    """sine of solar elevation; hours: datetime64[h] array [B, H]; lat, lon: [B]."""
+def solar(lat, lon, hours, offset=0.0):
+    """sine of solar elevation; hours: datetime64[h] array [B, H] on a clock `offset` hours ahead of UTC; lat, lon: [B]."""
     days = hours.astype("datetime64[D]")
     doy = (days - days.astype("datetime64[Y]")).astype(np.int64)
-    hh = (hours.astype(np.int64) % 24).astype(np.float64)
+    hh = (hours.astype(np.int64) % 24).astype(np.float64) - offset
     dec = np.deg2rad(23.44) * np.sin(2 * math.pi * (284 + doy) / 365.0)
     ha = np.deg2rad(15.0 * (hh + lon[:, None] / 15.0 - 12.0))
     la = np.deg2rad(lat)[:, None]
@@ -38,6 +38,8 @@ class Corpus:
         X = z["X"][..., [names.index(v) for v in ("AT", "RH", "WS")]].astype(np.float32)   # [T, N, 3]
         self.T, self.N = X.shape[:2]
         self.start = np.datetime64(str(z["start"]), "h")
+        self.offset = float(z["utc_offset_h"]) if "utc_offset_h" in z.files else 0.0
+        self.name = os.path.basename(path)
         self.lat, self.lon = z["lat"].astype(np.float64), z["lon"].astype(np.float64)
         obs = np.isfinite(X)
         self.X = torch.from_numpy(np.nan_to_num(X)).half().to(dev)
@@ -46,7 +48,7 @@ class Corpus:
         self.cum = c
         self.val_from = self.T - 60 * 24
         self.dev = dev
-        print(f"corpus: {self.T} hours x {self.N} stations, {int(obs[..., 0].sum()):,} observed temperature hours; "
+        print(f"corpus {self.name}: {self.T} hours x {self.N} stations, {int(obs[..., 0].sum()):,} observed temperature hours; "
               f"held-out model-selection period = last 60 days", flush=True)
 
     def sample(self, B, rng, split):
@@ -72,12 +74,28 @@ class Corpus:
         m = o[:, :LC].permute(0, 2, 1).reshape(-1, K, P, SPD)
         y, yo = x[:, LC:].permute(0, 2, 1), o[:, LC:].permute(0, 2, 1)            # [B, K, H]
         hours = self.start + t[:, None] + np.arange(H)
-        sun = torch.from_numpy(solar(self.lat[s], self.lon[s], hours)).to(dev)
+        sun = torch.from_numpy(solar(self.lat[s], self.lon[s], hours, self.offset)).to(dev)
         days = (self.start + t).astype("datetime64[D]")
         doy = (days - days.astype("datetime64[Y]")).astype(np.int64)
         doy = torch.from_numpy(np.stack([np.sin(2 * math.pi * doy / 365.25), np.cos(2 * math.pi * doy / 365.25)],
                                         -1).astype(np.float32)).to(dev)
         return v, m, sun, doy, y, yo
+
+
+class Mix:
+    """Several corpora sampled with fixed weights (each batch is split between them in proportion)."""
+
+    def __init__(self, cs, w=None):
+        self.cs = cs
+        w = np.array(w if w else [1.0] * len(cs), float)
+        self.w = w / w.sum()
+        if len(cs) > 1:
+            print("mixture: " + ", ".join(f"{c.name} {100 * x:.0f}%" for c, x in zip(cs, self.w)), flush=True)
+
+    def sample(self, B, rng, split):
+        n = np.floor(self.w * B).astype(int); n[0] += B - n.sum()
+        parts = [c.sample(int(k), rng, split) for c, k in zip(self.cs, n) if k > 0]
+        return tuple(torch.cat(x, 0) for x in zip(*parts))
 
 
 def pinball(q, y, yo, sc):
@@ -94,6 +112,7 @@ def main():
     ap.add_argument("--batch", type=int, default=512)
     ap.add_argument("--lr", type=float, default=6e-4)
     ap.add_argument("--hours", type=float, default=2.5, help="wall-clock cap")
+    ap.add_argument("--mix", default="", help="sampling weights for comma-separated corpora, e.g. 0.5,0.5")
     ap.add_argument("--corpus", default=next((os.path.join(RAW, f) for f in ("PRE_INDIA.npz", "WX_INDIA.npz")
                                                 if os.path.exists(os.path.join(RAW, f))), os.path.join(RAW, "PRE_INDIA.npz")))
     a = ap.parse_args()
@@ -101,7 +120,8 @@ def main():
     dev = "cuda" if torch.cuda.is_available() else "cpu"
     torch.manual_seed(0)
     rng = np.random.default_rng(0)
-    C = Corpus(a.corpus, dev)
+    paths = [p for p in a.corpus.split(",") if p]
+    C = Mix([Corpus(p, dev) for p in paths], [float(w) for w in a.mix.split(",")] if a.mix else None)
     vb = [C.sample(a.batch, np.random.default_rng(1000 + i), "val") for i in range(8)]   # fixed validation batches
     m = PWMF().to(dev)
     print(f"PWM-F: {m.n_params():,} parameters; device {dev}", flush=True)

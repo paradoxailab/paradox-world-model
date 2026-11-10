@@ -67,3 +67,18 @@ usable hybrid block, and the loader prints a warning when it skips one.
 whose readings (sheltered wind, siting) differ from the stations it learned from. The next lever is data of the same
 kind as the target: nationwide CPCB sensors (needs a free data.gov.in API key that only the owner can create) or
 longer pretraining (the held-out loss was still falling slowly at the cap).
+
+## v2.1: pretraining on CPCB rooftop stations in six more cities
+
+The v2.0 corpus (airport and synoptic stations) did not transfer to Delhi's rooftop CPCB sensors. v2.1 adds data of
+the same kind as the target: CPCB/state-board stations in Mumbai, Kolkata, Chennai, Pune, Hyderabad and Bengaluru, with
+their own temperature, humidity and wind sensors (and PM2.5 and other pollutants, kept for pollution forecasting
+later), from OpenCity's public "<city> Hourly Air Quality Reports" — the same source and file format as the Delhi league,
+no account or key (`tools/fetch_cpcb_india.py`). The corpus ends at 2025-05-03 00:00 IST, the start of the Delhi
+league's validation period. Pretraining samples it 50/50 with the ISD corpus (`--mix`).
+
+(The data.gov.in "Real time Air Quality Index" resource was considered and rejected: it publishes only current
+readings of pollutants, with no history, no weather variables and no API.)
+
+    bash kaggle_v21_data.sh                                                # CPU: the six-city corpus
+    LEAGUES="CPCB" VARIANTS="P10,P11,P12" PRE_HOURS=1.0 bash kaggle_v20.sh   # GPU, with both corpora attached

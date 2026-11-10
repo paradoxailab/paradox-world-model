@@ -156,6 +156,7 @@ def main():
     ap.add_argument("--fm_only", action="store_true", help="re-score saved predictions against the foundation models")
     ap.add_argument("--variants", default="", help="comma list to run (P0 always); default all")
     ap.add_argument("--no_v10", action="store_true", help="skip the v1.0 ensemble and self-correction steps")
+    ap.add_argument("--no_hybrid", action="store_true", help="skip the hybrid (to save GPU time)")
     ap.add_argument("--rolling", type=int, default=0, help="v0.7 rolling updates (rejected on CPCB validation; off)")
     a = ap.parse_args()
     if a.fm_only:
@@ -284,7 +285,7 @@ def main():
     # ---------------- hybrid (reported separately) ----------------
     # H1: global forecasts (bias-corrected, newest run published before the origin) as extra inputs
     # H2: the same, and the base is their bias-corrected ensemble mean (MOS-style: the network learns a correction)
-    Dh = Wx(a.league, hybrid=True)
+    Dh = Wx(a.league, hybrid=not a.no_hybrid)
     if Dh.NWP is not None:
         trh = Dh.origins("train", 1, need_nwp=True)
         log(f"hybrid: {Dh.Cn} global-forecast channels from {Dh.nwp_models}, {len(trh)} training origins from 2024")

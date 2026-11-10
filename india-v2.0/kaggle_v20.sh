@@ -43,7 +43,7 @@ for L in ${LEAGUES:-CPCB METAR}; do
   else
     echo "NWP_$L.npz attached with score and hybrid parts: reused (set REFETCH=1 to refetch)"
   fi
-  python run_weather.py --league $L --variants ${VARIANTS:-P10,P11,P12} 2>&1 | tee $PW_OUT/run_$L.log
+  python run_weather.py --league $L --variants ${VARIANTS:-P10,P11,P12} $RUN_FLAGS 2>&1 | tee $PW_OUT/run_$L.log
   python tools/summarize.py $PW_OUT/wx_$(echo $L | tr A-Z a-z)_results.json > $PW_OUT/tests_$L.txt
 done
 rm -rf $PW_RAW/nwp_cache

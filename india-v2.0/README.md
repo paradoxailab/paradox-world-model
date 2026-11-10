@@ -82,3 +82,29 @@ readings of pollutants, with no history, no weather variables and no API.)
 
     bash kaggle_v21_data.sh                                                # CPU: the six-city corpus
     LEAGUES="CPCB" VARIANTS="P10,P11,P12" PRE_HOURS=1.0 bash kaggle_v20.sh   # GPU, with both corpora attached
+
+### v2.1 results so far
+
+**Corpus (Kaggle notebook pwm-v21-data, 2026-11-10):** 84 station files read, 58 stations kept (AT coverage >= 10%),
+11,712 hours (2024-01-01 to 2025-05-03 IST), 554,432 observed temperature station-hours; missing 18.4% AT, 20.2% RH,
+27.7% WS; 12 MB. Several Chennai and Pune stations have no temperature sensor and were dropped.
+
+**Pretraining (Kaggle run pwm-v21, 2026-11-10, GPU T4, pretrain only):** ISD corpus (187 stations, 5.9M temperature
+hours) and the six-city CPCB corpus, sampled 50/50; PWM-F 10,538,497 parameters; stopped by its 1.25 h cap at step
+27,592 of 40,000.
+
+| Step | 1,000 | 2,000 | 3,000 | 5,000 | 10,000 | 15,000 | 20,000 | 25,000 | 27,000 |
+|---|---|---|---|---|---|---|---|---|---|
+| Training loss | 0.2082 | 0.1969 | 0.1827 | 0.1750 | 0.1685 | 0.1491 | 0.1445 | 0.1517 | 0.1426 |
+| Held-out pinball (both corpora) | 0.1499 | 0.1430 | **0.1415** | 0.1416 | 0.1443 | 0.1471 | 0.1488 | 0.1504 | 0.1507 |
+
+Best held-out pinball **0.1415 at step 3,000** (MAE 0.897 °C, 5.92 %, 0.445 m/s); that checkpoint is the one saved and
+used for fine-tuning. Expert load stayed balanced (each routed expert 11–15% of tokens throughout).
+
+**What this says.** After step 3,000 the training loss kept falling while the held-out loss rose: the model
+**overfits**. The likely cause is the small CPCB corpus: it supplies half of every batch but holds about 1/10 as many
+temperature hours as the ISD corpus, so its windows are seen many times over. The held-out score mixes both corpora and is not
+comparable with v2.0's ISD-only 0.1305; the log does not report the two corpora separately. Whether the step-3,000
+encoder helps Delhi is decided only by the fine-tune and CPCB scoring (`notebooks/pwm_v21_finetune.ipynb`, with the
+pwm-v21 output attached, `REUSE_FENC=1`), which waits for the weekly GPU quota reset. Options if it does not help:
+a lower CPCB weight (`--mix 0.8,0.2`), more dropout, or starting from the v2.0 encoder and adding CPCB briefly.

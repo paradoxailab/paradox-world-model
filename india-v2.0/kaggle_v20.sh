@@ -7,8 +7,24 @@ set -x
 export PW_RAW=/kaggle/working/raw PW_OUT=/kaggle/working/out PW_CACHE=/kaggle/working/out/cache
 mkdir -p $PW_RAW/nwp_cache $PW_CACHE
 find /kaggle/input -path "*raw/WX_*.npz" -exec cp -n {} $PW_RAW/ \;
-# the newest global-forecast archives first (pwm-x-cpcb fetched CPCB's hybrid inputs on 2026-11-09)
-for d in /kaggle/input/pwm-x-cpcb /kaggle/input/pwm-v10 /kaggle/input; do find $d -path "*raw/NWP_*.npz" -exec cp -n {} $PW_RAW/ \; 2>/dev/null; done
+# global-forecast archives: of all attached copies, keep for each league the one with a usable (5-D) hybrid block
+python - <<'PY'
+import glob, os, shutil, numpy as np
+raw = os.environ["PW_RAW"]
+best = {}
+for f in sorted(glob.glob("/kaggle/input/**/raw/NWP_*.npz", recursive=True), key=os.path.getmtime, reverse=True):
+    L = os.path.basename(f)[4:-4]
+    try:
+        z = np.load(f); ok = "hybrid" in z.files and z["hybrid"].ndim == 5; has_s = "score" in z.files
+    except Exception:
+        continue
+    rank = (ok, has_s)
+    if L not in best or rank > best[L][0]:
+        best[L] = (rank, f)
+for L, (rank, f) in best.items():
+    shutil.copy(f, os.path.join(raw, f"NWP_{L}.npz"))
+    print(f"NWP_{L}: {f} (usable hybrid={rank[0]}, score={rank[1]})", flush=True)
+PY
 find /kaggle/input \( -name "PRE_INDIA.npz" -o -name "WX_INDIA.npz" \) -exec cp -n {} $PW_RAW/ \;
 find /kaggle/input -path "*out/cache/wx_*_v6.npz" -type f -exec cp -n {} $PW_CACHE/ \;
 find /kaggle/input -path "*out/fenc.pt" -exec cp -n {} $PW_OUT/ \;

@@ -177,6 +177,7 @@ class Wx:
             return
         z = np.load(p)
         if "hybrid" not in z.files or z["hybrid"].ndim != 5:
+            print(f"WARNING: {p} has no usable hybrid block (keys {sorted(z.files)[:8]}...); hybrid skipped", flush=True)
             return
         col = z["col"][self.keep]
         Fh = z["hybrid"][:, col]                                                                  # [Tw, N, M, S, K]

@@ -39,6 +39,31 @@ About half of PWM-F's parameters are active for each token (shared expert + 2 of
 Branches `delhi-v1.1` (a whole-graph PWM-F with regional pretraining networks) and `delhi-v2.0` (PWM-X pretrained on
 the corpus) are earlier drafts of the same step; v2.0 here consolidates them and is the version that is run.
 
-## Results
+## Results (Kaggle run pwm-v20, 2026-11-09, CPCB)
 
-Pending. They will be reported here exactly as logged, losses included.
+**Pretraining** (187 Indian ISD stations, 2015-01 to 2024-11): stopped by its 1.5 h cap at step 31,188 of 40,000.
+Held-out pinball loss fell from 0.1487 (step 1,000) to **0.1305**; held-out MAE 0.862 °C, 4.80 %, 0.578 m/s. Expert
+load stayed balanced (each of the 8 routed experts took 10–14% of tokens throughout).
+
+**Validation on CPCB** (MAE / spread; 2σ = 0.0077):
+
+| P0 | P10 (PWM-X, v0.9) | P11 (PWM-F in the station graph) | P12 (PWM-F + PWM-X) |
+|---|---|---|---|
+| 0.4922 ± 0.0038 | **0.4597 (chosen)** | 0.4620 | 0.4617 |
+
+Both PWM-F variants pass the 2σ bar against P0 but are slightly worse than P10, so the rule keeps P10. The v1.0
+ensemble step (P10 + P11) improved validation from 0.4561 to 0.4509, by 0.0052, which is below 2σ: not adopted.
+Self-correction again made validation worse (0.4686): not adopted.
+
+**Test:** because P10 was chosen, the CPCB test verdicts are identical to v0.9/v1.0: against TimesFM 2.5 and 3.0 and
+Chronos-2, ties on 5 comparisons and losses on 4 (wind against all three, +2.9 to +3.8%; temperature against
+Chronos-2, +3.4%). **PWM-F closed none of the four losses.**
+
+**Hybrid:** not run. The attached global-forecast file chosen by the script lacked a usable hybrid block and the
+loader skipped the hybrid silently. Fixed for later runs: the script now picks, per league, the attached file with a
+usable hybrid block, and the loader prints a warning when it skips one.
+
+**What this says.** Pretraining on 187 airport and synoptic stations did not transfer to Delhi's rooftop CPCB sensors,
+whose readings (sheltered wind, siting) differ from the stations it learned from. The next lever is data of the same
+kind as the target: nationwide CPCB sensors (needs a free data.gov.in API key that only the owner can create) or
+longer pretraining (the held-out loss was still falling slowly at the cap).

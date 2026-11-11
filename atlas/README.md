@@ -198,8 +198,8 @@ plus a re-fit), and both variants are trained with 0–40% of inputs hidden per 
   N = 10,000 where plain is still 3× better.
 * **Transport systems: not repaired.** Identification is still 2–14× worse than plain with gaps, and on
   advection-diffusion v0.3 is worse than v0.2 at N ≤ 1,000.
-* **Beyond what it was trained on, it collapses.** With 50% hidden (training went up to 40%), ID error is 0.46–1.2
-  on every system; plain degrades gently (0.010–0.46).
+* **Beyond what it was trained on, it collapses.** With 50% hidden (training went up to 40%), ID error is 0.46–1.9
+  on every system; plain degrades gently (0.010–0.52).
 * **Side effects with nothing hidden.** Seen-range error improved (harmonic at N = 10,000: 0.048 → 0.035; damped
   0.098 → 0.069, now better than plain's 0.110; advection-diffusion 0.019 → 0.012, level with plain and no failed
   run this time). Unseen-range error on the oscillators got worse (harmonic 0.038 → 0.110, damped 0.090 → 0.146),

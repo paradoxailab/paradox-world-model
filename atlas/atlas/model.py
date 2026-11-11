@@ -16,7 +16,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .sysid import identify, ring_basis, smooth_forecast  # noqa: F401
+from .sysid import identify, interpolate, ring_basis, smooth_forecast  # noqa: F401
 
 QS = (0.1, 0.5, 0.9)
 MAX_PARAMS = 10_000_000
@@ -50,15 +50,18 @@ class GeoAttention(nn.Module):
 
 class Atlas(nn.Module):
     def __init__(self, d=64, L=16, H=16, C=1, U=1, enc_depth=2, dyn_depth=2, lat_steps=4, heads=4,
-                 spatial=False, geo_dim=3, lo=None, hi=None, conserve=False, dt=1.0, sysid=False, K=1, lags=2, gate=False):
+                 spatial=False, geo_dim=3, lo=None, hi=None, conserve=False, dt=1.0, sysid=False, K=1, lags=2, gate=False, fill="rec",
+                 static=0, id_ch=None):
         super().__init__()
         assert H % lat_steps == 0
         self.cfg = dict(d=d, L=L, H=H, C=C, U=U, enc_depth=enc_depth, dyn_depth=dyn_depth, lat_steps=lat_steps,
                         heads=heads, spatial=spatial, geo_dim=geo_dim, lo=lo, hi=hi, conserve=conserve, dt=dt,
-                        sysid=sysid, K=K, lags=lags, gate=gate)
+                        sysid=sysid, K=K, lags=lags, gate=gate, fill=fill, static=static, id_ch=id_ch)
         self.L, self.H, self.C, self.U, self.S, self.k = L, H, C, U, lat_steps, H // lat_steps
         self.lo, self.hi, self.conserve, self.dt = lo, hi, conserve, dt
-        self.inp = nn.Linear(L * (2 * C + U), d)
+        if isinstance(lo, (list, tuple)):                     # one lower bound per variable (-inf = none)
+            self.register_buffer("lo_t", torch.tensor(lo, dtype=torch.float32)[:, None], persistent=False)
+        self.inp = nn.Linear(L * (2 * C + U) + static, d)     # static: extra per-node inputs (e.g. daily means)
         self.enc = nn.ModuleList([Block(d) for _ in range(enc_depth)])
         self.rec = nn.Linear(d, L * C)
         self.sp = GeoAttention(d, heads, geo_dim) if spatial else None
@@ -66,34 +69,35 @@ class Atlas(nn.Module):
         self.dyn = nn.ModuleList([Block(d) for _ in range(dyn_depth)])
         self.dec = nn.Linear(d, self.k * C * 3)
         nn.init.zeros_(self.dec.weight); nn.init.zeros_(self.dec.bias)
-        self.sysid, self.K, self.p, self.use_gate = sysid, K, lags, gate
+        self.sysid, self.K, self.p, self.use_gate, self.fill = sysid, K, lags, gate, fill
         if sysid:                       # in-context identification of the dynamics (atlas/sysid.py)
-            FA, FB = lags * K * C, lags * K * U
-            self.den = nn.Linear(d, L * C)                    # correction to the observed values (denoising)
-            self.prior = nn.Linear(d, lags * K * (C + U) * C) # prior guess of the state coefficients, from the window
-            self.hyper = nn.Sequential(nn.Linear(FA * C, 64), nn.GELU(), nn.Linear(64, FB * C))
-            self.gate = nn.Sequential(nn.Linear(FA * C + 1, 32), nn.GELU(), nn.Linear(32, 1))   # trust in the identified dynamics
+            Ci = self.Ci = id_ch or C                         # the first Ci variables are the identified ones
+            FA, FB = lags * K * Ci, lags * K * U
+            self.den = nn.Linear(d, L * Ci)                    # correction to the observed values (denoising)
+            self.prior = nn.Linear(d, lags * K * (Ci + U) * Ci) # prior guess of the state coefficients, from the window
+            self.hyper = nn.Sequential(nn.Linear(FA * Ci, 64), nn.GELU(), nn.Linear(64, FB * Ci))
+            self.gate = nn.Sequential(nn.Linear(FA * Ci + 1, 32), nn.GELU(), nn.Linear(32, 1))   # trust in the identified dynamics
             # the response to forcing often cannot be seen in one window (no forcing yet): it is predicted from the
             # identified state coefficients by `hyper`, learned across training trajectories
-            lam = torch.zeros(lags, K * (C + U)); lam[:, :K * C] = -4.6     # weak prior on state coefficients (0.01)
+            lam = torch.zeros(lags, K * (Ci + U)); lam[:, :K * Ci] = -4.6     # weak prior on state coefficients (0.01)
             self.lam = nn.Parameter(lam.flatten())            # log-precision per coefficient (forcing part: 1.0)
             for m in (self.den, self.prior, self.hyper[-1]):
                 nn.init.zeros_(m.weight); nn.init.zeros_(m.bias)
             with torch.no_grad():                             # prior starts at persistence: x[t+1] = x[t]
-                bb = self.prior.bias.view(lags * K * (C + U), C)
-                for c in range(C): bb[c, c] = 1.0
-            xm = torch.zeros(lags, K * (C + U), dtype=torch.bool); xm[:, :K * C] = True
+                bb = self.prior.bias.view(lags * K * (Ci + U), Ci)
+                for c in range(Ci): bb[c, c] = 1.0
+            xm = torch.zeros(lags, K * (Ci + U), dtype=torch.bool); xm[:, :K * Ci] = True
             self.register_buffer("xmask", xm.flatten(), persistent=False)
 
     def n_params(self):
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
 
-    def forward(self, yc, mc, uc, uf, geo=None, basis=None):
+    def forward(self, yc, mc, uc, uf, geo=None, basis=None, static=None):
         """yc, mc: [B, N, L, C] values and observed flags (hidden values must be zeroed by the caller);
         uc [B, N, L, U], uf [B, N, H, U] forcing; geo [N, N, geo_dim]; basis [K, N, N] (sysid only).
         Returns quantiles [B, N, H, C, 3], the reconstruction of the context [B, N, L, C], and a dict of extras."""
         B, N = yc.shape[:2]
-        x = torch.cat([(yc * mc).flatten(2), mc.flatten(2), uc.flatten(2)], -1)
+        x = torch.cat([(yc * mc).flatten(2), mc.flatten(2), uc.flatten(2)] + ([static] if static is not None else []), -1)
         z = self.inp(x)
         for b in self.enc:
             z = b(z)
@@ -105,32 +109,39 @@ class Atlas(nn.Module):
         if self.sysid:
             if basis is None:
                 basis = torch.eye(N, device=yc.device)[None]
-            # complete window for the first solve: observed values plus a learned correction; hidden ones reconstructed
-            xh = mc * (yc + self.den(z).reshape(B, N, self.L, self.C)) + (1 - mc) * rec
+            Ci = self.Ci; yi, mi = yc[..., :Ci], mc[..., :Ci]
+            den = self.den(z).reshape(B, N, self.L, Ci)
+            # complete window for the first solve. fill="rec" (v0.2): hidden values from the network's reconstruction.
+            # fill="interp" (v0.3): hidden values by linear interpolation in time; the network only adds a correction.
+            if self.fill == "interp":
+                xh = interpolate(yi * mi, mi) + den
+            else:
+                xh = mi * (yi + den) + (1 - mi) * rec[..., :Ci]
             lam = torch.exp(self.lam)
-            th0 = self.prior(z.mean(1)).reshape(B, -1, self.C) * self.xmask[None, :, None]
-            th1 = identify(xh, uc, basis, self.p, lam, th0, target=xh, w=mc)
-            thB = self.hyper(th1[:, self.xmask].flatten(1)).reshape(B, -1, self.C)
+            th0 = self.prior(z.mean(1)).reshape(B, -1, Ci) * self.xmask[None, :, None]
+            th1 = identify(xh, uc, basis, self.p, lam, th0, target=xh, w=mi)
+            thB = self.hyper(th1[:, self.xmask].flatten(1)).reshape(B, -1, Ci)
             th0 = th0.masked_scatter((~self.xmask)[None, :, None].expand_as(th0), thB)
-            theta = identify(xh, uc, basis, self.p, lam, th0, target=xh, w=mc)
+            theta = identify(xh, uc, basis, self.p, lam, th0, target=xh, w=mi)
             # initial state from ALL observed values (weights = observed flags), then run the dynamics forward
             ua = torch.cat([uc, uf], 2)
-            if bool((mc < 1).any()):    # missing values: replace the network's fill-in by the fitted trajectory, re-identify
-                xs, _ = smooth_forecast(theta, yc * mc, mc, ua, basis, self.p, 0)
-                xh = mc * xh + (1 - mc) * xs
+            if self.fill == "rec" and bool((mi < 1).any()):    # v0.2, missing values: replace the network's fill-in by the fitted trajectory, re-identify
+                xs, _ = smooth_forecast(theta, yi * mi, mi, ua, basis, self.p, 0)
+                xh = mi * xh + (1 - mi) * xs
                 theta = identify(xh, uc, basis, self.p, lam, th0)
-            xs, fc = smooth_forecast(theta, yc * mc, mc, ua, basis, self.p, self.H)
+            xs, fc = smooth_forecast(theta, yi * mi, mi, ua, basis, self.p, self.H)
             # boundedness: a forecast may not leave 3x the observed range (plus room for forcing)
-            lim = 3 * (yc * mc).abs().flatten(1).amax(1) + 3 * ua.abs().flatten(1).amax(1) + 1
+            lim = 3 * (yi * mi).abs().flatten(1).amax(1) + 3 * ua.abs().flatten(1).amax(1) + 1
             fc = torch.maximum(torch.minimum(fc, lim[:, None, None, None]), -lim[:, None, None, None])
             # how well the identified dynamics explain the window, relative to the window's own variation
-            res = (((xs - yc) ** 2) * mc).flatten(1).sum(1) / ((yc - (yc * mc).flatten(1).sum(1)[:, None, None, None]
-                   / mc.flatten(1).sum(1).clamp(min=1)[:, None, None, None]) ** 2 * mc).flatten(1).sum(1).clamp(min=1e-6)
+            res = (((xs - yi) ** 2) * mi).flatten(1).sum(1) / ((yi - (yi * mi).flatten(1).sum(1)[:, None, None, None]
+                   / mi.flatten(1).sum(1).clamp(min=1)[:, None, None, None]) ** 2 * mi).flatten(1).sum(1).clamp(min=1e-6)
             thA = theta[:, self.xmask].flatten(1)
             alpha = torch.sigmoid(self.gate(torch.cat([thA, torch.log(res + 1e-6)[:, None]], 1)))[:, :, None, None]
             idx = (mc * torch.arange(1, self.L + 1, device=yc.device)[None, None, :, None]).argmax(2, keepdim=True)
             anchor = torch.gather(yc * mc, 2, idx).expand(-1, -1, self.H, -1)
-            base = alpha * fc + (1 - alpha) * anchor if self.use_gate else fc   # gate: alpha -> 0 gives the plain Atlas
+            base = alpha * fc + (1 - alpha) * anchor[..., :Ci] if self.use_gate else fc   # gate: alpha -> 0 gives the plain Atlas
+            base = torch.cat([base, anchor[..., Ci:]], -1)       # variables that are not identified keep the anchor
             ex.update(theta=torch.cat([thA, torch.log(res + 1e-6)[:, None]], 1), base=fc, alpha=alpha.flatten())
         else:
             # anchor: each variable's last observed value in the window (0 if none)
@@ -165,7 +176,9 @@ class Atlas(nn.Module):
             src_f = uf.sum(1).sum(-1, keepdim=True) * self.dt / N         # [B, H, 1]
             tgt = m0 + torch.cumsum(src_f, 1) - src_f                     # mean at each forecast step [B, H, C]
             q = q + (tgt[:, None, :, :, None] - q[..., 1:2].mean(1, keepdim=True))
-        if self.lo is not None or self.hi is not None:
+        if hasattr(self, "lo_t"):
+            q = torch.maximum(q, self.lo_t)
+        elif self.lo is not None or self.hi is not None:
             q = q.clamp(min=self.lo, max=self.hi)
         return q
 

@@ -110,6 +110,23 @@ def refine(x0, y, w, u_all, basis, p, H, lam, theta0=None, iters=2):
     return theta, xs, fc
 
 
+def interpolate(y, m):
+    """Fill hidden values (m = 0) by linear interpolation in time between the nearest observed values of the same
+    node and variable; before the first / after the last observed value, repeat it; all hidden -> 0.
+    y, m: [B, N, L, C]."""
+    L = y.shape[2]
+    idx = torch.arange(L, device=y.device).view(1, 1, L, 1).expand_as(y)
+    obs = m > 0
+    prev = torch.cummax(torch.where(obs, idx, torch.full_like(idx, -1)), 2).values
+    nxt = torch.flip(torch.cummin(torch.flip(torch.where(obs, idx, torch.full_like(idx, L)), [2]), 2).values, [2])
+    hp, hn = prev >= 0, nxt < L
+    vp = torch.gather(y, 2, prev.clamp(min=0)); vn = torch.gather(y, 2, nxt.clamp(max=L - 1))
+    wgt = ((idx - prev).float() / (nxt - prev).clamp(min=1).float())
+    mid = vp + (vn - vp) * wgt
+    out = torch.where(hp & hn, mid, torch.where(hp, vp, torch.where(hn, vn, torch.zeros_like(y))))
+    return torch.where(obs, y, out)
+
+
 def ring_basis(M):
     """Shift operators on a ring of M nodes (B_0 = identity)."""
     i = torch.arange(M)

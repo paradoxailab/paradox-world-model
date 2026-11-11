@@ -81,7 +81,7 @@ def _auroc(pos, neg):
 
 
 def run(name, size, N, seed, noise=0.05, width=1.0, physics=False, max_steps=1200, batch=64, wd=1e-4, log=None,
-        sysid=False, patience=6, gate=False):
+        sysid=False, patience=6, gate=False, fill="rec", mask_max=None):
     torch.manual_seed(seed); torch.set_num_threads(1)
     ring = S.is_ring(name)
     geo = ring_geo(S.M) if ring else None
@@ -93,7 +93,7 @@ def run(name, size, N, seed, noise=0.05, width=1.0, physics=False, max_steps=120
     va = {k: v[n_tr:] for k, v in _t(d).items()}
     if len(va["yc"]) == 0: va = tr
     m = sized(int(size), spatial=ring, conserve=bool(physics and ring), dt=S.DT, sysid=bool(sysid),
-              K=S.M if (ring and sysid) else 1, lags=2 if ring else 3, gate=bool(gate))
+              K=S.M if (ring and sysid) else 1, lags=2 if ring else 3, gate=bool(gate), fill=fill)
     lr = 1e-3 if m.cfg["d"] <= 256 else 5e-4
     opt = torch.optim.AdamW(m.parameters(), lr=lr, weight_decay=wd)
     sched = torch.optim.lr_scheduler.LambdaLR(
@@ -104,7 +104,9 @@ def run(name, size, N, seed, noise=0.05, width=1.0, physics=False, max_steps=120
     for step in range(1, max_steps + 1):
         i = torch.from_numpy(rng.integers(0, n_tr, B))
         yc = tr["yc"][i]
-        mc = (torch.rand(yc.shape) >= 0.15).float()                       # hide 15% of the observed values
+        # hide 15% of the observed values, or (mask_max) a share drawn per trajectory between 0 and mask_max
+        rate = 0.15 if mask_max is None else torch.rand(B, 1, 1, 1) * mask_max
+        mc = (torch.rand(yc.shape) >= rate).float()
         q, rec, ex = m(yc, mc, tr["uc"][i], tr["uf"][i], geo, basis)
         hid = 1 - mc
         loss = pinball(q, tr["yfn"][i]) + 0.2 * (((rec - yc) ** 2) * hid).sum() / hid.sum().clamp(min=1)
@@ -153,7 +155,8 @@ def run(name, size, N, seed, noise=0.05, width=1.0, physics=False, max_steps=120
     r = dict(system=name, size=int(size), params=m.n_params(), d=m.cfg["d"], N=int(N), n_train=n_tr, seed=seed,
              noise=noise, width=width, physics=int(bool(physics)), max_steps=max_steps, steps=step, secs=round(secs, 1),
              val=round(best, 5), nmse=_nmse(q, te), nmse_train=_nmse(qtr, tr), nmse_ood=_nmse(qo, ood),
-             nmse_missing30=_nmse(predict(m, te, geo, miss=0.3, basis=basis), te), sysid=int(bool(sysid)), gate=int(bool(gate)), patience=patience, alpha=(float(ext['alpha'].mean()) if sysid else None),
+             nmse_missing30=_nmse(predict(m, te, geo, miss=0.3, basis=basis), te), sysid=int(bool(sysid)), gate=int(bool(gate)), patience=patience, fill=fill, mask_max=mask_max,
+             nmse_missing50=_nmse(predict(m, te, geo, miss=0.5, basis=basis), te), alpha=(float(ext['alpha'].mean()) if sysid else None),
              alpha_ood=(float(exo['alpha'].mean()) if sysid else None),
              novelty=nov, **fb, nmse_base=(float(((ext['base'] - te['yf']) ** 2).mean() / te['yf'].var()) if sysid else None),
              nmse_ood_base=(float(((exo['base'] - ood['yf']) ** 2).mean() / ood['yf'].var()) if sysid else None),

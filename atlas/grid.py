@@ -64,12 +64,29 @@ def plans(which):
             for name in ("diffusion", "advdiff"):
                 for N in NS[::-1]:
                     P.append(dict(name=name, size=250_000, N=N, seed=seed, max_steps=2000, sysid=True, patience=10))
+    if which == "gaps":          # v0.3: missing inputs. Both variants trained with 0-40% of inputs hidden per trajectory
+        for seed in (0, 1):
+            for name in ("harmonic", "damped"):
+                for N in (300, 1000, 10000):
+                    for sysid in (False, True):
+                        P.append(dict(name=name, size=250_000, N=N, seed=seed, sysid=sysid, patience=10,
+                                      mask_max=0.4, fill="interp" if sysid else "rec"))
+        for seed in (0, 1):
+            for name in ("diffusion", "advdiff"):
+                for N in (300, 1000, 10000):
+                    P.append(dict(name=name, size=250_000, N=N, seed=seed, max_steps=2000, patience=10, mask_max=0.4))
+        for seed in (1, 0):
+            for name in ("diffusion", "advdiff"):
+                for N in (10000, 1000, 300):
+                    P.append(dict(name=name, size=250_000, N=N, seed=seed, max_steps=2000, sysid=True, patience=10,
+                                  mask_max=0.4, fill="interp"))
     return P
 
 
 def key(p):
     return (p["name"], p["size"], p["N"], p["seed"], p.get("noise", 0.05), p.get("width", 1.0),
-            int(p.get("physics", 0)), p.get("max_steps", 3000), int(p.get("sysid", 0)), p.get("patience", 6))
+            int(p.get("physics", 0)), p.get("max_steps", 3000), int(p.get("sysid", 0)), p.get("patience", 6),
+            p.get("mask_max"), p.get("fill", "rec"))
 
 
 def done_keys(path):
@@ -77,7 +94,8 @@ def done_keys(path):
     if os.path.exists(path):
         for l in open(path):
             r = json.loads(l)
-            done.add((r["system"], r["size"], r["N"], r["seed"], r["noise"], r["width"], r["physics"], r["max_steps"], r.get("sysid", 0), r.get("patience", 6)))
+            done.add((r["system"], r["size"], r["N"], r["seed"], r["noise"], r["width"], r["physics"], r["max_steps"], r.get("sysid", 0), r.get("patience", 6),
+                      r.get("mask_max"), r.get("fill", "rec")))
     return done
 
 

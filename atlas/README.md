@@ -1,4 +1,4 @@
-# Paradox Atlas v0.2: how much information does a world model need?
+# Paradox Atlas v0.3: how much information does a world model need?
 
 ParadoxAI Lab (Aditya Kumar, Anupam Singh).
 
@@ -176,6 +176,45 @@ were each tried on one or two single runs while looking at seen- and unseen-rang
 refinement and a noise-bias correction were tried on the untrained identification and dropped because they were
 unstable. The design was then frozen and the 103-run grid was run once; the tables are from that grid.
 
+## v0.3: missing inputs, and the move to real data
+
+**Missing inputs.** v0.2's identification broke when part of the window was hidden. v0.3 changes two things: hidden
+values are filled by linear interpolation in time before identification (instead of the network's reconstruction
+plus a re-fit), and both variants are trained with 0–40% of inputs hidden per trajectory (instead of a fixed 15%).
+48 runs, 250K parameters, 2 seeds (`results/runs_gaps.jsonl`). Error with 30% of inputs hidden:
+
+| | N | plain | ID v0.2 | ID v0.3 |
+|---|---|---|---|---|
+| harmonic | 1,000 | 0.156 | 0.627 | **0.161** |
+| harmonic | 10,000 | 0.053 | 0.439 | **0.159** |
+| damped | 1,000 | 0.316 | 0.894 | **0.330** |
+| damped | 10,000 | 0.132 | 0.656 | **0.148** |
+| diffusion | 1,000 | 0.0075 | 0.203 | 0.105 |
+| diffusion | 10,000 | 0.0055 | 0.050 | 0.041 |
+| advection-diffusion | 1,000 | 0.028 | 0.033 | 0.076 |
+| advection-diffusion | 10,000 | 0.018 | 0.030 | 0.035 |
+
+* **Oscillators: mostly repaired.** 3–4× better than v0.2 and level with the plain model, except harmonic at
+  N = 10,000 where plain is still 3× better.
+* **Transport systems: not repaired.** Identification is still 2–14× worse than plain with gaps, and on
+  advection-diffusion v0.3 is worse than v0.2 at N ≤ 1,000.
+* **Beyond what it was trained on, it collapses.** With 50% hidden (training went up to 40%), ID error is 0.46–1.2
+  on every system; plain degrades gently (0.010–0.46).
+* **Side effects with nothing hidden.** Seen-range error improved (harmonic at N = 10,000: 0.048 → 0.035; damped
+  0.098 → 0.069, now better than plain's 0.110; advection-diffusion 0.019 → 0.012, level with plain and no failed
+  run this time). Unseen-range error on the oscillators got worse (harmonic 0.038 → 0.110, damped 0.090 → 0.146),
+  still 8–10× better than plain (1.04, 1.21).
+
+So identification remains a trade: better with little data, on unseen ranges and for interventions; worse when the
+window has many gaps. On real data the choice between plain and ID is therefore made on validation, not assumed.
+
+**Real data (stage 7).** `delhi/run_atlas_delhi.py` runs Atlas on Delhi's CPCB stations with the same data file,
+splits, test windows and scoring as the PWM-W Delhi league (branch `delhi-v0.2`): next-24-hour PM2.5 at every
+station, from the last 72 h of 15 measured variables. Observations only. It compares plain and ID at two sizes on
+validation, scores the chosen one once on test against TimesFM 2.5 / 3.0 and Chronos, measures which inputs matter,
+and repeats training on the last 0.5–4 months to measure the data threshold. Results are added here when the Kaggle
+run finishes; none are claimed before that.
+
 ## What has not been done
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring
@@ -197,5 +236,7 @@ unstable. The design was then frozen and the 103-run grid was run once; the tabl
     python baselines_sysid.py                         # identification with no training
     python grid.py results/runs_fix.jsonl fix         # v0.2: plain against identification (about 170 min, 1 core)
     python analyze_fix.py                             # -> results/REPORT_v02.md
+    python grid.py results/runs_gaps.jsonl gaps       # v0.3: missing inputs (about 90 min, 1 core)
+    cd delhi && bash kaggle_atlas_delhi.sh            # stage 7 on Kaggle (CPU is enough up to 1M parameters)
 
 Runs are deterministic for a given seed on the same machine (the same configuration run twice gave identical numbers).

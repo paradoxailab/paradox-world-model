@@ -1,0 +1,13 @@
+gaps: 48 runs to do
+[1/48    132s] advdiff P=235521 N=300 seed=0 sysid=1 phys=0 steps=1400 nmse=0.0148 train=0.0085 ood=0.015 interv=0.043 (oracle 0.0081)
+[2/48    329s] advdiff P=235521 N=1000 seed=0 sysid=1 phys=0 steps=2000 nmse=0.0126 train=0.0090 ood=0.014 interv=0.041 (oracle 0.0081)
+[3/48    745s] advdiff P=235521 N=10000 seed=0 sysid=1 phys=0 steps=2000 nmse=0.0113 train=0.0106 ood=0.012 interv=0.036 (oracle 0.0081)
+[4/48   1012s] diffusion P=235521 N=300 seed=0 sysid=1 phys=0 steps=1350 nmse=0.0123 train=0.0075 ood=0.009 interv=0.039 (oracle 0.0008)
+[5/48   1403s] diffusion P=235521 N=1000 seed=0 sysid=1 phys=0 steps=2000 nmse=0.0088 train=0.0057 ood=0.011 interv=0.024 (oracle 0.0008)
+[6/48   1777s] diffusion P=235521 N=10000 seed=0 sysid=1 phys=0 steps=2000 nmse=0.0084 train=0.0084 ood=0.008 interv=0.026 (oracle 0.0008)
+[7/48   2114s] advdiff P=235521 N=300 seed=1 sysid=1 phys=0 steps=2000 nmse=0.0141 train=0.0049 ood=0.018 interv=0.041 (oracle 0.0081)
+[8/48   2305s] advdiff P=235521 N=1000 seed=1 sysid=1 phys=0 steps=2000 nmse=0.0123 train=0.0079 ood=0.012 interv=0.038 (oracle 0.0081)
+[9/48   2514s] advdiff P=235521 N=10000 seed=1 sysid=1 phys=0 steps=2000 nmse=0.0117 train=0.0109 ood=0.012 interv=0.036 (oracle 0.0081)
+[10/48   2686s] diffusion P=235521 N=300 seed=1 sysid=1 phys=0 steps=2000 nmse=0.0116 train=0.0042 ood=0.012 interv=0.035 (oracle 0.0008)
+[11/48   2860s] diffusion P=235521 N=1000 seed=1 sysid=1 phys=0 steps=2000 nmse=0.0098 train=0.0067 ood=0.010 interv=0.030 (oracle 0.0008)
+[12/48   3065s] diffusion P=235521 N=10000 seed=1 sysid=1 phys=0 steps=2000 nmse=0.0089 train=0.0090 ood=0.008 interv=0.025 (oracle 0.0008)

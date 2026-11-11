@@ -10,6 +10,6 @@ find /kaggle/input -name "DELHI.npz" -exec cp -n {} $PW_RAW/ \; 2>/dev/null
 find /kaggle/input -path "*out/opponents/*.npz" -exec cp -n {} $ATLAS_OUT/opponents/ \; 2>/dev/null
 [ -f $PW_RAW/DELHI.npz ] || python tools/fetch_delhi.py 2>&1 | tail -70
 pip install -q timesfm chronos-forecasting 2>&1 | tail -2
-python run_atlas_delhi.py ${RUN_FLAGS} 2>&1 | grep -v "Warning\|warn(" | tee $ATLAS_OUT/log.txt
+python -u run_atlas_delhi.py ${RUN_FLAGS} 2>&1 | grep --line-buffered -v "Warning\|warn(" | tee $ATLAS_OUT/log.txt
 rm -rf $PW_RAW/delhi_csv
 ls -la $ATLAS_OUT $ATLAS_OUT/opponents

@@ -38,6 +38,7 @@ L, H = 72, 24
 DEV = "cuda" if torch.cuda.is_available() else "cpu"
 OUT = os.environ.get("ATLAS_OUT", os.path.join(ROOT, "results"))
 TEST_STRIDE, VAL_STRIDE, TRAIN_STRIDE = 6, 3, 3
+CAP_MIN = float(os.environ.get("ATLAS_CAP_MIN", 50))      # no single training run may take longer than this
 PER_DAY, HZ = SPD // TEST_STRIDE, (0, 5, 11, 23)
 RES = {"runs": {}, "tracks": {}, "opponents": {}, "significance": {}, "threshold": {}, "threshold_fit": {}, "ablation": {}}
 T0 = time.time()
@@ -162,11 +163,12 @@ def train(D, size, sysid, org, val_org, seed, max_steps, name, bs=16, patience=1
                 best, bad, state = v, 0, {k: x.detach().clone() for k, x in m.state_dict().items()}
             else:
                 bad += 1
-            if bad >= patience:
+            log(f"  {name} step {step} val MAE {v:.3f} (best {best:.3f}) {time.time() - t0:.0f}s")
+            if bad >= patience or time.time() - t0 > CAP_MIN * 60:      # early stop, or the per-run time cap
                 break
     m.load_state_dict(state)
     info = dict(name=name, params=m.n_params(), d=m.cfg["d"], sysid=int(sysid), seed=seed, train_origins=len(org),
-                steps=step, minutes=round((time.time() - t0) / 60, 2), val_MAE=best, device=DEV)
+                steps=step, hit_time_cap=bool(time.time() - t0 > CAP_MIN * 60), minutes=round((time.time() - t0) / 60, 2), val_MAE=best, device=DEV)
     RES["runs"][name] = info
     log("RUN " + json.dumps(info, default=float)); save()
     return m, info

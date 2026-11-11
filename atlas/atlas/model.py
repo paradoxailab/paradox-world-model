@@ -16,6 +16,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from .sysid import identify, ring_basis, smooth_forecast  # noqa: F401
+
 QS = (0.1, 0.5, 0.9)
 MAX_PARAMS = 10_000_000
 
@@ -48,11 +50,12 @@ class GeoAttention(nn.Module):
 
 class Atlas(nn.Module):
     def __init__(self, d=64, L=16, H=16, C=1, U=1, enc_depth=2, dyn_depth=2, lat_steps=4, heads=4,
-                 spatial=False, geo_dim=3, lo=None, hi=None, conserve=False, dt=1.0):
+                 spatial=False, geo_dim=3, lo=None, hi=None, conserve=False, dt=1.0, sysid=False, K=1, lags=2, gate=False):
         super().__init__()
         assert H % lat_steps == 0
         self.cfg = dict(d=d, L=L, H=H, C=C, U=U, enc_depth=enc_depth, dyn_depth=dyn_depth, lat_steps=lat_steps,
-                        heads=heads, spatial=spatial, geo_dim=geo_dim, lo=lo, hi=hi, conserve=conserve, dt=dt)
+                        heads=heads, spatial=spatial, geo_dim=geo_dim, lo=lo, hi=hi, conserve=conserve, dt=dt,
+                        sysid=sysid, K=K, lags=lags, gate=gate)
         self.L, self.H, self.C, self.U, self.S, self.k = L, H, C, U, lat_steps, H // lat_steps
         self.lo, self.hi, self.conserve, self.dt = lo, hi, conserve, dt
         self.inp = nn.Linear(L * (2 * C + U), d)
@@ -63,15 +66,32 @@ class Atlas(nn.Module):
         self.dyn = nn.ModuleList([Block(d) for _ in range(dyn_depth)])
         self.dec = nn.Linear(d, self.k * C * 3)
         nn.init.zeros_(self.dec.weight); nn.init.zeros_(self.dec.bias)
-        assert self.n_params() <= MAX_PARAMS, "Atlas must not exceed 10M trainable parameters"
+        self.sysid, self.K, self.p, self.use_gate = sysid, K, lags, gate
+        if sysid:                       # in-context identification of the dynamics (atlas/sysid.py)
+            FA, FB = lags * K * C, lags * K * U
+            self.den = nn.Linear(d, L * C)                    # correction to the observed values (denoising)
+            self.prior = nn.Linear(d, lags * K * (C + U) * C) # prior guess of the state coefficients, from the window
+            self.hyper = nn.Sequential(nn.Linear(FA * C, 64), nn.GELU(), nn.Linear(64, FB * C))
+            self.gate = nn.Sequential(nn.Linear(FA * C + 1, 32), nn.GELU(), nn.Linear(32, 1))   # trust in the identified dynamics
+            # the response to forcing often cannot be seen in one window (no forcing yet): it is predicted from the
+            # identified state coefficients by `hyper`, learned across training trajectories
+            lam = torch.zeros(lags, K * (C + U)); lam[:, :K * C] = -4.6     # weak prior on state coefficients (0.01)
+            self.lam = nn.Parameter(lam.flatten())            # log-precision per coefficient (forcing part: 1.0)
+            for m in (self.den, self.prior, self.hyper[-1]):
+                nn.init.zeros_(m.weight); nn.init.zeros_(m.bias)
+            with torch.no_grad():                             # prior starts at persistence: x[t+1] = x[t]
+                bb = self.prior.bias.view(lags * K * (C + U), C)
+                for c in range(C): bb[c, c] = 1.0
+            xm = torch.zeros(lags, K * (C + U), dtype=torch.bool); xm[:, :K * C] = True
+            self.register_buffer("xmask", xm.flatten(), persistent=False)
 
     def n_params(self):
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
 
-    def forward(self, yc, mc, uc, uf, geo=None):
+    def forward(self, yc, mc, uc, uf, geo=None, basis=None):
         """yc, mc: [B, N, L, C] values and observed flags (hidden values must be zeroed by the caller);
-        uc [B, N, L, U], uf [B, N, H, U] forcing; geo [N, N, geo_dim].
-        Returns quantiles [B, N, H, C, 3] and the reconstruction of the context [B, N, L, C]."""
+        uc [B, N, L, U], uf [B, N, H, U] forcing; geo [N, N, geo_dim]; basis [K, N, N] (sysid only).
+        Returns quantiles [B, N, H, C, 3], the reconstruction of the context [B, N, L, C], and a dict of extras."""
         B, N = yc.shape[:2]
         x = torch.cat([(yc * mc).flatten(2), mc.flatten(2), uc.flatten(2)], -1)
         z = self.inp(x)
@@ -79,10 +99,43 @@ class Atlas(nn.Module):
             z = b(z)
         if self.sp is not None:
             z = self.sp(z, geo)
+        z0 = z
         rec = self.rec(z).reshape(B, N, self.L, self.C)
-        # anchor: each variable's last observed value in the window (0 if none)
-        idx = (mc * torch.arange(1, self.L + 1, device=yc.device)[None, None, :, None]).argmax(2, keepdim=True)
-        anchor = torch.gather(yc * mc, 2, idx)                           # [B, N, 1, C]
+        ex = {"z": z0.mean(1)}
+        if self.sysid:
+            if basis is None:
+                basis = torch.eye(N, device=yc.device)[None]
+            # complete window for the first solve: observed values plus a learned correction; hidden ones reconstructed
+            xh = mc * (yc + self.den(z).reshape(B, N, self.L, self.C)) + (1 - mc) * rec
+            lam = torch.exp(self.lam)
+            th0 = self.prior(z.mean(1)).reshape(B, -1, self.C) * self.xmask[None, :, None]
+            th1 = identify(xh, uc, basis, self.p, lam, th0, target=xh, w=mc)
+            thB = self.hyper(th1[:, self.xmask].flatten(1)).reshape(B, -1, self.C)
+            th0 = th0.masked_scatter((~self.xmask)[None, :, None].expand_as(th0), thB)
+            theta = identify(xh, uc, basis, self.p, lam, th0, target=xh, w=mc)
+            # initial state from ALL observed values (weights = observed flags), then run the dynamics forward
+            ua = torch.cat([uc, uf], 2)
+            if bool((mc < 1).any()):    # missing values: replace the network's fill-in by the fitted trajectory, re-identify
+                xs, _ = smooth_forecast(theta, yc * mc, mc, ua, basis, self.p, 0)
+                xh = mc * xh + (1 - mc) * xs
+                theta = identify(xh, uc, basis, self.p, lam, th0)
+            xs, fc = smooth_forecast(theta, yc * mc, mc, ua, basis, self.p, self.H)
+            # boundedness: a forecast may not leave 3x the observed range (plus room for forcing)
+            lim = 3 * (yc * mc).abs().flatten(1).amax(1) + 3 * ua.abs().flatten(1).amax(1) + 1
+            fc = torch.maximum(torch.minimum(fc, lim[:, None, None, None]), -lim[:, None, None, None])
+            # how well the identified dynamics explain the window, relative to the window's own variation
+            res = (((xs - yc) ** 2) * mc).flatten(1).sum(1) / ((yc - (yc * mc).flatten(1).sum(1)[:, None, None, None]
+                   / mc.flatten(1).sum(1).clamp(min=1)[:, None, None, None]) ** 2 * mc).flatten(1).sum(1).clamp(min=1e-6)
+            thA = theta[:, self.xmask].flatten(1)
+            alpha = torch.sigmoid(self.gate(torch.cat([thA, torch.log(res + 1e-6)[:, None]], 1)))[:, :, None, None]
+            idx = (mc * torch.arange(1, self.L + 1, device=yc.device)[None, None, :, None]).argmax(2, keepdim=True)
+            anchor = torch.gather(yc * mc, 2, idx).expand(-1, -1, self.H, -1)
+            base = alpha * fc + (1 - alpha) * anchor if self.use_gate else fc   # gate: alpha -> 0 gives the plain Atlas
+            ex.update(theta=torch.cat([thA, torch.log(res + 1e-6)[:, None]], 1), base=fc, alpha=alpha.flatten())
+        else:
+            # anchor: each variable's last observed value in the window (0 if none)
+            idx = (mc * torch.arange(1, self.L + 1, device=yc.device)[None, None, :, None]).argmax(2, keepdim=True)
+            base = torch.gather(yc * mc, 2, idx).expand(-1, -1, self.H, -1)
         outs = []
         for s in range(self.S):
             z = z + self.uemb(uf[:, :, s * self.k:(s + 1) * self.k].flatten(2))
@@ -92,9 +145,9 @@ class Atlas(nn.Module):
                 z = self.sp(z, geo)
             outs.append(self.dec(z).reshape(B, N, self.k, self.C, 3))
         o = torch.cat(outs, 2)
-        med = anchor[..., None] + o[..., 1:2]
+        med = base[..., None] + o[..., 1:2]
         q = torch.cat([med - F.softplus(o[..., 0:1]), med, med + F.softplus(o[..., 2:3])], -1)
-        return self.physics(q, yc, mc, uc, uf), rec
+        return self.physics(q, yc, mc, uc, uf), rec, ex
 
     def physics(self, q, yc, mc, uc, uf):
         """Hard rules. (a) conservation: on a closed system the total amount changes only by the known sources,

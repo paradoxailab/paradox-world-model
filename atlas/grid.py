@@ -46,12 +46,30 @@ def plans(which):
                     P.append(dict(name=name, size=250_000, N=N, seed=seed, max_steps=2000, physics=True))
         for N in (100, 1000, 10000):
             P.append(dict(name="advdiff", size=1_000_000, N=N, seed=0, max_steps=2000))
+    if which == "fix":           # v0.2: in-context identification against the plain Atlas, same protocol (patience 10)
+        for seed in (0, 1):
+            for name in ("harmonic", "damped"):
+                for N in NS:
+                    for sysid in (False, True):
+                        P.append(dict(name=name, size=250_000, N=N, seed=seed, sysid=sysid, patience=10))
+        for size in (50_000, 1_000_000):
+            for N in (100, 1000, 10000):
+                P.append(dict(name="damped", size=size, N=N, seed=0, sysid=True, patience=10))
+        P.append(dict(name="damped", size=10_000_000, N=10000, seed=0, sysid=True, patience=10))
+        for seed in (0, 1):
+            for name in ("diffusion", "advdiff"):
+                for N in NS:
+                    P.append(dict(name=name, size=250_000, N=N, seed=seed, max_steps=2000, patience=10))
+        for seed in (1, 0):
+            for name in ("diffusion", "advdiff"):
+                for N in NS[::-1]:
+                    P.append(dict(name=name, size=250_000, N=N, seed=seed, max_steps=2000, sysid=True, patience=10))
     return P
 
 
 def key(p):
     return (p["name"], p["size"], p["N"], p["seed"], p.get("noise", 0.05), p.get("width", 1.0),
-            int(p.get("physics", 0)), p.get("max_steps", 3000))
+            int(p.get("physics", 0)), p.get("max_steps", 3000), int(p.get("sysid", 0)), p.get("patience", 6))
 
 
 def done_keys(path):
@@ -59,7 +77,7 @@ def done_keys(path):
     if os.path.exists(path):
         for l in open(path):
             r = json.loads(l)
-            done.add((r["system"], r["size"], r["N"], r["seed"], r["noise"], r["width"], r["physics"], r["max_steps"]))
+            done.add((r["system"], r["size"], r["N"], r["seed"], r["noise"], r["width"], r["physics"], r["max_steps"], r.get("sysid", 0), r.get("patience", 6)))
     return done
 
 
@@ -78,6 +96,6 @@ if __name__ == "__main__":
         with open(path, "a") as f:
             f.write(json.dumps(r) + "\n")
         print(f"[{i + 1}/{len(todo)} {time.time() - t0:6.0f}s] {r['system']} P={r['params']} N={r['N']} seed={r['seed']} "
-              f"noise={r['noise']} width={r['width']} phys={r['physics']} steps={r['steps']} nmse={r['nmse']:.4f} "
+              f"sysid={r.get('sysid', 0)} phys={r['physics']} steps={r['steps']} nmse={r['nmse']:.4f} "
               f"train={r['nmse_train']:.4f} ood={r['nmse_ood']:.3f} interv={r['interv_nmse']:.3f} (oracle {r['oracle']:.4f})",
               flush=True)

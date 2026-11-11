@@ -1,4 +1,4 @@
-# Paradox Atlas v0.1: how much information does a world model need?
+# Paradox Atlas v0.2: how much information does a world model need?
 
 ParadoxAI Lab (Aditya Kumar, Anupam Singh).
 
@@ -7,8 +7,10 @@ and can it be worked out before training? This version builds the model and the 
 question on four systems whose equations are known. It uses numbers only: no images, video or text, and no
 pretrained weights from anyone.
 
-Everything below was measured: 342 training runs from random initialisation, on a 2-core CPU, about 100 minutes.
-Full tables: [`results/REPORT.md`](results/REPORT.md). Raw runs: `results/runs_*.jsonl`.
+Everything below was measured, on a 2-core CPU, from random initialisation: 342 training runs for v0.1 (full tables
+in [`results/REPORT.md`](results/REPORT.md)) and 103 for v0.2 ([`results/REPORT_v02.md`](results/REPORT_v02.md)).
+Raw runs: `results/runs_*.jsonl`. v0.2 (the section "v0.2: working on the three failures") changes the answer to
+findings 8 and part of 7; the v0.1 findings are kept as they were measured.
 
 ## What was built
 
@@ -18,6 +20,7 @@ Full tables: [`results/REPORT.md`](results/REPORT.md). Raw runs: `results/runs_*
 | Equation-aware oracle | `atlas/systems.py: oracle` | Knows the equation but not its parameters or state; fits them to the noisy window and forecasts. This is the floor a perfect learner could reach. |
 | Atlas model | `atlas/model.py` | Eight modules: numerical encoder, per-node state, spatial engine (attention biased by geometry), one transition network iterated in time, future forcing fed into the transition (interventions), hard physics rules (bounds, conservation of total amount), 10/50/90% quantiles that cannot cross. One width setting scales it from 8,468 to 9,914,492 parameters (ring version: 9,988,512). The code refuses to build above 10M. |
 | Trainer | `atlas/train.py` | Quantile loss on the next 16 steps plus reconstruction of 15% hidden inputs. 80% of the N trajectories train, 20% decide early stopping. Test sets are fixed: 2,000 fresh trajectories, 1,000 from parameter ranges never seen, and counterfactual forcings. |
+| In-context identification (v0.2) | `atlas/sysid.py` | Works out each system's dynamics from the one window being forecast (ridge least squares over fixed geometric operators), fits the starting state to all observed values, and runs the dynamics forward. Assumes only that the dynamics do not change during the window; it is not told the equation or its parameters. |
 | Threshold function | `atlas/threshold.py` | Fits `error(N, P) = floor + a·N^-alpha + b·P^-beta` to runs, inverts it for the minimum data or model size, gives bootstrap intervals, tests "sudden or gradual", and advises what to add next. |
 | Experiment runner | `grid.py`, `baselines.py`, `analyze.py` | Resumable grid, simple baselines, report. |
 
@@ -99,6 +102,80 @@ but stayed 2× (harmonic), 3× (damped) and 5× (diffusion) above it.
 counterfactual: error of the predicted effect 0.024–0.053 (relative to the size of the true effect) at N = 10,000.
 This is a simulated system with a known answer, not evidence about any real policy.
 
+## v0.2: working on the three failures
+
+v0.1 failed in three ways: it did not extrapolate to unseen parameter ranges, its uncertainty did not flag them,
+and the conservation rule did not reduce the data needed. v0.2 makes one change. Instead of mapping the window
+straight to a forecast, the model first **identifies the dynamics from the window itself** (`atlas/sysid.py`), runs
+them forward, and lets the network add a correction. The network supplies what one window cannot show: a prior for
+the coefficients, a denoising correction, and the response to a forcing that has not acted yet. The identified
+coefficients also give a new warning signal: how far they lie from anything seen in training.
+
+Both variants below have about 250K parameters, 2 seeds, and the same training protocol. *plain* = v0.1 Atlas.
+*ID* = with identification. Error at N = 10,000 training trajectories unless stated:
+
+| | harmonic | damped | diffusion | advection-diffusion |
+|---|---|---|---|---|
+| **Unseen range**, plain | 0.929 | 1.181 | 0.0075 | 0.066 |
+| **Unseen range**, ID | **0.038** | **0.090** | 0.0083 | **0.0086** |
+| Unseen range, identification with no training at all | 0.044 | 0.109 | 0.089 | 0.081 |
+| Unseen range, oracle | 0.0048 | 0.016 | 0.0003 | 0.0011 |
+| **Warning flag** AUROC, plain (interval width) | 0.70 | 0.38 | 0.44 | 0.68 |
+| **Warning flag** AUROC, ID (distance of identified dynamics) | **0.95** | **0.94** | 0.66 | 0.77 |
+| Unseen cases flagged, ID (false alarms on seen cases) | 76% (4%) | 68% (5%) | 10% (5%) | 23% (5%) |
+| Seen range, plain | **0.024** | 0.107 | **0.0037** | **0.013** |
+| Seen range, ID | 0.048 | 0.098 | 0.0096 | 0.019 |
+| Seen range with 30% of inputs missing, plain | **0.063** | **0.166** | **0.0066** | **0.021** |
+| Seen range with 30% of inputs missing, ID | 0.439 | 0.656 | 0.050 | 0.030 |
+
+**Failure 1, extrapolation: largely fixed on three of four systems.** Unseen-range error fell 24× (harmonic), 13×
+(damped) and 8× (advection-diffusion). Diffusion did not change (it was already close). Two limits: the result is
+still 5–8× above the oracle (28× on diffusion), and on the two oscillators it is only slightly better than
+identification with no training at all (0.038 against 0.044; 0.090 against 0.109). On the transport systems
+training adds a great deal (0.0086 against 0.081).
+
+**Failure 2, knowing when it is out of its depth: fixed for the oscillators, partly for transport.** The new flag
+separates unseen from seen cases with AUROC 0.94–0.95 on the oscillators (v0.1: 0.38–0.70), 0.77 on
+advection-diffusion and 0.66 on diffusion. It is also useful inside the seen range: flagged harmonic cases had error
+0.37, unflagged ones 0.034. Replacing flagged forecasts by training-free identification was tested and is not
+recommended: it helped unseen cases only at small N and made the seen range worse (harmonic 0.048 → 0.175).
+
+**Failure 3, a physics prior that lowers the data needed: yes for coarse targets, no for fine ones.**
+Trajectories needed in the seen range:
+
+| system | target error | plain | ID |
+|---|---|---|---|
+| harmonic | 0.3 | 210 | ≤ 30 |
+| harmonic | 0.1 | 1,356 | 765 |
+| harmonic | 0.03 | 6,887 | not reached by 10,000 |
+| damped | 0.3 | 545 | 171 |
+| damped | 0.1 | not reached by 10,000 | 8,473 |
+| advection-diffusion | 0.1 | 83 | 39 |
+| advection-diffusion | 0.03 | 587 | 85 |
+| diffusion | 0.03 | 88 | 427 |
+| diffusion | 0.01 | 449 | 2,017 |
+
+With little data the prior is worth 2–7× less data (and at N = 100 it cuts intervention error from 0.33–0.50 to
+0.05–0.08). With plenty of data the plain network is better on harmonic and diffusion, and on diffusion the prior
+costs about 5× more data at both targets measured. So the prior moves the threshold; it does not remove it, and it can move
+it the wrong way.
+
+**What v0.2 made worse.**
+* **Missing inputs.** With 30% of the window hidden, ID is far worse than plain on the oscillators (0.439 against
+  0.063; 0.656 against 0.166). Identification from a gappy 16-step window is fragile; not fixed.
+* **Seen-range accuracy at high N** on harmonic and diffusion (table above).
+* **Stability.** One of two advection-diffusion runs at N = 3,000 stopped early at error 0.070 (the other: 0.014),
+  and unseen-range error is uneven from one N to the next (damped: 0.158, 0.557, 0.155 at N = 100, 300, 1,000).
+* **Cost.** About 3× the CPU time per training step.
+
+Model size still does not matter: with identification, a 44K-parameter model did as well as 250K, 1M and 10M on the
+damped oscillator (seen / unseen at N = 10,000: 0.088 / 0.060, 0.128 / 0.099, 0.089 / 0.101, 0.098 / 0.089; one seed).
+
+How the design was reached: three variants (plain roll-out, a learned gate between the two paths, the final one)
+were each tried on one or two single runs while looking at seen- and unseen-range test error. An iterative
+refinement and a noise-bias correction were tried on the untrained identification and dropped because they were
+unstable. The design was then frozen and the 103-run grid was run once; the tables are from that grid.
+
 ## What has not been done
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring
@@ -117,5 +194,8 @@ This is a simulated system with a known answer, not evidence about any real poli
     python grid.py results/runs_ladder.jsonl ladder   # size x data on the damped oscillator (about 50 min, 1 core)
     python grid.py results/runs_systems.jsonl systems # other systems and sweeps (about 100 min, 1 core)
     python analyze.py                                 # -> results/REPORT.md, results/summary.json
+    python baselines_sysid.py                         # identification with no training
+    python grid.py results/runs_fix.jsonl fix         # v0.2: plain against identification (about 170 min, 1 core)
+    python analyze_fix.py                             # -> results/REPORT_v02.md
 
 Runs are deterministic for a given seed on the same machine (the same configuration run twice gave identical numbers).

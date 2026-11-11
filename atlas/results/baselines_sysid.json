@@ -1,0 +1,42 @@
+{
+ "harmonic_in": {
+  "all": 0.6609602570533752,
+  "unforced": 0.03247913345694542,
+  "unforced_share": 0.4105
+ },
+ "harmonic_ood": {
+  "all": 0.04390515759587288,
+  "unforced": 0.01786969043314457,
+  "unforced_share": 0.401
+ },
+ "damped_in": {
+  "all": 0.48647770285606384,
+  "unforced": 0.028416702523827553,
+  "unforced_share": 0.4505
+ },
+ "damped_ood": {
+  "all": 0.10946695506572723,
+  "unforced": 0.020846184343099594,
+  "unforced_share": 0.414
+ },
+ "diffusion_in": {
+  "all": 1.5979136228561401,
+  "unforced": 0.002756264293566346,
+  "unforced_share": 0.4195
+ },
+ "diffusion_ood": {
+  "all": 0.08938972651958466,
+  "unforced": 0.0032915978226810694,
+  "unforced_share": 0.402
+ },
+ "advdiff_in": {
+  "all": 0.10611157864332199,
+  "unforced": 0.003509113797917962,
+  "unforced_share": 0.404
+ },
+ "advdiff_ood": {
+  "all": 0.08108143508434296,
+  "unforced": 0.0040254658088088036,
+  "unforced_share": 0.38
+ }
+}

@@ -6,6 +6,7 @@
 #   bash colab_run.sh lockdown            # what-if test 1 (about 10 min on a T4, about 70 min on CPU)
 #   bash colab_run.sh india               # the all-India league: seeds 400-402 and the scoring
 #   bash colab_run.sh lockdown india      # both, one after the other
+#   bash colab_run.sh india-opp           # TimesFM and Chronos on the all-India windows (GPU), then the scoring again
 export PW_RAW=/content/raw ATLAS_OUT=/content/out
 mkdir -p $PW_RAW $ATLAS_OUT
 F='Warning\|warn(\|nanmean\|invalid value\|c /= \|stddev\|corrcoef\|Mean of empty'
@@ -39,6 +40,11 @@ for job in "$@"; do
       [ -f $ATLAS_OUT/india_s$s.npz ] || python -u run_atlas_india.py --seed $s 2>&1 | grep --line-buffered -v "$F" | tee $ATLAS_OUT/log_india_s$s.txt
     done
     python -u score_india.py 2>&1 | grep --line-buffered -v "$F" | tee $ATLAS_OUT/log_india_score.txt
+  elif [ "$job" = "india-opp" ]; then                       # foundation models on the same windows (GPU), then rescore
+    [ -f $PW_RAW/INDIA_LONG.npz ] || python -u tools/build_india_long.py 2>&1 | grep -v "$F" | grep "read 453\|INDIA_LONG\|usable\|INDIA "
+    pip install -q timesfm chronos-forecasting 2>&1 | tail -2
+    python -u india_opponents.py ${OPP_FLAGS} 2>&1 | grep --line-buffered -v "$F" | tee $ATLAS_OUT/log_india_opp.txt
+    python -u score_india.py 2>&1 | grep --line-buffered -v "$F" | tee $ATLAS_OUT/log_india_score2.txt
   fi
 done
 ls -la $ATLAS_OUT

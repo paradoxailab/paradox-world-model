@@ -425,7 +425,8 @@ bad.
 
 ### ATF v2.0 results, part 2: the out-of-domain test (Kaggle runs atf2-bench-s0 .. s3 and atf2-analysis, 2026-11-13)
 
-22 networks, 296 curve points (80 + 80 + 68 + 68 over the four training notebooks). The law frozen on the 46 Indian
+22 networks, 296 training runs (80 + 80 + 68 + 68 over the four notebooks; every network at 6 or 7 data amounts,
+2 seeds). The law frozen on the 46 Indian
 curves (α = 0.179, φ = 0.474) was applied unchanged; each network's own 2-month pilot is its only input.
 
 **Verdict under the rule written before the run: the law does NOT transfer.** It missed by one network. At the

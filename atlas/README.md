@@ -423,6 +423,71 @@ problem in the input variables that were not checked (dew point, pressure, visib
 is to train on 16-month windows that end earlier (for example ending November 2022) and see whether those alone are
 bad.
 
+## Atlas-Delhi league: against the models on the master list (plan and rules, written before any result)
+
+The master list (weather, traffic, flood, wildfire, landslide, earthquake, Earth-observation, urban, digital-twin,
+Indian and Sarvam systems) holds several hundred names. A model can be an opponent here only if it produces a
+forecast of something Delhi's stations measure, for hours that can be scored. Sorted by that test:
+
+| Group on the list | Can it be scored on Delhi / Indian station data? | Where it stands |
+|---|---|---|
+| Time-series foundation models (TimesFM 2.5 and 3.0, Chronos-2, Chronos-Bolt; not on the list, but the strongest opponents found so far) | Yes: zero-shot on the same windows | PM2.5: Atlas alone loses by 5–8% (stage 8). Earlier PWM-W hybrid: ties; loses to TimesFM 3.0 multivariate on unseen stations (branch `delhi-v0.2`). **Not beaten.** |
+| Air-quality forecast systems: CAMS global (ECMWF/Copernicus) | Yes (PM2.5) | Beaten: −50% raw, −25% after local bias correction (`delhi-v0.2`) |
+| Operational global models with a public forecast archive: ECMWF IFS / HRES, ECMWF AIFS, DWD ICON, NOAA GFS, NOAA AIGFS (GraphCast-based) | Yes: temperature, humidity, wind at stations | Delhi's CPCB stations: PWM-W beats IFS, AIFS, ICON and GFS on all three variables. Six airports: the hybrid beats all six under the issued-before-start rule; under the strict rule it loses temperature to AIFS and IFS 0.25 and humidity to AIFS (`delhi-v0.4` … `india-v2.0`) |
+| AI weather models with open weights and no archive: FourCastNet (SFNO), GenCast, GraphCast, FourCastNet 3, Aurora, Pangu-Weather, FuXi, FengWu, NeuralGCM, Stormer, … | Only by running them ourselves from real analyses (GPU) | SFNO and GenCast Mini ran: after their local bias correction PWM-W loses temperature, ties wind. GraphCast Operational, FourCastNet 3, Aurora: out of memory on the free GPU. The rest: not run |
+| WeatherNext, GenCast (full), MetNet-3, Aardvark and other closed or archive-less systems | No public forecasts for these stations and dates | Not scored (not publicly available) |
+| Traffic forecasting architectures: DCRNN, STGCN, Graph WaveNet, AGCRN, MTGNN, GMAN, STID, PDFormer, STAEformer, … | Yes as architectures: trained on Delhi's station graph with their authors' code (GPU) | Not yet on Delhi. On the standard traffic benchmarks PWM-Dyn v0.6 was level with or ahead of STID, Graph WaveNet and STAEformer on 5 of 6 networks; STAEformer led on PEMS08, and several specialist runs were stopped by the time budget (`main`, RESULTS.md §3) |
+| Traffic and urban foundation models: UniST, UrbanGPT, GPT-ST, STEP, … | Only where weights are public and accept an irregular station graph | Not checked yet |
+| Radar nowcasting (DGMR, NowcastNet, MetNet), climate and Earth-system models (CESM, E3SM, …) | No: no public Indian radar archive; decadal climate is a different question from the next 24 h | Out of scope |
+| Traffic-signal control, traffic simulators, commercial traffic systems, digital twins, city platforms | No: they do not publish forecasts of station measurements, and there is no open Delhi traffic feed | Out of scope |
+| Flood, wildfire, landslide, earthquake, tsunami, damage-assessment models | No: different tasks and data from station air quality and weather | Out of scope until that hazard's Indian data is collected |
+| Indian systems: BharatFS, Mithuna, IMD and NCMRWF forecasts, SAFAR / air-quality early warning | Only if archived forecasts at station points are published; none found | Not scored (not publicly disclosed) |
+| Sarvam models and other language models | They are not physical forecasters and are not used as one | Not opponents |
+
+So the open target is the first row: **no Paradox model has beaten the time-series foundation models on Delhi PM2.5.**
+The steps below go after that, one change per version.
+
+### Atlas-Delhi Fusion v1.0 (rules)
+
+Atlas and the open-licence foundation models forecast together (`delhi/fuse.py`). Members: the saved Atlas 3-seed
+ensemble (stage 7: 33.42 / 29.07), TimesFM 2.5, Chronos-2, Chronos-Bolt (their cached forecasts on the same windows).
+TimesFM 3.0 is never a member. The fused forecast is a weighted average of the members' quantiles, weights
+non-negative, summing to 1, on a 0.05 grid, chosen on training stations only:
+
+* **static:** once, on the validation period; equal weights, one set, or one set per lead block (1–6, 7–12, 13–24 h),
+  whichever has the lowest 5-fold blocked cross-validated MAE on validation;
+* **online (the primary entry):** one set per lead block, re-chosen at the start of every test day from the previous
+  30 days of forecasts whose 24 target hours were all observed before that day began; the 80% band is calibrated on
+  the same trailing windows. Reason, fixed before the run: validation is May–July and the test runs July–December
+  (monsoon, then the smog season), so weights fitted once in summer may not suit winter. Nothing later than a
+  forecast's start is used.
+
+Both entries are reported whatever they score. Controls: the same two procedures with the three foundation models
+only. Rules for the words used:
+
+* the fusion **beats** a model only with a significant MAE win (Diebold–Mariano p < 0.05 and a day-block bootstrap
+  95% interval excluding zero) on **both** the trained stations and the unseen stations;
+* **Atlas adds information** only if the fusion significantly beats the foundation-models-only fusion (same procedure)
+  on the trained stations; otherwise any gain is credited to combining the foundation models, not to Atlas;
+* a fusion that contains a model has not beaten it as an independent model: every statement says "Atlas together
+  with …". Atlas alone stays in the table;
+* TimesFM 3.0 (30.31 / 26.84; multivariate 29.95 / 26.16 in `delhi-v0.2`) is compared by number only until its
+  forecasts on these windows are re-made on a GPU; no verdict against it before that.
+
+Known weaknesses: Atlas's training stopped on a superset of the validation windows used to fit the static weights
+(a small bias towards Atlas in the static entry; the online entry does not have it after the first month); the
+online entry reads 30 days of past forecast errors that a single zero-shot model does not use, which is part of
+the system and is stated wherever it is reported.
+
+### Atlas-Delhi v1.1: all of Delhi's history (plan)
+
+Stage 8 extrapolated that a single Atlas needs roughly 4–5 years of Delhi history to reach the foundation models; the
+league file has 16 months because OpenCity's earlier Delhi files hold only the AQI index. `delhi/tools/build_delhi_long.py`
+joins the earlier station measurements from a public copy of CPCB's exports (Kaggle dataset "Time Series Air Quality
+Data of India (2010-2023)") to the league file, with the league's own reader and cleaning rules; the last 17,544
+hours stay bit-identical, so validation and test windows do not move. The training recipe and its decision rule are
+fixed after the data has been inspected (stations matched, clocks, units, coverage by year) and before any score.
+
 ## What has not been done
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

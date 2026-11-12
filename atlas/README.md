@@ -479,6 +479,47 @@ Known weaknesses: Atlas's training stopped on a superset of the validation windo
 online entry reads 30 days of past forecast errors that a single zero-shot model does not use, which is part of
 the system and is stated wherever it is reported.
 
+### Atlas-Delhi Fusion v1.0 results (Kaggle run atlas-delhi-fusion, 2026-11-13, CPU, 3.7 minutes)
+
+Checks first: each member alone reproduces its earlier score to two decimals (Atlas 33.42 / 29.07, TimesFM 2.5
+30.83 / 27.10, Chronos-2 31.17 / 27.41, Chronos-Bolt 31.35 / 27.94). PM2.5, next 24 h, MAE in µg/m³, 728 test windows.
+
+| Entry | Trained stations | Unseen stations | Fusion (online) against it: trained / unseen |
+|---|---|---|---|
+| **Atlas-Delhi Fusion, online (primary)** | **30.13** | **26.50** | – |
+| Atlas-Delhi Fusion, static | 30.16 | 26.58 | tie −0.1% (p=0.90) / tie −0.3% (p=0.59) |
+| Foundation models only, online (control) | 30.43 | 26.82 | tie −1.0% (p=0.17) / tie −1.2% (p=0.077) |
+| Foundation models only, static (control) | 30.55 | 26.94 | tie −1.4% (p=0.13) / tie −1.6% (p=0.073) |
+| TimesFM 2.5 (200M) | 30.83 | 27.10 | **wins −2.3% (p=0.017) / wins −2.2% (p=0.024)** |
+| Chronos-2 (120M) | 31.17 | 27.41 | **wins −3.3% (p=0.0001) / wins −3.3% (p=0.0002)** |
+| Chronos-Bolt base (205M) | 31.35 | 27.94 | **wins −3.9% (p<0.0001) / wins −5.1% (p<0.0001)** |
+| Atlas alone (1M, 3 seeds) | 33.42 | 29.07 | wins −9.8% / wins −8.8% (p<0.0001) |
+| TimesFM 3.0, earlier league, not re-run | 30.31 | 26.84 | by number only: fusion 0.6% / 1.3% lower |
+| TimesFM 3.0 multivariate, earlier league, not re-run | 29.95 | 26.16 | by number only: fusion 0.6% / 1.3% **higher** |
+
+Verdicts under the rules above:
+
+* **The fusion beats TimesFM 2.5, Chronos-2 and Chronos-Bolt**: significant MAE wins on both the trained and the
+  unseen stations, for the online entry and for the static one (static: −2.2% / −1.9%, −3.3% / −3.0%, −3.8% / −4.8%;
+  p from 0.018 down). The pinball loss of the quantiles agrees (−1.9% to −4.1%, all significant). This is the first
+  significant win over these models on Delhi PM2.5 in this project, and it is **Atlas together with them**, not an
+  independent model: Atlas alone still loses to all three.
+* **Whether Atlas adds information is not settled.** Against the same procedure without Atlas, the online entry is
+  1.0% / 1.2% better but not significantly (p = 0.17 / 0.077): by the rule, **not shown** for the primary entry. The
+  static entry is 1.3% / 1.3% better and passes (p = 0.046 / 0.041), barely. Of the 2.3% gained on TimesFM 2.5,
+  about 1.3 points come from combining the three foundation models and about 1 from adding Atlas. Whether the
+  foundation-models-only fusion itself beats TimesFM 2.5 was not tested.
+* **TimesFM 3.0 is not beaten.** By number the fusion is slightly ahead of univariate TimesFM 3.0 and slightly behind
+  the multivariate one; no test until its forecasts are re-made on these windows (GPU).
+* **Online against static: no difference** (p = 0.90 / 0.59). The reason given for making online the primary entry
+  (summer weights may not suit winter) was not borne out in the score.
+* **Where Atlas earns its weight.** Static weights from validation: hours 1–6 Atlas 0.55, Chronos-Bolt 0.45; hours
+  7–12 Atlas 0.45, TimesFM 2.5 0.35, Chronos-Bolt 0.20; hours 13–24 Atlas 0.15, TimesFM 2.5 0.65, Chronos-Bolt 0.20.
+  Online, Atlas's weight was 0.19–0.22 in July–September and 0.36–0.38 in October–November (the smog season), 0.26
+  in December; mean 0.27 (TimesFM 2.5 0.39, Chronos-2 0.24, Chronos-Bolt 0.10).
+* By lead time on trained stations (fusion online / TimesFM 2.5 / Atlas): 1 h 13.5 / 14.0 / 14.9; 6 h 27.9 / 29.2 /
+  30.0; 12 h 32.2 / 32.9 / 36.3; 24 h 34.7 / 35.3 / 37.7. The 80% band covers 79%.
+
 ### Atlas-Delhi v1.1: all of Delhi's history (plan)
 
 Stage 8 extrapolated that a single Atlas needs roughly 4–5 years of Delhi history to reach the foundation models; the

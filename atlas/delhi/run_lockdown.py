@@ -42,6 +42,10 @@ GROUPS = {"placebo: 25 Mar - 31 May 2019": ("2019-03-25", "2019-06-01"),
           "all lockdown: 25 Mar - 31 May 2020": ("2020-03-25", "2020-06-01")}
 PLACEBO_OF = {"lockdown 1: 25 Mar - 14 Apr 2020": "placebo, phase-1 dates: 25 Mar - 14 Apr 2019"}   # others: the whole placebo window
 MET = slice(8, 15)                                        # weather channels among the 15; 0..7 are pollutants
+V1B = False                                               # test 1b (--v1b): reanalysis forcing and a second placebo
+PRE19 = ("2019-03-01", "2019-03-22")                      # test 1b: the "just before" dates a year earlier, never trained on
+PRE19_NAME = "placebo, just-before dates: 1 - 21 Mar 2019"
+R_DIM = 9                                                 # rain now / last 24 h / last 72 h, boundary layer, wind speed, east and north wind at 100 m, cloud, soil moisture
 T0 = time.time()
 RES = {"groups": {}, "runs": {}}
 
@@ -72,6 +76,8 @@ def prepare(D):
     a, b = idx(D, TRAIN[0]), idx(D, TRAIN[1])
     p0, p1 = idx(D, PLACEBO[0]), idx(D, PLACEBO[1])
     keep = np.zeros(D.T, bool); keep[a:b] = True; keep[p0:p1] = False
+    if V1B:
+        keep[idx(D, PRE19[0]):idx(D, PRE19[1])] = False
     with np.errstate(all="ignore"):
         m = np.nanmean(D.Y[keep], 0)                                           # [N, K]
         m = np.where(np.isfinite(m), m, np.nanmedian(m, 0)[None])
@@ -83,7 +89,46 @@ def prepare(D):
     D.city_ok = np.concatenate([np.isfinite(city).all(1, keepdims=True).astype(np.float32), pad[:, :1]])
     doy = (D.dates - D.dates.astype("datetime64[Y]")).astype("timedelta64[D]").astype(int) / 365.25 * 2 * math.pi
     D.season = np.stack([np.sin(doy), np.cos(doy), np.sin(2 * doy), np.cos(2 * doy)], -1).astype(np.float32)
+    D.rea = reanalysis(D, keep) if V1B else None
     return keep
+
+
+def reanalysis(D, keep):
+    """Test 1b: city-level reanalysis features on the stations' clock (tools/fetch_era5_delhi.py), scaled with
+    training-period statistics. A variable the archive did not serve is left at zero and named in the log."""
+    z = np.load(os.path.join(RAW, "DELHI_ERA5.npz"), allow_pickle=False)
+    X, names = z["X"].astype(np.float64), [str(v) for v in z["vars"]]
+    a = int((D.start.astype("datetime64[h]") - np.datetime64(str(z["start"])).astype("datetime64[h]")).astype(int))
+    assert a >= 72 and a + D.T <= len(X), "the reanalysis file does not cover the station file (and 72 h before it)"
+    col = lambda v: X[:, names.index(v)] if v in names else np.full(len(X), np.nan)
+    served = lambda x: np.isfinite(x[a:a + D.T]).mean() > 0.99
+    kk = np.zeros(len(X), bool); kk[a:a + D.T] = keep
+    F, used, missing = np.zeros((len(X), R_DIM), np.float32), [], []
+
+    def z_(x):                                             # standardised with training hours only
+        return (x - np.nanmean(x[kk])) / max(float(np.nanstd(x[kk])), 1e-6)
+
+    p = col("precipitation")
+    if served(p):
+        p = np.nan_to_num(p); c = np.concatenate([[0.0], np.cumsum(p)])
+        roll = lambda n: c[1:] - c[np.maximum(np.arange(len(p)) + 1 - n, 0)]
+        F[:, 0], F[:, 1], F[:, 2] = np.log1p(p), np.log1p(roll(24)), np.log1p(roll(72)); used.append("precipitation")
+    else:
+        raise SystemExit("the reanalysis archive did not serve rain: test 1b is not run")
+    for j, v, f in ((3, "boundary_layer_height", lambda x: z_(np.log(np.maximum(x, 10.0)))), (4, "wind_speed_100m", z_),
+                    (7, "cloud_cover", lambda x: x / 100.0), (8, "soil_moisture_0_to_7cm", z_)):
+        x = col(v)
+        if served(x):
+            F[:, j] = np.nan_to_num(f(x)); used.append(v)
+        else:
+            missing.append(v)
+    ws = col("wind_speed_100m")
+    if served(ws) and served(col("u100")):
+        sd = max(float(np.nanstd(ws[kk])), 1e-6)
+        F[:, 5], F[:, 6] = np.nan_to_num(col("u100") / sd), np.nan_to_num(col("v100") / sd)
+    D.rea_used, D.rea_missing = used, missing
+    log(f"reanalysis forcing: {used}; not served: {missing}")
+    return np.concatenate([F[a:a + D.T], np.zeros((2 * H, R_DIM), np.float32)])
 
 
 def batch(D, org, nodes, drop=0.0):
@@ -92,6 +137,7 @@ def batch(D, org, nodes, drop=0.0):
     dev = b["yc"].device
     if not hasattr(D, "t_city"):
         D.t_city, D.t_cok, D.t_season = (torch.as_tensor(x, device=dev) for x in (D.city, D.city_ok, D.season))
+        D.t_rea = torch.as_tensor(D.rea, device=dev) if D.rea is not None else None
     o = torch.as_tensor(org, device=dev)
     hl = o[:, None] + torch.arange(-L, 0, device=dev)[None]
     fo = (o[:, None] + torch.arange(H, device=dev)[None]).clamp(max=D.T + 2 * H - 1)
@@ -106,6 +152,8 @@ def batch(D, org, nodes, drop=0.0):
     ex = lambda t, ix: t[ix][:, None].expand(-1, n, -1, -1)
     uc = torch.cat([b["uc"], ex(D.t_season, hl), yc[..., MET], mc[..., MET], ex(D.t_city, hl), ex(D.t_cok, hl)], -1)
     uf = torch.cat([b["uf"], ex(D.t_season, fo), b["yf"][..., MET] * of, of, ex(D.t_city, fo), ex(D.t_cok, fo)], -1)
+    if D.t_rea is not None:
+        uc, uf = torch.cat([uc, ex(D.t_rea, hl)], -1), torch.cat([uf, ex(D.t_rea, fo)], -1)
     st = torch.zeros_like(b["static"]); st[..., 2 * DM + 2 * H] = b["static"][..., 2 * DM + 2 * H]   # the station's usual level only
     return dict(yc=yc, mc=mc, uc=uc, uf=uf, yf=b["yf"], of=b["of"], static=st, geo=b["geo"], s=b["s"])
 
@@ -114,7 +162,7 @@ U = 4 + 4 + 7 + 7 + 7 + 1
 
 
 def build(D, size):
-    return sized(int(size), L=L, H=H, C=D.K + D.Ca, U=U, lat_steps=6, spatial=True, geo_dim=3, static=2 * DM + 2 * H + 2,
+    return sized(int(size), L=L, H=H, C=D.K + D.Ca, U=U + (R_DIM if V1B else 0), lat_steps=6, spatial=True, geo_dim=3, static=2 * DM + 2 * H + 2,
                  lo=[0.0] * D.K + [float("-inf")] * D.Ca, sysid=False, fill="interp").to(DEV)
 
 
@@ -171,7 +219,16 @@ def boot(n, reps, rng, block=3):
 
 
 def main(a):
-    q = a.quick
+    global V1B, GROUPS
+    q, V1B = a.quick, bool(a.v1b)
+    tag, title = ("lockdown1b", "1b") if V1B else ("lockdown", "1")
+    if V1B:                                                # a second placebo: the "just before" dates a year earlier
+        g = dict(GROUPS); GROUPS = {}
+        for k, v in g.items():
+            if k.startswith("just before"):
+                GROUPS[PRE19_NAME] = PRE19
+                PLACEBO_OF[k] = PRE19_NAME
+            GROUPS[k] = v
     D = load()
     keep = prepare(D)
     log(D.describe())
@@ -186,7 +243,7 @@ def main(a):
     hold = cand[(dnum % 10 == 7) & (cand % SPD == 0)]                           # every tenth day, one simulation a day
     tr = cand[~np.isin(dnum % 10, (6, 7))]
     log(f"stations: {D.N} ({len(S)} trained on, {len(D.unseen)} unseen); training windows {len(tr)} ({D.dates[tr[0]]} .. {D.dates[tr[-1] + H - 1]}), "
-        f"held-out days {len(hold)}; nothing from {PLACEBO[0]} .. {PLACEBO[1]} or from {TRAIN[1]} on is trained on")
+        f"held-out days {len(hold)}; nothing from {PLACEBO[0]} .. {PLACEBO[1]}{' or ' + PRE19[0] + ' .. ' + PRE19[1] if V1B else ''} or from {TRAIN[1]} on is trained on")
     seeds = [500, 501] if q else [500, 501, 502]
     models = [train(D, tr, hold[:6] if q else hold, s, 60 if q else a.steps, 60000 if q else a.size, 20 if q else 400) for s in seeds]
     ALLN = np.arange(D.N)
@@ -213,7 +270,7 @@ def main(a):
         g["_boot"] = so[ix].sum(1) / sp[ix].sum(1)
         g["ratio_ci95"] = [float(x) for x in np.percentile(g["_boot"], [2.5, 97.5])]
         out[name] = g
-        np.savez_compressed(os.path.join(OUT, "lockdown_days_" + name.split(":")[0].replace(" ", "_").replace(",", "") + ".npz"),
+        np.savez_compressed(os.path.join(OUT, tag + "_days_" + name.split(":")[0].replace(" ", "_").replace(",", "") + ".npz"),
                             dates=D.dates[org].astype(str), measured=dm_o, simulated=dm_p, cells=c)
     for name, g in out.items():
         pl = out[PLACEBO_OF.get(name, "placebo: 25 Mar - 31 May 2019")]
@@ -230,13 +287,16 @@ def main(a):
     pl, pre, l1 = out["placebo: 25 Mar - 31 May 2019"], out["just before: 1 - 21 Mar 2020"], out["lockdown 1: 25 Mar - 14 Apr 2020"]
     gate = bool(abs(pl["ratio"] - 1) <= 0.15 and (pre["effect_ci95_pct"][0] <= 0 <= pre["effect_ci95_pct"][1] or abs(pre["effect_pct"]) < 15))
     detect = bool((l1["effect_ci95_pct"][1] < 0 or l1["effect_ci95_pct"][0] > 0) and abs(l1["effect_pct"]) > abs(pre["effect_pct"]))
+    if V1B:                                                # the March placebo must be unbiased too
+        gate = bool(gate and abs(out[PRE19_NAME]["ratio"] - 1) <= 0.15)
+        RES["reanalysis"] = dict(used=D.rea_used, not_served=D.rea_missing)
     for g in out.values():
         g.pop("_boot")
     RES.update(groups=out, naive_pct=naive, gate_passed=gate, lockdown_detected=detect, describe=D.describe(),
                stations=dict(total=D.N, trained=int(len(S)), unseen=int(len(D.unseen))), train_windows=int(len(tr)), holdout_days=int(len(hold)),
                minutes_total=round((time.time() - T0) / 60, 1))
-    json.dump(RES, open(os.path.join(OUT, "lockdown_results.json"), "w"), indent=1, default=float)
-    o = ["# Atlas what-if test 1: the 2020 lockdown in Delhi (generated from lockdown_results.json)", "",
+    json.dump(RES, open(os.path.join(OUT, tag + "_results.json"), "w"), indent=1, default=float)
+    o = [f"# Atlas what-if test {title}: the 2020 lockdown in Delhi (generated from {tag}_results.json)", "",
          "| Window | days | measured PM2.5 | simulated, business as usual | measured / simulated - 1 | 95% interval | effect after removing the placebo bias | 95% interval | day-to-day correlation |",
          "|---|---|---|---|---|---|---|---|---|"]
     for name, g in out.items():
@@ -245,9 +305,11 @@ def main(a):
                  f"{100 * (g['ratio_ci95'][0] - 1):+.1f}% .. {100 * (g['ratio_ci95'][1] - 1):+.1f}% | {eff} | {g['daily_corr']:.2f} |")
     o += ["", "Without any weather adjustment, from the same data: " + "; ".join(f"{k} {v:+.1f}%" for k, v in naive.items()) + ".", "",
           f"Runs: " + "; ".join(f"seed {k}: held-out days MAE {v['holdout_MAE']:.2f}, {v['minutes']} min" for k, v in RES["runs"].items()) + ".", "",
-          f"Validity gate (placebo bias within 15% and no effect just before the lockdown): {'PASSED' if gate else 'FAILED'}.",
+          f"Validity gate ({'both placebo biases' if V1B else 'placebo bias'} within 15% and no effect just before the lockdown): {'PASSED' if gate else 'FAILED'}.",
           f"Lockdown detected in phase 1 (interval excludes zero and the effect is larger than just before): {'YES' if detect else 'NO'}.", ""]
-    open(os.path.join(OUT, "LOCKDOWN_REPORT.md"), "w").write("\n".join(o) + "\n")
+    if V1B:
+        o += [f"Reanalysis forcing used: {', '.join(D.rea_used) or 'none'}; not served by the archive: {', '.join(D.rea_missing) or 'none'}.", ""]
+    open(os.path.join(OUT, tag.upper() + "_REPORT.md"), "w").write("\n".join(o) + "\n")
     log("\n".join(o))
     log(f"done in {RES['minutes_total']} min")
 
@@ -258,5 +320,6 @@ if __name__ == "__main__":
     ap.add_argument("--size", type=int, default=250_000)
     ap.add_argument("--reps", type=int, default=2000)
     ap.add_argument("--quick", action="store_true")
+    ap.add_argument("--v1b", action="store_true", help="test 1b: reanalysis forcing (DELHI_ERA5.npz) and 1-21 March 2019 held out as a second placebo")
     os.makedirs(OUT, exist_ok=True)
     main(ap.parse_args())

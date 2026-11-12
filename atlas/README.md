@@ -809,6 +809,46 @@ Why the weeks before the lockdown may have been cleaner than simulated (not test
 reanalysis as forcing, and hold 1–21 March 2019 out of training as a second placebo, so that the test can tell a
 March bias of the method from something that happened in March 2020. The gate stays as it is.
 
+### What-if test 1b: rain, mixing height and a second placebo (rules, written before any run on Delhi data)
+
+Test 1 failed because the three weeks before the lockdown were already cleaner than simulated. Test 1b asks whether
+weather that the stations' own sensors do not measure explains that gap. It is the **second look at the same
+episode**, so a pass here is weaker evidence than a first-time pass would have been; rule 6 deals with that.
+
+1. **Same as test 1:** the training period, the cut at 2020-06-01, the model (about 250K parameters, 8,000 steps,
+   seeds 500–502, checkpoint on every tenth training-period day), the number reported, the bootstrap, rule 5.
+2. **New inputs.** ERA5 reanalysis at Delhi's centre (one cell of about 25 km; `delhi/tools/fetch_era5_delhi.py`,
+   through Open-Meteo's archive, no key; free for non-commercial use, data CC BY 4.0, ERA5 from the Copernicus
+   Climate Change Service; used for this research test only): rain in the hour, in the last 24 h and in the last
+   72 h, boundary-layer height, wind at 100 m, cloud cover and top-layer soil moisture, for the 72 past hours and
+   the 24 simulated hours. If the archive does not serve rain the test is not run; any other variable it does not
+   serve is left out and named in the result.
+3. **A second placebo.** 1–21 March 2019 is also never trained on. The effect "just before" is now the 2020 ratio
+   divided by the ratio on those same dates in 2019, as phase 1 already is.
+4. **Validity gate.** Both placebo biases (25 March–31 May 2019 and 1–21 March 2019) within ±15%, and no effect
+   just before the lockdown (interval includes zero, or below 15%). Otherwise the lockdown rows do not count.
+5. **Either outcome is reported.** If the gap closes, rain and mixing explain early March 2020 and the lockdown
+   rows count. If it stays, the weather we can obtain does not explain it, and the candidates left are a real fall
+   in emissions before 25 March or sources outside Delhi.
+6. **After 1b the method is frozen** (inputs, sizes, gate) and goes to an episode it has not been run on, with
+   rules written first: Delhi's 2021 lockdown, and the 2020 lockdown in the other Indian networks.
+
+**Method check on made-up data** (`delhi/tools/planted_lockdown_check.py --hidden-rain`; not a result about Delhi).
+The made-up world of test 1 with rain spells added that wash particles out, a wet 1–24 March 2020 (129 mm against
+17 mm on the same dates of 2019), a planted −40% from 25 March, and station sensors that do not show the rain.
+
+| Method | gap just before the lockdown | gate | phase 1 | all lockdown |
+|---|---|---|---|---|
+| Test 1 (no reanalysis) | −36.0% (−50.3% .. −20.0%) | FAILED | −33.1% | −40.5% |
+| Test 1b (reanalysis) | −2.8% (−5.9% .. +0.8%) | PASSED | −39.7% (−42.0% .. −37.1%) | −40.3% (−41.8% .. −38.9%) |
+| Plain comparison, no model | – | – | −28.0% against 2019; +6.5% against 2–21 March 2020 | −46.6% against 2019 |
+
+So when hidden rain is the cause, test 1 fails in the way it failed on Delhi, and test 1b repairs it and recovers the
+planted effect (four phases: −39.7%, −40.2%, −40.8%, −42.3%). In a second made-up world where the stations' humidity
+sensor does show the rain (`--rain`), test 1 already passed its gate (gap −9.1%, interval −14.7% to −0.8%) and 1b
+gave −2.4% and −40.5% overall. This shows the method can separate rain from a lockdown. It does not show that rain
+is what happened in Delhi.
+
 ## What has not been done
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

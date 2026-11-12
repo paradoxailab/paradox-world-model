@@ -6,6 +6,8 @@
 #   bash colab_run.sh lockdown            # what-if test 1 (about 10 min on a T4, about 70 min on CPU)
 #   bash colab_run.sh india               # the all-India league: seeds 400-402 and the scoring
 #   bash colab_run.sh lockdown india      # both, one after the other
+#   DATA_ONLY=1 bash colab_run.sh lockdown1b   # test 1b, data step only (what the reanalysis archive serves)
+#   bash colab_run.sh lockdown1b          # what-if test 1b
 #   bash colab_run.sh india-opp           # TimesFM and Chronos on the all-India windows (GPU), then the scoring again
 export PW_RAW=/content/raw ATLAS_OUT=/content/out
 mkdir -p $PW_RAW $ATLAS_OUT
@@ -34,6 +36,11 @@ for job in "$@"; do
     [ -f $PW_RAW/DELHI.npz ] || python tools/fetch_delhi.py 2>&1 | grep -v "$F" | tail -25
     [ -f $PW_RAW/DELHI_LONG.npz ] || python -u tools/build_delhi_long.py 2>&1 | grep -v "$F" | grep "matched\|NO MATCH\|solar-radiation\|DELHI_LONG\|20[12][0-9]:\|ratio\|LONG "
     python -u run_lockdown.py 2>&1 | grep --line-buffered -v "$F" | grep --line-buffered -v "step [0-9]*[1-9]00 \|step [0-9]*[13579]000 " | tee $ATLAS_OUT/log_lockdown.txt
+  elif [ "$job" = "lockdown1b" ]; then                      # what-if test 1b: reanalysis forcing and a second placebo
+    [ -f $PW_RAW/DELHI.npz ] || python tools/fetch_delhi.py 2>&1 | grep -v "$F" | tail -3
+    [ -f $PW_RAW/DELHI_LONG.npz ] || python -u tools/build_delhi_long.py 2>&1 | grep -v "$F" | grep "matched\|NO MATCH\|DELHI_LONG\|LONG "
+    [ -f $PW_RAW/DELHI_ERA5.npz ] || python -u tools/fetch_era5_delhi.py 2>&1 | grep -v "$F"
+    [ -n "$DATA_ONLY" ] || python -u run_lockdown.py --v1b 2>&1 | grep --line-buffered -v "$F" | grep --line-buffered -v "step [0-9]*[1-9]00 \|step [0-9]*[13579]000 " | tee $ATLAS_OUT/log_lockdown1b.txt
   elif [ "$job" = "india" ]; then
     [ -f $PW_RAW/INDIA_LONG.npz ] || python -u tools/build_india_long.py 2>&1 | grep -v "$F" | grep "read 453\|INDIA_LONG\|usable\|INDIA "
     for s in ${SEEDS:-400 401 402}; do

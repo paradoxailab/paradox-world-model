@@ -397,6 +397,32 @@ month), 0.358 (1), 0.346 (2) in standardised MAE; persistence 0.841. The tool pr
 alone (M0) was off by ×1.37 and the power law on the pilots (M1) by ×1.20. One network, so an illustration, not
 a test; the test is the 22 networks above.
 
+### ATF v2.0 results, part 1: the 32–64-month diagnostic (Kaggle run atf2-diag, 2026-11-12, 137 minutes)
+
+Each all-India region trained for a fixed 4,000 steps with the final weights kept (no early stopping), 1 seed; test MAE
+(temperature °C, humidity %, wind m/s):
+
+| region | AT 16 / 32 / 64 / all | RH 16 / 32 / 64 / all | WS 16 / 32 / 64 / all | 32 ÷ 16 | 64 ÷ 16 | all ÷ 16 |
+|---|---|---|---|---|---|---|
+| isd-r0 | 1.27 / 1.77 / 1.89 / 1.25 | 5.61 / 8.01 / 7.94 / 5.54 | 0.691 / 0.812 / 0.804 / 0.699 | 1.33 | 1.36 | 0.99 |
+| isd-r1 | 1.10 / 2.99 / 1.46 / 1.08 | 5.47 / 8.79 / 7.06 / 5.49 | 0.809 / 1.068 / 0.908 / 0.802 | 1.88 | 1.24 | 0.99 |
+| isd-r2 | 1.08 / 3.18 / 1.49 / 1.06 | 5.57 / 9.76 / 7.00 / 5.43 | 0.900 / 1.115 / 1.070 / 0.887 | 1.98 | 1.27 | 0.98 |
+| isd-r3 | 1.18 / 1.33 / 1.54 / 1.15 | 5.71 / 6.32 / 7.09 / 5.65 | 0.819 / 0.874 / 0.922 / 0.822 | 1.10 | 1.22 | 0.99 |
+| isd-r4 | 1.35 / 2.89 / 2.17 / 1.32 | 6.00 / 11.36 / 8.50 / 5.80 | 0.601 / 0.680 / 0.652 / 0.604 | 1.72 | 1.37 | 0.98 |
+| isd-r5 | 0.99 / 1.16 / 1.24 / 0.98 | 5.13 / 5.92 / 6.57 / 5.08 | 0.930 / 1.016 / 1.042 / 0.934 | 1.14 | 1.21 | 0.99 |
+
+**Verdict: the early-stopping hypothesis is NOT supported.** The dip is present in 6 of 6 regions (pre-registered
+test needed it to vanish in 5), and fixed-length training made it slightly larger, not smaller (for example isd-r1:
+32 months is 2.7× worse than 16 on temperature). All data is again as good as or slightly better than 16 months.
+
+The per-year check found no obvious data break: across the six regions, missing data is 54–57% every year from 2016
+to 2023 (74% in 2015), the number of reporting stations is 138–146, and yearly mean temperature (26.1–26.9 °C),
+humidity (66.5–70.6%) and wind (1.6–1.8 m/s) are steady. So the cause is still open. Two candidates remain: a
+problem in the input variables that were not checked (dew point, pressure, visibility, wind direction) in parts of
+2018–2022, or something about where the window starts rather than how long it is. The test that separates them
+is to train on 16-month windows that end earlier (for example ending November 2022) and see whether those alone are
+bad.
+
 ## What has not been done
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

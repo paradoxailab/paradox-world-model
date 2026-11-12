@@ -236,7 +236,7 @@ the earlier Delhi league on the same windows (Chronos-2: 31.17 / 27.41 in both r
   of one city is 6.6–8.4% behind three zero-shot models of 120–205M parameters on trained stations, significantly
   in every case, and behind two of three on unseen stations. It beats both simple baselines by 17–27%.
 * **Identification did not help on real data.** Validation MAE: plain 22.60 (250K) and 22.02 (1M); ID 22.70 and
-  22.91. Both ID runs hit the 50-minute cap (they are about 8× slower per step on CPU). ID is much worse one hour
+  22.91. Both ID runs hit the 50-minute cap (they are 5–7× slower per step on CPU). ID is much worse one hour
   ahead (23.3 against 14.9 µg/m³ on trained stations) and about level from six hours on: its forecast starts from a
   smoothed state rather than from the last reading.
 * **The validation rule was weaker than it looked.** The noise floor came from three seeds of the 250K model

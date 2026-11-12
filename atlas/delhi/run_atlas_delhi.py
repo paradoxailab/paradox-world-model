@@ -35,6 +35,7 @@ from atlas.model import sized
 from atlas import threshold as TH
 
 L, H = 72, 24
+LONG = 0          # extra hours of PM2.5-only history before the 72-h window (0 = off); set by run_atlas_threshold.py
 DEV = "cuda" if torch.cuda.is_available() else "cpu"
 OUT = os.environ.get("ATLAS_OUT", os.path.join(ROOT, "results"))
 TEST_STRIDE, VAL_STRIDE, TRAIN_STRIDE = 6, 3, 3
@@ -85,6 +86,10 @@ def make_batch(D, org, nodes, dev=DEV):
     lag7o = D.t_o[l7][:, :, nd, 0].permute(0, 2, 1).float()
     static = torch.cat([daily, (cnt > 0).float().permute(0, 2, 1), lag7 * lag7o, lag7o,
                         torch.log(s[:, :, :1]) / 5, D.t_sf[o - 1][:, nd][:, :, :1].float()], -1)
+    if LONG:                                              # PM2.5 alone, hours -(L+LONG) .. -L, as extra static inputs
+        lg = (o[:, None] + torch.arange(-L - LONG, -L, device=dev)[None]).clamp(min=0)
+        lo_ = D.t_o[lg][:, :, nd, 0].permute(0, 2, 1).float()
+        static = torch.cat([static, D.t_y[lg][:, :, nd, 0].permute(0, 2, 1) / s[:, :, :1] * lo_, lo_], -1)
     A = D.t_A[nd][:, nd]
     eye = torch.eye(n, device=dev)
     geo = torch.stack([A, eye, (A > 0).float()], -1)
@@ -100,7 +105,7 @@ def truth(D, org, nodes):
 # ---------------------------------------------------------------------------------------------------- model
 def build(D, size, sysid):
     C = D.K + D.Ca
-    return sized(int(size), L=L, H=H, C=C, U=4, lat_steps=6, spatial=True, geo_dim=3, static=2 * DM + 2 * H + 2,
+    return sized(int(size), L=L, H=H, C=C, U=4, lat_steps=6, spatial=True, geo_dim=3, static=2 * DM + 2 * H + 2 + 2 * LONG,
                  lo=[0.0] * D.K + [float("-inf")] * D.Ca, sysid=bool(sysid), K=2, lags=3, id_ch=1, fill="interp").to(DEV)
 
 

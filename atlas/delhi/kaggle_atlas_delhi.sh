@@ -1,6 +1,7 @@
 #!/bin/bash
 # Atlas on Delhi PM2.5 (stage 7). Kaggle notebook, internet on; CPU is enough for sizes up to 1M (GPU is used if present).
-#   bash kaggle_atlas_delhi.sh                       # everything
+#   bash kaggle_atlas_delhi.sh                       # stage 7: everything
+#   SCRIPT=run_atlas_threshold.py NO_PIP=1 bash kaggle_atlas_delhi.sh    # stage 8 (attach the stage-7 notebook's output)
 #   RUN_FLAGS="--sizes 250000,1000000,10000000" bash kaggle_atlas_delhi.sh      # with the 10M model (GPU)
 set -x
 export PW_RAW=/kaggle/working/raw ATLAS_OUT=/kaggle/working/out
@@ -9,7 +10,7 @@ mkdir -p $PW_RAW $ATLAS_OUT/opponents
 find /kaggle/input -name "DELHI.npz" -exec cp -n {} $PW_RAW/ \; 2>/dev/null
 find /kaggle/input -path "*out/opponents/*.npz" -exec cp -n {} $ATLAS_OUT/opponents/ \; 2>/dev/null
 [ -f $PW_RAW/DELHI.npz ] || python tools/fetch_delhi.py 2>&1 | tail -70
-pip install -q timesfm chronos-forecasting 2>&1 | tail -2
-python -u run_atlas_delhi.py ${RUN_FLAGS} 2>&1 | grep --line-buffered -v "Warning\|warn(" | tee $ATLAS_OUT/log.txt
+[ -n "$NO_PIP" ] || pip install -q timesfm chronos-forecasting 2>&1 | tail -2
+python -u ${SCRIPT:-run_atlas_delhi.py} ${RUN_FLAGS} 2>&1 | grep --line-buffered -v "Warning\|warn(" | tee $ATLAS_OUT/log.txt
 rm -rf $PW_RAW/delhi_csv
 ls -la $ATLAS_OUT $ATLAS_OUT/opponents

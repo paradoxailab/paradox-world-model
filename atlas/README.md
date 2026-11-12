@@ -711,6 +711,53 @@ country.
    the two simple baselines, and nothing is said from it about foundation models.
 7. The Delhi models (v1.1, v1.2) were trained on hours that are test hours here and are never scored in this league.
 
+## Atlas what-if test 1: the 2020 lockdown in Delhi (rules, written before any result)
+
+Forecasting the next 24 hours well does not make a world model. A world model has to answer a question no
+forecaster can: **what would have happened otherwise?** India's national lockdown began on 25 March 2020 and is
+inside the history joined for Delhi v1.1. The question put to Atlas: what would Delhi's PM2.5 have been in those
+weeks if emissions had gone on as usual?
+
+**Why a forecaster cannot answer.** Atlas, TimesFM and Chronos all read recent pollution. During the lockdown
+those readings already contain the lockdown, so their forecasts follow it. The model for this test, **Atlas-BAU**
+("business as usual", `delhi/run_lockdown.py`), is the Atlas architecture with every pollutant reading removed from
+its inputs. It is given only what the lockdown did not change: each station's weather for the last 72 h and for the
+24 h being simulated (temperature, humidity, wind speed and direction, solar radiation, pressure), the city-mean
+weather for the same hours, the hour, weekday and season, and each station's usual PM2.5 level. The weather enters as
+forcing of the transition, the route the design reserves for interventions.
+
+**Rules.**
+
+1. **Training** on 2018-01-15 to 2020-02-29, to reproduce measured PM2.5. Never trained on: the **placebo window**,
+   25 March to 31 May 2019 (the same dates a year earlier, no lockdown), or anything from 1 March 2020. The data file
+   is cut at 2020-06-01 before loading, and the loader's scaling and station graph use data up to October 2019 only.
+2. **Model.** Atlas, about 250K parameters, 8,000 steps, seeds 500–502; the checkpoint is chosen on every tenth
+   training-period day, held out; the three models are averaged.
+3. **Number reported.** Measured ÷ simulated − 1 over the measured station-hours of the trained stations: the change
+   that weather and season do not explain. The same number on the placebo window is the method's own bias. The
+   **effect** is the lockdown ratio divided by the placebo ratio, minus 1 (phase 1 against the same dates in 2019,
+   the later phases and the total against the whole placebo window), with a 95% interval from a 3-day block bootstrap.
+4. **Validity gate.** The lockdown numbers count only if the placebo bias is within ±15% and the three weeks just
+   before the lockdown (1–21 March 2020) show no effect (interval includes zero, or below 15%).
+5. **"Atlas detects the lockdown"** only if the phase-1 interval excludes zero and the effect is larger than the
+   one measured just before.
+6. **Published numbers are context, not a target.** Mahato, Pal and Ghosh (2020, Science of the Total Environment):
+   PM2.5 about 53% lower in 25 March–14 April than in 2–21 March 2020, 39% lower than the same period of 2019 at one
+   station; meteorology not considered. Sahoo et al. (2021, Int. J. Environ. Sci. Technol., 34 stations): phase 1
+   62.6% lower than before the lockdown and 51.7% lower than the same dates in 2019; no weather adjustment. A 2021
+   preprint that does weather-normalise reports a small reduction (no figure on its abstract page). The plain
+   year-on-year comparisons are printed from our own data beside the weather-adjusted effect.
+7. **Known limits, stated now.** One spring (2018) is in training for the season simulated, and many stations came
+   online during it. The weather is the stations' own sensors: no boundary-layer height, no regional transport, no
+   fire counts. So "not explained by weather" includes any change in regional sources between years, not only the
+   lockdown; the placebo measures how large that was from 2018 to 2019.
+
+**Method check on made-up data** (`delhi/tools/planted_lockdown_check.py`; not a result about Delhi). Twelve fake
+stations whose PM2.5 depends on season, hour and wind, with a planted −40% from 25 March to 31 May 2020. The method
+recovered −39.4%, −40.8%, −40.9% and −41.0% for the four phases (−40.3% overall), with a placebo bias of +5.0% and
+−0.1% (−2.0% to +2.8%) just before. Plain year-on-year comparison on the same made-up data gave −34.7% for phase 1
+and −47.0% overall, because the weather of the two years differed.
+
 ## What has not been done
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

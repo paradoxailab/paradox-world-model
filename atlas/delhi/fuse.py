@@ -212,8 +212,9 @@ def main(a):
                            glob.glob(os.path.join("/kaggle/input", "**", "long_s*.npz"), recursive=True)))
         Z = [np.load(f) for f in files]
         metas = [json.loads(str(z["meta"])) for z in Z]
-        for z in Z:
-            assert np.array_equal(z["test_origins"], te) and np.array_equal(z["val_origins"], va4), "windows differ"
+        for z in Z:                                          # same windows: the long file counts hours from 2018, so its
+            off = int(z["test_origins"][0] - te[0])          # indices are the league's plus one constant
+            assert np.array_equal(z["test_origins"] - off, te) and np.array_equal(z["val_origins"] - off, va4), "windows differ"
         val = {k: [m[k]["val_MAE"] for m in metas] for k in ("B", "C")}
         fam = min(val, key=lambda k: np.mean(val[k]))
         oth = "C" if fam == "B" else "B"

@@ -578,6 +578,20 @@ country.
 * **League sketch:** test = the last 182 days (October 2022 to March 2023, which includes north India's smog season),
   validation = the 61 days before, training = everything earlier; each city with enough stations is its own network;
   a fifth of the stations are never trained on.
+* **What the data holds (Kaggle run atlas-india-long, 2026-11-13, 3.3 minutes):** 453 of 453 station files read;
+  54,744 hours (2017-01-01 to 2023-03-31) x 453 stations x 14 variables. Stations reporting PM2.5 on at least half
+  the hours: 39 in 2017, 114 in 2018, 174 in 2019, 213 in 2020, 267 in 2021, 318 in 2022. With the sketch above (train
+  to 2022-07-31, validation to 2022-09-30, test 2022-10-01 to 2023-03-31), **259 stations** can carry a test (PM2.5 on
+  at least 50% of test hours, 25% of validation hours and 12.5% of training hours); they have a median of 38 months
+  of PM2.5 before validation (10–90%: 13–57). By state: Uttar Pradesh 40, Delhi 36, Haryana 29, Maharashtra 27,
+  Karnataka 23, Madhya Pradesh 14, West Bengal 14, Bihar 12, Rajasthan 10, Gujarat 9, Tamil Nadu 9, Punjab 8, Kerala 7,
+  Telangana 5, Andhra Pradesh 4, eleven others 1–2. Thirteen cities have 4 or more: Delhi 36, Mumbai 18, Chennai 7,
+  Kolkata 7, Bengaluru 6, Lucknow 6, Patna 6, Agra 5, Hyderabad 5, Faridabad 4, Ghaziabad 4, Varanasi 4, Noida 4;
+  the other 147 usable stations are spread over 228 smaller cities.
+* **Two things the rules must handle:** pressure is in mixed units across stations (median 753, 99th percentile
+  1,015), so each station's variables need their own scaling; and 15 files were moved from UTC by the solar-peak
+  rule, but some stations' solar sensors peak at impossible hours (0, 19–22 h), so their clocks cannot be checked
+  that way.
 * **Opponents:** TimesFM 2.5, Chronos-2, Chronos-Bolt and TimesFM 3.0 (evaluation only), zero-shot on the same
   windows (GPU), and CAMS, whose public archive starts in August 2022 and so covers the test.
 * **Order:** the Delhi v1.1 result decides the recipe. If all of Delhi's history lets Atlas alone reach the

@@ -849,16 +849,20 @@ sensor does show the rain (`--rain`), test 1 already passed its gate (gap −9.1
 gave −2.4% and −40.5% overall. This shows the method can separate rain from a lockdown. It does not show that rain
 is what happened in Delhi.
 
-## What has not been done
+## What has not been done (as of 2026-11-13)
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring
   model was built and counted but not trained (CPU time).
-* No real data yet: the pollution stage (CPCB, weather, PM2.5), the comparison with TimesFM and Chronos, and the
-  "which variable or station to collect next" advisor on real data are the next stage. The design asks for the
-  known-equation stage first; this is it.
+* Real data so far is air quality only: Delhi, then every Indian station network. The comparison with TimesFM and
+  Chronos has been made on Delhi PM2.5 only; TimesFM 3.0 is compared by number only, with no significance test yet.
+* The all-India league has rules and is running; no result is recorded yet. Until it is, the Delhi v1.1 and v1.2
+  numbers rest on a test period that has been scored several times.
+* What-if: test 1 failed its validity gate, and test 1b has not been run on Delhi data. No counterfactual claim
+  is made.
+* The "which variable or station to collect next" advisor has not been tried on real data.
 * Long autoregressive roll-outs, non-linear systems (Burgers, shallow water), and information-bottleneck /
   mutual-information estimates of the learned state are not measured.
-* All four systems are linear in their state. The findings above may not carry to chaotic or non-linear systems.
+* All four known-equation systems are linear in their state. The findings above may not carry to chaotic or non-linear systems.
 
 ## Run
 

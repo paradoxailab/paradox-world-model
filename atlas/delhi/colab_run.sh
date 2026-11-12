@@ -49,6 +49,10 @@ for job in "$@"; do
     python -u score_india.py 2>&1 | grep --line-buffered -v "$F" | tee $ATLAS_OUT/log_india_score.txt
   elif [ "$job" = "india-opp" ]; then                       # foundation models on the same windows (GPU), then rescore
     [ -f $PW_RAW/INDIA_LONG.npz ] || python -u tools/build_india_long.py 2>&1 | grep -v "$F" | grep "read 453\|INDIA_LONG\|usable\|INDIA "
+    for s in ${SEEDS:-400 401 402}; do                      # correction of 2026-11-13: forecast again from the saved weights after the input fix
+      [ -f $ATLAS_OUT/asrun_india_s$s.npz ] || python -u run_atlas_india.py --seed $s --reforecast 2>&1 | grep --line-buffered -v "$F" | grep --line-buffered "REFORECAST \|TEST " | tee -a $ATLAS_OUT/log_india_reforecast.txt
+    done
+    python -u score_india.py 2>&1 | grep --line-buffered -v "$F" | tee $ATLAS_OUT/log_india_score_fixed.txt
     pip install -q timesfm chronos-forecasting 2>&1 | tail -2
     python -u india_opponents.py ${OPP_FLAGS} 2>&1 | grep --line-buffered -v "$F" | tee $ATLAS_OUT/log_india_opp.txt
     python -u score_india.py 2>&1 | grep --line-buffered -v "$F" | tee $ATLAS_OUT/log_india_score2.txt

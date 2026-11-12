@@ -69,7 +69,7 @@ class Delhi:
         self.targets = list(targets)
         self.K = len(self.targets)
         self.Y = np.stack([X[:, :, names.index(v)] for v in self.targets], -1)            # [T, N, K]
-        aux = []
+        aux, self.aux_dropped = [], []
         for v in AUX:
             x = X[:, :, names.index(v)]
             if v == "WD":
@@ -79,7 +79,10 @@ class Delhi:
                 tr = x[:b][np.isfinite(x[:b])]
                 tr = x[:b][:, self.seen]
                 tr = tr[np.isfinite(tr)]
-                mu, sd = (float(tr.mean()), float(tr.std()) + 1e-6) if len(tr) else (0.0, 1.0)
+                if len(tr) == 0:                                   # no trained station reports it: it cannot be scaled, so it
+                    aux.append(np.full_like(x, np.nan))            # is not an input for this network (2026-11-13: it used to
+                    self.aux_dropped.append(v); continue           # pass through unscaled, e.g. pressure as 1000 "sigma")
+                mu, sd = float(tr.mean()), float(tr.std()) + 1e-6
                 aux.append((x - mu) / sd)
         self.A_aux = np.stack(aux, -1).astype(np.float32)                                  # [T, N, Ca]
         self.Ca = self.A_aux.shape[-1]

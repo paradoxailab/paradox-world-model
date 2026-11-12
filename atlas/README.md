@@ -711,6 +711,30 @@ country.
    the two simple baselines, and nothing is said from it about foundation models.
 7. The Delhi models (v1.1, v1.2) were trained on hours that are test hours here and are never scored in this league.
 
+**Correction to the all-India league, made on 2026-11-13 after the first seed and before the league was scored.**
+
+*What was seen.* The first seed's log (Colab, seed 400; one model, all networks pooled) gave 21.42 and 21.53 µg/m³
+on trained stations for the two saved models, but 44.43 and 23.75 on never-trained stations. Two models that agree
+on trained stations should not differ by a factor of two on the others.
+
+*Cause.* A fault in the loader, not in the weights. Each weather variable is scaled with the statistics of the
+network's trained stations. In Gujarat and in Kerala the only station that reports pressure is a never-trained one
+(Maninagar, Ahmedabad; Plammoodu, Thiruvananthapuram). With no trained station to scale it, the pressure went in
+unscaled: about 1000 where the model expects values near zero (and Maninagar's sensor also drops from about 1000 to
+800 hPa in the test period). The forecasts at those two stations averaged 846 and 410 µg/m³ from one saved model and
+10 and 20 from the other. The cause was found from the forecasts and the inputs; no test measurement was used to
+find it. The Delhi league is not affected: every variable there is reported by trained stations.
+
+*Fix* (`delhi/pw/ddata.py`). A weather variable that no trained station of a network reports is not an input in
+that network. Nothing else changes. Nothing is retrained: training reads trained stations only, so the weights are
+the ones the rules produced. The forecasts are made again from the saved weights
+(`delhi/run_atlas_india.py --reforecast`). Forecasts for trained stations do not read never-trained stations, so
+they must come out unchanged; the largest change is printed as a check.
+
+*How it is reported.* The league is scored twice and both are recorded: as first run, and with the fix. Verdicts
+are read from the fixed version. This correction was made after one seed's pooled test numbers had been printed,
+so it is not blind; what limits it is that it was chosen from the inputs and cannot move a trained-station result.
+
 ### Atlas-Delhi v1.3: pre-trained on the rest of India (rules and predictions, written before any score)
 
 v1.1 showed that more of Delhi's own history made Atlas 9% better, along the line the scaling law drew. Delhi has

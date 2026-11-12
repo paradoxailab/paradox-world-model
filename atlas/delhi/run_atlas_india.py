@@ -97,6 +97,61 @@ def pooled_val(m, nets, O):
     return s / max(c, 1)
 
 
+def forecasts(m, nets, O):
+    """Every station of every network: trained stations from the trained-station graph, unseen from the whole network."""
+    out = {}
+    for D, (tr, va4, te) in zip(nets, O):
+        for nm, org in (("v4", va4), ("t", te)):
+            f = np.zeros((len(org), D.N, H, 3), np.float32)
+            f[:, D.seen] = R.predict(m, D, org, D.seen)
+            if len(D.unseen):
+                f[:, D.unseen] = R.predict(m, D, org, np.arange(D.N))[:, D.unseen]
+            out[(D.name, nm)] = f
+    return out
+
+
+def test_mae(f, nets, O):
+    sS = cS = sU = cU = 0.0
+    for D, (tr, va4, te) in zip(nets, O):
+        e = np.abs(f[(D.name, "t")][..., 1] - R.truth(D, te, np.arange(D.N)))
+        x = e[:, D.seen]; ok = np.isfinite(x); sS += float(x[ok].sum()); cS += float(ok.sum())
+        x = e[:, D.unseen]; ok = np.isfinite(x); sU += float(x[ok].sum()); cU += float(ok.sum())
+    return sS / max(cS, 1), sU / max(cU, 1)
+
+
+def reforecast(a):
+    """Correction of 2026-11-13: forecasts again from the saved weights after the input fix in pw/ddata.py (a weather
+    variable that no trained station of a network reports is no longer an input there). Nothing is retrained. The
+    forecasts as first run are kept as asrun_<tag>_s<seed>.npz."""
+    nets = networks(a.quick)
+    O = [origins(D, a.quick) for D in nets]
+    f_old = os.path.join(OUT, f"{a.tag}_s{a.seed}.npz")
+    old = np.load(f_old)
+    res = json.loads(str(old["meta"]))
+    ck = torch.load(os.path.join(OUT, f"atlas_{a.tag}_s{a.seed}.pt"), map_location="cpu", weights_only=False)
+    assert ck["networks"] == [D.name for D in nets], "networks differ from the saved model's"
+    dropped = {D.name: D.aux_dropped for D in nets if D.aux_dropped}
+    log(f"REFORECAST seed {a.seed}: variables no trained station reports, no longer inputs: {json.dumps(dropped)}")
+    m = R.build(nets[0], a.size, 0)
+    save, res["input_fix"] = {}, dict(dropped=dropped, as_run={}, trained_station_max_change={})
+    for k in ("E", "F"):
+        m.load_state_dict(ck[k])
+        f = forecasts(m, nets, O)
+        d = max(float(np.abs(f[(D.name, nm)][:, D.seen] - old[f"{D.name}|{k}_{nm}"][:, D.seen]).max()) for D in nets for nm in ("v4", "t"))
+        res["input_fix"]["as_run"][k] = [res[k]["test_S"], res[k]["test_U"]]
+        res["input_fix"]["trained_station_max_change"][k] = d
+        res[k]["test_S"], res[k]["test_U"] = test_mae(f, nets, O)
+        log(f"TEST {k} seed {a.seed} after the input fix (one model, uncalibrated, all networks pooled): trained stations "
+            f"{res[k]['test_S']:.2f}, unseen {res[k]['test_U']:.2f}; as first run {res['input_fix']['as_run'][k][0]:.2f}, "
+            f"{res['input_fix']['as_run'][k][1]:.2f}; largest change of any trained-station forecast {d:.4f} ug/m3")
+        for (net, nm), arr in f.items():
+            save[f"{net}|{k}_{nm}"] = arr
+    old.close()
+    os.replace(f_old, os.path.join(OUT, f"asrun_{a.tag}_s{a.seed}.npz"))
+    np.savez_compressed(f_old, meta=np.array(json.dumps(res, default=float)), **save)
+    log("INDIA-REFORECAST " + json.dumps(res, default=float))
+
+
 def main(a):
     q = a.quick
     nets = networks(q)
@@ -172,36 +227,13 @@ def main(a):
         log("PRETRAIN " + json.dumps(res, default=float))
         return
 
-    def forecasts():
-        out = {}
-        for D, (tr, va4, te) in zip(nets, O):
-            for nm, org in (("v4", va4), ("t", te)):
-                f = np.zeros((len(org), D.N, H, 3), np.float32)
-                f[:, D.seen] = R.predict(m, D, org, D.seen)
-                if len(D.unseen):
-                    f[:, D.unseen] = R.predict(m, D, org, np.arange(D.N))[:, D.unseen]
-                out[(D.name, nm)] = f
-        return out
-
-    def test_mae(f):
-        sS = cS = sU = cU = 0.0
-        for D, (tr, va4, te) in zip(nets, O):
-            e = np.abs(f[(D.name, "t")][..., 1] - R.truth(D, te, np.arange(D.N)))
-            for cols, acc in ((D.seen, "S"), (D.unseen, "U")):
-                x = e[:, cols]; ok = np.isfinite(x)
-                if acc == "S":
-                    sS += float(x[ok].sum()); cS += float(ok.sum())
-                else:
-                    sU += float(x[ok].sum()); cU += float(ok.sum())
-        return sS / max(cS, 1), sU / max(cU, 1)
-
     os.makedirs(OUT, exist_ok=True)
     sF = {k: x.detach().cpu().clone() for k, x in m.state_dict().items()}
-    fF = forecasts()
-    m.load_state_dict(state); fE = forecasts()
+    fF = forecasts(m, nets, O)
+    m.load_state_dict(state); fE = forecasts(m, nets, O)
     save = {}
     for k, f in (("E", fE), ("F", fF)):
-        res[k]["test_S"], res[k]["test_U"] = test_mae(f)
+        res[k]["test_S"], res[k]["test_U"] = test_mae(f, nets, O)
         log(f"TEST {k} seed {a.seed} (one model, uncalibrated, all networks pooled): trained stations {res[k]['test_S']:.2f}, unseen "
             f"{res[k]['test_U']:.2f}; validation {res[k]['val_MAE']:.3f}; steps {res[k]['steps']}")
         for (net, nm), arr in f.items():
@@ -224,5 +256,7 @@ if __name__ == "__main__":
     ap.add_argument("--skip", default="", help="networks to leave out, comma-separated (e.g. Delhi)")
     ap.add_argument("--tag", default="india", help="name of the output files")
     ap.add_argument("--pretrain-only", action="store_true", help="save the weights only: no forecasts, no test window")
+    ap.add_argument("--reforecast", action="store_true", help="forecast again from the saved weights (input fix of 2026-11-13)")
     ap.add_argument("--quick", action="store_true")
-    main(ap.parse_args())
+    a = ap.parse_args()
+    reforecast(a) if a.reforecast else main(a)

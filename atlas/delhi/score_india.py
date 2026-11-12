@@ -53,6 +53,9 @@ def main(a):
     files = found("india_s*.npz")
     Z = [np.load(f) for f in files]
     metas = [json.loads(str(z["meta"])) for z in Z]
+    if any("input_fix" in m for m in metas):
+        assert all("input_fix" in m for m in metas), "some seeds have the input fix and some do not"
+        RES["input_fix"] = [m["input_fix"] for m in metas]
     assert Z, "no india_s*.npz found"
     for m in metas:
         assert m["networks"][:len(nets)] == [D.name for D in nets], "networks differ from the training runs'"
@@ -145,6 +148,12 @@ def report(full, A):
         o.append(f"| {nm} | {s['MAE']:.2f} | {s['RMSE']:.2f} | {s['QL']:.2f} | {s['COV80']:.0f} | {s['MAE@1h']:.2f} | {s['MAE@6h']:.2f} | "
                  f"{s['MAE@12h']:.2f} | {s['MAE@24h']:.2f} | {u['MAE']:.2f} | {u['QL']:.2f} | {u['COV80']:.0f} | {cmp} |")
     others = [n for n in full if n != A]
+    fx = RES.get("input_fix")
+    if fx:                                                   # correction of 2026-11-13 (run_atlas_india.py --reforecast)
+        o += ["", f"Input fix applied (weights unchanged): variables that no trained station of a network reports are no longer inputs "
+              f"there: {json.dumps(fx[0]['dropped'])}. Single models on test as first run (trained / unseen): "
+              f"E {[[round(v, 2) for v in f['as_run']['E']] for f in fx]}, F {[[round(v, 2) for v in f['as_run']['F']] for f in fx]}. "
+              f"Largest change of any trained-station forecast: {max(max(f['trained_station_max_change'].values()) for f in fx):.4f} ug/m3."]
     o += ["", "## Each network (MAE on trained stations; Atlas-India against the entry in brackets)", "",
           "| Network | stations (unseen) | mean PM2.5 in test | Atlas-India: trained / unseen | " + " | ".join(others) + " |",
           "|---|---|---|---|" + "---|" * len(others)]

@@ -758,6 +758,57 @@ recovered −39.4%, −40.8%, −40.9% and −41.0% for the four phases (−40.3
 −0.1% (−2.0% to +2.8%) just before. Plain year-on-year comparison on the same made-up data gave −34.7% for phase 1
 and −47.0% overall, because the weather of the two years differed.
 
+### What-if test 1 results (Colab run colab_lockdown_india, 2026-11-13, Tesla T4, 12.0 minutes)
+
+Run on Google Colab because Kaggle's five CPU sessions were in use; the Kaggle run of the same script will follow as
+a replication. The data was rebuilt on Colab from the public sources and matched the Kaggle build in every printed
+statistic (39 of 39 stations matched, the same by-year coverage and unit check). After the cut at 2020-06-01:
+21,168 hours, 36 stations (29 trained on, 7 never trained on), 4,489 training windows, 72 held-out days. The three
+models reached 35.41, 36.04 and 34.70 µg/m³ mean absolute error on the held-out days.
+
+| Window | days | measured PM2.5 | simulated, business as usual | measured ÷ simulated − 1 | 95% interval | effect after removing the placebo bias | 95% interval | day-to-day correlation |
+|---|---|---|---|---|---|---|---|---|
+| placebo: 25 Mar – 31 May 2019 | 68 | 88.1 | 88.1 | +0.1% | −7.9% .. +8.6% | – | – | 0.62 |
+| placebo, phase-1 dates: 25 Mar – 14 Apr 2019 | 21 | 90.6 | 89.3 | +1.4% | −7.0% .. +12.1% | – | – | 0.80 |
+| just before: 1 – 21 Mar 2020 | 21 | 67.1 | 84.6 | −20.7% | −24.7% .. −16.9% | −20.8% | −28.0% .. −13.0% | 0.92 |
+| lockdown 1: 25 Mar – 14 Apr 2020 | 21 | 39.4 | 82.3 | −52.1% | −56.0% .. −48.5% | −52.8% | −58.5% .. −46.9% | 0.80 |
+| lockdown 2: 15 Apr – 3 May 2020 | 19 | 44.6 | 85.1 | −47.6% | −54.5% .. −40.8% | −47.6% | −55.5% .. −39.7% | 0.72 |
+| lockdown 3: 4 – 17 May 2020 | 14 | 53.6 | 73.4 | −27.0% | −37.7% .. −18.8% | −27.0% | −39.3% .. −17.0% | 0.70 |
+| lockdown 4: 18 – 31 May 2020 | 14 | 56.6 | 90.4 | −37.5% | −53.1% .. −25.3% | −37.5% | −53.8% .. −24.1% | 0.64 |
+| all lockdown: 25 Mar – 31 May 2020 | 68 | 47.5 | 83.0 | −42.8% | −48.3% .. −35.9% | −42.9% | −49.5% .. −33.8% | 0.61 |
+
+Without any weather adjustment, from the same data: phase 1 against the same dates in 2019 −54.3%; phase 1 against
+2–21 March 2020 −39.7%; all lockdown against the same dates in 2019 −43.2%.
+
+**Validity gate (rule 4): FAILED. Lockdown detected in phase 1 (rule 5): YES.**
+
+What this means, by the rules written before the run:
+
+1. **The placebo half of the gate passed.** On the same dates in 2019, which the models never saw, the simulation
+   matched measured PM2.5 with no bias (+0.1%, interval −7.9% to +8.6%) and followed its day-to-day changes
+   (correlation 0.62 over the 68 days, 0.80 over the first three weeks).
+2. **The other half failed.** In the three weeks before the lockdown, measured PM2.5 was already 20.7% below the
+   simulation (interval −24.7% to −16.9%). Rule 4 required no effect there. So the lockdown rows are **not** a
+   valid measurement of the lockdown, and "the lockdown lowered Delhi's PM2.5 by 52.8%" is not claimed.
+3. **What the run does show.** The drop on 25 March is far larger than the gap that was already there (−52.8%
+   against −20.8%; the two intervals do not overlap), which is what rule 5 calls detected. Dividing the two ratios
+   gives about −40% for phase 1 relative to the weeks before. This last number was computed after seeing the table;
+   it is not one of the rules, and it equals the plain before-and-after comparison (−39.7%).
+4. **The weather adjustment changed little.** Against 2019 the adjusted number is −52.8% and the plain one −54.3%.
+   On the made-up data the same method moved the plain number 5 points towards the truth. Here the test gives no
+   evidence that Atlas-BAU knows more about this episode than a plain year-on-year comparison does.
+
+Why the weeks before the lockdown may have been cleaner than simulated (not tested, so not conclusions):
+
+* **Rain.** March 2020 was Delhi's wettest March on record: 109.6 mm against a normal of 15.9 mm (India
+  Meteorological Department). Rain washes particles out, and Atlas-BAU has no rainfall input.
+* **Restrictions began before 25 March.** Closures in Delhi started in mid-March, inside the 1–21 March window.
+* **Drift.** March 2020 is the first month after the training period ends.
+
+**Next (test 1b; its rules will be written before it runs):** add rainfall and boundary-layer height from a
+reanalysis as forcing, and hold 1–21 March 2019 out of training as a second placebo, so that the test can tell a
+March bias of the method from something that happened in March 2020. The gate stays as it is.
+
 ## What has not been done
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

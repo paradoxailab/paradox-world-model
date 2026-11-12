@@ -42,8 +42,11 @@ def valid_origins(D, org, min_st=8, min_h=12):
     return org[((fut >= min_h) & (past >= min_h)).sum(1) >= min_st]
 
 
-def train(D, m, org, val_org, seed, max_steps, name, lr, cap_min, every, patience, bs=16):
-    """R.train's loop (same loss, masking and optimiser) from a given model, with its own learning rate and caps."""
+def train(D, m, org, val_org, seed, max_steps, name, lr, cap_min, every, patience, bs=16, full=False):
+    """R.train's loop (same loss, masking and optimiser) from a given model, with its own learning rate and caps.
+    full=True (v1.2): the whole schedule is run. The checkpoint the early-stopping rule would have kept is remembered
+    (recipe E) and returned; the model is left with the weights after the last step (recipe F), which validation never
+    chose."""
     torch.manual_seed(seed); rng = np.random.default_rng(seed)
     opt = torch.optim.AdamW(m.parameters(), lr=lr, weight_decay=1e-4)
     sched = torch.optim.lr_scheduler.LambdaLR(
@@ -53,6 +56,7 @@ def train(D, m, org, val_org, seed, max_steps, name, lr, cap_min, every, patienc
     yv = R.truth(D, val_org, D.seen)
     v0 = float(np.nanmean(np.abs(R.predict(m, D, val_org, D.seen)[..., 1] - yv)))
     best, state, bad, t0, step = v0, {k: x.detach().clone() for k, x in m.state_dict().items()}, 0, time.time(), 0
+    frozen, v = None, v0
     log(f"  {name} start val MAE {v0:.3f}; {len(org)} training windows, lr {lr}, up to {max_steps} steps")
     for step in range(1, max_steps + 1):
         b = R.make_batch(D, rng.choice(org, min(bs, len(org)), replace=False), D.seen)
@@ -68,17 +72,32 @@ def train(D, m, org, val_org, seed, max_steps, name, lr, cap_min, every, patienc
         torch.nn.utils.clip_grad_norm_(m.parameters(), 1.0)
         opt.step(); sched.step()
         if step % every == 0 or step == max_steps:
+            if frozen is not None and step % (5 * every) != 0 and step != max_steps:
+                continue                                  # recipe E is fixed: look at validation less often
             v = float(np.nanmean(np.abs(R.predict(m, D, val_org, D.seen)[..., 1] - yv)))
-            if v < best - 1e-4:
-                best, bad, state = v, 0, {k: x.detach().clone() for k, x in m.state_dict().items()}
-            else:
-                bad += 1
-            log(f"  {name} step {step} val MAE {v:.3f} (best {best:.3f}) {time.time() - t0:.0f}s")
-            if bad >= patience or time.time() - t0 > cap_min * 60:
+            if frozen is None:
+                if v < best - 1e-4:
+                    best, bad, state = v, 0, {k: x.detach().clone() for k, x in m.state_dict().items()}
+                else:
+                    bad += 1
+            log(f"  {name} step {step} val MAE {v:.3f} (best {best:.3f}{', E fixed at step ' + str(frozen) if frozen else ''}) {time.time() - t0:.0f}s")
+            if frozen is None and bad >= patience:
+                if not full:
+                    break
+                frozen = step
+            if time.time() - t0 > cap_min * 60:
                 break
+    capped = bool(time.time() - t0 > cap_min * 60)
+    if full:
+        if step % every != 0 and step != max_steps:       # stopped by the time cap between two looks
+            v = float(np.nanmean(np.abs(R.predict(m, D, val_org, D.seen)[..., 1] - yv)))
+        info = dict(name=name, seed=seed, train_windows=len(org), minutes=round((time.time() - t0) / 60, 1), start_val_MAE=v0,
+                    hit_time_cap=capped, E=dict(val_MAE=best, steps=frozen or step), F=dict(val_MAE=v, steps=step))
+        log("RUN " + json.dumps(info, default=float))
+        return info, state
     m.load_state_dict(state)
     info = dict(name=name, seed=seed, train_windows=len(org), steps=step, minutes=round((time.time() - t0) / 60, 1),
-                start_val_MAE=v0, val_MAE=best, hit_time_cap=bool(time.time() - t0 > cap_min * 60))
+                start_val_MAE=v0, val_MAE=best, hit_time_cap=capped)
     log("RUN " + json.dumps(info, default=float))
     return info
 
@@ -120,6 +139,23 @@ def main(a):
     log(f"Atlas: {m.n_params():,} parameters, width {m.cfg['d']}")
     os.makedirs(OUT, exist_ok=True)
     save = {}
+    if a.full:                                               # v1.2: whole schedule; E = early-stopping rule, F = last step
+        info, sE = train(D, m, tr, va_fast, a.seed, 80 if q else a.steps, f"F-s{a.seed}", lr, a.cap_b, 20 if q else a.every,
+                         2 if q else a.patience, full=True)
+        fF = forecasts(m); sF = {k: v.detach().cpu().clone() for k, v in m.state_dict().items()}
+        m.load_state_dict(sE); fE = forecasts(m)
+        for k, f in (("E", fE), ("F", fF)):
+            info[k]["test_S"], info[k]["test_U"] = test_mae(f)
+            log(f"TEST {k} seed {a.seed} (one model, uncalibrated): trained stations {info[k]['test_S']:.2f}, unseen {info[k]['test_U']:.2f}"
+                f"; validation {info[k]['val_MAE']:.3f}; steps {info[k]['steps']}")
+        res.update(E=info["E"], F=info["F"], params=m.n_params(), hit_time_cap=info["hit_time_cap"],
+                   minutes_total=round((time.time() - T0) / 60, 1))
+        np.savez_compressed(os.path.join(OUT, f"long2_s{a.seed}.npz"), meta=np.array(json.dumps(res, default=float)), val_origins=va4,
+                            test_origins=te, E_v4=fE["v4"], E_t=fE["t"], F_v4=fF["v4"], F_t=fF["t"])
+        torch.save({"cfg": m.cfg, "E": {k: v.cpu() for k, v in sE.items()}, "F": sF, "stations": D.stations, "first": a.first},
+                   os.path.join(OUT, f"atlas_long2_s{a.seed}.pt"))
+        log("LONG-RUN " + json.dumps(res, default=float))
+        return
     iB = train(D, m, tr, va_fast, a.seed, 60 if q else a.steps, f"B-s{a.seed}", lr, a.cap_b, 20 if q else a.every, a.patience)
     fB = forecasts(m); sB = {k: v.detach().cpu().clone() for k, v in m.state_dict().items()}
     iB["test_S"], iB["test_U"] = test_mae(fB)
@@ -152,5 +188,6 @@ if __name__ == "__main__":
     ap.add_argument("--cap-b", type=float, default=330, help="minutes")
     ap.add_argument("--cap-c", type=float, default=60, help="minutes")
     ap.add_argument("--min-stations", type=int, default=8)
+    ap.add_argument("--full", action="store_true", help="v1.2: whole schedule, recipes E and F")
     ap.add_argument("--quick", action="store_true")
     main(ap.parse_args())

@@ -631,6 +631,29 @@ Verdicts under the rules written before the run:
   validation at 35–60% of its planned steps, so the model may be under-trained; the comparison with TimesFM 3.0 is by
   number only; whether Atlas alone can pass TimesFM 2.5 with more seeds, a longer schedule or a larger model is open.
 
+### Atlas-Delhi v1.2: the whole schedule and more seeds (rules, written before any score)
+
+**Why.** In v1.1 every run stopped at 8,400–14,400 of its 24,000 steps, because a noisy summer validation went ten
+checks without a new best; and with three seeds Atlas alone is 1.8% ahead of TimesFM 2.5 with p = 0.29.
+
+**What changes.** Eight fresh seeds (310–317) instead of three, and every run trains the whole schedule
+(`run_atlas_long.py --full`). Each run yields two models: **E**, the checkpoint v1.1's early-stopping rule keeps
+(v1.1's recipe B), and **F**, the weights after the last step, which validation never chose. No fine-tuning step (B
+and C tied in v1.1). Data, model, inputs and loss are v1.1's.
+
+**Rules.**
+
+1. F replaces E only if its validation MAE is lower by more than 2 standard errors, paired by seed. E's validation
+   score is flattered by having been selected on it and F's is not, so the test leans against F.
+2. The eight models of the chosen recipe are averaged: Atlas v1.2. It replaces v1.1 only if its validation MAE on the
+   fusion's validation windows is lower than that of v1.1's three models. Test scores of both recipes are reported
+   either way.
+3. Atlas alone **beats** a model only with significant MAE wins on both tracks, as before; the fusion is reported
+   beside it with the same code.
+4. Delhi's test windows have now been scored by v1.0 and v1.1. Both v1.2 changes come from validation-side facts
+   (where training stopped; how many seeds), not from test scores, but any Delhi gain from here on counts as
+   provisional until the all-India league, whose test no Atlas model has touched, confirms it.
+
 ### India first: the all-India league (plan; its rules are fixed after the data is inspected and before any score)
 
 Delhi is one city. To hold India, the same model has to work at every Indian station, and Atlas needs more data of

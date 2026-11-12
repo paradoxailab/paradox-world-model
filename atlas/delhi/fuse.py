@@ -207,32 +207,73 @@ def main(a):
             log(f"  {key}: cached shapes {z['qt'].shape} / {z['qv'].shape} do not match the windows, left out"); continue
         Q[names[key]] = (z["qv"].astype(np.float32), z["qt"].astype(np.float32))
     A, refs = "Atlas", {}                                    # the Atlas member's name; entries scored but not fused
-    if a.long:                                               # Atlas-Delhi v1.1: forecasts saved by run_atlas_long.py
-        files = sorted(set(glob.glob(os.path.join(OUT, "**", "long_s*.npz"), recursive=True) +
-                           glob.glob(os.path.join("/kaggle/input", "**", "long_s*.npz"), recursive=True)))
+    def load_long(pattern):
+        files = sorted(set(glob.glob(os.path.join(OUT, "**", pattern), recursive=True) +
+                           glob.glob(os.path.join("/kaggle/input", "**", pattern), recursive=True)))
         Z = [np.load(f) for f in files]
-        metas = [json.loads(str(z["meta"])) for z in Z]
         for z in Z:                                          # same windows: the long file counts hours from 2018, so its
             off = int(z["test_origins"][0] - te[0])          # indices are the league's plus one constant
             assert np.array_equal(z["test_origins"] - off, te) and np.array_equal(z["val_origins"] - off, va4), "windows differ"
+        ens = lambda k: (np.sort(np.mean([z[k + "_v4"] for z in Z], 0), -1), np.sort(np.mean([z[k + "_t"] for z in Z], 0), -1))
+        return Z, [json.loads(str(z["meta"])) for z in Z], ens
+
+    if a.long:                                               # Atlas-Delhi v1.1: forecasts saved by run_atlas_long.py
+        Z, metas, ens = load_long("long_s*.npz")
         val = {k: [m[k]["val_MAE"] for m in metas] for k in ("B", "C")}
         fam = min(val, key=lambda k: np.mean(val[k]))
         oth = "C" if fam == "B" else "B"
-        ens = lambda k: (np.sort(np.mean([z[k + "_v4"] for z in Z], 0), -1), np.sort(np.mean([z[k + "_t"] for z in Z], 0), -1))
         n, mean, sd = len(Z), float(np.mean(val[fam])), float(np.std(val[fam], ddof=1)) if len(Z) > 1 else 0.0
         ref = np.array(REF_VAL)
         se = float(np.sqrt(ref.std(ddof=1) ** 2 / len(ref) + sd ** 2 / max(n, 1)))
+        st = {k: [[m[k]["test_S"], m[k]["test_U"]] for m in metas] for k in ("B", "C")}
         RES["decision"] = dict(seeds=[m["seed"] for m in metas], val_MAE=val, recipe=fam, mean=mean, sd=sd, reference=REF_VAL,
                                reference_mean=float(ref.mean()), diff=float(ref.mean() - mean), se=se,
-                               adopted=bool(ref.mean() - mean > 2 * se), train_windows=metas[0]["train_windows"],
-                               single_model_test={k: [[m[k]["test_S"], m[k]["test_U"]] for m in metas] for k in ("B", "C")},
+                               adopted=bool(ref.mean() - mean > 2 * se), train_windows=metas[0]["train_windows"], single_model_test=st,
                                rule="recipe with the lower mean validation MAE; adopted only if it beats the 16-month Atlas "
                                     "(stage 8, same windows) by more than 2 standard errors")
+        d = RES["decision"]
+        d["text"] = (f"Validation MAE, one model per seed: recipe B (all history) {[round(x, 3) for x in val['B']]}, recipe C (B, then the "
+                     f"league's 16 months) {[round(x, 3) for x in val['C']]}. Chosen: {fam} (mean {mean:.3f}). 16-month "
+                     f"Atlas (stage 8): {REF_VAL} (mean {ref.mean():.3f}). Difference {d['diff']:+.3f}, standard error "
+                     f"{se:.3f}: {'ADOPTED' if d['adopted'] else 'NOT ADOPTED'}. Training windows: {d['train_windows']}.\n\n"
+                     f"Single models on test (trained / unseen stations): B {[[round(v, 2) for v in x] for x in st['B']]}, "
+                     f"C {[[round(v, 2) for v in x] for x in st['C']]}.")
         log("DECISION " + json.dumps(RES["decision"], default=float))
         A = "Atlas v1.1"
         refs["Atlas v1.0 (16 months)"] = Q.pop("Atlas")
         refs[f"Atlas v1.1, recipe {oth} (not chosen)"] = ens(oth)
         Q = {A: ens(fam), **Q}
+    if a.v12:                                                # Atlas-Delhi v1.2: whole schedule, more seeds
+        Z, metas, ens = load_long("long2_s*.npz")
+        val = {k: [m[k]["val_MAE"] for m in metas] for k in ("E", "F")}
+        dif = np.array(val["E"]) - np.array(val["F"])        # paired by seed; E's validation is flattered by its own selection
+        se = float(dif.std(ddof=1) / np.sqrt(len(dif))) if len(dif) > 1 else float("inf")
+        fam = "F" if dif.mean() > 2 * se else "E"
+        oth = "E" if fam == "F" else "F"
+        _, metas11, ens11 = load_long("long_s*.npz")
+        v11, v12 = ens11("C"), ens(fam)
+        e11, e12 = mae(v11[0][:, S], yv[:, S]), mae(v12[0][:, S], yv[:, S])
+        st = {k: [[m[k]["test_S"], m[k]["test_U"]] for m in metas] for k in ("E", "F")}
+        RES["decision"] = dict(seeds=[m["seed"] for m in metas], val_MAE=val, steps={k: [m[k]["steps"] for m in metas] for k in ("E", "F")},
+                               paired_diff=float(dif.mean()), se=se, recipe=fam, ensemble_val_MAE=e12, v11_ensemble_val_MAE=e11,
+                               adopted=bool(e12 < e11), single_model_test=st, time_capped=[bool(m.get("hit_time_cap")) for m in metas],
+                               rule="F (last step of the whole schedule) replaces E (early stopping) only if its validation MAE is lower "
+                                    "by more than 2 standard errors, paired by seed; the ensemble replaces v1.1 only if its validation "
+                                    "MAE on the fusion's validation windows is lower")
+        d = RES["decision"]
+        d["text"] = (f"Validation MAE, one model per seed: E (early stopping, as v1.1's B) {[round(x, 3) for x in val['E']]} after "
+                     f"{d['steps']['E']} steps; F (last step of the whole schedule) {[round(x, 3) for x in val['F']]} after {d['steps']['F']} "
+                     f"steps. Paired difference E - F {dif.mean():+.3f}, standard error {se:.3f}: recipe {fam}. Ensemble of {len(Z)} on the "
+                     f"fusion's validation windows: {e12:.3f} against v1.1's {e11:.3f}: {'ADOPTED' if d['adopted'] else 'NOT ADOPTED'}.\n\n"
+                     f"Single models on test (trained / unseen stations): E {[[round(v, 2) for v in x] for x in st['E']]}, "
+                     f"F {[[round(v, 2) for v in x] for x in st['F']]}.")
+        log("DECISION " + json.dumps(RES["decision"], default=float))
+        A = "Atlas v1.2"
+        refs["Atlas v1.0 (16 months)"] = Q.pop("Atlas")
+        refs["Atlas v1.1 (3 seeds)"] = v11
+        refs[f"Atlas v1.2, recipe {oth} (not chosen)"] = ens(oth)
+        Q = {A: v12, **Q}
+    RES["atlas_name"] = A
     members = list(Q)
     fms = [m for m in members if m != A]
     log(f"members: {members}")
@@ -282,7 +323,7 @@ def main(a):
 
     # significance --------------------------------------------------------------------------------------
     PRIMARY, SECOND = "Atlas-Delhi Fusion (online)", "Atlas-Delhi Fusion (static)"
-    FINALS = [PRIMARY, SECOND] + ([A + " alone"] if a.long else [])
+    FINALS = [PRIMARY, SECOND] + ([A + " alone"] if (a.long or a.v12) else [])
     for final in FINALS:
         RES["significance"][final] = {}
         for t, cols in (("S", S), ("U", U)):
@@ -311,7 +352,7 @@ def main(a):
                 f"unseen stations {g['U'][ctrl]['MAE']['rel_diff_pct']:+.2f}%, p={g['U'][ctrl]['MAE']['p']:.2g})")
         RES["claims"][final] = c
         log("CLAIMS " + final + ": " + json.dumps(c))
-    if a.long:                                               # Atlas alone, no other model inside it
+    if a.long or a.v12:                                      # Atlas alone, no other model inside it
         g, c = RES["significance"][A + " alone"], {}
         for m in fms + list(refs):
             vS, vU = g["S"][m + " alone"]["MAE"], g["U"][m + " alone"]["MAE"]
@@ -334,12 +375,12 @@ def report():
     for t, title in (("S", "Track S: training stations"), ("U", "Track U: stations never trained on")):
         o += [f"## {title} (PM2.5, ug/m3, next 24 h)", "",
               "| Entry | MAE | RMSE | QL | COV80 % | MAE@1h | MAE@6h | MAE@12h | MAE@24h | fusion (online) vs this | fusion (static) vs this |"
-              + (" Atlas v1.1 alone vs this |" if "decision" in R_ else ""),
+              + (f" {R_['atlas_name']} alone vs this |" if "decision" in R_ else ""),
               "|---|---|---|---|---|---|---|---|---|---|---|" + ("---|" if "decision" in R_ else "")]
         for n, v in sorted(R_["tracks"].items(), key=lambda kv: kv[1][t]["MAE"]):
             s = v[t]
             cmp = []
-            for final in ("Atlas-Delhi Fusion (online)", "Atlas-Delhi Fusion (static)") + (("Atlas v1.1 alone",) if "decision" in R_ else ()):
+            for final in ("Atlas-Delhi Fusion (online)", "Atlas-Delhi Fusion (static)") + ((R_["atlas_name"] + " alone",) if "decision" in R_ else ()):
                 g = R_["significance"].get(final, {}).get(t, {}).get(n, {}).get("MAE")
                 cmp.append("–" if not g else f"{g['verdict']} {g['rel_diff_pct']:+.1f}% (p={g['p']:.2g})")
             o.append(f"| {n} | {s['MAE']:.2f} | {s['RMSE']:.2f} | {s['QL']:.2f} | {s['COV80']:.0f} | {s['MAE@1h']:.2f} | {s['MAE@6h']:.2f} | "
@@ -354,14 +395,7 @@ def report():
     for k, v in R_["claims"].items():
         o += [f"**{k}**", ""] + [f"- {m}: {c}" for m, c in v.items()] + [""]
     if "decision" in R_:
-        d = R_["decision"]
-        o += ["## Atlas v1.1 decision on validation", "",
-              f"Validation MAE, one model per seed: recipe B (all history) {[round(x, 3) for x in d['val_MAE']['B']]}, recipe C (B, then the "
-              f"league's 16 months) {[round(x, 3) for x in d['val_MAE']['C']]}. Chosen: {d['recipe']} (mean {d['mean']:.3f}). 16-month "
-              f"Atlas (stage 8): {d['reference']} (mean {d['reference_mean']:.3f}). Difference {d['diff']:+.3f}, standard error "
-              f"{d['se']:.3f}: {'ADOPTED' if d['adopted'] else 'NOT ADOPTED'}. Training windows: {d['train_windows']}.", "",
-              f"Single models on test (trained / unseen stations): B {[[round(v, 2) for v in x] for x in d['single_model_test']['B']]}, "
-              f"C {[[round(v, 2) for v in x] for x in d['single_model_test']['C']]}.", ""]
+        o += [f"## {R_['atlas_name']} decision on validation", "", R_["decision"]["text"], ""]
     open(os.path.join(OUT, "FUSION_REPORT.md"), "w").write("\n".join(o) + "\n")
     log("\n".join(o))
     log(f"done in {R_.get('minutes_total', 0)} min")
@@ -371,4 +405,5 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--reps", type=int, default=2000)
     ap.add_argument("--long", action="store_true", help="Atlas v1.1: use the all-history forecasts saved by run_atlas_long.py")
+    ap.add_argument("--v12", action="store_true", help="Atlas v1.2: whole-schedule runs (long2_s*.npz), v1.1's as reference")
     main(ap.parse_args())

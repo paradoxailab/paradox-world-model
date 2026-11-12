@@ -1070,6 +1070,53 @@ sensor does show the rain (`--rain`), test 1 already passed its gate (gap −9.1
 gave −2.4% and −40.5% overall. This shows the method can separate rain from a lockdown. It does not show that rain
 is what happened in Delhi.
 
+### What-if test 1b results (Colab, 2026-11-13, Tesla T4, 11.8 minutes)
+
+The archive served every variable asked for (rain, boundary-layer height, wind at 100 m, cloud cover, soil moisture).
+Its rain agrees that March 2020 was wet: 65.2 mm against 13.6 mm in March 2019 (the India Meteorological Department
+measured 109.6 mm at Safdarjung). 4,346 training windows, 70 held-out days; the three models reached 34.34, 33.78
+and 34.99 µg/m³ on the held-out days (test 1: 35.41, 36.04, 34.70).
+
+| Window | days | measured PM2.5 | simulated, business as usual | measured ÷ simulated − 1 | 95% interval | effect after removing the placebo bias | 95% interval | day-to-day correlation |
+|---|---|---|---|---|---|---|---|---|
+| placebo: 25 Mar – 31 May 2019 | 68 | 88.1 | 82.6 | +6.7% | −3.6% .. +18.4% | – | – | 0.56 |
+| placebo, phase-1 dates: 25 Mar – 14 Apr 2019 | 21 | 90.6 | 90.9 | −0.3% | −13.2% .. +10.4% | – | – | 0.73 |
+| placebo, just-before dates: 1 – 21 Mar 2019 | 21 | 91.2 | 85.3 | +6.9% | +0.1% .. +14.9% | – | – | 0.77 |
+| just before: 1 – 21 Mar 2020 | 21 | 67.1 | 80.3 | −16.5% | −24.2% .. −6.2% | −21.9% | −30.7% .. −10.8% | 0.84 |
+| lockdown 1: 25 Mar – 14 Apr 2020 | 21 | 39.4 | 76.9 | −48.7% | −53.9% .. −44.0% | −48.6% | −55.6% .. −38.9% | 0.75 |
+| lockdown 2: 15 Apr – 3 May 2020 | 19 | 44.6 | 86.5 | −48.4% | −54.4% .. −43.5% | −51.7% | −59.1% .. −44.8% | 0.78 |
+| lockdown 3: 4 – 17 May 2020 | 14 | 53.6 | 84.0 | −36.2% | −47.3% .. −27.3% | −40.2% | −52.5% .. −30.1% | 0.45 |
+| lockdown 4: 18 – 31 May 2020 | 14 | 56.6 | 92.6 | −38.9% | −54.4% .. −25.7% | −42.8% | −57.6% .. −29.3% | 0.61 |
+| all lockdown: 25 Mar – 31 May 2020 | 68 | 47.5 | 84.4 | −43.8% | −48.5% .. −37.0% | −47.3% | −53.7% .. −38.9% | 0.64 |
+
+**Validity gate (rule 4): FAILED. Lockdown detected in phase 1 (rule 5 of test 1): YES.**
+
+1. **Both placebos pass** (+6.7% and +6.9%, inside ±15%). **The weeks before the lockdown still fail**: 16.5% below
+   the simulation, and 21.9% below after removing the March 2019 bias (interval −30.7% to −10.8%). Rain and mixing
+   height moved the raw gap from −20.7% to −16.5%. By rule 5 the weather we can obtain does not explain early March
+   2020, and the lockdown rows again do not count as a measurement.
+2. **Where the gap sits** (looked at after the result; a diagnostic, not a rule). Split at 12 March, when closures
+   in Delhi began:
+
+   | Days | test 1 | test 1b |
+   |---|---|---|
+   | 1 – 11 March 2020 | −24.3% | −26.2% |
+   | 12 – 21 March 2020 | −16.9% | −4.1% |
+
+   The reanalysis inputs explain the second half, where the heaviest rain fell. They do not explain the first
+   eleven days, which came **before** any restriction. So "restrictions began early" is not the explanation
+   either.
+3. **Leading candidates now** (untested): the model has no way to represent a year-on-year change in emissions, and
+   March 2020 is the first month after its training data ends; or rain the reanalysis under-counts (65 mm against
+   109.6 mm measured).
+4. **What can honestly be said about the lockdown.** Two versions of the method put phase 1 at −48.6% and −52.8%,
+   far below the −20% that was already there, and plain comparisons give −39.7% (against the weeks before) and
+   −54.3% (against 2019). The method has not earned the right to choose between those numbers.
+
+Under rule 6 the method is now frozen. Before it goes to another episode, one check that does not touch any
+lockdown: the error on the held-out training-period days, by half-year, to see whether the simulation drifts above
+the measurements as time goes on.
+
 ## What has not been done (as of 2026-11-13)
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring
@@ -1079,8 +1126,8 @@ is what happened in Delhi.
 * The all-India league has rules and is running; no result is recorded yet. Until it is, the Delhi numbers rest
   on a test period that has been scored several times. Atlas-Delhi v1.3 (pre-trained on the rest of India) has
   rules and is training; no score yet.
-* What-if: test 1 failed its validity gate, and test 1b has not been run on Delhi data. No counterfactual claim
-  is made.
+* What-if: tests 1 and 1b both failed their validity gate (the weeks before the 2020 lockdown are 17–21% cleaner
+  than the simulation). No counterfactual claim is made.
 * The "which variable or station to collect next" advisor has not been tried on real data.
 * Long autoregressive roll-outs, non-linear systems (Burgers, shallow water), and information-bottleneck /
   mutual-information estimates of the learned state are not measured.

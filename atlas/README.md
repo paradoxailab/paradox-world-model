@@ -688,6 +688,29 @@ country.
   history. Atlas is asked what the weeks after it would have looked like without the lockdown, and the gap to what was
   measured is compared with published estimates of the drop in emissions.
 
+**Rules of the all-India league (Atlas-India v1.0), fixed before any model is scored on this data:**
+
+1. **Stations.** PM2.5 on at least 50% of test hours and 12.5% of training hours: the Delhi league's rule with a lower
+   training floor, because many Indian stations are young. (The sketch's validation condition is dropped to keep it
+   to that one rule; the run prints the count.)
+2. **Networks.** Every state with 6 or more league stations is one network; all other stations are pooled as "other
+   states". In each network a fifth of the stations is never trained on (same seeded rule as Delhi); graphs and
+   scaling come from each network's own training period; pressure is centred on each station's own training median.
+3. **Model.** The Delhi v1.1 Atlas unchanged (967,632 parameters, same inputs and loss), **one set of weights for
+   all of India**: each training step draws a network in proportion to its valid training windows and 16 windows
+   from it. 60,000 steps, three seeds (400–402), `delhi/run_atlas_india.py`. As in Delhi v1.2 each run keeps E (early
+   stopping on pooled validation) and F (the last step); F replaces E only if its pooled validation MAE is lower by
+   more than 2 standard errors, paired by seed.
+4. **Scoring** (`delhi/score_india.py`). The three models are averaged; the 80% band is calibrated on each network's
+   validation windows; the test (2022-10-01 to 2023-03-31, every 6 h) is scored once: all networks pooled, trained
+   stations and never-trained stations separately, and each network on its own.
+5. **Words.** Atlas-India **beats** an entry across India only with significant pooled MAE wins on both tracks
+   (Diebold–Mariano p < 0.05 and a day-block bootstrap interval excluding zero). Each network's win, tie or loss is
+   listed; Delhi's row is reported like any other.
+6. **Foundation models.** Until TimesFM and Chronos have forecast these same windows (GPU), the league holds only
+   the two simple baselines, and nothing is said from it about foundation models.
+7. The Delhi models (v1.1, v1.2) were trained on hours that are test hours here and are never scored in this league.
+
 ## What has not been done
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

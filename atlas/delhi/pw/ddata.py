@@ -42,7 +42,7 @@ def _kmeans(X, k, seed=0, iters=50):
 
 
 class Delhi:
-    def __init__(self, path=None, targets=TARGETS, min_cov=0.5, backbone=True, wxfc=True, first=None):
+    def __init__(self, path=None, targets=TARGETS, min_cov=0.5, backbone=True, wxfc=True, first=None, min_cov_train=None):
         """first (ISO date, long-history file only): drop everything before it. With a long-history file
         (tools/build_delhi_long.py) the stations are still chosen on the league's own hours, so the station list,
         the seen / unseen split and the validation and test windows are exactly the league's."""
@@ -61,7 +61,7 @@ class Delhi:
         b = self.bounds["train"][1]
         pm = X[off:, :, names.index("PM2.5")]                                # the league's hours decide the stations
         cov_tr, cov_te = np.isfinite(pm[:b - off]).mean(0), np.isfinite(pm[-n_te:]).mean(0)
-        keep = np.where((cov_tr >= min_cov * 0.5) & (cov_te >= min_cov))[0]   # rule fixed in advance
+        keep = np.where((cov_tr >= (min_cov * 0.5 if min_cov_train is None else min_cov_train)) & (cov_te >= min_cov))[0]   # rule fixed in advance
         self.stations = [str(s) for s in z["stations"][keep]]
         X = X[:, keep]
         self.T, self.N = X.shape[:2]

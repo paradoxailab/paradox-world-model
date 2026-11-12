@@ -566,6 +566,26 @@ fine-tuning never improves validation). Three fresh seeds (300–302), one Kaggl
 TimesFM 2.5 scores 30.83. The three predictions straddle it, so the run also says which of the lab's own laws to
 trust on Delhi.
 
+### India first: the all-India league (plan; its rules are fixed after the data is inspected and before any score)
+
+Delhi is one city. To hold India, the same model has to work at every Indian station, and Atlas needs more data of
+the kind it is tested on. The public copy of CPCB's exports used for Delhi's history covers 453 stations across the
+country.
+
+* **Data step** (`delhi/tools/build_india_long.py`, notebook `atlas_india_long.ipynb`): every station, hourly,
+  2017-01-01 to 2023-03-31, the league's reader and cleaning rules; prints stations by state and city, coverage by
+  year, unit checks, and how many stations per city could carry a test.
+* **League sketch:** test = the last 182 days (October 2022 to March 2023, which includes north India's smog season),
+  validation = the 61 days before, training = everything earlier; each city with enough stations is its own network;
+  a fifth of the stations are never trained on.
+* **Opponents:** TimesFM 2.5, Chronos-2, Chronos-Bolt and TimesFM 3.0 (evaluation only), zero-shot on the same
+  windows (GPU), and CAMS, whose public archive starts in August 2022 and so covers the test.
+* **Order:** the Delhi v1.1 result decides the recipe. If all of Delhi's history lets Atlas alone reach the
+  foundation models, the same recipe is trained on all of India. If it does not, the design changes first.
+* **After that, the test a pure forecaster cannot take:** the national lockdown from 25 March 2020 is inside this
+  history. Atlas is asked what the weeks after it would have looked like without the lockdown, and the gap to what was
+  measured is compared with published estimates of the drop in emissions.
+
 ## What has not been done
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

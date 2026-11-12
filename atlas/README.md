@@ -249,6 +249,44 @@ the earlier Delhi league on the same windows (Chronos-2: 31.17 / 27.41 in both r
 * **Not run:** TimesFM 3.0 and the data-threshold study were skipped for time (TimesFM 2.5 alone took about 7 of
   the 11 hours on CPU). The 10M model needs a GPU.
 
+## Atlas Threshold Function (ATF): plan and rules, written before any result
+
+**Question.** Before collecting more data or training on it, can we predict how accurate a model will become on a
+*real* station network, and from how many months of data it will beat the foundation models (TimesFM, Chronos)? And
+can that prediction be used to build a forecasting system that beats every single model?
+
+**v1.0: real-data learning curves** (`bench/curves.py`). 13 networks, fixed in advance: 6 regions of India's NOAA ISD
+airport/synoptic stations (k-means on position, seed 0, up to 32 stations each; temperature, humidity, wind; up to 9
+years of training data), the CPCB rooftop stations of 6 cities (PM2.5, temperature, humidity, wind; up to 11 months)
+and Delhi (same four; up to 16 months). On each network Atlas (plain, about 250K parameters, from random weights) is
+trained on the most recent 0.5, 1, 2, 4, 8, 16, 32, 64 months and all data (as far as the network has them), 2 seeds
+each, and scored on a fixed test period (ISD and Delhi: last 182 days; cities: last 90 days). Forecasts are saved.
+
+**v1.1: the threshold function, tested on networks it has not seen.** For each network in turn, the function is
+fitted on the *other* 12 networks and then predicts this network's error at every data amount from its own **2-month
+pilot** runs only (about 15 CPU-minutes). Candidates, all fixed now:
+* M0 no improvement: error(N) = pilot error.
+* M1 per-network power law fitted to the 0.5-, 1- and 2-month pilots (standard learning-curve extrapolation).
+* M2 **ATF**: error(N) = e_p · [φ + (1 − φ)(N / N_p)^−α], with α and φ pooled from the other networks' curves
+  (each curve relative to its own 2-month error e_p).
+* M3 ATF with α and φ pooled per variable (temperature, humidity, wind, PM2.5).
+
+Primary measure: median absolute log error of the predicted test MAE at the largest data amount (lower is better), over
+all held-out network-targets. **ATF counts as working only if M2 or M3 beats both M0 and M1 on that measure and a
+paired sign test over network-targets gives p < 0.05.** Also reported: error over all amounts above 2 months, and
+whether the 80% intervals cover the measured errors.
+
+**v1.2: decide before training whether, and how, to use our model.** TimesFM 2.5 / 3.0 and Chronos run zero-shot on the
+same windows. (a) Does ATF predict, from the 2-month pilot, whether Atlas trained on all data will beat the best
+foundation model (accuracy against always-yes and always-no), and the months needed? (b) Combination: for every
+network-target, the weight between Atlas and the best foundation model (0, 0.25, 0.5, 0.75, 1) is chosen on
+validation only, then scored once on test. **The combination counts as beating a model only where it is lower on test
+MAE with p < 0.05 (Diebold-Mariano on daily errors and a day-block bootstrap), and the overall claim needs this
+against every foundation model on a majority of network-targets.**
+
+Known limits, stated in advance: one model family (Atlas) and one size; "more months" also means other seasons, so a
+data amount is not a count of identical samples; the 6 city networks share coordinates within a city (no geometry).
+
 ## What has not been done
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

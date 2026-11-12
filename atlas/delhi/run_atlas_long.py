@@ -139,6 +139,22 @@ def main(a):
     log(f"Atlas: {m.n_params():,} parameters, width {m.cfg['d']}")
     os.makedirs(OUT, exist_ok=True)
     save = {}
+    if a.init:                                               # v1.3: start from weights trained on the rest of India
+        import glob
+        hits = sorted(glob.glob(a.init) + glob.glob(os.path.join("/kaggle/input", "**", os.path.basename(a.init)), recursive=True))
+        assert hits, f"no checkpoint at {a.init}"
+        ck = torch.load(hits[0], map_location="cpu", weights_only=False)
+        assert all(ck["cfg"][k] == m.cfg[k] for k in m.cfg), "the pretrained model is not this model"
+        assert "Delhi" not in ck["networks"], "the pretrained model has seen Delhi stations: Track U would not be clean"
+        m.load_state_dict(ck[a.init_key])
+        fP = forecasts(m)
+        iP = dict(val_MAE=float(np.nanmean(np.abs(R.predict(m, D, va_fast, S)[..., 1] - yv))), steps=0)
+        iP["test_S"], iP["test_U"] = test_mae(fP)
+        log(f"TEST P seed {a.seed} (weights from the rest of India, no Delhi training; one model, uncalibrated): trained stations "
+            f"{iP['test_S']:.2f}, unseen {iP['test_U']:.2f}; validation {iP['val_MAE']:.3f}")
+        save.update(P_v4=fP["v4"], P_t=fP["t"])
+        res.update(P=iP, pretrain=dict(file=os.path.basename(hits[0]), key=a.init_key, networks=ck["networks"],
+                                       meta=ck.get("meta", {})), lr_b=a.lr_b)
     if a.full:                                               # v1.2: whole schedule; E = early-stopping rule, F = last step
         info, sE = train(D, m, tr, va_fast, a.seed, 80 if q else a.steps, f"F-s{a.seed}", lr, a.cap_b, 20 if q else a.every,
                          2 if q else a.patience, full=True)
@@ -156,12 +172,12 @@ def main(a):
                    os.path.join(OUT, f"atlas_long2_s{a.seed}.pt"))
         log("LONG-RUN " + json.dumps(res, default=float))
         return
-    iB = train(D, m, tr, va_fast, a.seed, 60 if q else a.steps, f"B-s{a.seed}", lr, a.cap_b, 20 if q else a.every, a.patience)
+    iB = train(D, m, tr, va_fast, a.seed, 60 if q else a.steps, f"B-s{a.seed}", lr * a.lr_b, a.cap_b, 20 if q else a.every, a.patience)
     fB = forecasts(m); sB = {k: v.detach().cpu().clone() for k, v in m.state_dict().items()}
     iB["test_S"], iB["test_U"] = test_mae(fB)
     log(f"TEST B seed {a.seed} (one model, uncalibrated): trained stations {iB['test_S']:.2f}, unseen {iB['test_U']:.2f}")
     save.update(B_v4=fB["v4"], B_t=fB["t"])
-    np.savez_compressed(os.path.join(OUT, f"long_s{a.seed}.npz"), meta=np.array(json.dumps(dict(res, B=iB))), val_origins=va4,
+    np.savez_compressed(os.path.join(OUT, f"{a.tag}_s{a.seed}.npz"), meta=np.array(json.dumps(dict(res, B=iB), default=float)), val_origins=va4,
                         test_origins=te, **save)
     iC = train(D, m, tr_league, va_fast, a.seed + 1000, 40 if q else a.ft_steps, f"C-s{a.seed}", lr * 0.2, a.cap_c, 20 if q else 100, 10)
     fC = forecasts(m)
@@ -169,10 +185,10 @@ def main(a):
     log(f"TEST C seed {a.seed} (one model, uncalibrated): trained stations {iC['test_S']:.2f}, unseen {iC['test_U']:.2f}")
     save.update(C_v4=fC["v4"], C_t=fC["t"])
     res.update(B=iB, C=iC, params=m.n_params(), minutes_total=round((time.time() - T0) / 60, 1))
-    np.savez_compressed(os.path.join(OUT, f"long_s{a.seed}.npz"), meta=np.array(json.dumps(res, default=float)), val_origins=va4,
+    np.savez_compressed(os.path.join(OUT, f"{a.tag}_s{a.seed}.npz"), meta=np.array(json.dumps(res, default=float)), val_origins=va4,
                         test_origins=te, **save)
     torch.save({"cfg": m.cfg, "B": sB, "C": {k: v.detach().cpu() for k, v in m.state_dict().items()}, "stations": D.stations,
-                "first": a.first}, os.path.join(OUT, f"atlas_long_s{a.seed}.pt"))
+                "first": a.first}, os.path.join(OUT, f"atlas_{a.tag}_s{a.seed}.pt"))
     log("LONG-RUN " + json.dumps(res, default=float))
 
 
@@ -189,5 +205,9 @@ if __name__ == "__main__":
     ap.add_argument("--cap-c", type=float, default=60, help="minutes")
     ap.add_argument("--min-stations", type=int, default=8)
     ap.add_argument("--full", action="store_true", help="v1.2: whole schedule, recipes E and F")
+    ap.add_argument("--init", default="", help="v1.3: start from this checkpoint (run_atlas_india.py --skip Delhi --pretrain-only)")
+    ap.add_argument("--init-key", default="E")
+    ap.add_argument("--lr-b", type=float, default=1.0, help="learning-rate factor for stage B (v1.3: 0.3)")
+    ap.add_argument("--tag", default="long", help="name of the output files (v1.3: long3)")
     ap.add_argument("--quick", action="store_true")
     main(ap.parse_args())

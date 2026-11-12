@@ -711,6 +711,37 @@ country.
    the two simple baselines, and nothing is said from it about foundation models.
 7. The Delhi models (v1.1, v1.2) were trained on hours that are test hours here and are never scored in this league.
 
+### Atlas-Delhi v1.3: pre-trained on the rest of India (rules and predictions, written before any score)
+
+v1.1 showed that more of Delhi's own history made Atlas 9% better, along the line the scaling law drew. Delhi has
+no more history to give. The rest of India has: 13 networks, 226 stations and 144,671 valid training windows,
+against Delhi's 19,082. v1.3 asks whether other cities' history counts for Delhi.
+
+1. **Pre-training.** The Atlas-India recipe unchanged (one model for all networks, 60,000 steps, the checkpoint with
+   the best pooled validation), on 13 networks. **The Delhi network is left out entirely**, so the model has seen no
+   Delhi station and the Delhi league's never-trained stations stay never trained (`delhi/run_atlas_india.py --skip
+   Delhi --pretrain-only`; the fine-tuning script refuses weights that have seen Delhi). The pre-training data ends
+   on 2022-07-31, almost three years before the Delhi league's validation period. Only weights are saved; no test
+   window of any league is forecast.
+2. **Then v1.1's two stages, from those weights.** B: all of Delhi's history since 2018, training stations only, at
+   0.3 of the learning rate, up to 12,000 steps, the same early stopping. C: the league's own 16 months at 0.2 of
+   the learning rate, as in v1.1.
+3. **Seeds 320–322**, one Kaggle notebook each (pre-training and both stages; `delhi/kaggle_v13.sh`).
+4. **Decided on validation only.** B or C by the lower mean validation error. v1.3 replaces v1.1 as the Atlas entry
+   only if its three-model ensemble has a lower validation error than v1.1's on the fusion's validation windows.
+5. **Scored as v1.1 was** (`fuse.py --v13`): the same 725 test windows, calibration, tests and verdict words. Entries:
+   Atlas v1.3 alone, the fusion with v1.3, and **P, the pre-trained model before any Delhi training**. P is
+   zero-shot on Delhi in the sense the foundation models are: its weights have never seen a Delhi station. Its inputs
+   are scaled with Delhi's training-period statistics and it uses Delhi's station graph.
+6. **Predictions** from the v1.1 law (single-model test error on trained stations falls as windows^-0.048; v1.1
+   measured 31.61 µg/m³): **28.5** if a window from another state counts like a Delhi window, **30.8** if it counts
+   a tenth, **31.6** if it does not count. v1.1's ensemble was 1.35 below its single models. TimesFM 2.5 scored
+   30.83; the smallest margin that has been significant in this league is about 3.5%, so Atlas alone needs an
+   ensemble near 29.7, which means single models near 31.1.
+7. **Provisional by construction.** Delhi's test period has now been scored by v1.0, the fusion, v1.1 and v1.2. A
+   v1.3 gain counts as confirmed only when the same recipe (leave one network out, pre-train on the rest, adapt)
+   also gains on another network of the all-India league.
+
 ## Atlas what-if test 1: the 2020 lockdown in Delhi (rules, written before any result)
 
 Forecasting the next 24 hours well does not make a world model. A world model has to answer a question no

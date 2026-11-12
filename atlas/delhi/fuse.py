@@ -273,6 +273,39 @@ def main(a):
         refs["Atlas v1.1 (3 seeds)"] = v11
         refs[f"Atlas v1.2, recipe {oth} (not chosen)"] = ens(oth)
         Q = {A: v12, **Q}
+    ZS = None
+    if a.v13:                                                # Atlas-Delhi v1.3: pretrained on the rest of India
+        Z, metas, ens = load_long("long3_s*.npz")
+        val = {k: [m[k]["val_MAE"] for m in metas] for k in ("P", "B", "C")}
+        fam = min(("B", "C"), key=lambda k: np.mean(val[k]))
+        oth = "C" if fam == "B" else "B"
+        _, metas11, ens11 = load_long("long_s*.npz")
+        v11, v13 = ens11("C"), ens(fam)
+        e11, e13 = mae(v11[0][:, S], yv[:, S]), mae(v13[0][:, S], yv[:, S])
+        st = {k: [[m[k]["test_S"], m[k]["test_U"]] for m in metas] for k in ("P", "B", "C")}
+        pre = [m["pretrain"] for m in metas]
+        RES["decision"] = dict(seeds=[m["seed"] for m in metas], val_MAE=val, recipe=fam, ensemble_val_MAE=e13, v11_ensemble_val_MAE=e11,
+                               adopted=bool(e13 < e11), single_model_test=st, steps={k: [m[k]["steps"] for m in metas] for k in ("B", "C")},
+                               pretrain_networks=pre[0]["networks"], pretrain_val_MAE=[p["meta"].get("E", {}).get("val_MAE") for p in pre],
+                               pretrain_windows=[int(sum(p["meta"].get("train_windows", []))) for p in pre],
+                               rule="recipe B or C by the lower mean validation MAE; the ensemble replaces v1.1 only if its validation "
+                                    "MAE on the fusion's validation windows is lower")
+        d = RES["decision"]
+        d["text"] = (f"Pretraining: {len(d['pretrain_networks'])} networks without Delhi ({d['pretrain_windows']} training windows; pooled "
+                     f"validation MAE there {[round(x, 3) if x else x for x in d['pretrain_val_MAE']]}). Validation MAE on Delhi, one model per "
+                     f"seed: P (no Delhi training) {[round(x, 3) for x in val['P']]}; B (then all Delhi history) {[round(x, 3) for x in val['B']]} "
+                     f"after {d['steps']['B']} steps; C (then the league's 16 months) {[round(x, 3) for x in val['C']]}. Chosen: {fam}. Ensemble "
+                     f"of {len(Z)} on the fusion's validation windows: {e13:.3f} against v1.1's {e11:.3f}: "
+                     f"{'ADOPTED' if d['adopted'] else 'NOT ADOPTED'}.\n\nSingle models on test (trained / unseen stations): "
+                     f"P {[[round(v, 2) for v in x] for x in st['P']]}, B {[[round(v, 2) for v in x] for x in st['B']]}, "
+                     f"C {[[round(v, 2) for v in x] for x in st['C']]}.")
+        log("DECISION " + json.dumps(RES["decision"], default=float))
+        A, ZS = "Atlas v1.3", "Atlas-India without Delhi (no Delhi training)"
+        refs["Atlas v1.0 (16 months)"] = Q.pop("Atlas")
+        refs["Atlas v1.1 (3 seeds)"] = v11
+        refs[f"Atlas v1.3, recipe {oth} (not chosen)"] = ens(oth)
+        refs[ZS] = ens("P")
+        Q = {A: v13, **Q}
     RES["atlas_name"] = A
     members = list(Q)
     fms = [m for m in members if m != A]
@@ -323,7 +356,7 @@ def main(a):
 
     # significance --------------------------------------------------------------------------------------
     PRIMARY, SECOND = "Atlas-Delhi Fusion (online)", "Atlas-Delhi Fusion (static)"
-    FINALS = [PRIMARY, SECOND] + ([A + " alone"] if (a.long or a.v12) else [])
+    FINALS = [PRIMARY, SECOND] + ([A + " alone"] if (a.long or a.v12 or a.v13) else []) + ([ZS + " alone"] if ZS else [])
     for final in FINALS:
         RES["significance"][final] = {}
         for t, cols in (("S", S), ("U", U)):
@@ -352,15 +385,15 @@ def main(a):
                 f"unseen stations {g['U'][ctrl]['MAE']['rel_diff_pct']:+.2f}%, p={g['U'][ctrl]['MAE']['p']:.2g})")
         RES["claims"][final] = c
         log("CLAIMS " + final + ": " + json.dumps(c))
-    if a.long or a.v12:                                      # Atlas alone, no other model inside it
-        g, c = RES["significance"][A + " alone"], {}
-        for m in fms + list(refs):
+    for who in ([A] if (a.long or a.v12 or a.v13) else []) + ([ZS] if ZS else []):   # alone, no other model inside it
+        g, c = RES["significance"][who + " alone"], {}
+        for m in [x for x in fms + list(refs) if x != who]:
             vS, vU = g["S"][m + " alone"]["MAE"], g["U"][m + " alone"]["MAE"]
             c[m] = ("BEATS" if (vS["verdict"], vU["verdict"]) == ("WIN", "WIN") else
                     "LOSES" if "LOSS" in (vS["verdict"], vU["verdict"]) else "level") + \
                    f" (training stations {vS['verdict']} {vS['rel_diff_pct']:+.2f}%, p={vS['p']:.2g}; unseen stations {vU['verdict']} {vU['rel_diff_pct']:+.2f}%, p={vU['p']:.2g})"
-        RES["claims"][A + " alone"] = c
-        log("CLAIMS " + A + " alone: " + json.dumps(c))
+        RES["claims"][who + " alone"] = c
+        log("CLAIMS " + who + " alone: " + json.dumps(c))
     RES["primary"] = PRIMARY
     np.savez_compressed(os.path.join(OUT, "fusion_preds.npz"), qS_online=preds["S"][PRIMARY], qS_static=preds["S"][SECOND],
                         qU_online=preds["U"][PRIMARY], qU_static=preds["U"][SECOND], yS=yt[:, S], yU=yt[:, U],
@@ -406,4 +439,5 @@ if __name__ == "__main__":
     ap.add_argument("--reps", type=int, default=2000)
     ap.add_argument("--long", action="store_true", help="Atlas v1.1: use the all-history forecasts saved by run_atlas_long.py")
     ap.add_argument("--v12", action="store_true", help="Atlas v1.2: whole-schedule runs (long2_s*.npz), v1.1's as reference")
+    ap.add_argument("--v13", action="store_true", help="Atlas v1.3: pretrained on the rest of India (long3_s*.npz), v1.1's as reference")
     main(ap.parse_args())

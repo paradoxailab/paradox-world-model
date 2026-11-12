@@ -100,6 +100,11 @@ def pooled_val(m, nets, O):
 def main(a):
     q = a.quick
     nets = networks(q)
+    skip = {s.strip() for s in a.skip.split(",") if s.strip()}
+    if skip:                                               # e.g. pretraining for another league: that city is left out
+        assert skip <= {D.name for D in nets}, f"no such network: {skip - {D.name for D in nets}}"
+        nets = [D for D in nets if D.name not in skip]
+        log(f"left out, never trained on: {sorted(skip)}")
     O = [origins(D, q) for D in nets]
     for D, (tr, va4, te) in zip(nets, O):
         log(f"NET {D.name}: {D.N} stations ({len(D.seen)} trained on, {len(D.unseen)} unseen), {len(tr)} valid training windows, "
@@ -159,6 +164,13 @@ def main(a):
                train_windows=[len(o[0]) for o in O], hit_time_cap=capped, minutes_train=round((time.time() - t0) / 60, 1),
                E=dict(val_MAE=best, steps=frozen or step), F=dict(val_MAE=v, steps=step))
     log("RUN " + json.dumps(res, default=float))
+    if a.pretrain_only:                                    # only the weights are kept; no test window is touched
+        os.makedirs(OUT, exist_ok=True)
+        res.update(left_out=sorted(skip), minutes_total=round((time.time() - T0) / 60, 1))
+        torch.save({"cfg": m.cfg, "E": {k: x.cpu() for k, x in state.items()}, "F": {k: x.detach().cpu() for k, x in m.state_dict().items()},
+                    "networks": res["networks"], "meta": res}, os.path.join(OUT, f"atlas_{a.tag}_s{a.seed}.pt"))
+        log("PRETRAIN " + json.dumps(res, default=float))
+        return
 
     def forecasts():
         out = {}
@@ -195,9 +207,9 @@ def main(a):
         for (net, nm), arr in f.items():
             save[f"{net}|{k}_{nm}"] = arr
     res["minutes_total"] = round((time.time() - T0) / 60, 1)
-    np.savez_compressed(os.path.join(OUT, f"india_s{a.seed}.npz"), meta=np.array(json.dumps(res, default=float)), **save)
+    np.savez_compressed(os.path.join(OUT, f"{a.tag}_s{a.seed}.npz"), meta=np.array(json.dumps(res, default=float)), **save)
     torch.save({"cfg": m.cfg, "E": {k: x.cpu() for k, x in state.items()}, "F": sF, "networks": res["networks"]},
-               os.path.join(OUT, f"atlas_india_s{a.seed}.pt"))
+               os.path.join(OUT, f"atlas_{a.tag}_s{a.seed}.pt"))
     log("INDIA-RUN " + json.dumps(res, default=float))
 
 
@@ -209,5 +221,8 @@ if __name__ == "__main__":
     ap.add_argument("--every", type=int, default=2000)
     ap.add_argument("--patience", type=int, default=6)
     ap.add_argument("--cap", type=float, default=420, help="minutes of training")
+    ap.add_argument("--skip", default="", help="networks to leave out, comma-separated (e.g. Delhi)")
+    ap.add_argument("--tag", default="india", help="name of the output files")
+    ap.add_argument("--pretrain-only", action="store_true", help="save the weights only: no forecasts, no test window")
     ap.add_argument("--quick", action="store_true")
     main(ap.parse_args())

@@ -173,7 +173,8 @@ class Delhi:
         sp = {k: (str(self.dates[a]), str(self.dates[b - 1])) for k, (a, b) in self.bounds.items()}
         return (f"DELHI: {self.T} hours x {self.N} stations, targets {self.targets} (missing "
                 f"{', '.join(f'{v:.1f}%' for v in miss)}), {self.Ca} input channels, "
-                f"{int((self.A > 0).sum())} graph links, {self.regions.max() + 1} regions; splits {sp}")
+                f"{int((self.A > 0).sum())} graph links, {self.regions.max() + 1} regions; splits {sp}"
+                + (f"; no trained station reports {self.aux_dropped}: not inputs" if self.aux_dropped else ""))
 
     def to(self, dev):
         if self._dev == dev:

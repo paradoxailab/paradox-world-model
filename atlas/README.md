@@ -363,6 +363,33 @@ flattens (φ = 0.83); wind gains slowly at every scale.
   all-India targets but only 9 of 24 city targets and 2 of 4 Delhi targets. Chennai has a single usable station.
   ATF predicts Atlas's errors well; that does not make those errors small.
 
+### ATF v2.0: does the law hold outside weather and air quality? (plan and rules, written before any result)
+
+The law is **frozen** as fitted on the 46 Indian curves (`bench/atf_law.json`: α = 0.179, φ = 0.474, 80% interval from
+the Indian residuals), committed before any v2.0 curve was trained. It is then applied, unchanged, to four public
+forecasting benchmarks from other domains (`bench/fetch_bench.py`), each split into networks fixed now:
+electricity use of 256 customers (8 groups of 32, 2012–2014), road occupancy of 256 sensors (8 groups of 32,
+2015–2016), output of 128 solar plants (4 groups of 32, 2006, averaged to hourly), and the two ETT transformers (oil
+temperature, with 6 load readings as inputs). 22 networks, one target each. Each series is put in fixed units
+(mean and spread before validation) so errors are comparable. Same Atlas, same training, data amounts 0.5–16 months
+and all data, 2 seeds; test = last 182 days (electricity), 91 (traffic, ETT), 61 (solar).
+
+**Rule.** For each network the frozen law predicts the test MAE with all data from that network's own 2-month pilot.
+It "transfers" only if its median |log(predicted / measured)| at the largest amount is lower than both M0 (no
+improvement) and M1 (power law fitted to the network's own 0.5/1/2-month pilots) and a two-sided sign test over the
+22 networks gives p < 0.05 against each. Reported also: all amounts above 2 months, interval coverage, results per
+dataset. Groups within one dataset are not independent; with 22 networks the test needs about 16 wins of 22.
+
+**Diagnostic for the 32–64-month dip** (not part of the rule). Hypothesis: early stopping on the pre-monsoon validation
+period caused it. Test: the 6 all-India regions at 16, 32, 64 months and all data, trained a fixed 4,000 steps with
+the final weights kept, 1 seed; plus per-year missing data and level of each variable. The hypothesis is supported if
+the dip (32 or 64 months worse than 16 by more than 3%) disappears in at least 5 of 6 regions.
+
+**The tool** (`bench/atf_tool.py`). Any hourly multi-series data (CSV with one column per series, or npz): it trains
+the 0.5/1/2-month pilots, applies the frozen law, and prints the predicted error for more data with an 80% interval,
+the months needed for a target error (or that more data alone will not reach it), and the gain from doubling the
+data; `--verify` also trains on all the data and prints measured against predicted.
+
 ## What has not been done
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

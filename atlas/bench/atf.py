@@ -185,7 +185,31 @@ def report(curves, nets, rows, res, out):
     print("\n".join(o))
 
 
+def frozen_rows(curves, law):
+    """Out-of-domain test: the law is NOT refitted; each network's prediction uses only its own 2-month pilot."""
+    rows = []
+    lo, hi = law["interval_log"]
+    for k in sorted(curves):
+        c = curves[k]; base = e2(c); f1 = m1_fit(c)
+        for i, (N, e) in enumerate(zip(c["N"], c["e"])):
+            if N <= P_N + 0.05: continue
+            p2 = base * g(N / P_N, law["phi"], law["alpha"])
+            rows.append(dict(network=k[0], var=c["var"], N=N, measured=e, largest=(i == len(c["N"]) - 1), M0=base,
+                             M1=f1(N) if f1 else float("nan"), M2=p2, M3=p2, M2_lo=p2 * math.exp(lo), M2_hi=p2 * math.exp(hi)))
+    return rows
+
+
 if __name__ == "__main__":
+    if sys.argv[1] == "--law":                                        # python atf.py --law atf_law.json logs...
+        law = json.load(open(sys.argv[2]))
+        paths = [p for a in sys.argv[3:] for p in glob.glob(a)]
+        curves_raw, nets = read(paths)
+        curves = build(curves_raw)
+        rows = frozen_rows(curves, law)
+        res = evaluate(rows)
+        print(f"FROZEN LAW {law['version']}: alpha {law['alpha']:.3f}, phi {law['phi']:.3f} (M3 column = M2: no per-variable law for new variables)")
+        report(curves, nets, rows, res, os.environ.get("ATF_OUT", "."))
+        sys.exit(0)
     paths = [p for a in sys.argv[1:] for p in glob.glob(a)]
     curves_raw, nets = read(paths)
     curves = build(curves_raw)

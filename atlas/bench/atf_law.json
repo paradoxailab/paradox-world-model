@@ -1,0 +1,31 @@
+{
+ "version": "ATF-1.1",
+ "fitted_on": "46 network-targets of 13 Indian networks (results/atf/curves_v10.txt), test MAE, mean of 2 seeds",
+ "form": "e(N) = e(2 months) * [phi + (1 - phi) * (N / 2)^-alpha], N in months of the most recent data",
+ "pilot_months": 2.0,
+ "alpha": 0.1794790230654335,
+ "phi": 0.474301251551909,
+ "interval_log": [
+  -0.18855224454295694,
+  0.15613052645434855
+ ],
+ "per_variable": {
+  "AT": {
+   "alpha": 0.3559541095920015,
+   "phi": 0.5261480712695298
+  },
+  "RH": {
+   "alpha": 0.14526394711914725,
+   "phi": 0.3960749387017254
+  },
+  "WS": {
+   "alpha": 0.0431970096402636,
+   "phi": 1.586036530103197e-15
+  },
+  "PM2.5": {
+   "alpha": 0.7631167487188405,
+   "phi": 0.8257762513303534
+  }
+ },
+ "frozen": "2026-11-12, before any ATF v2.0 benchmark curve was trained"
+}

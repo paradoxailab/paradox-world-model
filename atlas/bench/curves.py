@@ -47,7 +47,20 @@ def log(*a):
     print(*a, flush=True)
 
 
-def NETWORKS():
+BENCH_AMOUNTS = [0.5, 1, 2, 4, 8, 16, 999]
+
+
+def NETWORKS(suite="india"):
+    if suite == "bench":                       # ATF v2.0: four public benchmarks from other domains
+        n = [dict(name=f"elec-g{g}", file="BENCH_ELEC.npz", group=g, ngroups=8, targets=["load"], test_days=182,
+                  val_days=61, offset=0.0, amounts=BENCH_AMOUNTS, standardize=True) for g in range(8)]
+        n += [dict(name=f"traffic-g{g}", file="BENCH_TRAFFIC.npz", group=g, ngroups=8, targets=["occupancy"],
+                   test_days=91, val_days=45, offset=0.0, amounts=BENCH_AMOUNTS, standardize=True) for g in range(8)]
+        n += [dict(name=f"solar-g{g}", file="BENCH_SOLAR.npz", group=g, ngroups=4, targets=["power"], test_days=61,
+                   val_days=30, offset=0.0, amounts=SHORT_AMOUNTS, standardize=True) for g in range(4)]
+        n += [dict(name=f"{e.lower()}", file=f"BENCH_{e}.npz", targets=["OT"], test_days=91, val_days=45, offset=0.0,
+                   amounts=SHORT_AMOUNTS, standardize=True) for e in ("ETTH1", "ETTH2")]
+        return n
     n = [dict(name=f"isd-r{r}", file="WX_INDIA.npz", region=r, targets=["AT", "RH", "WS"], test_days=182, val_days=61,
               offset=5.5, amounts=ISD_AMOUNTS) for r in range(6)]
     n += [dict(name=f"cpcb-{c}", file="WX_CPCBIN.npz", city=c, targets=["PM2.5", "AT", "RH", "WS"], test_days=90,
@@ -89,6 +102,9 @@ class Net:
             cov = np.isfinite(X[self.test_start:, keep, names.index("AT")]).mean(0)
             keep = keep[np.argsort(-cov, kind="stable")][:32]
             keep = np.sort(keep[np.isfinite(X[self.test_start:, keep, names.index("AT")]).mean(0) > 0.2])
+        elif "group" in spec:                                  # benchmark: 32 series per group, random order, seed 0
+            perm = np.random.default_rng(0).permutation(X.shape[1])
+            keep = np.sort(perm[spec["group"] * 32:(spec["group"] + 1) * 32])
         elif "city" in spec:
             keep = np.where(np.array([str(c) for c in z["cities"]]) == spec["city"])[0]
         else:
@@ -108,6 +124,10 @@ class Net:
         self.names, self.T, self.N, self.C = names, T, int(ok.sum()), len(names)
         self.targets = [v for v in spec["targets"] if v in names and np.isfinite(self.X[self.test_start:, :, names.index(v)]).mean() > 0.05]
         self.ti = [names.index(v) for v in self.targets]
+        if spec.get("standardize"):    # fixed unit per series: mean and spread of everything before validation
+            pre = self.X[:self.val_start]
+            mu_s, sd_s = np.nanmean(pre, 0), np.nanstd(pre, 0)
+            self.X = (self.X - np.nan_to_num(mu_s)) / np.where(np.nan_to_num(sd_s) > 1e-6, sd_s, 1.0)
         self.O = np.isfinite(self.X)
         self.Xz = np.nan_to_num(self.X)
         hours = (self.start.astype(np.int64) + np.arange(T)).astype(np.float64) + spec["offset"]   # hours since 1970, local
@@ -163,6 +183,8 @@ class Net:
 
 
 def clamp(net, q):
+    if net.spec.get("standardize"):
+        return q
     for k, v in enumerate(net.targets):
         if v in POLL or v == "WS": q[..., k, :] = np.maximum(q[..., k, :], 0)
         if v == "RH": q[..., k, :] = np.clip(q[..., k, :], 0, 100)
@@ -202,7 +224,7 @@ def metrics(net, q50, y):
     return out
 
 
-def run_one(net, months, seed, steps, cap_min, size):
+def run_one(net, months, seed, steps, cap_min, size, fixed=False):
     torch.manual_seed(seed); rng = np.random.default_rng(seed)
     org = net.train_origins(months)
     mu, sd = net.stats(org)
@@ -234,7 +256,9 @@ def run_one(net, months, seed, steps, cap_min, size):
                 best, bad, state = v, 0, {k: x.detach().clone() for k, x in m.state_dict().items()}
             else:
                 bad += 1
-            if bad >= 8 or time.time() - t0 > cap_min * 60:
+            if fixed and step == steps:          # fixed training length: keep the final weights, not the best on validation
+                state = {k: x.detach().clone() for k, x in m.state_dict().items()}
+            if (bad >= 8 and not fixed) or time.time() - t0 > cap_min * 60:
                 break
     m.load_state_dict(state)
     return m, mu, sd, dict(steps=step, minutes=round((time.time() - t0) / 60, 2), val_skill=best, params=m.n_params(),
@@ -242,7 +266,7 @@ def run_one(net, months, seed, steps, cap_min, size):
 
 
 def main(a):
-    nets = NETWORKS()
+    nets = NETWORKS(a.suite)
     if a.only:
         nets = [n for n in nets if n["name"] in a.only.split(",")]
     nets = nets[a.shard::a.nshards]
@@ -264,18 +288,29 @@ def main(a):
         log("NETWORK " + json.dumps(dict(network=spec["name"], stations=net.N, variables=net.names, targets=net.targets,
                                          max_months=round(net.max_months, 1), baselines=base)))
         amounts = [x for x in spec["amounts"] if x >= 999 or x < net.max_months - 0.25]
-        for seed in (0, 1):
+        if a.diag:                                 # 32-64 month puzzle: fixed training length, no early stopping
+            amounts = [16, 32, 64, 999]
+            for y in range(int(str(net.start)[:4]), int(str(net.start + int(net.T))[:4]) + 1):
+                lo = int((np.datetime64(f"{y}-01-01T00", "h") - net.start).astype(int)); hi = lo + 8760
+                lo, hi = max(lo, 0), min(hi, net.val_start)
+                if hi <= lo: continue
+                xs = net.X[lo:hi][..., net.ti]
+                log("YEAR " + json.dumps(dict(network=spec["name"], year=y, missing_pct=[round(100 * float(np.isnan(xs[..., k]).mean()), 1) for k in range(len(net.ti))],
+                                              mean=[round(float(np.nanmean(xs[..., k])), 3) for k in range(len(net.ti))],
+                                              sd=[round(float(np.nanstd(xs[..., k])), 3) for k in range(len(net.ti))],
+                                              stations_reporting=int((np.isfinite(xs[..., 0]).mean(0) > 0.05).sum()))))
+        for seed in ((0,) if a.diag else (0, 1)):
             for mo in amounts:
                 if time.time() - T0 > a.hours * 3600:
                     log(f"BUDGET {spec['name']} {mo} seed {seed}: skipped (time budget)"); continue
-                m, mu, sd, info = run_one(net, mo, seed, a.steps, a.cap, a.size)
+                m, mu, sd, info = run_one(net, mo, seed, a.steps, a.cap, a.size, fixed=a.diag)
                 qt, qv = predict(net, m, net.test_org, mu, sd), predict(net, m, net.val_org, mu, sd)
-                tag = f"{spec['name']}__{'all' if mo >= 999 else mo}mo__s{seed}"
+                tag = f"{spec['name']}__{'all' if mo >= 999 else mo}mo__s{seed}" + ("__fixed" if a.diag else "")
                 np.savez_compressed(os.path.join(OUT, "curves", tag + ".npz"), qt=qt.astype(np.float16), qv=qv.astype(np.float16))
-                rec = dict(network=spec["name"], amount=mo, seed=seed, **info, test=metrics(net, qt[..., 1], yt),
+                rec = dict(network=spec["name"], amount=mo, seed=seed, suite=a.suite, fixed_steps=bool(a.diag), **info, test=metrics(net, qt[..., 1], yt),
                            val=metrics(net, qv[..., 1], yv),
                            cover80={v: float(np.nanmean((yt[..., k] >= qt[..., k, 0]) & (yt[..., k] <= qt[..., k, 2]))) for k, v in enumerate(net.targets)})
-                log("CURVE " + json.dumps(rec))
+                log(("DIAG " if a.diag else "CURVE ") + json.dumps(rec))
                 del m
     log(f"done in {(time.time() - T0) / 60:.1f} min")
 
@@ -285,6 +320,8 @@ if __name__ == "__main__":
     ap.add_argument("--shard", type=int, default=0)
     ap.add_argument("--nshards", type=int, default=1)
     ap.add_argument("--only", default="")
+    ap.add_argument("--suite", default="india", choices=["india", "bench"])
+    ap.add_argument("--diag", action="store_true", help="ISD 16/32/64/all months, 1 seed, fixed 4000 steps, final weights")
     ap.add_argument("--steps", type=int, default=4000)
     ap.add_argument("--cap", type=float, default=15, help="minutes per training run")
     ap.add_argument("--size", type=int, default=250_000)

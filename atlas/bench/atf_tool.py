@@ -33,9 +33,8 @@ def to_npz(a, tmp):
         return "DATA.npz", "value"
     z = np.load(a.npz)
     X = z["X"]
-    if a.series:
-        lo, hi = (int(v) for v in a.series.split(":"))
-        X = X[:, lo:hi]
+    if a.series:                                     # "lo:hi" or a comma-separated list of series indices
+        X = X[:, slice(*(int(v) for v in a.series.split(":")))] if ":" in a.series else X[:, [int(v) for v in a.series.split(",")]]
     p = os.path.join(tmp, "DATA.npz")
     np.savez_compressed(p, X=X, vars=z["vars"], stations=np.array([f"s{i}" for i in range(X.shape[1])]), start=z["start"])
     return "DATA.npz", a.target

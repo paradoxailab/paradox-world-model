@@ -42,16 +42,25 @@ def _kmeans(X, k, seed=0, iters=50):
 
 
 class Delhi:
-    def __init__(self, path=None, targets=TARGETS, min_cov=0.5, backbone=True, wxfc=True):
+    def __init__(self, path=None, targets=TARGETS, min_cov=0.5, backbone=True, wxfc=True, first=None):
+        """first (ISO date, long-history file only): drop everything before it. With a long-history file
+        (tools/build_delhi_long.py) the stations are still chosen on the league's own hours, so the station list,
+        the seen / unseen split and the validation and test windows are exactly the league's."""
         z = np.load(path or os.path.join(RAW, "DELHI.npz"), allow_pickle=False)
         X, names = z["X"].astype(np.float32), list(z["vars"])
         self.start = np.datetime64(str(z["start"]))
+        off = int(z["league_offset"]) if "league_offset" in z.files else 0
+        if first is not None:
+            cut = int((np.datetime64(first).astype("datetime64[h]") - self.start.astype("datetime64[h]")).astype(int))
+            cut = min(max(cut, 0), off)
+            X, off, self.start = X[cut:], off - cut, self.start.astype("datetime64[h]") + cut
+        self.league_offset = off
         T = X.shape[0]
         n_te, n_va = TEST_DAYS * SPD, VAL_DAYS * SPD
         self.bounds = {"train": (0, T - n_te - n_va), "val": (T - n_te - n_va, T - n_te), "test": (T - n_te, T)}
         b = self.bounds["train"][1]
-        pm = X[:, :, names.index("PM2.5")]
-        cov_tr, cov_te = np.isfinite(pm[:b]).mean(0), np.isfinite(pm[-n_te:]).mean(0)
+        pm = X[off:, :, names.index("PM2.5")]                                # the league's hours decide the stations
+        cov_tr, cov_te = np.isfinite(pm[:b - off]).mean(0), np.isfinite(pm[-n_te:]).mean(0)
         keep = np.where((cov_tr >= min_cov * 0.5) & (cov_te >= min_cov))[0]   # rule fixed in advance
         self.stations = [str(s) for s in z["stations"][keep]]
         X = X[:, keep]

@@ -520,14 +520,51 @@ Verdicts under the rules above:
 * By lead time on trained stations (fusion online / TimesFM 2.5 / Atlas): 1 h 13.5 / 14.0 / 14.9; 6 h 27.9 / 29.2 /
   30.0; 12 h 32.2 / 32.9 / 36.3; 24 h 34.7 / 35.3 / 37.7. The 80% band covers 79%.
 
-### Atlas-Delhi v1.1: all of Delhi's history (plan)
+### Atlas-Delhi v1.1: all of Delhi's history (data, rules and predictions, written before any score)
 
-Stage 8 extrapolated that a single Atlas needs roughly 4–5 years of Delhi history to reach the foundation models; the
-league file has 16 months because OpenCity's earlier Delhi files hold only the AQI index. `delhi/tools/build_delhi_long.py`
-joins the earlier station measurements from a public copy of CPCB's exports (Kaggle dataset "Time Series Air Quality
-Data of India (2010-2023)") to the league file, with the league's own reader and cleaning rules; the last 17,544
-hours stay bit-identical, so validation and test windows do not move. The training recipe and its decision rule are
-fixed after the data has been inspected (stations matched, clocks, units, coverage by year) and before any score.
+**Data (Kaggle run atlas-delhi-long v2, 2026-11-13).** The league file has 16 months because OpenCity's earlier Delhi
+files hold only the AQI index. `delhi/tools/build_delhi_long.py` joins the earlier measurements from a public copy of
+CPCB's station exports (Kaggle dataset "Time Series Air Quality Data of India (2010-2023)", 453 stations, 40 in
+Delhi) to the league file, with the league's own reader and cleaning rules:
+
+* all 39 league stations matched by name and agency (the agency separates Pusa IMD from Pusa DPCC and Lodhi Road IMD
+  from Lodhi Road IITM);
+* 140,256 hours, 2010-01-01 to 2025-12-31; the last 17,544 are the league file unchanged, so stations, the seen /
+  unseen split and every validation and test window are identical (checked in code on a copy);
+* stations reporting PM2.5 on at least half the hours: 1–9 a year in 2010–2017, 32 in 2018, 36–38 in 2019–2022; the
+  copy ends on 2023-03-31, so April–December 2023 is a gap;
+* units agree across the join (median 2019–2022 against 2024–25: PM2.5 ×1.02, PM10 ×0.99, CO ×1.03, pressure ×1.00,
+  temperature ×0.97; NO2 ×0.83, NO ×0.78, solar radiation ×0.70 are the largest shifts);
+* 8 of the earlier files were stamped in UTC (solar-radiation peak at 04–07 h) and were moved to Indian time; on
+  an hourly clock that leaves those stations half an hour off in the earlier years.
+
+**What changes.** Only the training data. `delhi/run_atlas_long.py` trains the same 1M-parameter Atlas (inputs, loss,
+masking, 72 h context as stage 7) on every valid window since 2018-01-01 (at least 8 training stations with 12 or more
+observed PM2.5 hours in the last 24 h and in the 24 target hours). Per seed, two models: **B** all history, checkpoint
+= best validation; **C** = B fine-tuned on the league's own 16 months at a fifth of the learning rate (C = B if
+fine-tuning never improves validation). Three fresh seeds (300–302), one Kaggle CPU notebook each.
+
+**Rules.**
+
+1. The recipe (B or C) with the lower mean validation MAE over the three seeds is the v1.1 candidate; its three models
+   are averaged and calibrated on validation exactly as before.
+2. v1.1 is **adopted** only if that mean is lower than the 16-month Atlas's (stage 8: 21.98, 22.22, 22.18 on the same
+   validation windows) by more than 2 standard errors of the difference. Its test scores are reported either way,
+   and so are the other recipe's.
+3. Atlas v1.1 **alone beats** a foundation model only with significant MAE wins on both the trained and the unseen
+   stations. The fusion (same code and rules as v1.0, with v1.1 as the Atlas member) is reported beside it.
+4. Validation is May–July and cannot see winter skill; no second look at the test is allowed to fix that.
+
+**Predictions for a single model's test MAE on trained stations** (16 months: 34.3; about five times the windows):
+
+| Source | Prediction |
+|---|---|
+| Stage-8 threshold fit on Delhi (error falls as windows^−0.087) | about 29.8 |
+| The last measured doubling on Delhi only (8 → 15 months, slope −0.05) | about 31.6 |
+| ATF-1.1 law for PM2.5, frozen from the six-city curves (α = 0.763, floor 0.826) | about 33.2 |
+
+TimesFM 2.5 scores 30.83. The three predictions straddle it, so the run also says which of the lab's own laws to
+trust on Delhi.
 
 ## What has not been done
 

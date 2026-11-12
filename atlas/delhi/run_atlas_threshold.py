@@ -205,6 +205,7 @@ def report():
         o += [f"| {n} | {v['target']:.2f} | {g(v['N'])} ({g(v['interval'][0])} – {g(v['interval'][2])}) | {v['measured_max_N']:,} |" for n, v in th["test_MAE"]["need"].items()] + [""]
     if RES["skipped"]:
         o += ["## Skipped", ""] + [f"- {x}" for x in RES["skipped"]] + [""]
+    os.makedirs(R.OUT, exist_ok=True)
     open(os.path.join(R.OUT, "ATLAS_THRESHOLD_REPORT.md"), "w").write("\n".join(o) + "\n")
     log("\n".join(o))
 

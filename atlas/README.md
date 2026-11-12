@@ -711,7 +711,7 @@ Eight seeds, about 67 minutes each; the assembly took 2.4 minutes. Neither chang
 2. **One model's test score depends heavily on its seed.** The eight E models range from 31.37 to 33.87 on
    trained stations (mean 32.65, standard deviation 0.97), while their validation scores sit within 0.5 of each
    other and do not predict the test score (correlation −0.21). Validation is May and June; the test runs from July
-   to December and its error is mostly winter's. So choosing between recipes on validation has little power here, and differences of a few tenths
+   to December, which includes the winter peak. So choosing between recipes on validation has little power here, and differences of a few tenths
    between Atlas versions are noise.
 3. **v1.1's three seeds were at the lucky end.** Their single models averaged 31.70; all eleven seeds of this
    recipe average 32.39. The v1.1 "prediction against measurement" check (31.6 predicted, 31.7 measured) therefore

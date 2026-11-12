@@ -484,7 +484,7 @@ the system and is stated wherever it is reported.
 ### Atlas-Delhi Fusion v1.0 results (Kaggle run atlas-delhi-fusion, 2026-11-13, CPU, 3.7 minutes)
 
 Checks first: each member alone reproduces its earlier score to two decimals (Atlas 33.42 / 29.07, TimesFM 2.5
-30.83 / 27.10, Chronos-2 31.17 / 27.41, Chronos-Bolt 31.35 / 27.94). PM2.5, next 24 h, MAE in µg/m³, 728 test windows.
+30.83 / 27.10, Chronos-2 31.17 / 27.41, Chronos-Bolt 31.35 / 27.94). PM2.5, next 24 h, MAE in µg/m³, 725 test windows.
 
 | Entry | Trained stations | Unseen stations | Fusion (online) against it: trained / unseen |
 |---|---|---|---|
@@ -587,7 +587,7 @@ early at 8,400–14,400 of its 24,000 steps (ten validation checks without impro
 for C. The last measured doubling (31.6) was right; the stage-8 threshold fit (29.8) was 6% too optimistic; the
 ATF-1.1 PM2.5 law (33.2) was 5% too pessimistic. From 3,673 to 19,082 windows the error fell as windows^−0.048.
 
-**Test, PM2.5, next 24 h, MAE µg/m³, 728 windows** (the three models averaged and calibrated on validation):
+**Test, PM2.5, next 24 h, MAE µg/m³, 725 windows** (the three models averaged and calibrated on validation):
 
 | Entry | Trained stations | Unseen stations | Atlas v1.1 alone against it | Fusion (online) against it |
 |---|---|---|---|---|

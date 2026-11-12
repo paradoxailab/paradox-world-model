@@ -447,6 +447,8 @@ forecast of something Delhi's stations measure, for hours that can be scored. So
 So the open target is the first row: **no Paradox model has beaten the time-series foundation models on Delhi PM2.5.**
 The steps below go after that, one change per version.
 
+(That was the position before the runs below. For where it stands now, see "Atlas-Delhi v1.1 results".)
+
 ### Atlas-Delhi Fusion v1.0 (rules)
 
 Atlas and the open-licence foundation models forecast together (`delhi/fuse.py`). Members: the saved Atlas 3-seed
@@ -565,6 +567,68 @@ fine-tuning never improves validation). Three fresh seeds (300–302), one Kaggl
 
 TimesFM 2.5 scores 30.83. The three predictions straddle it, so the run also says which of the lab's own laws to
 trust on Delhi.
+
+### Atlas-Delhi v1.1 results (Kaggle runs atlas-long-s300 / s301 / s302 and atlas-delhi-fusion-v11 v2, 2026-11-13, CPU)
+
+**Training.** 19,082 valid windows since 2018 (2018: 2,784; 2019–2022: about 2,920 a year; 2023: 717; 2024: 2,924;
+2025: 969), against 3,673 in stage 8. Same 967,632-parameter Atlas. Each run took 19–44 minutes; recipe B stopped
+early at 8,400–14,400 of its 24,000 steps (ten validation checks without improvement).
+
+| Seed | B: validation | B: test, one model (trained / unseen) | C: validation | C: test, one model |
+|---|---|---|---|---|
+| 300 | 20.980 | 31.96 / 27.89 | 20.733 | 31.66 / 27.66 |
+| 301 | 21.016 | 31.39 / 27.37 | 20.686 | 31.43 / 27.41 |
+| 302 | 21.002 | 31.74 / 27.86 | 21.002 (fine-tuning never improved: C = B) | 31.74 / 27.86 |
+
+**Decision (rule 1 and 2).** C has the lower mean validation MAE (20.807 against 20.999). Against the 16-month Atlas
+(mean 22.127) the difference is 1.320 with standard error 0.123: **v1.1 is adopted**.
+
+**The predictions.** One model, trained stations: measured 31.70 for B (the pure "all history" recipe) and 31.61
+for C. The last measured doubling (31.6) was right; the stage-8 threshold fit (29.8) was 6% too optimistic; the
+ATF-1.1 PM2.5 law (33.2) was 5% too pessimistic. From 3,673 to 19,082 windows the error fell as windows^−0.048.
+
+**Test, PM2.5, next 24 h, MAE µg/m³, 728 windows** (the three models averaged and calibrated on validation):
+
+| Entry | Trained stations | Unseen stations | Atlas v1.1 alone against it | Fusion (online) against it |
+|---|---|---|---|---|
+| **Atlas-Delhi Fusion with v1.1, online (primary)** | **29.22** | **25.68** | loses +3.6% / +3.7% | – |
+| Atlas-Delhi Fusion with v1.1, static | 29.21 | 25.75 | loses +3.6% / +3.4% | tie |
+| **Atlas v1.1 alone (1M parameters, 3 seeds, no other model inside)** | **30.26** | **26.62** | – | wins −3.4% / −3.5% |
+| Atlas v1.1, recipe B (not chosen) | 30.20 | 26.64 | tie +0.2% / −0.1% | wins −3.2% / −3.6% |
+| Foundation models only, online (control) | 30.43 | 26.82 | tie −0.6% / −0.7% | **wins −4.0% (p<0.0001) / −4.3% (p<0.0001)** |
+| Foundation models only, static (control) | 30.55 | 26.94 | tie −1.0% / −1.2% | wins −4.4% / −4.7% |
+| TimesFM 2.5 (200M) | 30.83 | 27.10 | **tie −1.8% (p=0.29) / −1.7% (p=0.27)** | **wins −5.2% / −5.2% (p<0.0001)** |
+| Chronos-2 (120M) | 31.17 | 27.41 | **tie −2.9% (p=0.069) / −2.9% (p=0.050)** | **wins −6.3% / −6.3% (p<0.0001)** |
+| Chronos-Bolt base (205M) | 31.35 | 27.94 | **wins −3.5% (p=0.031) / −4.7% (p=0.004)** | **wins −6.8% / −8.1% (p<0.0001)** |
+| Atlas v1.0 (16 months) | 33.42 | 29.07 | wins −9.4% / −8.4% (p<0.0001) | wins −12.6% / −11.6% |
+| TimesFM 3.0, earlier league, not re-run | 30.31 | 26.84 | by number: 0.2% / 0.8% lower | by number: 3.6% / 4.3% lower |
+| TimesFM 3.0 multivariate, earlier league, not re-run | 29.95 | 26.16 | by number: 1.0% / 1.8% **higher** | by number: 2.4% / 1.8% lower |
+
+Verdicts under the rules written before the run:
+
+* **Atlas alone no longer loses to the foundation models, and has not yet beaten the two best of them.** With all
+  of Delhi's history it beats Chronos-Bolt on both tracks and is level with TimesFM 2.5 and Chronos-2 (ahead by number
+  on both tracks, not significantly). In stage 8, on 16 months, it lost significantly to TimesFM 2.5 and Chronos-2 on
+  both tracks. A 1M-parameter model trained from zero is now level with zero-shot models of 120–205M parameters.
+* **More data was the lever, as the threshold work said.** Five times the windows cut the three-model error from
+  33.42 / 29.07 to 30.26 / 26.62 (−9.4% / −8.4%), with nothing else changed.
+* **The fusion beats TimesFM 2.5, Chronos-2 and Chronos-Bolt by 5–8%** on both tracks (p < 0.0001 everywhere), in
+  both the online and the static form, and **Atlas adds information**: against the same procedure without Atlas the
+  fusion is 4.0% / 4.3% better online and 4.4% / 4.4% better static (p < 0.0001). In v1.0 that contribution was about
+  1% and not settled.
+* **TimesFM 3.0: no verdict.** By number the fusion is now below both of its earlier scores, including the
+  multivariate one that every earlier Paradox entry trailed; Atlas alone is level with the univariate and behind the
+  multivariate. A test needs its forecasts on these windows (GPU).
+* **B against C:** a tie on test (30.20 / 26.64 against 30.26 / 26.62). Fine-tuning on the last 16 months improved
+  validation in two of three seeds and changed nothing that the test can see.
+* **By lead time on trained stations** (Atlas v1.1 alone / TimesFM 2.5 / fusion online): 1 h 14.5 / 14.0 / 13.5; 6 h
+  27.7 / 29.2 / 27.1; 12 h 32.3 / 32.9 / 31.1; 24 h 34.6 / 35.3 / 33.8. Atlas alone is behind in the first hour and
+  ahead from six hours on. The 80% bands cover 78–80%.
+* **Weights.** Static (one set, from validation): Atlas 0.40, TimesFM 2.5 0.40, Chronos-Bolt 0.20, Chronos-2 0.
+  Online: Atlas 0.49 on average, 0.34–0.47 in July–September and 0.57–0.58 in October–November (the smog season).
+* **What this does not show.** One city and one variable; three seeds; training stopped early on a summer
+  validation at 35–60% of its planned steps, so the model may be under-trained; the comparison with TimesFM 3.0 is by
+  number only; whether Atlas alone can pass TimesFM 2.5 with more seeds, a longer schedule or a larger model is open.
 
 ### India first: the all-India league (plan; its rules are fixed after the data is inspected and before any score)
 

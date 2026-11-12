@@ -249,6 +249,43 @@ the earlier Delhi league on the same windows (Chronos-2: 31.17 / 27.41 in both r
 * **Not run:** TimesFM 3.0 and the data-threshold study were skipped for time (TimesFM 2.5 alone took about 7 of
   the 11 hours on CPU). The 10M model needs a GPU.
 
+### Stage 8 results (Kaggle run atlas-delhi-threshold, 2026-11-12, CPU, 353 minutes)
+
+**A. Longer history.** Validation MAE over 3 seeds: 72 h 21.98 / 22.22 / 22.18 (mean 22.128); 336 h of PM2.5 history
+22.28 / 21.90 / 22.29 (mean 22.155). Difference −0.027 ± 0.148 (standard error): not adopted, 72 h kept. On test the two
+tie (trained stations 32.93 against 32.90, p = 0.92; unseen 28.84 against 28.95, p = 0.65). **A longer history is not
+what separates Atlas from the foundation models.**
+
+Adopted Atlas (72 h, 1M parameters, 3 fresh seeds) against the cached foundation-model forecasts, PM2.5 MAE µg/m³:
+
+| | trained stations | unseen stations |
+|---|---|---|
+| Atlas, 3 seeds | 32.93 | 28.84 |
+| TimesFM 2.5 | 30.83 (Atlas loses +6.8%, p = 0.003) | 27.10 (loses +6.4%, p = 0.002) |
+| Chronos-2 | 31.17 (loses +5.6%, p = 0.012) | 27.41 (loses +5.2%, p = 0.02) |
+| Chronos-Bolt base | 31.35 (loses +5.0%, p = 0.024) | 27.94 (tie +3.2%, p = 0.16) |
+
+**B. Data and size on Delhi** (single models, median forecast, trained stations, test MAE, mean of 2 seeds):
+
+| parameters | 0.5 mo | 1 mo | 2 mo | 4 mo | 8 mo | 15 mo (all) |
+|---|---|---|---|---|---|---|
+| 50,232 | 47.3 | 48.3 | 50.6 | 43.1 | 38.0 | 35.1 |
+| 231,312 | 43.5 | 47.1 | 51.9 | 43.6 | 36.9 | 34.9 |
+| 967,632 | 42.7 | 42.8 | 44.2 | 40.0 | 35.4 | 34.3 |
+| 3,972,192 (1 seed) | – | – | 42.4 | – | – | 36.6 |
+
+More data helps strongly here (about 44–52 with 2 months, 34–35 with 15), unlike the all-India regions in ATF v1.0.
+Size helps a little from 8 months on (1M best); 4M was worse than 1M with all data (36.6 against 34.3, one seed).
+Single models with few months vary a lot between seeds (for example 41.7 and 55.0 at 1 month, 50K).
+
+Threshold function fitted to these 38 runs: misfit ×1.09; fitted without the largest data amount it predicted those
+7 runs within ×1.10 (biased 8% high). The fitted floor sits at its bound (0), so the floor is not identified and the
+decay is slow (α = 0.087, β = 0.308). **Extrapolation, not measurement:** to reach each foundation model a single 4M
+model would need about 12,200 training windows for Chronos-Bolt (10–90%: 8,100–22,400), 13,000 for Chronos-2
+(8,700–24,200) and 14,900 for TimesFM 2.5 (10,000–28,300), against 3,673 measured (15 months); that is roughly 4–5 years
+of Delhi history at this sampling. These are single uncalibrated models; the 3-seed ensemble above (32.93) already
+does better than any single model, so the true requirement for an ensemble is likely lower.
+
 ## Atlas Threshold Function (ATF): plan and rules, written before any result
 
 **Question.** Before collecting more data or training on it, can we predict how accurate a model will become on a

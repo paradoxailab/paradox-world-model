@@ -208,6 +208,14 @@ if __name__ == "__main__":
         rows = frozen_rows(curves, law)
         res = evaluate(rows)
         print(f"FROZEN LAW {law['version']}: alpha {law['alpha']:.3f}, phi {law['phi']:.3f} (M3 column = M2: no per-variable law for new variables)")
+        big = [r for r in rows if r["largest"]]
+        for ds in sorted({r["network"].split("-g")[0] for r in big}):
+            sel = [r for r in big if r["network"].split("-g")[0] == ds]
+            med = {m: float(np.median([abs(math.log(r[m] / r["measured"])) for r in sel])) for m in ("M0", "M1", "M2")}
+            print(f"DATASET {ds}: {len(sel)} networks, median abs log error at the largest amount: "
+                  + ", ".join(f"{m} {v:.3f}" for m, v in med.items())
+                  + "; measured gain from 2 months to all data " + f"{100 * np.median([1 - r['measured'] / r['M0'] for r in sel]):.1f}%"
+                  + f", law predicted {100 * np.median([1 - r['M2'] / r['M0'] for r in sel]):.1f}%")
         report(curves, nets, rows, res, os.environ.get("ATF_OUT", "."))
         sys.exit(0)
     paths = [p for a in sys.argv[1:] for p in glob.glob(a)]

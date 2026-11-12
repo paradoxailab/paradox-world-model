@@ -1,0 +1,15 @@
+your-data: 65 stations, 1 variables ['load'], targets ['load']; 26304 h from 2012-01-01T00; train up to 31.8 months before 2014-08-31T00; val 121 windows, test 123 windows from 2014-10-31T00; missing % in test [0.0]
+pilot 0.5 months: held-out MAE 0.3702 (seeds 0.3701, 0.3702)
+pilot   1 months: held-out MAE 0.3576 (seeds 0.3579, 0.3573)
+pilot   2 months: held-out MAE 0.3461 (seeds 0.3560, 0.3361)
+
+You have 31.8 months before the held-out period. Persistence (last value) scores 0.8412.
+Predicted held-out MAE with more of the most recent data (ATF, 80% interval):
+       4 months: 0.3248  (0.2690 - 0.3797)
+       8 months: 0.3060  (0.2534 - 0.3577)
+      16 months: 0.2894  (0.2397 - 0.3383)
+    31.8 months: 0.2749  (0.2276 - 0.3213)
+Doubling your data (31.8 -> 63.7 months) is predicted to cut the error by 4.7%.
+
+VERIFY: trained on all 31.8 months: measured 0.2519, predicted 0.2748 (off by x1.091); 2-month pilot alone would have said 0.3461.
+ATF-TOOL {"available_months": 31.8, "pilot": {"0.5": 0.37017016883442944, "1": 0.35758807239459867, "2": 0.34605480132304056}, "persistence": 0.8412293791770935, "law": "ATF-1.1", "predictions": {"4": {"pred": 0.32477406162288885, "lo": 0.2689639890721342, "hi": 0.37965398496332164}, "8": {"pred": 0.3059827043349286, "lo": 0.25340179056713724, "hi": 0.35768728712546427}, "16": {"pred": 0.28938952601033974, "lo": 0.23966002987582666, "hi": 0.3382902138411697}, "31.8": {"pred": 0.2748619154617263, "lo": 0.22762888408383739, "hi": 0.32130774544694013}}, "gain_from_doubling_pct": 4.711779698139329, "verify": {"measured": 0.2519309772147137, "predicted": 0.27483562245355225}}

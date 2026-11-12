@@ -390,6 +390,13 @@ the 0.5/1/2-month pilots, applies the frozen law, and prints the predicted error
 the months needed for a target error (or that more data alone will not reach it), and the gain from doubling the
 data; `--verify` also trains on all the data and prints measured against predicted.
 
+*Tool demo (real, `results/atf/tool_demo_electricity_65.txt`).* The 65 electricity customers that are in none of the
+v2.0 networks, on this machine's 2 CPU cores (about 70 minutes, mostly the `--verify` training). Pilots: 0.370 (0.5
+month), 0.358 (1), 0.346 (2) in standardised MAE; persistence 0.841. The tool predicted 0.275 with all 31.8 months
+(80% interval 0.228–0.321); training on all of it measured **0.252**: off by ×1.09 and inside the interval. The pilot
+alone (M0) was off by ×1.37 and the power law on the pilots (M1) by ×1.20. One network, so an illustration, not
+a test; the test is the 22 networks above.
+
 ## What has not been done
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

@@ -611,7 +611,8 @@ Verdicts under the rules written before the run:
   on both tracks, not significantly). In stage 8, on 16 months, it lost significantly to TimesFM 2.5 and Chronos-2 on
   both tracks. A 1M-parameter model trained from zero is now level with zero-shot models of 120–205M parameters.
 * **More data was the lever, as the threshold work said.** Five times the windows cut the three-model error from
-  33.42 / 29.07 to 30.26 / 26.62 (−9.4% / −8.4%), with nothing else changed.
+  33.42 / 29.07 to 30.26 / 26.62 (−9.4% / −8.4%), with the model, its inputs and its loss unchanged (the training
+  schedule is longer, as five times the data needs).
 * **The fusion beats TimesFM 2.5, Chronos-2 and Chronos-Bolt by 5–8%** on both tracks (p < 0.0001 everywhere), in
   both the online and the static form, and **Atlas adds information**: against the same procedure without Atlas the
   fusion is 4.0% / 4.3% better online and 4.4% / 4.4% better static (p < 0.0001). In v1.0 that contribution was about

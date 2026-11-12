@@ -849,6 +849,53 @@ they must come out unchanged; the largest change is printed as a check.
 are read from the fixed version. This correction was made after one seed's pooled test numbers had been printed,
 so it is not blind; what limits it is that it was chosen from the inputs and cannot move a trained-station result.
 
+### Atlas-India v1.0 results, as first run (Colab run colab_lockdown_india, 2026-11-13, Tesla T4)
+
+Three seeds (400–402), about 31 minutes each on the T4; the scoring took 0.5 minutes. The data rebuilt on Colab gave
+the same 14 networks, 263 stations and 158,893 training windows as the Kaggle build. This is the league **before**
+the input fix described above; the never-trained-station numbers of Gujarat and Kerala are the fault, not the model.
+The scoring with the fix follows below when it has run.
+
+*Recipe decision on pooled validation:* E 9.084, 9.103, 9.053; F 9.150, 9.124, 9.053; paired difference E − F
+−0.029, standard error 0.019: **recipe E** (in seed 402 the last step was also the best, so E and F are the same
+model). Single models on test, trained / never trained: E 21.42 / 44.43, 21.43 / 23.71, 21.29 / 24.96; F 21.53 /
+23.75, 21.50 / 23.46, 21.29 / 24.96. *Cross-check on other hardware* (Kaggle CPU, seed 400): E 21.47 / 23.60,
+F 21.70 / 23.64.
+
+*All 14 networks pooled (PM2.5, µg/m³, next 24 h; three models averaged, calibrated on each network's validation):*
+
+| Entry | Trained: MAE | RMSE | QL | COV80 % | MAE@1h | MAE@6h | MAE@12h | MAE@24h | Never trained: MAE | Atlas-India against it (trained / never trained) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| **Atlas-India** (recipe E) | **21.00** | 38.87 | 6.91 | 80 | 9.56 | 19.08 | 21.83 | 23.89 | 29.05 | – |
+| Atlas-India, recipe F (not chosen) | 21.00 | 38.70 | 6.92 | 80 | 9.53 | 19.06 | 21.86 | 23.95 | 22.57 | TIE +0.0% / LOSS +28.7% |
+| Same hour yesterday | 29.86 | 53.86 | 11.83 | 54 | 29.48 | 29.66 | 29.66 | 29.68 | 29.30 | WIN −29.7% (p = 2e-118) / TIE −0.9% (p = 0.62) |
+| Last observed value | 32.01 | 57.63 | 12.95 | 49 | 11.65 | 32.15 | 35.64 | 28.36 | 31.13 | WIN −34.4% (p = 3e-140) / WIN −6.7% (p = 0.00013) |
+
+*Each network (MAE):*
+
+| Network | stations (never trained) | mean PM2.5 in test | Atlas-India: trained / never trained | Same hour yesterday (trained) | Last observed value (trained) |
+|---|---|---|---|---|---|
+| Uttar Pradesh | 40 (8) | 77 | 20.87 / 22.47 | 30.15 (WIN −30.8%) | 33.40 (WIN −37.5%) |
+| Delhi | 37 (7) | 140 | 37.46 / 35.81 | 54.74 (WIN −31.6%) | 59.63 (WIN −37.2%) |
+| Haryana | 30 (6) | 86 | 24.40 / 22.45 | 35.81 (WIN −31.9%) | 34.76 (WIN −29.8%) |
+| Maharashtra | 27 (5) | 74 | 19.59 / 24.94 | 26.38 (WIN −25.7%) | 27.83 (WIN −29.6%) |
+| Karnataka | 24 (5) | 34 | 8.87 / 9.15 | 12.49 (WIN −29.0%) | 11.66 (WIN −23.9%) |
+| other states | 22 (4) | 55 | 15.09 / 9.25 | 20.01 (WIN −24.6%) | 22.37 (WIN −32.5%) |
+| Madhya Pradesh | 14 (3) | 57 | 16.18 / 13.88 | 21.80 (WIN −25.8%) | 26.92 (WIN −39.9%) |
+| West Bengal | 14 (3) | 75 | 14.69 / 14.80 | 21.41 (WIN −31.4%) | 22.87 (WIN −35.8%) |
+| Bihar | 12 (2) | 121 | 27.57 / 24.84 | 39.71 (WIN −30.6%) | 43.96 (WIN −37.3%) |
+| Rajasthan | 10 (2) | 63 | 18.96 / 15.31 | 26.71 (WIN −29.0%) | 29.40 (WIN −35.5%) |
+| Gujarat | 9 (2) | 67 | 18.43 / **156.49** | 23.66 (WIN −22.1%) | 27.83 (WIN −33.8%) |
+| Tamil Nadu | 9 (2) | 42 | 12.69 / 16.46 | 17.37 (WIN −26.9%) | 17.25 (WIN −26.4%) |
+| Punjab | 8 (2) | 65 | 17.38 / 35.09 | 23.86 (WIN −27.2%) | 24.30 (WIN −28.5%) |
+| Kerala | 7 (1) | 43 | 8.52 / **149.88** | 12.44 (WIN −31.6%) | 10.91 (WIN −21.9%) |
+
+*Verdicts as first run.* On trained stations Atlas-India beats both simple forecasts in **14 of 14 networks**, by
+22% to 40%. Under the rule (a win on both tracks) it **beats** "last observed value" and is only **level** with
+"same hour yesterday", because the two faulty stations put the never-trained error at 29.05. No foundation model has
+been run on these windows yet, so this says nothing yet about TimesFM or Chronos on all-India data. Punjab's
+never-trained error (35.09 against 17.38 on trained stations) is also high and is not explained yet.
+
 ### Atlas-Delhi v1.3: pre-trained on the rest of India (rules and predictions, written before any score)
 
 v1.1 showed that more of Delhi's own history made Atlas 9% better, along the line the scaling law drew. Delhi has

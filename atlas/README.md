@@ -654,6 +654,72 @@ and C tied in v1.1). Data, model, inputs and loss are v1.1's.
    (where training stopped; how many seeds), not from test scores, but any Delhi gain from here on counts as
    provisional until the all-India league, whose test no Atlas model has touched, confirms it.
 
+### Atlas-Delhi v1.2 results (Kaggle runs atlas-long2-a .. d and atlas-delhi-fusion-v12, 2026-11-13, CPU)
+
+Eight seeds, about 67 minutes each; the assembly took 2.4 minutes. Neither change improved the test score.
+
+**Decision on validation (rules 1 and 2).**
+
+| Seed | 310 | 311 | 312 | 313 | 314 | 315 | 316 | 317 |
+|---|---|---|---|---|---|---|---|---|
+| E: validation MAE (early stopping) | 21.118 | 20.720 | 21.154 | 21.143 | 21.246 | 21.180 | 21.129 | 21.150 |
+| E: steps | 10,000 | 17,600 | 10,000 | 9,600 | 12,400 | 12,000 | 9,200 | 9,200 |
+| F: validation MAE (whole schedule, 24,000 steps) | 21.760 | 21.186 | 21.365 | 21.766 | 21.356 | 21.298 | 21.362 | 21.707 |
+| E: test MAE, trained / unseen | 31.42 / 27.73 | 33.46 / 29.09 | 32.34 / 27.88 | 32.22 / 28.02 | 33.67 / 28.70 | 32.82 / 28.17 | 33.87 / 29.11 | 31.37 / 27.43 |
+| F: test MAE, trained / unseen | 32.28 / 28.07 | 33.41 / 28.80 | 32.27 / 27.52 | 31.79 / 28.08 | 34.31 / 28.79 | 32.61 / 28.17 | 31.07 / 26.99 | 31.28 / 27.73 |
+
+* Rule 1: F was worse than E on validation in all eight seeds (paired difference E − F −0.370, standard error
+  0.080). **Recipe E.** Training the whole schedule did not help.
+* Rule 2: the eight E models averaged score 20.162 on the fusion's validation windows against 20.453 for v1.1's
+  three. **Atlas v1.2 is adopted** and replaces v1.1 as the Atlas entry.
+
+**Test (PM2.5 MAE, µg/m³; 725 windows; trained stations / never-trained stations).**
+
+| Entry | Trained | Never trained |
+|---|---|---|
+| Atlas-Delhi Fusion with v1.2 (static) | 29.33 | 25.83 |
+| Atlas-Delhi Fusion with v1.2 (online, primary) | 29.34 | 25.75 |
+| Atlas v1.2, recipe F (not chosen) | 30.23 | 26.48 |
+| Atlas v1.1 (3 seeds) | 30.26 | 26.62 |
+| **Atlas v1.2 alone (8 seeds)** | **30.39** | **26.59** |
+| Foundation models only (online) | 30.43 | 26.82 |
+| Foundation models only (static) | 30.55 | 26.94 |
+| TimesFM 2.5 | 30.83 | 27.10 |
+| Chronos-2 | 31.17 | 27.41 |
+| Chronos-Bolt | 31.35 | 27.94 |
+| Atlas v1.0 (16 months) | 33.42 | 29.07 |
+
+**Verdicts under the rules.**
+
+* **Atlas v1.2 alone** is level with TimesFM 2.5 (−1.41%, p = 0.41 / −1.86%, p = 0.21) and with Chronos-2
+  (−2.50%, p = 0.16 / −2.97%, p = 0.085). Against Chronos-Bolt it wins on never-trained stations (−4.81%,
+  p = 0.0061) but only ties on trained ones (−3.06%, p = 0.073), so the verdict is **level**; v1.1 had beaten
+  Chronos-Bolt on both. It beats v1.0 (−9.06% / −8.51%) and is level with v1.1 (+0.44%, p = 0.58 / −0.12%,
+  p = 0.88) and with recipe F.
+* **The fusion with v1.2** beats all three foundation models on both tracks: online −4.84% / −4.96% against
+  TimesFM 2.5, −5.90% / −6.03% against Chronos-2, −6.43% / −7.81% against Chronos-Bolt (every p below 0.0001);
+  static −4.86% / −4.69%, −5.91% / −5.76%, −6.45% / −7.55%. **Atlas adds information beyond the foundation
+  models: YES** (online −3.60%, p = 0.00027 / −3.99%, p = 0.00003; static −4.00% / −4.14%).
+* Weights: static Atlas 0.45, TimesFM 2.5 0.40, Chronos-Bolt 0.15; online, on average, Atlas 0.50, TimesFM 2.5
+  0.25, Chronos-2 0.18, Chronos-Bolt 0.07.
+
+**What this means.**
+
+1. **The adopted version is not better on test.** Validation chose v1.2, so by the rule its numbers are now the
+   league's: Atlas alone 30.39 / 26.59 and the fusion 29.34 / 25.75. v1.1 had 30.26 / 26.62 and 29.22 / 25.68.
+   The two versions are statistically level, and the slightly better-looking v1.1 numbers are not kept.
+2. **One model's test score depends heavily on its seed.** The eight E models range from 31.37 to 33.87 on
+   trained stations (mean 32.65, standard deviation 0.97), while their validation scores sit within 0.5 of each
+   other and do not predict the test score (correlation −0.21). Validation is May to July; the test is September
+   to December. So choosing between recipes on validation has little power here, and differences of a few tenths
+   between Atlas versions are noise.
+3. **v1.1's three seeds were at the lucky end.** Their single models averaged 31.70; all eleven seeds of this
+   recipe average 32.39. The v1.1 "prediction against measurement" check (31.6 predicted, 31.7 measured) therefore
+   looked closer than it is: on eleven seeds the measured value is 32.4, between the "law holds" and "no gain"
+   predictions.
+4. **Atlas alone stays level with TimesFM 2.5.** Three versions of the same recipe (v1.1, v1.2 E, v1.2 F) land
+   between 30.2 and 30.4. More seeds and longer training do not move it; v1.3 changes the data instead.
+
 ### India first: the all-India league (plan; its rules are fixed after the data is inspected and before any score)
 
 Delhi is one city. To hold India, the same model has to work at every Indian station, and Atlas needs more data of
@@ -765,6 +831,11 @@ against Delhi's 19,082. v1.3 asks whether other cities' history counts for Delhi
 7. **Provisional by construction.** Delhi's test period has now been scored by v1.0, the fusion, v1.1 and v1.2. A
    v1.3 gain counts as confirmed only when the same recipe (leave one network out, pre-train on the rest, adapt)
    also gains on another network of the all-India league.
+
+*Note added after the v1.2 result and before any v1.3 score.* The predictions in rule 6 start from v1.1's 31.61,
+which three seeds gave. Eleven seeds of the same recipe average 32.39. Starting from that, the same three
+predictions are **29.2 / 31.5 / 32.4**. Both sets are kept; the threshold for beating TimesFM 2.5 (single models
+near 31.1 for a three-model ensemble) does not change.
 
 ## Atlas what-if test 1: the 2020 lockdown in Delhi (rules, written before any result)
 
@@ -910,8 +981,9 @@ is what happened in Delhi.
   model was built and counted but not trained (CPU time).
 * Real data so far is air quality only: Delhi, then every Indian station network. The comparison with TimesFM and
   Chronos has been made on Delhi PM2.5 only; TimesFM 3.0 is compared by number only, with no significance test yet.
-* The all-India league has rules and is running; no result is recorded yet. Until it is, the Delhi v1.1 and v1.2
-  numbers rest on a test period that has been scored several times.
+* The all-India league has rules and is running; no result is recorded yet. Until it is, the Delhi numbers rest
+  on a test period that has been scored several times. Atlas-Delhi v1.3 (pre-trained on the rest of India) has
+  rules and is training; no score yet.
 * What-if: test 1 failed its validity gate, and test 1b has not been run on Delhi data. No counterfactual claim
   is made.
 * The "which variable or station to collect next" advisor has not been tried on real data.

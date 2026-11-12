@@ -84,7 +84,8 @@ def main():
         stem = str(r[fcol])
         f = glob.glob(os.path.join(base, "**", stem + ("" if stem.lower().endswith(".csv") else ".csv")), recursive=True)
         if f:
-            files[f[0]] = str(r[ncol])
+            nm, ag = str(r[ncol]).strip(), str(r[low["agency"]]).strip() if "agency" in low else ""
+            files[f[0]] = nm if (not ag or toks(nm)[1]) else f"{nm} - {ag}"      # the agency tells Pusa (IMD) from Pusa (DPCC)
         else:
             print(f"  file for {stem} not found", flush=True)
 

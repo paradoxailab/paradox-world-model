@@ -423,6 +423,53 @@ problem in the input variables that were not checked (dew point, pressure, visib
 is to train on 16-month windows that end earlier (for example ending November 2022) and see whether those alone are
 bad.
 
+### ATF v2.0 results, part 2: the out-of-domain test (Kaggle runs atf2-bench-s0 .. s3 and atf2-analysis, 2026-11-13)
+
+22 networks, 296 curve points (80 + 80 + 68 + 68 over the four training notebooks). The law frozen on the 46 Indian
+curves (α = 0.179, φ = 0.474) was applied unchanged; each network's own 2-month pilot is its only input.
+
+**Verdict under the rule written before the run: the law does NOT transfer.** It missed by one network. At the
+largest amount it beat M1 in 16 of 22 networks, which gives p = 0.0525 on the two-sided sign test; the rule needed
+p < 0.05, that is 17 of 22. Every other part of the rule was met.
+
+*Largest amount of data (22 predictions; the rule's measure):*
+
+| Method | median abs log error | within 10% of measured | mean abs log error |
+|---|---|---|---|
+| M0: no improvement beyond the pilot | 0.221 (×1.247) | 9% | 0.208 |
+| M1: power law fitted to the network's own pilots | 0.115 (×1.122) | 41% | 0.111 |
+| **M2: the frozen law** | **0.037 (×1.038)** | **91%** | **0.046** |
+
+Sign tests (wins / losses): frozen law against M0 20 / 2, p = 0.00012; against M1 **16 / 6, p = 0.0525**. Its 80%
+interval contained the measured error in 95% of cases (so the interval is too wide).
+
+*All amounts above 2 months (82 predictions; reported, not part of the rule):* M0 0.157, M1 0.086, frozen law
+0.047 (×1.048), within 10% in 87% of cases; sign tests 63 / 19 against M0 (p = 0.000001) and 57 / 25 against M1
+(p = 0.0005); interval coverage 98%.
+
+*By dataset (median abs log error at the largest amount; measured gain from 2 months to all data, and the law's):*
+
+| Dataset | networks | M0 | M1 | frozen law | measured gain | law predicted |
+|---|---|---|---|---|---|---|
+| Electricity | 8 | 0.255 | 0.065 | 0.034 | 22.5% | 19.8% |
+| Traffic | 8 | 0.225 | 0.123 | 0.032 | 20.2% | 17.6% |
+| Solar | 4 | 0.167 | 0.143 | 0.069 | 15.3% | 12.3% |
+| ETTh2 | 1 | 0.161 | 0.118 | 0.032 | 14.9% | 17.5% |
+| ETTh1 | 1 | 0.012 | 0.036 | 0.181 | 1.2% | 17.5% |
+
+**Reading.**
+
+1. **The rule's verdict stands: not shown.** The threshold was fixed in advance, and 16 of 22 is under it. Groups
+   inside one dataset are also not independent, so even 17 would have been weaker evidence than it looks.
+2. **What was measured is still worth stating.** A law fitted only on Indian weather and air-quality curves predicted
+   the error of electricity, traffic and solar networks at full data to within 4% in the median, three times closer
+   than a power law fitted to each network's own pilots and six times closer than assuming no improvement.
+3. **Where it failed.** ETTh1 gained 1.2% from more data and the law predicted 17.5%; the law has no way to know
+   that a series has stopped improving. And the 80% interval covered 95–98% of cases, so it is too wide to be useful
+   as stated.
+4. **Next for this line** (not started): a tighter interval fitted on the Indian curves alone, and a second
+   out-of-domain test with independent datasets rather than groups of one dataset, with the rule written first.
+
 ## Atlas-Delhi league: against the models on the master list (plan and rules, written before any result)
 
 The master list (weather, traffic, flood, wildfire, landslide, earthquake, Earth-observation, urban, digital-twin,

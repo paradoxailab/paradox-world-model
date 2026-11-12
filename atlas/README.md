@@ -212,8 +212,42 @@ window has many gaps. On real data the choice between plain and ID is therefore 
 splits, test windows and scoring as the PWM-W Delhi league (branch `delhi-v0.2`): next-24-hour PM2.5 at every
 station, from the last 72 h of 15 measured variables. Observations only. It compares plain and ID at two sizes on
 validation, scores the chosen one once on test against TimesFM 2.5 / 3.0 and Chronos, measures which inputs matter,
-and repeats training on the last 0.5–4 months to measure the data threshold. Results are added here when the Kaggle
-run finishes; none are claimed before that.
+and repeats training on the last 0.5–4 months to measure the data threshold. Results follow.
+
+### Stage 7 results (Kaggle run atlas-delhi v2, 2026-11-12, CPU, 666 minutes)
+
+39 Delhi stations (31 trained on, 8 never trained on), 2024-01-01 to 2025-12-31; train to 2025-05-02, validation
+to 2025-07-02, test 2025-07-03 to 2025-12-31. PM2.5, next 24 h, MAE in µg/m³. The foundation models' scores match
+the earlier Delhi league on the same windows (Chronos-2: 31.17 / 27.41 in both runs).
+
+| Model | Trained stations | Unseen stations | Atlas against it (trained / unseen) |
+|---|---|---|---|
+| TimesFM 2.5 (200M, zero-shot) | **30.83** | **27.10** | loses +8.4% (p=0.0006) / loses +7.3% (p=0.0009) |
+| Chronos-2 (120M, zero-shot) | 31.17 | 27.41 | loses +7.2% (p=0.003) / loses +6.1% (p=0.007) |
+| Chronos-Bolt base (205M, zero-shot) | 31.35 | 27.94 | loses +6.6% (p=0.005) / tie +4.0% (p=0.08) |
+| **Atlas plain, 967,632 parameters, 3 seeds** | 33.42 | 29.07 | – |
+| Atlas plain, 231,312 parameters, 1 seed | 34.73 | 30.34 | wins −3.8% / −4.2% |
+| Atlas ID, 984,749 parameters, 1 seed | 34.97 | 30.48 | wins −4.4% / −4.6% |
+| Atlas ID, 238,637 parameters, 1 seed | 35.79 | 31.78 | wins −6.6% / −8.5% |
+| Same hour yesterday | 40.30 | 35.39 | wins −17.1% / −17.9% |
+| Last observed value | 46.01 | 38.69 | wins −27.4% / −24.9% |
+
+* **Atlas does not beat the foundation models on Delhi PM2.5.** A 1M-parameter model trained from zero on 16 months
+  of one city is 6.6–8.4% behind three zero-shot models of 120–205M parameters on trained stations, significantly
+  in every case, and behind two of three on unseen stations. It beats both simple baselines by 17–27%.
+* **Identification did not help on real data.** Validation MAE: plain 22.60 (250K) and 22.02 (1M); ID 22.70 and
+  22.91. Both ID runs hit the 50-minute cap (they are about 8× slower per step on CPU). ID is much worse one hour
+  ahead (23.3 against 14.9 µg/m³ on trained stations) and about level from six hours on: its forecast starts from a
+  smoothed state rather than from the last reading.
+* **The validation rule was weaker than it looked.** The noise floor came from three seeds of the 250K model
+  (sigma 0.107). The 1M model's own seeds spread far more (validation 21.83, 22.02, 22.62, 22.89), so "1M beats
+  250K" rests on one seed; the 3-seed ensemble is what was scored.
+* **What the final model uses** (trained-station MAE with inputs hidden at test time; all inputs 33.42): other
+  pollutants hidden 37.96 (+13.6%); meteorology hidden 36.37 (+8.8%); only the last 24 h visible 36.47 (+9.1%);
+  30% of all inputs hidden at random 34.40 (+2.9%). The foundation models see none of the other variables but read
+  512 h of PM2.5 history; Atlas reads 72 h.
+* **Not run:** TimesFM 3.0 and the data-threshold study were skipped for time (TimesFM 2.5 alone took about 7 of
+  the 11 hours on CPU). The 10M model needs a GPU.
 
 ## What has not been done
 

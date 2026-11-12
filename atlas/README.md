@@ -501,7 +501,7 @@ Verdicts under the rules above:
 
 * **The fusion beats TimesFM 2.5, Chronos-2 and Chronos-Bolt**: significant MAE wins on both the trained and the
   unseen stations, for the online entry and for the static one (static: −2.2% / −1.9%, −3.3% / −3.0%, −3.8% / −4.8%;
-  p from 0.018 down). The pinball loss of the quantiles agrees (−1.9% to −4.1%, all significant). This is the first
+  p from 0.018 down). The pinball loss of the quantiles agrees (−1.7% to −4.1%, all significant). This is the first
   significant win over these models on Delhi PM2.5 in this project, and it is **Atlas together with them**, not an
   independent model: Atlas alone still loses to all three.
 * **Whether Atlas adds information is not settled.** Against the same procedure without Atlas, the online entry is

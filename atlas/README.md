@@ -896,6 +896,37 @@ F 21.70 / 23.64.
 been run on these windows yet, so this says nothing yet about TimesFM or Chronos on all-India data. Punjab's
 never-trained error (35.09 against 17.38 on trained stations) is also high and is not explained yet.
 
+### Atlas-India v1.0 results with the input fix (Colab, same session and weights, 2026-11-13)
+
+The forecasts were made again from the three saved models (`run_atlas_india.py --reforecast`). The loader found
+three variables that no trained station of a network reports and dropped them as inputs there: pressure in Gujarat
+and in Kerala, and **temperature in Punjab**, which had not been noticed and explains part of Punjab's high
+never-trained error. The largest change of any trained-station forecast was 0.0000 µg/m³, as it had to be.
+
+*Single models on test, trained / never trained:* E 21.42 / 21.29, 21.43 / 21.76, 21.29 / 21.15 (as first run
+21.42 / 44.43, 21.43 / 23.71, 21.29 / 24.96). So the fault had inflated every seed's never-trained error, not only
+the one that blew up.
+
+*All 14 networks pooled:*
+
+| Entry | Trained: MAE | RMSE | QL | COV80 % | MAE@1h | MAE@6h | MAE@12h | MAE@24h | Never trained: MAE | QL | COV80 % | Atlas-India against it (trained / never trained) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| **Atlas-India** (recipe E) | **21.00** | 38.87 | 6.91 | 80 | 9.56 | 19.08 | 21.83 | 23.89 | **20.91** | 6.88 | 79 | – |
+| Atlas-India, recipe F (not chosen) | 21.00 | 38.70 | 6.92 | 80 | 9.53 | 19.06 | 21.86 | 23.95 | 21.00 | 6.91 | 79 | TIE +0.0% (p = 0.95) / WIN −0.4% (p = 0.0012) |
+| Same hour yesterday | 29.86 | 53.86 | 11.83 | 54 | 29.48 | 29.66 | 29.66 | 29.68 | 29.30 | 11.53 | 53 | WIN −29.7% (p = 2e-118) / WIN −28.6% (p = 3e-102) |
+| Last observed value | 32.01 | 57.63 | 12.95 | 49 | 11.65 | 32.15 | 35.64 | 28.36 | 31.13 | 12.50 | 47 | WIN −34.4% (p = 3e-140) / WIN −32.8% (p = 2e-104) |
+
+*Never-trained stations by network, where the fix changed them:* Gujarat 18.35 (as first run 156.49), Kerala 12.21
+(149.88), Punjab 28.09 (35.09). Every other number in the per-network table above is unchanged.
+
+**Verdicts with the fix.** Atlas-India **beats** "same hour yesterday" and "last observed value" on both tracks,
+pooled, and on trained stations in 14 of 14 networks. Its error on stations it never trained on (20.91) is the same
+as on the stations it did train on (21.00), and its 80% intervals contain 79–80% of the measurements.
+
+**What this does not show yet.** No foundation model has been scored on these windows; that run is next, and
+until it is done the all-India league says nothing about TimesFM or Chronos. Punjab's never-trained stations (28.09
+against 17.38) and Maharashtra's (24.94 against 19.59) remain clearly worse than the trained ones.
+
 ### Atlas-Delhi v1.3: pre-trained on the rest of India (rules and predictions, written before any score)
 
 v1.1 showed that more of Delhi's own history made Atlas 9% better, along the line the scaling law drew. Delhi has
@@ -1123,8 +1154,8 @@ the measurements as time goes on.
   model was built and counted but not trained (CPU time).
 * Real data so far is air quality only: Delhi, then every Indian station network. The comparison with TimesFM and
   Chronos has been made on Delhi PM2.5 only; TimesFM 3.0 is compared by number only, with no significance test yet.
-* The all-India league has rules and is running; no result is recorded yet. Until it is, the Delhi numbers rest
-  on a test period that has been scored several times. Atlas-Delhi v1.3 (pre-trained on the rest of India) has
+* The all-India league has been scored against simple forecasts only. No foundation model has been run on its
+  windows yet, so it does not yet confirm or contradict the Delhi comparisons with TimesFM and Chronos. Atlas-Delhi v1.3 (pre-trained on the rest of India) has
   rules and is training; no score yet.
 * What-if: tests 1 and 1b both failed their validity gate (the weeks before the 2020 lockdown are 17–21% cleaner
   than the simulation). No counterfactual claim is made.

@@ -1,0 +1,46 @@
+- cpcb-bengaluru AT: 0.5 mo 1.990, 1 mo 1.953, 2 mo 1.825, 4 mo 1.633, 8 mo 1.484, 11.42 mo 1.296 | persistence 3.770, same hour yesterday 1.095
+- cpcb-bengaluru PM2.5: 0.5 mo 13.399, 1 mo 11.803, 2 mo 11.735, 4 mo 11.042, 8 mo 10.224, 11.42 mo 10.558 | persistence 10.336, same hour yesterday 8.839
+- cpcb-bengaluru RH: 0.5 mo 9.530, 1 mo 9.284, 2 mo 8.764, 4 mo 8.317, 8 mo 7.772, 11.42 mo 7.302 | persistence 13.181, same hour yesterday 6.450
+- cpcb-bengaluru WS: 0.5 mo 0.446, 1 mo 0.396, 2 mo 0.381, 4 mo 0.392, 8 mo 0.365, 11.42 mo 0.346 | persistence 0.397, same hour yesterday 0.342
+- cpcb-chennai AT: 0.5 mo 1.371, 1 mo 0.303, 2 mo 0.166, 4 mo 0.147, 8 mo 0.135, 11.42 mo 0.163 | persistence 0.118, same hour yesterday 0.097
+- cpcb-chennai PM2.5: 0.5 mo 23.440, 1 mo 24.258, 2 mo 22.721, 4 mo 22.267, 8 mo 22.490, 11.42 mo 22.847 | persistence 24.368, same hour yesterday 14.677
+- cpcb-chennai RH: 0.5 mo 0.455, 1 mo 0.391, 2 mo 0.385, 4 mo 0.390, 8 mo 0.384, 11.42 mo 0.384 | persistence 0.380, same hour yesterday 0.388
+- cpcb-chennai WS: 0.5 mo 2.085, 1 mo 1.021, 2 mo 0.953, 4 mo 0.984, 8 mo 0.951, 11.42 mo 0.957 | persistence 0.914, same hour yesterday 1.046
+- cpcb-hyderabad AT: 0.5 mo 1.903, 1 mo 1.672, 2 mo 1.679, 4 mo 1.708, 8 mo 1.547, 11.42 mo 1.519 | persistence 3.787, same hour yesterday 1.192
+- cpcb-hyderabad PM2.5: 0.5 mo 10.933, 1 mo 10.442, 2 mo 10.014, 4 mo 9.665, 8 mo 9.425, 11.42 mo 9.279 | persistence 9.920, same hour yesterday 9.984
+- cpcb-hyderabad RH: 0.5 mo 7.913, 1 mo 7.245, 2 mo 7.162, 4 mo 6.930, 8 mo 6.841, 11.42 mo 6.377 | persistence 13.489, same hour yesterday 7.029
+- cpcb-hyderabad WS: 0.5 mo 0.350, 1 mo 0.340, 2 mo 0.326, 4 mo 0.329, 8 mo 0.318, 11.42 mo 0.314 | persistence 0.444, same hour yesterday 0.331
+- cpcb-kolkata AT: 0.5 mo 1.824, 1 mo 1.783, 2 mo 1.768, 4 mo 1.628, 8 mo 1.465, 11.42 mo 1.438 | persistence 4.022, same hour yesterday 1.422
+- cpcb-kolkata PM2.5: 0.5 mo 19.283, 1 mo 18.169, 2 mo 14.260, 4 mo 12.548, 8 mo 11.724, 11.42 mo 10.806 | persistence 12.730, same hour yesterday 13.647
+- cpcb-kolkata RH: 0.5 mo 11.363, 1 mo 11.226, 2 mo 10.940, 4 mo 10.057, 8 mo 9.431, 11.42 mo 9.665 | persistence 19.909, same hour yesterday 10.033
+- cpcb-kolkata WS: 0.5 mo 0.437, 1 mo 0.416, 2 mo 0.400, 4 mo 0.393, 8 mo 0.384, 11.42 mo 0.370 | persistence 0.467, same hour yesterday 0.423
+- cpcb-mumbai AT: 0.5 mo 1.223, 1 mo 1.152, 2 mo 0.999, 4 mo 1.022, 8 mo 1.007, 11.42 mo 0.939 | persistence 2.594, same hour yesterday 0.741
+- cpcb-mumbai PM2.5: 0.5 mo 10.512, 1 mo 10.868, 2 mo 11.359, 4 mo 9.935, 8 mo 8.958, 11.42 mo 9.232 | persistence 10.267, same hour yesterday 9.920
+- cpcb-mumbai RH: 0.5 mo 8.501, 1 mo 7.975, 2 mo 7.453, 4 mo 7.612, 8 mo 7.350, 11.42 mo 7.466 | persistence 13.408, same hour yesterday 7.289
+- cpcb-mumbai WS: 0.5 mo 0.514, 1 mo 0.485, 2 mo 0.450, 4 mo 0.489, 8 mo 0.522, 11.42 mo 0.507 | persistence 0.538, same hour yesterday 0.382
+- cpcb-pune AT: 0.5 mo 1.859, 1 mo 1.683, 2 mo 1.731, 4 mo 1.616, 8 mo 1.470, 11.42 mo 1.426 | persistence 4.570, same hour yesterday 1.194
+- cpcb-pune PM2.5: 0.5 mo 11.661, 1 mo 11.986, 2 mo 11.743, 4 mo 10.435, 8 mo 10.229, 11.42 mo 10.022 | persistence 10.055, same hour yesterday 9.408
+- cpcb-pune RH: 0.5 mo 6.723, 1 mo 6.412, 2 mo 6.462, 4 mo 6.242, 8 mo 6.074, 11.42 mo 5.852 | persistence 11.750, same hour yesterday 5.346
+- cpcb-pune WS: 0.5 mo 0.704, 1 mo 0.696, 2 mo 0.676, 4 mo 0.672, 8 mo 0.670, 11.42 mo 0.664 | persistence 0.609, same hour yesterday 0.584
+- delhi AT: 0.5 mo 1.893, 1 mo 1.929, 2 mo 1.916, 4 mo 1.574, 8 mo 1.292, 15.86 mo 1.246 | persistence 2.799, same hour yesterday 1.101
+- delhi PM2.5: 0.5 mo 38.094, 1 mo 39.828, 2 mo 38.055, 4 mo 38.212, 8 mo 34.281, 15.86 mo 33.298 | persistence 42.819, same hour yesterday 37.387
+- delhi RH: 0.5 mo 9.563, 1 mo 8.734, 2 mo 8.010, 4 mo 7.071, 8 mo 6.240, 15.86 mo 6.283 | persistence 13.158, same hour yesterday 6.067
+- delhi WS: 0.5 mo 0.495, 1 mo 0.481, 2 mo 0.496, 4 mo 0.423, 8 mo 0.398, 15.86 mo 0.383 | persistence 0.584, same hour yesterday 0.405
+- isd-r0 AT: 0.5 mo 2.107, 1 mo 1.896, 2 mo 2.000, 4 mo 1.706, 8 mo 1.659, 16 mo 1.272, 32 mo 1.772, 64 mo 1.619, 110.96 mo 1.233 | persistence 2.670, same hour yesterday 1.437
+- isd-r0 RH: 0.5 mo 8.730, 1 mo 7.998, 2 mo 8.323, 4 mo 7.825, 8 mo 7.182, 16 mo 5.637, 32 mo 7.662, 64 mo 7.210, 110.96 mo 5.523 | persistence 11.024, same hour yesterday 6.300
+- isd-r0 WS: 0.5 mo 0.927, 1 mo 0.814, 2 mo 0.887, 4 mo 0.855, 8 mo 0.838, 16 mo 0.693, 32 mo 0.842, 64 mo 0.813, 110.96 mo 0.697 | persistence 0.956, same hour yesterday 0.739
+- isd-r1 AT: 0.5 mo 2.163, 1 mo 1.908, 2 mo 2.074, 4 mo 1.603, 8 mo 1.858, 16 mo 1.107, 32 mo 1.510, 64 mo 1.420, 110.96 mo 1.094 | persistence 3.018, same hour yesterday 1.343
+- isd-r1 RH: 0.5 mo 8.987, 1 mo 7.959, 2 mo 8.758, 4 mo 7.631, 8 mo 8.267, 16 mo 5.506, 32 mo 7.144, 64 mo 6.661, 110.96 mo 5.518 | persistence 12.335, same hour yesterday 6.613
+- isd-r1 WS: 0.5 mo 1.070, 1 mo 0.941, 2 mo 1.067, 4 mo 1.014, 8 mo 1.039, 16 mo 0.811, 32 mo 0.964, 64 mo 0.929, 110.96 mo 0.805 | persistence 1.139, same hour yesterday 0.880
+- isd-r2 AT: 0.5 mo 2.327, 1 mo 1.944, 2 mo 2.294, 4 mo 1.959, 8 mo 2.076, 16 mo 1.085, 32 mo 1.677, 64 mo 1.528, 110.96 mo 1.064 | persistence 3.231, same hour yesterday 1.195
+- isd-r2 RH: 0.5 mo 8.533, 1 mo 8.203, 2 mo 8.264, 4 mo 7.991, 8 mo 8.600, 16 mo 5.566, 32 mo 7.843, 64 mo 7.144, 110.96 mo 5.440 | persistence 13.208, same hour yesterday 6.399
+- isd-r2 WS: 0.5 mo 1.163, 1 mo 1.074, 2 mo 1.140, 4 mo 1.139, 8 mo 1.125, 16 mo 0.897, 32 mo 1.097, 64 mo 1.036, 110.96 mo 0.888 | persistence 1.243, same hour yesterday 0.992
+- isd-r3 AT: 0.5 mo 2.512, 1 mo 2.109, 2 mo 2.017, 4 mo 1.549, 8 mo 1.408, 16 mo 1.177, 32 mo 1.386, 64 mo 1.444, 110.96 mo 1.159 | persistence 3.112, same hour yesterday 1.360
+- isd-r3 RH: 0.5 mo 9.148, 1 mo 8.629, 2 mo 8.740, 4 mo 7.430, 8 mo 6.787, 16 mo 5.724, 32 mo 6.481, 64 mo 7.286, 110.96 mo 5.665 | persistence 13.212, same hour yesterday 6.599
+- isd-r3 WS: 0.5 mo 1.036, 1 mo 0.966, 2 mo 0.961, 4 mo 0.950, 8 mo 0.922, 16 mo 0.819, 32 mo 0.890, 64 mo 0.911, 110.96 mo 0.823 | persistence 1.189, same hour yesterday 0.934
+- isd-r4 AT: 0.5 mo 2.889, 1 mo 2.259, 2 mo 2.490, 4 mo 2.605, 8 mo 2.088, 16 mo 1.367, 32 mo 2.315, 64 mo 2.349, 110.96 mo 1.341 | persistence 4.362, same hour yesterday 1.613
+- isd-r4 RH: 0.5 mo 9.315, 1 mo 8.164, 2 mo 9.406, 4 mo 9.803, 8 mo 8.306, 16 mo 5.997, 32 mo 8.644, 64 mo 9.229, 110.96 mo 5.888 | persistence 15.800, same hour yesterday 7.091
+- isd-r4 WS: 0.5 mo 0.803, 1 mo 0.707, 2 mo 0.823, 4 mo 0.761, 8 mo 0.731, 16 mo 0.607, 32 mo 0.749, 64 mo 0.728, 110.96 mo 0.603 | persistence 0.875, same hour yesterday 0.728
+- isd-r5 AT: 0.5 mo 1.540, 1 mo 1.400, 2 mo 1.418, 4 mo 1.232, 8 mo 1.161, 16 mo 0.996, 32 mo 1.183, 64 mo 1.246, 110.96 mo 0.984 | persistence 2.857, same hour yesterday 1.206
+- isd-r5 RH: 0.5 mo 7.187, 1 mo 6.779, 2 mo 6.522, 4 mo 6.320, 8 mo 5.836, 16 mo 5.119, 32 mo 5.820, 64 mo 6.245, 110.96 mo 5.075 | persistence 12.002, same hour yesterday 6.192
+- isd-r5 WS: 0.5 mo 1.114, 1 mo 1.060, 2 mo 1.053, 4 mo 1.057, 8 mo 1.038, 16 mo 0.931, 32 mo 1.024, 64 mo 1.009, 110.96 mo 0.932 | persistence 1.400, same hour yesterday 1.106

@@ -287,6 +287,45 @@ against every foundation model on a majority of network-targets.**
 Known limits, stated in advance: one model family (Atlas) and one size; "more months" also means other seasons, so a
 data amount is not a count of identical samples; the 6 city networks share coordinates within a city (no geometry).
 
+### ATF v1.1 results (Kaggle runs atf-curves-s0..s3 and atf-analysis, 2026-11-12)
+
+All 192 planned training runs finished (13 networks, 46 network-targets; about 9 CPU-hours in 4 parallel sessions).
+Curves: [`results/atf/curves_v10.txt`](results/atf/curves_v10.txt) (test MAE per data amount, mean of 2 seeds, with
+persistence and same-hour-yesterday baselines). The analysis was run on Kaggle (`bench/atf.py`) and reproduced exactly
+here from that file.
+
+**Predicting an unseen network's error from its 2-month pilot** (leave-one-network-out; error of the prediction as
+median |log(predicted / measured)|, lower is better):
+
+| method | at the largest data amount (46) | within 10% | all amounts above 2 months (192) |
+|---|---|---|---|
+| M0 no improvement | 0.200 (off by ×1.22) | 24% | 0.122 |
+| M1 per-network power law (standard extrapolation) | 0.156 (×1.17) | 39% | 0.093 |
+| M2 ATF, pooled | 0.098 (×1.10) | 50% | 0.092 |
+| **M3 ATF, pooled per variable** | **0.093 (×1.10)** | 50% | **0.070** |
+
+Sign tests at the largest amount: M3 beats M0 on 36 of 46 (p = 0.0002) and M1 on 32 of 46 (p = 0.011); M2 beats M0
+34/46 (p = 0.002) and M1 31/46 (p = 0.026). **The pre-registered rule is met by both M2 and M3: ATF works.** The 80%
+intervals covered 74% (largest amount) and 78% (all amounts) of measured errors.
+
+Robustness check, not pre-registered: the 46 targets come from 13 networks, so they are not independent. Counting one
+vote per network (mean error over its targets): M3 beats M0 and M1 on 11 of 13 networks (sign p = 0.022; Wilcoxon
+p = 0.006 and 0.001). M2 beats M1 on 10 of 13 (sign p = 0.09, Wilcoxon p = 0.013), so M2's lead over M1 is weaker.
+
+**What the fitted law says** (all 13 networks, e(N) = e(2 mo)·[φ + (1 − φ)(N/2)^−α]): going from 2 months to all data
+cuts error by about 36% for temperature, 27% for humidity, 17% for PM2.5 and 16% for wind. PM2.5 gains early and then
+flattens (φ = 0.83); wind gains slowly at every scale.
+
+**Two findings that limit what this means:**
+* **More data did not reliably help.** On all 6 all-India regions, training on the last 32 or 64 months was worse than
+  on the last 16 months, for every target (18 of 18), while all 111 months was about as good as 16. The seeds agree,
+  so this is systematic, not noise. Possible causes, unresolved: data-quality changes in the 2018–2022 ISD records,
+  early stopping on a pre-monsoon validation period that differs from the June–November test, or both. ATF wins partly
+  because it learns that gains are modest; M1 extrapolates noisy pilots.
+* **Atlas itself is weak on the small city networks.** With all its data it beats "same hour yesterday" on 18 of 18
+  all-India targets but only 9 of 24 city targets and 2 of 4 Delhi targets. Chennai has a single usable station.
+  ATF predicts Atlas's errors well; that does not make those errors small.
+
 ## What has not been done
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

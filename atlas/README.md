@@ -1429,6 +1429,33 @@ years' average, and is level before that. **Not yet built:** the live feed. CPCB
 key (data.gov.in or OpenAQ) that Adi creates and stores as a Kaggle secret; until then the engine runs on the public
 files, which arrive in yearly batches.
 
+### Atlas-Live results: the replay on real data (Kaggle run atlas-live-replay, 2026-11-13, CPU, 44.8 minutes)
+
+The engine reproduced the frozen Atlas v1.3 exactly (28.91 / 25.56; largest difference from the saved forecasts
+0.0002 µg/m³). 26 weekly updates ran; the gate accepted 51 of 78 fine-tunes.
+
+| Layer | Trained: MAE | Never trained: MAE | Against layer 1 | Against TimesFM 2.5 (30.83 / 27.10) |
+|---|---|---|---|---|
+| 1 Frozen Atlas v1.3 | **28.91** | **25.56** | – | beats (−6.22% / −5.69%) |
+| 2 + daily correction | 29.08 | 25.79 | level (+0.59%, p = 0.59 / +0.91%, p = 0.39) | beats (−5.67% / −4.83%) |
+| 3 + weekly gated fine-tune | 30.39 | 26.94 | **loses** (+5.11%, p = 0.0009 / +5.43%, p = 0.0004) | level (−1.43% / −0.57%) |
+
+**Continuous updating, as built, does not help; the weekly fine-tune makes the model significantly worse.** The
+prediction for layer 2 held (a change under 1%); the prediction for layer 3 (a 1 to 3% gain in November-December) was
+wrong. By month, trained stations: July to September all layers within 0.5 µg/m³; October 32.0 / 31.8 / 33.4;
+November 48.6 / 49.9 / **54.2**; December 53.9 / 53.3 / 54.8 (layers 1 / 2 / 3).
+
+*Why layer 3 fails, as far as this run shows.* The gate compares on the most recent week only, and in a season that
+is changing fast (October into November) last week is a poor guide to next week: a model pulled towards the last nine
+weeks' conditions loses what the pre-trained model knew about winter from other years and other cities. Accepting 51
+of 78 updates on 49 gate windows each is also what noise alone would do. The frozen model already adapts through its
+inputs (the last 72 hours and 14 daily means), which is the cheaper kind of updating.
+
+*What stays.* The ledger, the daily ingest design and the frozen model reading live data. Weight updates are off
+until a rule that passes this replay exists; candidates, to be written as rules before any run: update only on a
+full year of new data, or with the all-India mixture kept in every batch, or a much stricter gate (several weeks,
+significance required). The live feed still needs the API key.
+
 ## What has not been done (as of 2026-11-13)
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

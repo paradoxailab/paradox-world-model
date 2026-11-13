@@ -1515,6 +1515,90 @@ fitted to all four widths together (Atlas-W runs only). Reported: the fitted num
 at each data amount. *Prediction:* width 16 is close to 32 at small data; 128 is no better than 64 at full data, so
 the parameter term is small and data is what limits Atlas-W.
 
+### Atlas-W day 2 results: Atlas-W v1, trained the v1.3 way (Kaggle runs atlasw-v13-s320/s321/s322 and atlas-league2-score-w1, 2026-11-13, CPU)
+
+Pre-training on 13 networks (144,671 windows, no Delhi station) took 41–44 minutes per seed: 20,000–42,000 steps to
+the early-stopping checkpoint, pooled validation MAE 8.83–8.86. Stage B used 19,082 Delhi windows since 2018 and
+stopped at 6,000–8,000 steps. Stage C never beat B on validation, so C equals B, and the rule chose B. The scorer
+reproduced Atlas v1.3's 28.91 / 25.56.
+
+| Entry | Trained: MAE | Never trained: MAE | QL | MAE@1h | MAE@24h | Atlas v1.3 against it |
+|---|---|---|---|---|---|---|
+| Atlas v1.3 (967,632 parameters) | **28.91** | **25.56** | 9.55 | 13.59 | 33.22 | – |
+| Moirai 2.0 | 30.50 | 26.84 | 10.10 | 14.15 | 34.40 | WIN −5.2% / −4.8% |
+| TimesFM 2.5 | 30.83 | 27.10 | 10.15 | 13.95 | 35.34 | WIN −6.2% / −5.7% |
+| Chronos-Bolt | 31.35 | 27.94 | 10.26 | 14.21 | 36.26 | WIN −7.8% / −8.5% |
+| **Atlas-W v1 (14,043 parameters, v1.3 recipe)** | **31.44** | **27.48** | 10.35 | 15.11 | 35.04 | WIN −8.0% (p = 1.7e-11) / −7.0% (p = 1.2e-11) |
+| Granite TTM r2 | 31.63 | 27.79 | 12.14 | 16.50 | 34.92 | WIN −8.6% / −8.0% |
+| **Atlas-W, no Delhi training at all (P)** | 31.91 | 27.63 | 10.53 | 16.24 | 35.82 | WIN −9.4% / −7.5% |
+| Atlas-W v0 (16 months of Delhi) | 31.97 | 27.43 | 10.51 | 14.89 | 35.34 | WIN −9.6% / −6.8% |
+
+*Against the predictions:* **wrong.** Atlas-W v1 is 31.44, not 29.5–31.0. All of Delhi's history and pre-training
+gained only 0.53 over v0 (−1.7%), where Atlas gained 13.5% from the same recipe. So Atlas-W is not level with or
+better than TimesFM 2.5 or Moirai 2.0. On trained stations it is 0.6–0.9 behind them and 0.1 behind Chronos-Bolt.
+On never-trained stations it is 0.4–0.6 behind Moirai and TimesFM and ahead of Chronos-Bolt and TTM. Atlas-W was
+not tested directly against those models in this run (the scorer tests Atlas v1.3 against every entry), so "level"
+or "behind" here is by the numbers, not by a significance test. P was predicted at 32 to 35; it came out at 31.91, the
+good end.
+
+*What it shows.* (1) **Transfer works without any local data.** Atlas-W trained only on the other 13 networks,
+which never saw a Delhi station, does as well as Atlas-W trained on 16 months of Delhi (31.91 against 31.97 on
+trained stations). (2) **Atlas-W has hit a ceiling.** Its curve is flat from 8 months onward, at every width. A
+14,000-parameter model with this information already uses what this information can give; more data and more
+parameters do not move it. What moves it is form (day 3a). (3) Atlas v1.3 stays the best model in the league.
+
+### Atlas-W day 3a results: the minimum-information table (Kaggle run atlasw-ablate, 2026-11-13, CPU, 75 minutes)
+
+Two seeds per row, width 32, the league's 16 months of Delhi. The base reproduces day 1: 32.03 / 27.44 with two
+seeds, against 31.97 / 27.43 with three. "Base against it" is the league's test (day blocks); WIN means the full
+model is better.
+
+| Variant | Removed | Validation MAE | Change | Test: trained | Never trained | Base against it (trained / never trained) | Words (1% rule) |
+|---|---|---|---|---|---|---|---|
+| base | – | 20.49 | – | 32.03 | 27.44 | – | – |
+| R1 | exchange between stations (κ) | 21.16 | **+3.2%** | 32.32 | 27.78 | TIE −0.9% (p = 0.15) / WIN −1.2% (p = 0.047) | earns its place |
+| R2 | summary mixing between neighbours | 20.63 | +0.7% | 32.15 | 27.66 | TIE / WIN −0.8% (p = 0.026) | not needed |
+| R3 | **the physics form** (direct output for each hour) | 21.51 | **+5.0%** | 33.92 | 29.34 | **WIN −5.6% (p = 3.9e-06) / WIN −6.5% (p = 4.4e-09)** | **earns its place** |
+| R4 | 6 / 24 / 72 h means | 20.67 | +0.9% | 32.10 | 27.61 | TIE / TIE | not needed |
+| R5 | weather as input | 20.65 | +0.8% | 32.23 | 27.75 | TIE / WIN −1.1% (p = 0.007) | not needed |
+| R6 | PM10, NO₂, ozone as inputs | 20.56 | +0.4% | 32.24 | 27.57 | WIN −0.7% (p = 0.003) / WIN −0.5% (p = 0.036) | not needed |
+| R7 | longer-history summary | 20.54 | +0.2% | 31.89 | 27.42 | TIE / TIE | not needed |
+| R8 | **calendar of the forecast hours** | 20.90 | **+2.0%** | 36.35 | 30.75 | **WIN −11.9% (p = 1.4e-08) / WIN −10.8% (p = 1e-08)** | **earns its place** |
+
+**The physics form helps** by the written rule: R3 is 5.0% worse on validation, and the base beats it significantly
+on both tracks (5.6% and 6.5%). R3's parameter count includes the rate and κ heads that it does not use, so its
+real count is 990 lower. Three parts earn their place: the physics update, the exchange between stations, and the
+calendar of the forecast hours. Five do not reach 1% on validation: summary mixing, the 6/24/72 h means, weather,
+the other pollutants and the longer history. Some of them still help a little on test (R5 and R6 are significant at
+0.5–1.1%), so under the rule they are "not needed", not "useless". Nothing is removed until a new version is written
+down and run.
+
+*Against the predictions:* R8 half right: it hurts most on test (−11.9%), but on validation it is +2.0%, not the
+predicted 3% or more. R7 was wrong: the week-ago history adds nothing.
+R4 was wrong: under 1%, not over 3%. R3 was right (5.0%, the top of the 2–5% range). R5 and R6 were roughly right
+(under 1%, not 1–2%). R1 was wrong: exchange matters (3.2%), not under 1%. R2 was right.
+
+### Atlas-W day 3b results: the parameter axis (Kaggle run atlasw-grid2, 2026-11-13, CPU, 68 minutes)
+
+Test MAE on trained stations, 2-seed means (widths 32 and 64 from day 1):
+
+| Width | Parameters | 0.5 mo | 1 mo | 2 mo | 4 mo | 8 mo | all (15 mo) |
+|---|---|---|---|---|---|---|---|
+| 16 | 6,139 | 35.8 | 38.4 | 40.6 | 35.7 | 32.8 | 32.4 |
+| 32 | 14,043 | 37.1 | 37.4 | 39.5 | 37.3 | 33.0 | 32.1 |
+| 64 | 37,531 | 37.9 | 37.4 | 39.2 | 36.6 | 33.4 | 32.3 |
+| 128 | 115,227 | 37.6 | 37.7 | 37.7 | 35.8 | 34.9 | 32.6 |
+
+With all the data, a 19-fold range of sizes lands within 0.5 of each other (32.1 to 32.6). The fitted function
+(48 runs) puts essentially nothing on the parameter term (b = 0.0016, β = 2.9) and a weak data term (α = 0.045,
+floor 0, misfit ×1.046). The fit is poorly determined. Test error does not fall smoothly with data here, because
+the most recent 2 months are a hard season for the test period (every width is worst at 2 months). Validation picks
+a different best width at almost every data amount (64, 64, 64, 16, 64, 128), which is another sign that the
+differences are noise.
+
+*Against the prediction:* right. Size is not what limits Atlas-W: 6,000 parameters do as well as 115,000. What
+helps is the form of the model (R3, R1, R8) and the amount of data.
+
 ## Atlas-Live: the continuously updating model (rules written before any score)
 
 Adi's brief (2026-11-13): the model must keep updating as new data arrives. `delhi/run_live.py` is the engine. Its

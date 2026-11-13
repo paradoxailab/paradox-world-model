@@ -8,6 +8,7 @@
 #   JOB=weather bash kaggle_league2.sh    # also attach atlas-v13-s320/s321/s322 (weights) and atlas-league2-cams (positions)
 #   JOB=e2 E2_MODELS=sfno,pangu,graphcast_small E2_HOURS=4 bash kaggle_league2.sh   # GPU: group E, AI weather models
 #   JOB=score bash kaggle_league2.sh
+#   JOB="wcombine score" bash kaggle_league2.sh    # Atlas-W v1: also attach atlasw-v13-s320/s321/s322
 set -x
 export PW_RAW=/kaggle/working/raw ATLAS_OUT=/kaggle/working/out
 mkdir -p $PW_RAW $ATLAS_OUT
@@ -48,6 +49,7 @@ for job in ${JOB:-score}; do
         cp $PW_RAW/E2_DELHI.npz $ATLAS_OUT/ 2>/dev/null ;;
     live) python -u run_live.py 2>&1 | grep --line-buffered -v "$F" | tee $ATLAS_OUT/log_live.txt ;;
     weather) python -u league_v2.py --weather 2>&1 | grep --line-buffered -v "$F" | tee $ATLAS_OUT/log_weather.txt ;;
+    wcombine) python -u league_v2.py --wcombine 2>&1 | grep --line-buffered -v "$F" | tee $ATLAS_OUT/log_wcombine.txt ;;
     score) python -u league_v2.py --score 2>&1 | grep --line-buffered -v "$F" | tee $ATLAS_OUT/log_score.txt ;;
   esac
 done

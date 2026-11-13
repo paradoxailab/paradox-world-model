@@ -693,6 +693,44 @@ def score(a):
     log(f"done in {res['minutes']} min")
 
 
+# ================================================================================================ Atlas-W v1 (day 2)
+def wcombine(a):
+    """Atlas-W v1 (README, "Atlas-W days 2 and 3"): the three seeds of kaggle_atlasw13.sh, B or C by the lower mean
+    validation MAE, averaged; and P (the pre-trained weights before any Delhi training) as a separate entry."""
+    D, te, va, va4 = league()
+    files, seen = [], set()
+    for f in sorted(glob.glob(os.path.join(OUT, "**", "wlong3_s*.npz"), recursive=True) +
+                    glob.glob("/kaggle/input/**/wlong3_s*.npz", recursive=True)):
+        if os.path.basename(f) not in seen:
+            seen.add(os.path.basename(f)); files.append(f)
+    assert files, "no wlong3_s*.npz attached"
+    Z = [np.load(f) for f in files]
+    for z in Z:
+        off = int(z["test_origins"][0] - te[0])
+        assert np.array_equal(z["test_origins"] - off, te) and np.array_equal(z["val_origins"] - off, va4), "windows differ"
+    metas = [json.loads(str(z["meta"])) for z in Z]
+    for m in metas:
+        assert "C" in m, f"seed {m['seed']} did not finish stage C"
+    val = {k: [m[k]["val_MAE"] for m in metas] for k in ("P", "B", "C")}
+    fam = min(("B", "C"), key=lambda k: np.mean(val[k]))
+    ens = lambda k: (np.sort(np.mean([z[k + "_v4"] for z in Z], 0), -1), np.sort(np.mean([z[k + "_t"] for z in Z], 0), -1))
+    st = {k: [[m[k]["test_S"], m[k]["test_U"]] for m in metas] for k in ("P", "B", "C")}
+    pre = [m["pretrain"] for m in metas]
+    dec = dict(seeds=[m["seed"] for m in metas], files=[os.path.basename(f) for f in files], val_MAE=val, recipe=fam,
+               steps={k: [m[k]["steps"] for m in metas] for k in ("B", "C")}, single_model_test=st, params=metas[0]["params"],
+               pretrain_networks=pre[0]["networks"], pretrain_val_MAE=[p["meta"].get("E", {}).get("val_MAE") for p in pre],
+               pretrain_windows=[int(sum(p["meta"].get("train_windows", []))) for p in pre],
+               rule="B or C by the lower mean validation MAE over the seeds (README, Atlas-W day 2)")
+    log("WDECISION " + json.dumps(dec, default=float))
+    n = len(Z)
+    save_entry("atlasw_v1", f"Atlas-W v1 (ours, {metas[0]['params']:,} parameters, {n} seeds, pre-trained on {len(pre[0]['networks'])} networks + all Delhi history)",
+               *ens(fam), dict(dec, chosen=fam))
+    save_entry("atlasw_v1_pretrained_only", f"Atlas-W pre-trained on {len(pre[0]['networks'])} networks, no Delhi training ({n} seeds)", *ens("P"),
+               dict(dec, chosen="P"))
+    os.makedirs(OUT, exist_ok=True)
+    json.dump(dec, open(os.path.join(OUT, "atlasw_v1_decision.json"), "w"), indent=1, default=float)
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--cams", action="store_true")
@@ -704,6 +742,7 @@ if __name__ == "__main__":
     ap.add_argument("--chunk", type=int, default=256)
     ap.add_argument("--weather", action="store_true", help="group D: Atlas v1.3's weather channels against IFS, AIFS, ICON, GFS ...")
     ap.add_argument("--score", action="store_true")
+    ap.add_argument("--wcombine", action="store_true", help="Atlas-W v1: combine the seeds of kaggle_atlasw13.sh")
     ap.add_argument("--reps", type=int, default=2000)
     ap.add_argument("--quick", action="store_true")
     a = ap.parse_args()
@@ -715,5 +754,7 @@ if __name__ == "__main__":
         tsfm(a)
     if a.weather:
         weather(a)
+    if a.wcombine:
+        wcombine(a)
     if a.score:
         score(a)

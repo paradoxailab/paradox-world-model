@@ -7,7 +7,7 @@ calibrated, scored once and tested against the cached foundation-model forecasts
 
   python run_atlasw.py            # --quick: pipeline check, numbers meaningless
 """
-import argparse, glob, json, os, sys, time
+import argparse, glob, json, math, os, sys, time
 
 import numpy as np
 import torch
@@ -28,14 +28,48 @@ RES = {"grid": [], "tracks": {}, "significance": {}, "claims": {}}
 T0 = time.time()
 
 
+RESFILE = "atlasw_results.json"
+
+
 def save():
     os.makedirs(R.OUT, exist_ok=True)
-    json.dump(RES, open(os.path.join(R.OUT, "atlasw_results.json"), "w"), indent=1, default=float)
+    json.dump(RES, open(os.path.join(R.OUT, RESFILE), "w"), indent=1, default=float)
 
 
 def build(D, d, **kw):
     return AtlasW(d=d, L=R.L, H=H, C=D.K + D.Ca, U=4, static=2 * DM + 2 * H + 2,
                   lo=[0.0] * D.K + [float("-inf")] * D.Ca, **kw).to(R.DEV)
+
+
+def grid2(a, widths):
+    """Day 3b (README): this run's widths plus the day-1 grid (atlasw_results.json from run atlasw-v0), one threshold
+    function over all of them, and the best width at each data amount."""
+    prior = sorted(glob.glob(os.path.join("/kaggle/input", "**", "atlasw_results.json"), recursive=True))
+    rows = list(RES["grid"])
+    if prior:
+        old = json.load(open(prior[0]))["grid"]
+        rows += [r for r in old if r["width"] not in widths]
+        log(f"day-1 grid: {len(old)} runs from {prior[0]}")
+    allw = sorted({r["width"] for r in rows})
+    cell = lambda d, mo, k: float(np.mean([r[k] for r in rows if r["width"] == d and r["months_asked"] == mo]))
+    table = {d: {str(mo): dict(test=cell(d, mo, "test_MAE"), val=cell(d, mo, "val_MAE"),
+                              params=next(r["params"] for r in rows if r["width"] == d)) for mo in MONTHS} for d in allw}
+    best = {str(mo): min(allw, key=lambda d: table[d][str(mo)]["val"]) for mo in MONTHS}
+    f = TH.fit(rows, y="test_MAE")
+    pr = {str(d): float(TH.pred(f, max(r["N"] for r in rows), table[d][str(MONTHS[0])]["params"])) for d in allw}
+    RES["grid2"] = dict(widths=allw, runs=len(rows), table=table, best_width_by_validation=best, fit=f,
+                        fit_at_full_data_by_width=pr)
+    log("THRESHOLD2 " + json.dumps(RES["grid2"], default=float))
+    o = ["# Atlas-W day 3b: the threshold function with the parameter axis (generated)", "",
+         "| width | parameters | " + " | ".join("all (15 mo)" if m == 99 else f"{m} mo" for m in MONTHS) + " |", "|---|---|" + "---|" * len(MONTHS)]
+    for d in allw:
+        o.append(f"| {d} | {table[d][str(MONTHS[0])]['params']:,} | " + " | ".join(f"{table[d][str(m)]['test']:.1f}" for m in MONTHS) + " |")
+    o += ["", "Best width by validation at each amount: " + json.dumps(best), "",
+          f"Fit: floor {f['floor']:.2f}, a {f['a']:.3g}, alpha {f['alpha']:.3f}, b {f['b']:.3g}, beta {f['beta']:.3f}, misfit x{math.exp(f['rms_log']):.3f}, {f['n']} runs"]
+    RES["minutes"] = round((time.time() - T0) / 60, 1)
+    save()
+    open(os.path.join(R.OUT, "GRID2_REPORT.md"), "w").write("\n".join(o) + "\n")
+    log("\n".join(o)); log(f"done in {RES['minutes']} min")
 
 
 def main(a):
@@ -97,6 +131,9 @@ def main(a):
         except Exception as e:
             log(f"threshold fit failed: {type(e).__name__}: {e}")
         save()
+    if a.grid_only:                                                            # day 3b: the parameter axis
+        grid2(a, widths)
+        return
     # ------------------------------------------------------------------ 2: full data, 3 seeds, ensemble
     vmean = {d: np.mean([r["val_MAE"] for r in RES["grid"] if r["width"] == d and r["months_asked"] == 99]) for d in widths}
     dbest = min(vmean, key=vmean.get)
@@ -166,4 +203,8 @@ if __name__ == "__main__":
     ap.add_argument("--widths", default="32,64")
     ap.add_argument("--cap", type=float, default=50, help="minutes per run")
     ap.add_argument("--no-exchange", action="store_true")
-    main(ap.parse_args())
+    ap.add_argument("--grid-only", action="store_true", help="day 3b: the grid only, at --widths, merged with the day-1 grid")
+    a = ap.parse_args()
+    if a.grid_only:
+        RESFILE = "atlasw_grid2_results.json"
+    main(a)

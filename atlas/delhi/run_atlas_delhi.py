@@ -105,6 +105,11 @@ def truth(D, org, nodes):
 # ---------------------------------------------------------------------------------------------------- model
 def build(D, size, sysid):
     C = D.K + D.Ca
+    am = os.environ.get("ATLAS_MODEL", "")
+    if am.startswith("atlasw"):                           # Atlas-W days 2-3: ATLAS_MODEL=atlasw:<width>; size is ignored
+        from atlas.atlasw import AtlasW
+        return AtlasW(d=int(am.split(":")[1]) if ":" in am else 32, L=L, H=H, C=C, U=4, static=2 * DM + 2 * H + 2 + 2 * LONG,
+                      lo=[0.0] * D.K + [float("-inf")] * D.Ca).to(DEV)
     return sized(int(size), L=L, H=H, C=C, U=4, lat_steps=6, spatial=True, geo_dim=3, static=2 * DM + 2 * H + 2 + 2 * LONG,
                  lo=[0.0] * D.K + [float("-inf")] * D.Ca, sysid=bool(sysid), K=2, lags=3, id_ch=1, fill="interp").to(DEV)
 

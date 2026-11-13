@@ -1494,8 +1494,11 @@ full model is run again in the same notebook as the base. One thing is removed a
 | R4 | the 6, 24 and 72-hour means (the summary keeps the last value, the observed share and the any-value flag) |
 | R5 | weather as an input (weather is still forecast as an output) |
 | R6 | the other pollutants (PM10, NO₂, ozone) as inputs (still forecast as outputs) |
-| R7 | the static and calendar summary |
-| R8 | the calendar of the hours being forecast |
+| R7 | the longer-history summary: the past days' daily PM2.5 means, PM2.5 at the same hour a week earlier, the station's scale |
+| R8 | the calendar of the hours being forecast (hour of day, day of week) |
+
+(R7's description was corrected before any run: the first version called this input a calendar summary, but the only
+calendar input Atlas-W reads is R8's. R6 removes PM10, NO₂ and ozone as written; CO, SO₂, NH₃ and NO stay inputs.)
 
 For each variant, the 2-seed average is compared with the base's. The measure is validation MAE on trained stations;
 test MAE is also reported, with the league's test (day blocks, both tracks) against the base. A part "earns its place"
@@ -1503,7 +1506,7 @@ if removing it raises validation MAE by 1% or more, and "is not needed" if the c
 helps" only if R3 is at least 1% worse on validation and the base beats it significantly on trained stations.
 Nothing is removed from the model on the strength of this table until a new version is written down and run again.
 
-*Predictions.* R8 and R7 hurt most (3% or more: PM2.5 in Delhi follows the clock). R4 hurts (more than 3%). R3:
+*Predictions.* R8 and R7 hurt most (3% or more: PM2.5 in Delhi follows the clock and the week). R4 hurts (more than 3%). R3:
 2–5% worse, but this is the least certain prediction. R5 and R6: 1–2%. R1 and R2: under 1%.
 
 **Day 3b: the threshold function with the parameter axis** (`run_atlasw.py --grid-only --widths 16,128`). The day-1

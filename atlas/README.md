@@ -1354,6 +1354,53 @@ forecasting these stations' readings, not about global weather skill.
 when scored. Moirai 2.0 has forecast the windows (CPU, 5.8 minutes); TiRex is running on the CPU. Granite TTM's first attempt failed before forecasting (the selected TTM
 variant needs a frequency token; fixed in `pw/opponents2.py`, to be run again).
 
+## Atlas-W: the output-first, information-efficient world model (3-day build; rules written before any score)
+
+Adi's brief (2026-11-13): build the world model output-first — define the physical understanding wanted, find the
+minimum information it needs, use efficient mathematical representations, learn with the fewest trainable parameters
+— and show the best output on less training data, within three days. The full plan is in the planning document
+(16 weeks, traffic included); this section fixes what the three days must deliver and how it is judged.
+
+**Day 1. Atlas-W air core v0 (`atlas/atlas/atlasw.py`, `delhi/run_atlasw.py`).** The same task, data file, windows,
+loss, optimiser and scoring as Atlas on Delhi stage 8 (16 months of Delhi, PM2.5 headline, the other pollutants and
+weather as outputs with the same loss weights). What changes is the representation:
+
+* *Minimum information.* The model does not read the flattened 72-hour window (2,526 numbers per station). It reads
+  a summary: each variable's last observed value, its means over the last 6, 24 and 72 hours relative to that value,
+  the share of the last 24 hours observed and whether any value was seen (90 numbers), plus Atlas's static summary
+  (78 numbers).
+* *Efficient representation.* The forecast is produced by an explicit hourly state update in transport form, for all
+  15 variables at once: relaxation towards a learned equilibrium at a learned rate (sources, sinks and dilution),
+  plus exchange with the graph neighbours at a learned rate (transport between places). Untrained, it is
+  persistence. The network supplies only the equilibrium, the two rates and the spread of the quantiles.
+* *Fewest parameters.* 14,043 at width 32 and 37,531 at width 64 (Atlas: 967,632).
+
+**Rules.**
+1. Data-threshold grid as in stage 8B: the last 0.5, 1, 2, 4, 8 and all 15 months of training windows, widths 32 and
+   64, 2 seeds each, single models, validation-chosen checkpoint, test MAE on trained stations. Atlas's stage-8B
+   numbers on the same windows are the comparison (for example 967,632 parameters: 42.7, 42.8, 44.2, 40.0, 35.4, 34.3).
+2. "Atlas-W is more data-efficient" only if, at each of 0.5, 1, 2 and 4 months, the better Atlas-W width's 2-seed mean
+   is below the best Atlas size's 2-seed mean at that amount. "Atlas-W needs less data for the same accuracy" is
+   read off the two curves: the months at which each first goes below 36.0 and below same-hour-yesterday (40.30).
+3. Full data: the width with the lower mean validation MAE, 3 seeds, ensembled and calibrated as Atlas v1.0 was
+   (33.42 / 29.07), scored once on test, and tested against TimesFM 2.5, Chronos-2 and Chronos-Bolt with the league's
+   test. Words as in the league: beats / level / loses.
+4. The threshold function e = floor + a·N^-α + b·P^-β is refitted on Atlas's and Atlas-W's runs separately; the
+   data each needs to reach each foundation model is reported as an extrapolation, labelled as such.
+
+**Predictions (written before any run).** Atlas-W beats every Atlas size at 0.5 to 4 months (it starts at
+persistence and has few parameters to fit), reaching below 40.3 by 2 months, where Atlas needed 8. At 15 months it is
+level with or a little behind the 1M Atlas (about 34 to 36 single-model), because the summary discards information the
+full window holds. It does not beat the foundation models on 16 months of Delhi alone. If the last prediction holds,
+day 2 gives Atlas-W what moved Atlas: all of Delhi's history and pre-training on the rest of India, under v1.3's rules.
+
+**Day 2.** Atlas-W on all Delhi history and pre-trained on the other 13 networks (the v1.3 recipe, rules unchanged),
+scored against the same league; and the horizon extended to 72 hours for the five pollutants.
+**Day 3.** The minimum-information table (each input group removed, each summary removed, cost measured on
+validation and reported on test), the threshold function with the parameter axis, and the write-up.
+**Not in the three days, and not claimed:** traffic (no Indian network-scale data in hand; corridor trajectory data
+has to be obtained first) and intervention tests (the placebo gate has failed twice). They stay in the 16-week plan.
+
 ## What has not been done (as of 2026-11-13)
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

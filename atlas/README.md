@@ -1401,6 +1401,41 @@ validation and reported on test), the threshold function with the parameter axis
 **Not in the three days, and not claimed:** traffic (no Indian network-scale data in hand; corridor trajectory data
 has to be obtained first) and intervention tests (the placebo gate has failed twice). They stay in the 16-week plan.
 
+### Atlas-W air core v0 results (Kaggle run atlasw-v0, 2026-11-13, CPU, 67.9 minutes, real Delhi data)
+
+**Data threshold** (single models, test MAE on trained stations, mean of 2 seeds; Atlas rows are stage 8B, same windows):
+
+| model | parameters | 0.5 mo | 1 mo | 2 mo | 4 mo | 8 mo | all 15 mo |
+|---|---|---|---|---|---|---|---|
+| **Atlas-W width 32** | **14,043** | **37.1** | 37.4 | 39.5 | 37.3 | **33.0** | **32.1** |
+| Atlas-W width 64 | 37,531 | 37.9 | 37.4 | 39.2 | 36.6 | 33.4 | 32.3 |
+| Atlas | 50,232 | 47.3 | 48.3 | 50.6 | 43.1 | 38.0 | 35.1 |
+| Atlas | 231,312 | 43.5 | 47.1 | 51.9 | 43.6 | 36.9 | 34.9 |
+| Atlas | 967,632 | 42.7 | 42.8 | 44.2 | 40.0 | 35.4 | 34.3 |
+
+* **Rule 2: Atlas-W is more data-efficient.** Its best width is below the best Atlas size at every amount: by 13%
+  at 0.5 months, 13% at 1, 11% at 2, 9% at 4, 7% at 8 and 6% with everything. It is below same-hour-yesterday (40.30)
+  from two weeks of data; Atlas needed four months. With two weeks (114 training windows) it is about where the
+  1M Atlas is with eight months. Both first go below 36.0 at 8 months. Seeds agree (for example 36.2 and 37.9 at
+  0.5 months, 32.0 and 32.2 with everything); the two widths are indistinguishable, so 14,043 parameters suffice.
+* **Rule 3, full data (width 32 chosen on validation, 3 seeds, calibrated):** 31.97 on trained stations and 27.43 on
+  never-trained stations, against 33.42 / 29.07 for the 967,632-parameter Atlas v1.0 on the same 16 months: 4.3% and
+  5.6% lower with 69 times fewer parameters. Against the foundation models: **loses to TimesFM 2.5** (+3.71%,
+  p = 0.015 on trained stations; tie +1.24% on never-trained), **level with Chronos-2** (+2.56%, p = 0.077 / +0.09%)
+  and **level with Chronos-Bolt** (+1.98% / −1.80%). Coverage 79%. One hour ahead it is behind (14.89 against 13.95
+  for TimesFM 2.5); at 24 hours it is equal (35.34 and 35.34).
+* **Rule 4 (extrapolation, not measurement):** the threshold function fitted to the 24 runs (misfit ×1.05) puts the
+  floor at its bound and the model-size term near zero, and says a single Atlas-W would need about 11,900 training
+  windows to reach Chronos-Bolt, 13,400 for Chronos-2 and 16,900 for TimesFM 2.5, against 3,673 here. Delhi's full
+  history has 19,082.
+
+**Against the predictions.** Held: more data-efficient at 0.5 to 4 months; below 40.3 by 2 months (already at two
+weeks); does not beat the foundation models on 16 months alone. Wrong: Atlas-W was predicted level with or behind the
+1M Atlas at 15 months and is ahead of it, so the 168-number summary lost nothing that the full window was giving
+Atlas at this data size. Not shown: that the physics form itself (relaxation and exchange) is what helps, as opposed
+to the summary inputs or simply being small; the day-3 removals test that. The Delhi test period is reused, so these
+are provisional like every Delhi result.
+
 ## Atlas-Live: the continuously updating model (rules written before any score)
 
 Adi's brief (2026-11-13): the model must keep updating as new data arrives. `delhi/run_live.py` is the engine. Its

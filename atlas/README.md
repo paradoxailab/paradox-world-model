@@ -1327,8 +1327,31 @@ part of that. Even generously timed (the archive keeps the latest run for each h
 station-trained or station-reading forecast here. The same scoring run reproduced the three foundation models'
 recorded numbers (TimesFM 2.5 30.83 / 27.10, Chronos-2 31.17 / 27.41, Chronos-Bolt 31.35 / 27.94).
 
-**Groups A (remaining foundation models), C (graph architectures), D (weather models) and E:** running or waiting
-for the GPU; added here when scored. Granite TTM's first attempt failed before forecasting (the selected TTM
+**Group D, weather models (Kaggle run atlas-league2-weather, 2026-11-13, CPU, 5 minutes).** Atlas v1.3's own
+temperature, humidity and wind-speed channels, from the same three saved models (check: their PM2.5 channel equals the
+saved Atlas v1.3 forecasts to 0.0002 µg/m³), against each global model's run issued the day before each forecast hour,
+at the CPCB stations that measure the variable (temperature 26, humidity 31, wind 29). NOAA AIGFS and DWD AICON have
+no archived runs at Open-Meteo, so they were not run. MAE in physical units, trained / never-trained stations:
+
+| Variable | Atlas v1.3 | Best raw model | Best bias-corrected model | Atlas against the best bias-corrected model |
+|---|---|---|---|---|
+| Temperature (°C) | 1.14 / 1.28 | AIFS 1.99 / 2.33 | AIFS 1.28 / 1.35 | WIN −10.8% (p = 0.0012) / TIE −5.0% (p = 0.17): **level** |
+| Humidity (%) | 5.64 / 6.57 | AIFS 8.69 / 8.20 | AIFS 5.70 / 5.47 | TIE −2.6% (p = 0.36) / LOSS +13.4% (p = 9.4e-06): **Atlas loses** |
+| Wind speed (m/s) | 0.38 / 0.32 | ICON 0.89 / 0.76 | ICON 0.60 / 0.51 | WIN −35.8% / WIN −35.1%: **Atlas beats** |
+
+Against every raw archived run (IFS, AIFS, ICON, GFS) Atlas wins on all three variables and both tracks. With the local
+bias correction: temperature, Atlas beats IFS, ICON and GFS and is level with AIFS; humidity, it beats IFS and GFS, is
+level with ICON and loses to AIFS; wind, it beats all four. Full tables: `WEATHER_REPORT.md` in the run's output.
+
+*What this does and does not mean.* Atlas reads the station's own last hours, so most of its edge is at short leads
+(temperature MAE 0.43 °C one hour ahead against 1.28 for bias-corrected AIFS; 1.10 against 1.27 at 24 h; humidity at 24
+h 6.02 against AIFS's 5.65, so AIFS is better by then). The global models forecast a grid cell, not a sensor; CPCB's wind
+sensors in particular read far below the 10 m wind the models forecast (Atlas's 0.38 m/s error is against readings that
+are themselves low), so the wind result says more about the sensors than about the models. These are verdicts about
+forecasting these stations' readings, not about global weather skill.
+
+**Groups A (remaining foundation models), C (graph architectures) and E:** running or waiting for the GPU; added here
+when scored. Moirai 2.0 has forecast the windows (CPU, 5.8 minutes); TiRex is running on the CPU. Granite TTM's first attempt failed before forecasting (the selected TTM
 variant needs a frequency token; fixed in `pw/opponents2.py`, to be run again).
 
 ## What has not been done (as of 2026-11-13)

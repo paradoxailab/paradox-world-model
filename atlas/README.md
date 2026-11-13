@@ -1061,6 +1061,13 @@ Why the weeks before the lockdown may have been cleaner than simulated (not test
 reanalysis as forcing, and hold 1–21 March 2019 out of training as a second placebo, so that the test can tell a
 March bias of the method from something that happened in March 2020. The gate stays as it is.
 
+**Replication on Kaggle CPU** (run atlas-lockdown, 2026-11-13, 35.9 minutes; same code and data, different
+hardware). Placebo bias +4.8% (−3.1% to +13.4%); phase-1 placebo +5.6%; just before −21.2% (effect −24.8%,
+interval −31.2% to −17.3%); lockdown phase 1 −50.9% (effect −53.5%, −59.2% to −47.5%); all lockdown −41.0% (effect
+−43.7%). Held-out-day errors of the three models 36.78, 35.42, 34.55. **Validity gate FAILED; detected YES**, as on
+Colab. Every window moved by under 5 points between the two machines (training on GPU and CPU is not bit-identical),
+and both verdicts are the same.
+
 ### What-if test 1b: rain, mixing height and a second placebo (rules, written before any run on Delhi data)
 
 Test 1 failed because the three weeks before the lockdown were already cleaner than simulated. Test 1b asks whether

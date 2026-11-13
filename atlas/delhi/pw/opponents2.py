@@ -81,8 +81,15 @@ class TTM:
         self.H = H
 
     def __call__(self, c):
+        x = torch.tensor(c, device=DEV)[:, :, None]
         with torch.no_grad():
-            o = self.m(past_values=torch.tensor(c, device=DEV)[:, :, None])
+            try:
+                o = self.m(past_values=x)
+            except Exception as e:                       # the selected TTM variant was trained with a frequency token
+                if "freq_token" not in str(e):
+                    raise
+                from tsfm_public.toolkit.time_series_preprocessor import DEFAULT_FREQUENCY_MAPPING
+                o = self.m(past_values=x, freq_token=torch.full((len(c),), DEFAULT_FREQUENCY_MAPPING["h"], device=DEV))
         p = o.prediction_outputs[:, :self.H, 0].float().cpu().numpy()            # point forecast [B, H]
         return np.repeat(p[..., None], 3, -1)
 

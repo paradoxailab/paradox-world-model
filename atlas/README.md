@@ -927,6 +927,41 @@ as on the stations it did train on (21.00), and its 80% intervals contain 79–8
 until it is done the all-India league says nothing about TimesFM or Chronos. Punjab's never-trained stations (28.09
 against 17.38) and Maharashtra's (24.94 against 19.59) remain clearly worse than the trained ones.
 
+### Atlas-India v1.0 against TimesFM 2.5 (Kaggle runs atlas-india-opp-gpu v2 and atlas-india-score, 2026-11-13)
+
+TimesFM 2.5 forecast all 14 networks' windows zero-shot on a Kaggle T4 (512 h of each station's PM2.5, 44 minutes),
+and the league was scored under its rules (above), once. The three Atlas-India seeds here are the Kaggle runs:
+seed 400 (re-forecast with the input fix, weights unchanged; largest change of any trained-station forecast 0.0000
+µg/m³) and seeds 401 and 402 (trained on Kaggle with the fixed loader). They are not bit-identical to the Colab seeds
+scored above, so Atlas-India's pooled MAE is 20.99 / 20.86 here against 21.00 / 20.91 there. Recipe decision: E
+(validation 9.104, 9.070, 9.059 against F 9.116, 9.093, 9.059; paired difference −0.011, standard error 0.007).
+
+*All 14 networks pooled (PM2.5, µg/m³, next 24 h; every entry calibrated on each network's validation windows):*
+
+| Entry | Trained: MAE | RMSE | QL | COV80 % | MAE@1h | MAE@6h | MAE@12h | MAE@24h | Never trained: MAE | Atlas-India against it (trained / never trained) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| **Atlas-India** (recipe E) | **20.99** | 38.89 | 6.91 | 79 | 9.55 | 19.09 | 21.75 | 23.88 | **20.86** | – |
+| TimesFM 2.5 (Google, 200M), zero-shot | 22.35 | 41.30 | 7.37 | 80 | 9.54 | 20.67 | 23.46 | 25.16 | 21.93 | **WIN −6.07% (p = 2.1e-20) / WIN −4.84% (p = 3.8e-11)** |
+| Same hour yesterday | 29.86 | 53.86 | 11.83 | 54 | 29.48 | 29.66 | 29.66 | 29.68 | 29.30 | WIN −29.7% / WIN −28.8% |
+| Last observed value | 32.01 | 57.63 | 12.95 | 49 | 11.65 | 32.15 | 35.64 | 28.36 | 31.13 | WIN −34.4% / WIN −33.0% |
+
+*Each network, trained stations (Atlas-India against TimesFM 2.5; Diebold–Mariano, p < 0.05):* Uttar Pradesh 20.89 vs
+22.78 (WIN −8.3%), Delhi 37.34 vs 41.87 (WIN −10.8%), Haryana 24.32 vs 25.72 (WIN −5.5%), Maharashtra 19.68 vs 19.45
+(TIE +1.2%), Karnataka 8.87 vs 8.98 (TIE −1.2%), other states 15.12 vs 15.19 (TIE −0.5%), Madhya Pradesh 16.23 vs
+17.07 (WIN −4.9%), West Bengal 14.65 vs 15.79 (WIN −7.2%), Bihar 27.74 vs 29.35 (WIN −5.5%), Rajasthan 19.07 vs
+19.67 (WIN −3.1%), Gujarat 18.47 vs 18.20 (TIE +1.5%), Tamil Nadu 12.64 vs 13.39 (WIN −5.6%), Punjab 17.31 vs 18.20
+(WIN −4.9%), Kerala 8.51 vs 7.96 (**LOSS +6.9%**).
+
+**Verdict under the rules: Atlas-India BEATS TimesFM 2.5 across India**, with significant pooled wins on both tracks;
+network by network it wins 9, ties 4 and loses 1 (Kerala, mean PM2.5 43 µg/m³).
+
+**What this adds to the Delhi result.** This test period (October 2022 – March 2023) had been scored once before, by
+these same weights against simple forecasts only; no Atlas version was chosen or tuned on it. So it is the first
+foundation-model comparison on data that is not reused. It is not the leave-one-network-out repetition of the v1.3
+recipe (Atlas-India is trained on all networks at once), and Chronos-2 and Chronos-Bolt have not been scored on these
+windows yet (their CPU run will not finish within Kaggle's 12-hour limit; they need the GPU). TimesFM 2.5 is level
+with or slightly ahead of Atlas-India one hour ahead (9.54 against 9.55); Atlas-India's lead comes from 6 to 24 hours.
+
 ### Atlas-Delhi v1.3: pre-trained on the rest of India (rules and predictions, written before any score)
 
 v1.1 showed that more of Delhi's own history made Atlas 9% better, along the line the scaling law drew. Delhi has
@@ -1274,6 +1309,27 @@ none of them was made with Atlas. This league makes them with Atlas.
    GPU memory than the free tier has (Aurora ran out of memory on the free GPU in the earlier weather league) and CAMS
    analyses behind a Copernicus account.
 6. **The all-India league** gets groups A and B as well, under its own rules (above), when the GPU allows.
+
+### Atlas League v2.0 results (each group added when it has run)
+
+**Group B, CAMS (Kaggle run atlas-league2-cams v2, 2026-11-13, CPU, 2 minutes).** The scorer first reproduced Atlas
+v1.3's recorded 28.91 / 25.56. 37 of 39 stations were placed by name; CAMS covers 97% of trained-station cells and 88%
+of never-trained-station cells, and every comparison is made on the cells it covers.
+
+| Entry | Trained: MAE | Never trained: MAE | MAE@1h | MAE@24h | Atlas v1.3 against it (trained / never trained) | Verdict |
+|---|---|---|---|---|---|---|
+| Atlas v1.3 | 28.91 | 25.56 | 13.59 | 33.22 | – | – |
+| CAMS global + 30-day local bias correction | 41.03 | 38.32 | 40.10 | 40.97 | WIN −29.0% (p = 7.2e-22) / WIN −32.5% (p = 2.7e-21) | **Atlas beats it** |
+| CAMS global, archived forecast | 62.86 | 53.53 | 61.32 | 62.89 | WIN −53.7% (p = 4.1e-33) / WIN −51.7% (p = 1.8e-35) | **Atlas beats it** |
+
+CAMS is a 0.4° global chemistry model; at station scale in Delhi it is biased high, and the local correction removes
+part of that. Even generously timed (the archive keeps the latest run for each hour), it is far behind every
+station-trained or station-reading forecast here. The same scoring run reproduced the three foundation models'
+recorded numbers (TimesFM 2.5 30.83 / 27.10, Chronos-2 31.17 / 27.41, Chronos-Bolt 31.35 / 27.94).
+
+**Groups A (remaining foundation models), C (graph architectures), D (weather models) and E:** running or waiting
+for the GPU; added here when scored. Granite TTM's first attempt failed before forecasting (the selected TTM
+variant needs a frequency token; fixed in `pw/opponents2.py`, to be run again).
 
 ## What has not been done (as of 2026-11-13)
 

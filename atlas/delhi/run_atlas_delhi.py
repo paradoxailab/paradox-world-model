@@ -110,8 +110,11 @@ def build(D, size, sysid):
         from atlas.atlasw import AtlasW
         return AtlasW(d=int(am.split(":")[1]) if ":" in am else 32, L=L, H=H, C=C, U=4, static=2 * DM + 2 * H + 2 + 2 * LONG,
                       lo=[0.0] * D.K + [float("-inf")] * D.Ca).to(DEV)
-    return sized(int(size), L=L, H=H, C=C, U=4, lat_steps=6, spatial=True, geo_dim=3, static=2 * DM + 2 * H + 2 + 2 * LONG,
-                 lo=[0.0] * D.K + [float("-inf")] * D.Ca, sysid=bool(sysid), K=2, lags=3, id_ch=1, fill="interp").to(DEV)
+    kw = dict(L=L, H=H, C=C, U=4, lat_steps=6, spatial=True, geo_dim=3, static=2 * DM + 2 * H + 2 + 2 * LONG,
+              lo=[0.0] * D.K + [float("-inf")] * D.Ca, sysid=bool(sysid), K=2, lags=3, id_ch=1, fill="interp")
+    if os.environ.get("ATLAS_PHYS") == "1":               # Atlas-P (ICML programme): the physics decoder
+        kw["phys_dec"] = True
+    return sized(int(size), **kw).to(DEV)
 
 
 def forward(m, b, mc=None):

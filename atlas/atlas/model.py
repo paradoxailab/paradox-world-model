@@ -51,12 +51,14 @@ class GeoAttention(nn.Module):
 class Atlas(nn.Module):
     def __init__(self, d=64, L=16, H=16, C=1, U=1, enc_depth=2, dyn_depth=2, lat_steps=4, heads=4,
                  spatial=False, geo_dim=3, lo=None, hi=None, conserve=False, dt=1.0, sysid=False, K=1, lags=2, gate=False, fill="rec",
-                 static=0, id_ch=None):
+                 static=0, id_ch=None, phys_dec=False):
         super().__init__()
         assert H % lat_steps == 0
         self.cfg = dict(d=d, L=L, H=H, C=C, U=U, enc_depth=enc_depth, dyn_depth=dyn_depth, lat_steps=lat_steps,
                         heads=heads, spatial=spatial, geo_dim=geo_dim, lo=lo, hi=hi, conserve=conserve, dt=dt,
                         sysid=sysid, K=K, lags=lags, gate=gate, fill=fill, static=static, id_ch=id_ch)
+        if phys_dec:                                          # Atlas-P (README, ICML programme): only added when on,
+            self.cfg["phys_dec"] = True                       # so earlier checkpoints keep their exact cfg
         self.L, self.H, self.C, self.U, self.S, self.k = L, H, C, U, lat_steps, H // lat_steps
         self.lo, self.hi, self.conserve, self.dt = lo, hi, conserve, dt
         if isinstance(lo, (list, tuple)):                     # one lower bound per variable (-inf = none)
@@ -67,8 +69,14 @@ class Atlas(nn.Module):
         self.sp = GeoAttention(d, heads, geo_dim) if spatial else None
         self.uemb = nn.Linear(self.k * U, d)
         self.dyn = nn.ModuleList([Block(d) for _ in range(dyn_depth)])
-        self.dec = nn.Linear(d, self.k * C * 3)
+        self.phys_dec = phys_dec
+        # Atlas-P: per hour and variable the decoder gives the equilibrium offset, the relaxation rate and two spreads;
+        # the median is then stepped hour by hour: x[t+1] = x[t] + k (x* - x) + kappa (neighbour mean - x)
+        self.dec = nn.Linear(d, self.k * C * (4 if phys_dec else 3))
         nn.init.zeros_(self.dec.weight); nn.init.zeros_(self.dec.bias)
+        if phys_dec:
+            self.kappa = nn.Linear(d, C)
+            nn.init.zeros_(self.kappa.weight); nn.init.constant_(self.kappa.bias, -4.0)
         self.sysid, self.K, self.p, self.use_gate, self.fill = sysid, K, lags, gate, fill
         if sysid:                       # in-context identification of the dynamics (atlas/sysid.py)
             Ci = self.Ci = id_ch or C                         # the first Ci variables are the identified ones
@@ -154,9 +162,26 @@ class Atlas(nn.Module):
                 z = b(z)
             if self.sp is not None:
                 z = self.sp(z, geo)
-            outs.append(self.dec(z).reshape(B, N, self.k, self.C, 3))
+            outs.append(self.dec(z).reshape(B, N, self.k, self.C, 4 if self.phys_dec else 3))
         o = torch.cat(outs, 2)
-        med = base[..., None] + o[..., 1:2]
+        if self.phys_dec:
+            tgt = base + o[..., 0]                                         # equilibrium per hour [B, N, H, C]
+            kr = torch.sigmoid(o[..., 1] - 4.0)                            # starts near 0: persistence
+            P = None
+            if geo is not None and self.sp is not None:
+                A = geo[..., 0]
+                P = A / A.sum(1, keepdim=True).clamp(min=1e-6)
+            kap = 0.5 * torch.sigmoid(self.kappa(z0)) if P is not None else None   # [B, N, C]
+            x, xs = base[:, :, 0], []
+            for t in range(self.H):
+                x = x + kr[:, :, t] * (tgt[:, :, t] - x)
+                if kap is not None:
+                    x = x + kap * (torch.einsum("ij,bjc->bic", P, x) - x)
+                xs.append(x)
+            med = torch.stack(xs, 2)[..., None]
+            o = torch.cat([o[..., 2:3], o[..., 0:1], o[..., 3:4]], -1)     # spreads where the quantile code expects them
+        else:
+            med = base[..., None] + o[..., 1:2]
         q = torch.cat([med - F.softplus(o[..., 0:1]), med, med + F.softplus(o[..., 2:3])], -1)
         return self.physics(q, yc, mc, uc, uf), rec, ex
 

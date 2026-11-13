@@ -163,6 +163,10 @@ def main(a):
         assert skip <= {D.name for D in nets}, f"no such network: {skip - {D.name for D in nets}}"
         nets = [D for D in nets if D.name not in skip]
         log(f"left out, never trained on: {sorted(skip)}")
+    if a.only:                                             # ICML L1: adapt to one network only
+        assert a.only in {D.name for D in nets}, f"no such network: {a.only}"
+        nets = [D for D in nets if D.name == a.only]
+        log(f"adapting to one network only: {a.only}")
     O = [origins(D, q) for D in nets]
     for D, (tr, va4, te) in zip(nets, O):
         log(f"NET {D.name}: {D.N} stations ({len(D.seen)} trained on, {len(D.unseen)} unseen), {len(tr)} valid training windows, "
@@ -174,7 +178,15 @@ def main(a):
         f"{nets[0].dates[O[0][2][0]]} .. {nets[0].dates[O[0][2][-1] + H - 1]}; device {DEV}")
     torch.manual_seed(a.seed); rng = np.random.default_rng(a.seed)
     m = R.build(nets[0], a.size, 0)
-    lr = 1e-3 if m.cfg["d"] <= 256 else 5e-4
+    lr = (1e-3 if m.cfg["d"] <= 256 else 5e-4) * a.lr_scale
+    fP = None
+    if a.init:                                             # ICML L1: start from weights pre-trained without this network
+        ck = torch.load(a.init, map_location="cpu", weights_only=False)
+        assert all(ck["cfg"][k] == m.cfg[k] for k in m.cfg), "the saved model's configuration differs"
+        assert not ({D.name for D in nets} & set(ck["networks"])), "the pre-trained weights saw this network"
+        m.load_state_dict(ck["E"]); log(f"initialised from {a.init} (pre-trained on {len(ck['networks'])} networks)")
+        if not a.pretrain_only:
+            fP = forecasts(m, nets, O)                     # P: the pre-trained weights, before any training here
     steps, every = (60, 20) if q else (a.steps, a.every)
     opt = torch.optim.AdamW(m.parameters(), lr=lr, weight_decay=1e-4)
     sched = torch.optim.lr_scheduler.LambdaLR(
@@ -236,6 +248,12 @@ def main(a):
     fF = forecasts(m, nets, O)
     m.load_state_dict(state); fE = forecasts(m, nets, O)
     save = {}
+    if fP is not None:
+        res["P"] = dict(zip(("test_S", "test_U"), test_mae(fP, nets, O)))
+        log(f"TEST P seed {a.seed} (pre-trained only, never trained on {a.only or 'these networks'}): trained stations "
+            f"{res['P']['test_S']:.2f}, unseen {res['P']['test_U']:.2f}")
+        for (net, nm), arr in fP.items():
+            save[f"{net}|P_{nm}"] = arr
     for k, f in (("E", fE), ("F", fF)):
         res[k]["test_S"], res[k]["test_U"] = test_mae(f, nets, O)
         log(f"TEST {k} seed {a.seed} (one model, uncalibrated, all networks pooled): trained stations {res[k]['test_S']:.2f}, unseen "
@@ -261,6 +279,9 @@ if __name__ == "__main__":
     ap.add_argument("--tag", default="india", help="name of the output files")
     ap.add_argument("--pretrain-only", action="store_true", help="save the weights only: no forecasts, no test window")
     ap.add_argument("--reforecast", action="store_true", help="forecast again from the saved weights (input fix of 2026-11-13)")
+    ap.add_argument("--only", default="", help="ICML L1: train (adapt) on this one network only")
+    ap.add_argument("--init", default="", help="ICML L1: start from these pre-trained weights (.pt, checkpoint E)")
+    ap.add_argument("--lr-scale", type=float, default=1.0, help="multiplies the learning rate (adaptation: 0.3)")
     ap.add_argument("--quick", action="store_true")
     a = ap.parse_args()
     reforecast(a) if a.reforecast else main(a)

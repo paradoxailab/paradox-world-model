@@ -6,6 +6,7 @@ reads them all, calibrates every entry on validation exactly as fuse.py does, an
 
   python league_v2.py --cams                                   # group B: CAMS global (Open-Meteo archive)
   python league_v2.py --spec stid --ext EXT --minutes 100      # group C: one graph architecture, authors' code in EXT
+  python league_v2.py --tsfm moirai2                           # group A: one foundation model, zero-shot
   python league_v2.py --score                                  # all files against Atlas v1.3 -> LEAGUE2_REPORT.md
 
 Inputs (Kaggle: attach the output of atlas-delhi-fusion-v13 and atlas-delhi-long): DELHI.npz, DELHI_LONG.npz,
@@ -337,6 +338,48 @@ def spec(a):
     save_entry("spec_" + a.spec, NAMES[a.spec], quantiles(va4), quantiles(te), meta)
 
 
+# ================================================================================================ A: foundation models
+def tsfm(a):
+    """Zero-shot, 512 h of each station's own PM2.5 (gaps forward-filled), every station, validation and test windows."""
+    from pw import opponents as OP
+    D, te, va, va4 = league()
+    log(D.describe())
+    y, ALL = D.Y[:, :, 0], np.arange(D.N)
+    org = np.concatenate([va4, te])
+    if a.quick:
+        org = np.concatenate([va4[:4], te[:4]])
+    t0 = time.time()
+    key = a.tsfm
+    try:
+        if key in ("tfm3", "tfm3mv"):
+            q, meta = OP.run(key, y, org, ALL, H, ctx=512, chunk=a.chunk, log=log)
+            name = meta["name"] + ", zero-shot"
+        else:
+            from pw import opponents2 as OP2
+            fc = OP2.KEYS[key](512, H)
+            c = OP.contexts(y, org, ALL, 512)
+            out = []
+            for i in range(0, len(c), a.chunk):
+                out.append(np.asarray(fc(c[i:i + a.chunk]), np.float32))
+                if i == 0:
+                    log(f"    {fc.name}: first {min(a.chunk, len(c))} of {len(c)} series in {time.time() - t0:.0f}s")
+            q = np.sort(np.maximum(np.concatenate(out).reshape(len(org), D.N, H, 3), 0), -1)
+            name, meta = fc.name + ", zero-shot", dict(name=fc.name, licence=fc.licence, params=fc.params, context_steps=512)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        log(f"NOT RUN {key}: {type(e).__name__}: {str(e)[:500]}")
+        os.makedirs(L2, exist_ok=True)
+        json.dump({"key": key, "error": f"{type(e).__name__}: {e}"}, open(os.path.join(L2, f"notrun_{key}.json"), "w"))
+        return
+    meta.update(minutes=round((time.time() - t0) / 60, 1), device=OP.DEV)
+    log(f"{name}: {meta['minutes']} min on {OP.DEV}")
+    if a.quick:
+        log("quick run: pipeline OK, nothing saved"); return
+    nv = len(va4 if not a.quick else va4[:4])
+    save_entry("tsfm_" + key, name, q[:nv], q[nv:], meta)
+
+
 # ================================================================================================ scoring
 def score(a):
     D, te, va, va4 = league()
@@ -423,6 +466,8 @@ if __name__ == "__main__":
     ap.add_argument("--ext", default="/kaggle/working/ext")
     ap.add_argument("--minutes", type=float, default=100)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--tsfm", help="one of tfm3, tfm3mv, moirai2, toto, tirex, ttm, sundial")
+    ap.add_argument("--chunk", type=int, default=256)
     ap.add_argument("--score", action="store_true")
     ap.add_argument("--reps", type=int, default=2000)
     ap.add_argument("--quick", action="store_true")
@@ -431,5 +476,7 @@ if __name__ == "__main__":
         cams(a)
     if a.spec:
         spec(a)
+    if a.tsfm:
+        tsfm(a)
     if a.score:
         score(a)

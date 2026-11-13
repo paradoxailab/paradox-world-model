@@ -4,6 +4,7 @@
 # for scoring, also attach every notebook that wrote out/league2/*.npz.
 #   JOB="cams score" bash kaggle_league2.sh                      # CPU: CAMS, then score everything found
 #   JOB=spec SPECS="stid gwnet mtgnn" MIN=100 bash kaggle_league2.sh   # GPU: graph architectures, authors' code
+#   JOB=tsfm KEYS="ttm moirai2 tirex" bash kaggle_league2.sh     # foundation models, zero-shot (small ones run on CPU)
 #   JOB=score bash kaggle_league2.sh
 set -x
 export PW_RAW=/kaggle/working/raw ATLAS_OUT=/kaggle/working/out
@@ -29,6 +30,17 @@ for job in ${JOB:-score}; do
         python -u league_v2.py --spec $m --ext $EXT --minutes ${MIN:-100} 2>&1 | grep --line-buffered -v "$F" | tee $ATLAS_OUT/log_spec_$m.txt
       done
       rm -rf $EXT ;;
+    tsfm)
+      for k in ${KEYS:-ttm moirai2 tirex}; do
+        case $k in                      # each model's own package; --no-deps where its pins would replace Kaggle's torch
+          tfm3|tfm3mv) pip install -q timesfm 2>&1 | tail -1 ;;
+          moirai2) pip install -q --no-deps uni2ts==2.0.0 && pip install -q einops jaxtyping gluonts lightning hydra-core python-dotenv 2>&1 | tail -1 ;;
+          toto) pip install -q --no-deps toto-ts==0.2.0 && pip install -q einops jaxtyping gluonts lightning rotary-embedding-torch 2>&1 | tail -1 ;;
+          tirex) pip install -q tirex-ts 2>&1 | tail -1 ;;
+          ttm) pip install -q --no-deps granite-tsfm && pip install -q deprecated 2>&1 | tail -1 ;;
+        esac
+        python -u league_v2.py --tsfm $k --chunk ${CHUNK:-256} 2>&1 | grep --line-buffered -v "$F" | tee $ATLAS_OUT/log_tsfm_$k.txt
+      done ;;
     score) python -u league_v2.py --score 2>&1 | grep --line-buffered -v "$F" | tee $ATLAS_OUT/log_score.txt ;;
   esac
 done

@@ -1350,9 +1350,30 @@ sensors in particular read far below the 10 m wind the models forecast (Atlas's 
 are themselves low), so the wind result says more about the sensors than about the models. These are verdicts about
 forecasting these stations' readings, not about global weather skill.
 
-**Groups A (remaining foundation models), C (graph architectures) and E:** running or waiting for the GPU; added here
-when scored. Moirai 2.0 has forecast the windows (CPU, 5.8 minutes); TiRex is running on the CPU. Granite TTM's first attempt failed before forecasting (the selected TTM
-variant needs a frequency token; fixed in `pw/opponents2.py`, to be run again).
+**Group A, the foundation models that run on a CPU (Kaggle run atlas-league2-score, 2026-11-13, CPU, 0.9 minutes of
+scoring).** Forecasts from runs atlas-league2-tsfm-cpu (Moirai 2.0 5.8 minutes, TiRex 284.9 minutes) and
+atlas-league2-tsfm-ttm (TTM 0.8 minutes, with the frequency-token fix), all zero-shot with 512 hours of context, each
+calibrated on validation the same way as Atlas. The scorer reproduced Atlas v1.3's 28.91 / 25.56 and the earlier
+opponents' recorded numbers. Atlas-W v0 is scored in the same run as an entry (its own section is below).
+
+| Entry | Trained: MAE | Never trained: MAE | QL | MAE@1h | MAE@24h | Atlas v1.3 against it (trained / never trained) | Verdict |
+|---|---|---|---|---|---|---|---|
+| Atlas v1.3 (967,632 parameters) | 28.91 | 25.56 | 9.55 | 13.59 | 33.22 | – | – |
+| Moirai 2.0 R small (Salesforce, 11M) | 30.50 | 26.84 | 10.10 | 14.15 | 34.40 | WIN −5.2% (p = 1.1e-04) / WIN −4.8% (p = 9.0e-04) | **Atlas beats it** |
+| TiRex (NX-AI, 35M) | 30.73 | 27.09 | 10.10 | 13.77 | 35.09 | WIN −5.9% (p = 2.8e-05) / WIN −5.7% (p = 1.2e-04) | **Atlas beats it** |
+| TimesFM 2.5 (Google) | 30.83 | 27.10 | 10.15 | 13.95 | 35.34 | WIN −6.2% (p = 1.5e-05) / WIN −5.7% (p = 1.1e-04) | **Atlas beats it** |
+| Chronos-2 (Amazon) | 31.17 | 27.41 | 10.23 | 14.10 | 35.99 | WIN −7.3% (p = 1.5e-06) / WIN −6.8% (p = 2.5e-05) | **Atlas beats it** |
+| Chronos-Bolt (Amazon) | 31.35 | 27.94 | 10.26 | 14.21 | 36.26 | WIN −7.8% (p = 3.9e-08) / WIN −8.5% (p = 1.6e-07) | **Atlas beats it** |
+| Granite TTM r2 (IBM, 0.8M) | 31.63 | 27.79 | 12.14 | 16.50 | 34.92 | WIN −8.6% (p = 3.1e-06) / WIN −8.0% (p = 1.4e-06) | **Atlas beats it** |
+| Atlas-W v0 (ours, 14,043 parameters) | 31.97 | 27.43 | 10.51 | 14.89 | 35.34 | WIN −9.6% (p = 1.7e-12) / WIN −6.8% (p = 9.6e-11) | Atlas v1.3 better |
+
+Moirai 2.0 is the strongest zero-shot model found so far on Delhi, ahead of TimesFM 2.5 by 0.3, and Atlas v1.3 still
+beats it on both tracks. TTM forecasts a single value (its interval comes only from calibration), which is why its QL
+and 80% coverage (69%) are worse. Atlas-W v0, trained on 16 months of Delhi alone, is behind Atlas v1.3, which was
+pre-trained on 13 networks and then trained on all of Delhi's history.
+
+**Groups A (TimesFM 3.0, Sundial, Toto), C (graph architectures) and E:** waiting for the GPU quota (resets Saturday
+00:00 UTC); added here when scored.
 
 ## Atlas-W: the output-first, information-efficient world model (3-day build; rules written before any score)
 

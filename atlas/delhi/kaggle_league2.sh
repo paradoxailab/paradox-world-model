@@ -46,6 +46,7 @@ for job in ${JOB:-score}; do
     e2) nvidia-smi | head -15
         python -u tools/earth2_atlas.py --models ${E2_MODELS:-sfno,pangu,graphcast_small} --budget_h ${E2_HOURS:-4} 2>&1 | tee $ATLAS_OUT/log_e2.txt
         cp $PW_RAW/E2_DELHI.npz $ATLAS_OUT/ 2>/dev/null ;;
+    live) python -u run_live.py 2>&1 | grep --line-buffered -v "$F" | tee $ATLAS_OUT/log_live.txt ;;
     weather) python -u league_v2.py --weather 2>&1 | grep --line-buffered -v "$F" | tee $ATLAS_OUT/log_weather.txt ;;
     score) python -u league_v2.py --score 2>&1 | grep --line-buffered -v "$F" | tee $ATLAS_OUT/log_score.txt ;;
   esac

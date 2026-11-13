@@ -1401,6 +1401,34 @@ validation and reported on test), the threshold function with the parameter axis
 **Not in the three days, and not claimed:** traffic (no Indian network-scale data in hand; corridor trajectory data
 has to be obtained first) and intervention tests (the placebo gate has failed twice). They stay in the 16-week plan.
 
+## Atlas-Live: the continuously updating model (rules written before any score)
+
+Adi's brief (2026-11-13): the model must keep updating as new data arrives. `delhi/run_live.py` is the engine. Its
+first test is a **replay on real data**: the Delhi test period is walked through day by day, and at every moment the
+engine may use only measurements that had already arrived. Nothing is simulated; "replay" means the real measurements
+are released to the engine in the order they happened.
+
+Three layers, each added on top of the one before, all starting from the frozen Atlas v1.3 (3 saved models):
+1. **Frozen.** v1.3 as scored (check: the engine must reproduce 28.91 / 25.56 with the validation calibration).
+2. **Daily correction.** At 00:00 each day, from the forecasts of the previous 30 days whose 24 target hours were all
+   in the past: a bias per station and lead block (hours 1-6, 7-12, 13-24; mean error shrunk by n / (n + 50)), then
+   the 80% band re-calibrated on the same corrected trailing forecasts. No weights change.
+3. **Weekly gated fine-tune.** Every 7 days each model continues training (same loss; learning rate 1e-4, at most
+   200 steps, batch 16) on the windows of the previous 9 weeks except the last, and is checked on the last week's
+   windows (trained stations). The fine-tuned weights replace the current ones only if their error on that week is
+   lower; otherwise the current weights stay. Layer 2 is then applied on top.
+
+Every forecast is written to a ledger with its issue time before its target hours are released
+(`live_ledger.npz`). Scoring: the league's 725 test windows and both tracks; each layer against the one before and
+against TimesFM 2.5 with the league's test. "Continuous updating helps" only if layer 2 or 3 beats layer 1 with
+significant MAE wins on both tracks. The Delhi test period is reused, so any gain is provisional (rule 7).
+
+**Prediction.** Layer 2 changes MAE by less than 1% either way (v1.3 already reads the last 72 hours, and its bias on
+validation was small). Layer 3 gains 1 to 3% in November-December, when the season differs most from the training
+years' average, and is level before that. **Not yet built:** the live feed. CPCB's real-time data needs a free API
+key (data.gov.in or OpenAQ) that Adi creates and stores as a Kaggle secret; until then the engine runs on the public
+files, which arrive in yearly batches.
+
 ## What has not been done (as of 2026-11-13)
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

@@ -963,6 +963,66 @@ which three seeds gave. Eleven seeds of the same recipe average 32.39. Starting 
 predictions are **29.2 / 31.5 / 32.4**. Both sets are kept; the threshold for beating TimesFM 2.5 (single models
 near 31.1 for a three-model ensemble) does not change.
 
+### Atlas-Delhi v1.3 results (Kaggle runs atlas-v13-s320 / s321 / s322 and atlas-delhi-fusion-v13, 2026-11-13, CPU)
+
+Each seed: pre-training on 13 networks without Delhi (144,671 windows, about 100 minutes), then stage B on all of
+Delhi's history and stage C on the league's 16 months. The assembly ran on the same 725 test windows as every
+earlier version.
+
+**Decision on validation (rules 4 and 6).**
+
+| Seed | 320 | 321 | 322 |
+|---|---|---|---|
+| Pre-training: pooled validation MAE on the 13 networks | 8.507 | 8.540 | 8.484 |
+| P (no Delhi training): Delhi validation MAE | 20.506 | 20.579 | 20.413 |
+| B (then all of Delhi's history): validation MAE, steps | 19.922, 5,200 | 19.651, 11,200 | 19.802, 5,200 |
+| C (then the league's 16 months) | no gain: C = B | no gain: C = B | no gain: C = B |
+| Single models on test, trained / never trained: P | 30.67 / 26.62 | 30.66 / 26.64 | 30.22 / 26.35 |
+| Single models on test, trained / never trained: B | 29.76 / 26.19 | 29.93 / 26.35 | 29.74 / 26.17 |
+
+Recipe **B**. Its three-model ensemble scores 19.273 on the fusion's validation windows against 20.453 for v1.1:
+**Atlas v1.3 is adopted.**
+
+**Predictions written before the run (rule 6), against the measurement.** Single-model test MAE on trained
+stations, mean of three: **29.81**. Predicted 28.5 / 30.8 / 31.6 from v1.1's three seeds, or 29.2 / 31.5 / 32.4
+from the eleven-seed baseline (a window from another state counting as fully as a Delhi window / a tenth / not at
+all). The measurement lies between the first two predictions, nearer the first. The spread between seeds fell from
+31.37–33.87 (v1.2, eight seeds) to 29.74–29.93.
+
+**Test (PM2.5 MAE, µg/m³, 725 windows; trained stations / never-trained stations).**
+
+| Entry | Trained | Never trained | 80% coverage |
+|---|---|---|---|
+| Atlas-Delhi Fusion with v1.3 (static) | 28.55 | 25.21 | 79 / 78 |
+| Atlas-Delhi Fusion with v1.3 (online, primary) | 28.57 | 25.14 | 79 / 78 |
+| **Atlas v1.3 alone** | **28.91** | **25.56** | 79 / 78 |
+| Atlas-India without Delhi (no Delhi training, zero-shot on Delhi) | 29.98 | 26.11 | 80 / 80 |
+| Atlas v1.1 (3 seeds) | 30.26 | 26.62 | 80 / 78 |
+| Foundation models only (online) | 30.43 | 26.82 | 79 / 79 |
+| TimesFM 2.5 | 30.83 | 27.10 | 78 / 78 |
+| Chronos-2 | 31.17 | 27.41 | 79 / 80 |
+| Chronos-Bolt | 31.35 | 27.94 | 79 / 79 |
+| Atlas v1.0 (16 months) | 33.42 | 29.07 | 79 / 79 |
+
+**Verdicts under the rules.**
+
+* **Atlas v1.3 alone BEATS all three foundation models**, with significant wins on both tracks: TimesFM 2.5
+  −6.22% (p = 0.000015) / −5.69% (p = 0.00011); Chronos-2 −7.26% / −6.76%; Chronos-Bolt −7.79% / −8.52%. The
+  pinball loss agrees (−5.86% / −5.43% against TimesFM 2.5). It also beats the fusion of the three foundation models
+  (−4.99% / −4.73%), v1.1 (−4.46% / −4.02%) and v1.0 (−13.49% / −12.08%).
+* **The zero-shot model** (never trained on a Delhi station) beats Chronos-2 and Chronos-Bolt on both tracks and is
+  level with TimesFM 2.5 (−2.75%, p = 0.054 on trained stations; −3.64%, p = 0.011 on never-trained stations).
+* **The fusion with v1.3** beats all three foundation models (online: TimesFM 2.5 −7.33% / −7.22%, Chronos-2
+  −8.36% / −8.27%, Chronos-Bolt −8.88% / −10.00%, every p below 0.0000002) and Atlas v1.3 alone (−1.18%, p = 0.018 /
+  −1.62%, p = 0.0006). Atlas adds information beyond the foundation models: YES (−6.12% / −6.27%). Online weights,
+  on average: Atlas 0.63, TimesFM 2.5 0.20, Chronos-2 0.12, Chronos-Bolt 0.05.
+* By number only (no significance test: its forecasts are not in this assembly), TimesFM 3.0 multivariate scored
+  29.95 / 26.16 on these windows; Atlas v1.3 alone is 3.5% / 2.3% lower.
+
+**Status: provisional, by rule 7.** Delhi's test period has been scored by every version. The gain counts as
+confirmed when the same recipe (leave one network out, pre-train on the rest, adapt) also beats the foundation
+models on another network of the all-India league.
+
 ## Atlas what-if test 1: the 2020 lockdown in Delhi (rules, written before any result)
 
 Forecasting the next 24 hours well does not make a world model. A world model has to answer a question no
@@ -1161,9 +1221,8 @@ the measurements as time goes on.
   model was built and counted but not trained (CPU time).
 * Real data so far is air quality only: Delhi, then every Indian station network. The comparison with TimesFM and
   Chronos has been made on Delhi PM2.5 only; TimesFM 3.0 is compared by number only, with no significance test yet.
-* The all-India league has been scored against simple forecasts only. No foundation model has been run on its
-  windows yet, so it does not yet confirm or contradict the Delhi comparisons with TimesFM and Chronos. Atlas-Delhi v1.3 (pre-trained on the rest of India) has
-  rules and is training; no score yet.
+* The all-India league has been scored against simple forecasts only; the foundation models are running on its
+  windows. Atlas-Delhi v1.3 beats them on Delhi, provisionally, until the recipe is repeated on another network.
 * What-if: tests 1 and 1b both failed their validity gate (the weeks before the 2020 lockdown are 17–21% cleaner
   than the simulation). No counterfactual claim is made.
 * The "which variable or station to collect next" advisor has not been tried on real data.

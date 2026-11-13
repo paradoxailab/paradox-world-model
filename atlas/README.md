@@ -1215,6 +1215,63 @@ Under rule 6 the method is now frozen. Before it goes to another episode, one ch
 lockdown: the error on the held-out training-period days, by half-year, to see whether the simulation drifts above
 the measurements as time goes on.
 
+## Atlas League v2.0: Atlas v1.3 against every scorable model on the list (rules, written before any score)
+
+Adi's request: compare the present model with every existing model on the benchmark list, by actual runs, not by
+numbers carried over from older Paradox models. Earlier verdicts against CAMS, the weather models and the traffic
+architectures were made with PWM-W and PWM-Dyn (sections above and branches `delhi-v0.2` … `india-v2.0`, `main`);
+none of them was made with Atlas. This league makes them with Atlas.
+
+1. **Model under test: Atlas v1.3, frozen.** The adopted 3-seed ensemble (pre-trained on 13 networks without Delhi,
+   then all Delhi history), exactly the forecasts saved by the Kaggle run atlas-delhi-fusion-v13
+   (`fusion_members_atlas.npz`). Nothing is retrained or re-chosen. As a check the scorer must reproduce Atlas v1.3's
+   recorded 28.91 / 25.56 before it scores anyone else.
+2. **Task, windows, scoring: the Delhi league, unchanged.** PM2.5 at 39 CPCB stations, the next 24 hours, from every
+   6th hour of 2025-07-03 .. 2025-12-31 (725 windows); Track S = the 31 stations Atlas trained on, Track U = the 8 it
+   never trained on. Every entry is calibrated on the validation windows (conformalised quantile regression on Track
+   S), MAE is the headline, and each comparison is a Diebold–Mariano test with a day-block bootstrap (p < 0.05 and an
+   interval excluding zero). An opponent that does not cover a station or hour is compared only on the cells it
+   covers (both models restricted to them).
+3. **Words.** "Atlas beats X" only with significant MAE wins on both tracks; a significant loss on either track is
+   "loses to X"; anything else is "level". An opponent that cannot forecast a station it was not trained on (its
+   design needs a learned embedding per station) is still scored on Track U as it is, and that is said.
+4. **Opponents, fixed now.** A model that cannot be installed or run on free hardware is reported as "not run" with
+   the reason; no model is added, dropped or re-configured after any score is seen.
+   * **A. Time-series foundation models, zero-shot** (512 h of each station's PM2.5, gaps forward-filled, the same
+     windows): already scored TimesFM 2.5, Chronos-2, Chronos-Bolt; new: TimesFM 3.0 (univariate and multivariate;
+     evaluation only, non-commercial licence), Moirai 2.0 (Salesforce), Toto (Datadog), Sundial (Tsinghua), TiRex
+     (NX-AI), Granite TTM r2 (IBM). These need the GPU (Kaggle quota resets 2026-11-14 00:00 UTC).
+   * **B. Operational air-quality forecast: CAMS global** (ECMWF Copernicus, 0.4°), from Open-Meteo's archive at each
+     station's position (located by name, as in `delhi-v0.2`). The archive keeps the most recent run for each hour,
+     which is generous to CAMS; scored raw and with a trailing 30-day same-hour local bias correction (only days before
+     the forecast start). Point forecasts: the MAE verdict is the one that counts.
+   * **C. Spatio-temporal graph architectures, trained on Atlas's own Delhi data**: STID (CIKM 2022), Graph WaveNet
+     (IJCAI 2019), STAEformer (CIKM 2023), AGCRN (NeurIPS 2020), MTGNN (KDD 2020). Each is the class from its
+     authors' repository, unchanged, with their published hyper-parameters (the METR-LA configuration where the
+     repository has one, because METR-LA has missing readings as Delhi does; AGCRN has only PEMS configurations, so
+     PEMS04) except input length (72 h, as Atlas), output length (24 h), nodes (39) and steps per day (24). Inputs, as in their papers: PM2.5 z-scored over the
+     training period plus time of day and day of week. Training windows: the same as Atlas v1.3's Delhi stage (from
+     2018, every 3rd hour, at least 8 trained stations observed); targets on Track S stations only; Track U stations'
+     inputs are hidden (the repositories' missing value) during training and given at test, as for Atlas. Loss,
+     optimiser, schedule, batch size and early stopping from each repository's train script (MTGNN without its
+     curriculum schedule); best-validation checkpoint; one seed; a wall-clock budget of 100 minutes per model on a
+     Kaggle T4 GPU (on the CPU STAEformer and AGCRN would finish only an epoch or two), and the run says whether the
+     budget or the authors' rule stopped it. DCRNN and STGCN are not run:
+     their official code is TensorFlow 1.x, which does not run on current Kaggle images.
+   * **D. Weather models: ECMWF IFS, ECMWF AIFS, DWD ICON, NOAA GFS** (archived runs, Open-Meteo Previous Runs API,
+     the run issued the day before each forecast hour), against Atlas v1.3's own forecasts of temperature, humidity
+     and wind speed at the CPCB stations that measure them (the same saved weights, all output channels). Atlas was
+     trained with a weight of 0.05 on these channels, so this tests a by-product, and it is said so.
+   * **E. AI weather models without an archive**, run by us from real analyses on the free GPU: Pangu-Weather,
+     FourCastNet (SFNO), GraphCast (1°), on the same weather variables as D. Those that do not fit the free GPU are
+     reported as not run.
+5. **Not comparable, and said so in the paper:** video and robot world models (Genie, Cosmos, V-JEPA, Dreamer) do
+   not forecast station measurements; WeatherNext, MetNet-3, GenCast (full) and Indian operational systems (IMD,
+   NCMRWF, SAFAR) publish no archived forecasts at these stations and dates; Aurora's air-pollution model needs more
+   GPU memory than the free tier has (Aurora ran out of memory on the free GPU in the earlier weather league) and CAMS
+   analyses behind a Copernicus account.
+6. **The all-India league** gets groups A and B as well, under its own rules (above), when the GPU allows.
+
 ## What has not been done (as of 2026-11-13)
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

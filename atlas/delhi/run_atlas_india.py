@@ -128,6 +128,9 @@ def reforecast(a):
     f_old = os.path.join(OUT, f"{a.tag}_s{a.seed}.npz")
     old = np.load(f_old)
     res = json.loads(str(old["meta"]))
+    if "input_fix" in res or "loader" in res:                # already forecast with the fixed loader
+        log(f"REFORECAST seed {a.seed}: not needed (forecasts already made with the fixed loader)")
+        old.close(); return
     ck = torch.load(os.path.join(OUT, f"atlas_{a.tag}_s{a.seed}.pt"), map_location="cpu", weights_only=False)
     assert ck["networks"] == [D.name for D in nets], "networks differ from the saved model's"
     dropped = {D.name: D.aux_dropped for D in nets if D.aux_dropped}
@@ -215,7 +218,8 @@ def main(a):
     capped = bool(time.time() - t0 > a.cap * 60)
     if step % every != 0 and step != steps:
         v = pooled_val(m, nets, O)
-    res = dict(seed=a.seed, params=m.n_params(), networks=[D.name for D in nets], stations=[D.N for D in nets],
+    res = dict(seed=a.seed, loader="input fix of 2026-11-13", inputs_dropped={D.name: D.aux_dropped for D in nets if D.aux_dropped},
+               params=m.n_params(), networks=[D.name for D in nets], stations=[D.N for D in nets],
                train_windows=[len(o[0]) for o in O], hit_time_cap=capped, minutes_train=round((time.time() - t0) / 60, 1),
                E=dict(val_MAE=best, steps=frozen or step), F=dict(val_MAE=v, steps=step))
     log("RUN " + json.dumps(res, default=float))

@@ -28,8 +28,12 @@ def log(*a):
 
 
 def found(pattern):
-    return sorted(set(glob.glob(os.path.join(OUT, "**", pattern), recursive=True) +
-                      glob.glob(os.path.join("/kaggle/input", "**", pattern), recursive=True)))
+    """Files matching the pattern in OUT and in the attached Kaggle inputs; a file copied into OUT (e.g. to be
+    re-forecast) replaces the input file of the same name."""
+    mine = sorted(glob.glob(os.path.join(OUT, "**", pattern), recursive=True))
+    names = {os.path.basename(f) for f in mine}
+    return mine + sorted(f for f in glob.glob(os.path.join("/kaggle/input", "**", pattern), recursive=True)
+                         if os.path.basename(f) not in names and not f.startswith(os.path.abspath(OUT)))
 
 
 def baseline(D, kind, org, nodes):
@@ -53,9 +57,11 @@ def main(a):
     files = found("india_s*.npz")
     Z = [np.load(f) for f in files]
     metas = [json.loads(str(z["meta"])) for z in Z]
+    old = [m["seed"] for m in metas if "input_fix" not in m and "loader" not in m]
+    assert not old, f"seeds {old} were forecast before the input fix: run run_atlas_india.py --reforecast first"
     if any("input_fix" in m for m in metas):
-        assert all("input_fix" in m for m in metas), "some seeds have the input fix and some do not"
-        RES["input_fix"] = [m["input_fix"] for m in metas]
+        RES["input_fix"] = [dict(m["input_fix"], seed=m["seed"]) for m in metas if "input_fix" in m]
+        RES["fixed_from_start"] = [m["seed"] for m in metas if "input_fix" not in m]
     assert Z, "no india_s*.npz found"
     for m in metas:
         assert m["networks"][:len(nets)] == [D.name for D in nets], "networks differ from the training runs'"
@@ -150,10 +156,11 @@ def report(full, A):
     others = [n for n in full if n != A]
     fx = RES.get("input_fix")
     if fx:                                                   # correction of 2026-11-13 (run_atlas_india.py --reforecast)
-        o += ["", f"Input fix applied (weights unchanged): variables that no trained station of a network reports are no longer inputs "
-              f"there: {json.dumps(fx[0]['dropped'])}. Single models on test as first run (trained / unseen): "
-              f"E {[[round(v, 2) for v in f['as_run']['E']] for f in fx]}, F {[[round(v, 2) for v in f['as_run']['F']] for f in fx]}. "
-              f"Largest change of any trained-station forecast: {max(max(f['trained_station_max_change'].values()) for f in fx):.4f} ug/m3."]
+        o += ["", f"Input fix applied (weights unchanged) to seeds {[f['seed'] for f in fx]} by re-forecasting: variables that no trained "
+              f"station of a network reports are no longer inputs there: {json.dumps(fx[0]['dropped'])}. Their single models on test as "
+              f"first run (trained / unseen): E {[[round(v, 2) for v in f['as_run']['E']] for f in fx]}, F {[[round(v, 2) for v in f['as_run']['F']] for f in fx]}. "
+              f"Largest change of any trained-station forecast: {max(max(f['trained_station_max_change'].values()) for f in fx):.4f} ug/m3."
+              + (f" Seeds {RES['fixed_from_start']} were forecast with the fixed loader from the start." if RES.get("fixed_from_start") else "")]
     o += ["", "## Each network (MAE on trained stations; Atlas-India against the entry in brackets)", "",
           "| Network | stations (unseen) | mean PM2.5 in test | Atlas-India: trained / unseen | " + " | ".join(others) + " |",
           "|---|---|---|---|" + "---|" * len(others)]

@@ -6,6 +6,7 @@
 #   JOB=spec SPECS="stid gwnet mtgnn" MIN=100 bash kaggle_league2.sh   # GPU: graph architectures, authors' code
 #   JOB=tsfm KEYS="ttm moirai2 tirex" bash kaggle_league2.sh     # foundation models, zero-shot (small ones run on CPU)
 #   JOB=weather bash kaggle_league2.sh    # also attach atlas-v13-s320/s321/s322 (weights) and atlas-league2-cams (positions)
+#   JOB=e2 E2_MODELS=sfno,pangu,graphcast_small E2_HOURS=4 bash kaggle_league2.sh   # GPU: group E, AI weather models
 #   JOB=score bash kaggle_league2.sh
 set -x
 export PW_RAW=/kaggle/working/raw ATLAS_OUT=/kaggle/working/out
@@ -42,6 +43,9 @@ for job in ${JOB:-score}; do
         esac
         python -u league_v2.py --tsfm $k --chunk ${CHUNK:-256} 2>&1 | grep --line-buffered -v "$F" | tee $ATLAS_OUT/log_tsfm_$k.txt
       done ;;
+    e2) nvidia-smi | head -15
+        python -u tools/earth2_atlas.py --models ${E2_MODELS:-sfno,pangu,graphcast_small} --budget_h ${E2_HOURS:-4} 2>&1 | tee $ATLAS_OUT/log_e2.txt
+        cp $PW_RAW/E2_DELHI.npz $ATLAS_OUT/ 2>/dev/null ;;
     weather) python -u league_v2.py --weather 2>&1 | grep --line-buffered -v "$F" | tee $ATLAS_OUT/log_weather.txt ;;
     score) python -u league_v2.py --score 2>&1 | grep --line-buffered -v "$F" | tee $ATLAS_OUT/log_score.txt ;;
   esac

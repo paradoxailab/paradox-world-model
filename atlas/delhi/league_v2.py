@@ -540,6 +540,71 @@ def weather(a):
                          f"| {nm} | {f('S', 'MAE')} | {f('U', 'MAE')} | {f('S', 'MAE@1h')} | {f('S', 'MAE@6h')} | {f('S', 'MAE@24h')} | {sg} | {claim} |"))
             log(f"WX {v} {nm}: trained {f('S', 'MAE')}, never trained {f('U', 'MAE')}; {sg} -> {claim}")
         o += [x for _, x in sorted(rows)] + [""]
+    # group E: AI weather models run by us from GFS analyses at 00 UTC (tools/earth2_atlas.py) ------------------
+    fe = find("E2_DELHI.npz")
+    if fe:
+        ze = np.load(fe)
+        me = json.loads(str(ze["meta"])) if "meta" in ze.files else {}
+        res["group_E"] = {"meta": me}
+        LI = [5, 11, 17, 23]                                             # 11:30, 17:30, 23:30, 05:30 IST = leads 6..24 h
+        o06 = te[D.tod[te] == 6]                                         # Atlas's 06:00 IST origins
+        by_date = {str(D.dates[o])[:10]: o for o in o06}
+        pos = {o: int(np.searchsorted(te, o)) for o in o06}
+        o += ["## Group E: AI weather models run by us from NOAA GFS analyses (00 UTC = 05:30 IST), against Atlas v1.3's "
+              "06:00 IST forecasts at leads 6, 12, 18 and 24 h", ""]
+        for key in sorted({k[:-2] for k in ze.files if k.endswith("_v")}):
+            V, days = ze[key + "_v"], [str(d)[:10] for d in ze[key + "_days"]]
+            keep = [i for i, d in enumerate(days) if d in by_date]
+            if not keep:
+                continue
+            orgs = np.array([by_date[days[i]] for i in keep])
+            name = me.get("models", {}).get(key, {}).get("name", key)
+            o += [f"### {name}: {len(keep)} test days", "",
+                  "| Variable | Atlas v1.3: trained / never trained | Model raw | Model + 30-day local bias correction | Atlas against raw (trained / never trained) | Atlas against bias-corrected | Verdict (bias-corrected) |",
+                  "|---|---|---|---|---|---|---|"]
+            for j, (v, (var, unit)) in enumerate(WX.items()):
+                Vv = V[keep][..., j]                                     # [days, N, 4]
+                if not np.isfinite(Vv).any():
+                    o.append(f"| {v} ({unit}) | – | not predicted by this model | – | – | – | – |"); continue
+                rawv, has = res["variables"][v]["raw"], res["variables"][v]["has"]
+                y = rawv[orgs[:, None] + np.array(LI)[None]].transpose(0, 2, 1)          # [days, N, 4]
+                qa = res["variables"][v]["q_atlas"][[pos[x] for x in orgs]][:, :, LI]    # [days, N, 4, 3]
+                err = Vv - y
+                bias = np.zeros_like(Vv)
+                for d in range(len(orgs)):                               # earlier run days only, within 30 days
+                    prev = [p for p in range(d) if 0 < (orgs[d] - orgs[p]) <= 30 * SPD]
+                    if len(prev) >= 10:
+                        with np.errstate(all="ignore"):
+                            bias[d] = np.nan_to_num(np.nanmean(err[prev], 0))
+                cells = {}
+                for lab, P in (("raw", Vv), ("bc", Vv - bias)):
+                    qb = np.repeat(P[..., None], 3, -1)
+                    r = {}
+                    for t, c in (("S", S), ("U", U)):
+                        cc = c[has[c]]
+                        if len(cc) == 0:
+                            r[t] = None; continue
+                        okc = np.isfinite(qb[:, cc][..., 1]) & np.isfinite(qa[:, cc][..., 1])
+                        yy = np.where(okc, y[:, cc], np.nan)
+                        r[t] = dict(mae_m=float(np.nanmean(np.abs(qb[:, cc][..., 1] - yy))),
+                                    mae_a=float(np.nanmean(np.abs(qa[:, cc][..., 1] - yy))),
+                                    sig=E.compare(np.nan_to_num(qa[:, cc]), np.nan_to_num(qb[:, cc]), yy, 1, "MAE", reps=a.reps, floor=0.0))
+                    cells[lab] = r
+                fm = lambda r, k: " / ".join(f"{r[t][k]:.2f}" if r.get(t) else "–" for t in ("S", "U"))
+                fs = lambda r: " / ".join((f"{r[t]['sig']['verdict']} {r[t]['sig']['rel_diff_pct']:+.1f}% (p={r[t]['sig']['p']:.2g})"
+                                           if r.get(t) and r[t]["sig"] else "–") for t in ("S", "U"))
+                got = [cells["bc"][t]["sig"]["verdict"] for t in ("S", "U") if cells["bc"].get(t) and cells["bc"][t]["sig"]]
+                claim = "Atlas BEATS it" if got and all(x == "WIN" for x in got) else ("Atlas LOSES to it" if "LOSS" in got else "level")
+                res["group_E"].setdefault(key, {})[v] = {lab: {t: (cells[lab][t] or None) for t in ("S", "U")} for lab in cells}
+                res["group_E"][key][v]["claim_bias_corrected"] = claim
+                o.append(f"| {v} ({unit}) | {fm(cells['raw'], 'mae_a')} | {fm(cells['raw'], 'mae_m')} | {fm(cells['bc'], 'mae_m')} | "
+                         f"{fs(cells['raw'])} | {fs(cells['bc'])} | {claim} |")
+                log(f"E2 {name} {v}: Atlas {fm(cells['raw'], 'mae_a')}, raw {fm(cells['raw'], 'mae_m')}, bias-corrected {fm(cells['bc'], 'mae_m')} -> {claim}")
+            o.append("")
+        for key, mm in me.get("models", {}).items():
+            if not mm.get("days"):
+                o.append(f"- {mm.get('name', key)}: not run ({mm.get('error', 'no days completed')})")
+        o.append("")
     for v in WX:
         for k in ("q_atlas", "raw", "has"):
             res["variables"][v].pop(k, None)

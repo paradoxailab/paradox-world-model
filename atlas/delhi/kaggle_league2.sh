@@ -5,6 +5,7 @@
 #   JOB="cams score" bash kaggle_league2.sh                      # CPU: CAMS, then score everything found
 #   JOB=spec SPECS="stid gwnet mtgnn" MIN=100 bash kaggle_league2.sh   # GPU: graph architectures, authors' code
 #   JOB=tsfm KEYS="ttm moirai2 tirex" bash kaggle_league2.sh     # foundation models, zero-shot (small ones run on CPU)
+#   JOB=weather bash kaggle_league2.sh    # also attach atlas-v13-s320/s321/s322 (weights) and atlas-league2-cams (positions)
 #   JOB=score bash kaggle_league2.sh
 set -x
 export PW_RAW=/kaggle/working/raw ATLAS_OUT=/kaggle/working/out
@@ -41,6 +42,7 @@ for job in ${JOB:-score}; do
         esac
         python -u league_v2.py --tsfm $k --chunk ${CHUNK:-256} 2>&1 | grep --line-buffered -v "$F" | tee $ATLAS_OUT/log_tsfm_$k.txt
       done ;;
+    weather) python -u league_v2.py --weather 2>&1 | grep --line-buffered -v "$F" | tee $ATLAS_OUT/log_weather.txt ;;
     score) python -u league_v2.py --score 2>&1 | grep --line-buffered -v "$F" | tee $ATLAS_OUT/log_score.txt ;;
   esac
 done

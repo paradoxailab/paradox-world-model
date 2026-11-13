@@ -380,6 +380,174 @@ def tsfm(a):
     save_entry("tsfm_" + key, name, q[:nv], q[nv:], meta)
 
 
+# ================================================================================================ D: weather models
+WX = {"AT": ("temperature_2m", "°C"), "RH": ("relative_humidity_2m", "%"), "WS": ("wind_speed_10m", "m/s")}
+NWP = {"ECMWF IFS 0.25 (physics)": ["ecmwf_ifs025"],
+       "ECMWF AIFS (AI)": ["ecmwf_aifs025_single", "ecmwf_aifs025"],
+       "DWD ICON (physics)": ["dwd_icon_seamless", "icon_seamless", "dwd_icon_global", "icon_global"],
+       "NOAA GFS (physics)": ["ncep_gfs_seamless", "gfs_seamless", "ncep_gfs025", "gfs_global"],
+       "NOAA AIGFS (AI, GraphCast-based)": ["ncep_aigfs025", "gfs_aigfs025", "ncep_aigfs", "aigfs025"],
+       "DWD AICON (AI)": ["dwd_aicon", "dwd_aicon_global", "aicon_global", "icon_aicon"]}
+
+
+def weather(a):
+    """Atlas v1.3's own forecasts of temperature, humidity and wind speed (the same saved weights, all output channels)
+    against the global weather models' archived runs issued the day before each forecast hour."""
+    import torch
+    from pw.ddata import AUX
+    from atlas.model import Atlas
+    D, te, va, va4 = league()
+    log(D.describe())
+    S, U, ALL = D.seen, D.unseen, np.arange(D.N)
+    files = sorted(set(glob.glob(os.path.join(OUT, "**", "atlas_long3_s*.pt"), recursive=True) +
+                       glob.glob("/kaggle/input/**/atlas_long3_s*.pt", recursive=True)), key=os.path.basename)
+    files = list({os.path.basename(f): f for f in files}.values())
+    models = []
+    for f in files:
+        ck = torch.load(f, map_location="cpu", weights_only=False)
+        assert list(ck["stations"]) == list(D.stations), "stations differ from the saved model's"
+        m = Atlas(**ck["cfg"]).to(R.DEV); m.load_state_dict(ck["B"]); m.eval(); models.append(m)   # v1.3 adopted recipe B
+    log(f"Atlas v1.3: {len(models)} saved models ({', '.join(os.path.basename(f) for f in files)})")
+    if a.quick:
+        te = te[:8]
+
+    @torch.no_grad()
+    def channels(org, nodes, bs=48):
+        out = []
+        for i in range(0, len(org), bs):
+            b = R.make_batch(D, org[i:i + bs], nodes)
+            q = np.mean([R.forward(m, b)[0].float().cpu().numpy() for m in models], 0)      # [B, n, H, C, 3]
+            q[:, :, :, 0] *= b["s"].cpu().numpy()[:, :, None, None]
+            out.append(q)
+        return np.concatenate(out)
+
+    Q = np.zeros((len(te), D.N, H, D.K + D.Ca, 3), np.float32)
+    Q[:, S] = channels(te, S)
+    Q[:, U] = channels(te, ALL)[:, U]
+    z = np.load(find("fusion_members_atlas.npz"))                      # check: the PM2.5 channel is the saved forecast
+    dpm = float(np.nanmax(np.abs(np.sort(Q[:, :, :, 0], -1) - z["qt"][:len(te)])))
+    log(f"CHECK PM2.5 channel against the saved Atlas v1.3 forecasts: largest difference {dpm:.4f} ug/m3")
+    # physical units: the loader standardised each weather variable with the trained stations' training-period values
+    zz = np.load(os.path.join(RAW, "DELHI_LONG.npz"))
+    names, st, XL = list(zz["vars"]), [str(s) for s in zz["stations"]], zz["X"]
+    off = int((D.start.astype("datetime64[h]") - np.datetime64(str(zz["start"])).astype("datetime64[h]")).astype(int))
+    cols = [st.index(s) for s in D.stations]
+    b = D.bounds["train"][1]
+    aux_ix = []                                                         # channel of each AUX variable in A_aux
+    for v in AUX:
+        aux_ix += [v + "_sin", v + "_cos"] if v == "WD" else [v]
+    res = {"check_pm25_max_diff": dpm, "variables": {}, "models": {}, "significance": {}, "claims": {}}
+    coords = None
+    fc = find("cams.npz")
+    if fc:
+        coords = json.loads(str(np.load(fc)["meta"])).get("coords")
+    if not coords:
+        coords = {s: geocode(s) for s in D.stations}
+    t0d = dt.datetime.fromisoformat(str(D.dates[0])[:19])
+    first, last = te[0] - 35 * SPD, te[-1] + H
+    d0 = dt.datetime.fromisoformat(str(D.dates[first])[:19]).date()
+    d1 = (dt.datetime.fromisoformat(str(D.dates[last])[:19]) + dt.timedelta(days=1)).date()
+    for v, (var, unit) in WX.items():
+        raw = XL[off:off + D.T][:, cols, names.index(v)].astype(np.float32)
+        tr = raw[:b][:, S]; tr = tr[np.isfinite(tr)]
+        mu, sd = float(tr.mean()), float(tr.std()) + 1e-6
+        k = aux_ix.index(v)
+        assert np.allclose(np.nan_to_num((raw - mu) / sd), np.nan_to_num(D.A_aux[..., k]), atol=1e-3), f"{v}: scaling not reproduced"
+        has = np.isfinite(raw[te[0]:te[-1] + H]).mean(0) > 0.5                       # stations that measure it in the test
+        res["variables"][v] = dict(unit=unit, stations=[D.stations[i] for i in np.where(has)[0]], mu=mu, sd=sd)
+        log(f"{v}: {int(has.sum())} stations measure it in the test period ({int(has[S].sum())} trained, {int(has[U].sum())} never trained)")
+        res["variables"][v]["q_atlas"] = Q[..., D.K + k, :] * sd + mu
+        res["variables"][v]["raw"] = raw
+        res["variables"][v]["has"] = has
+    # the weather models' archived runs ----------------------------------------------------------------------
+    api = "https://previous-runs-api.open-meteo.com/v1/forecast"
+    series = {}                                                          # (model, v) -> [T + 2H, N]
+    for name, ids in NWP.items():
+        used = None
+        for mid in ids:
+            j = http(api, dict(latitude=28.63, longitude=77.22, hourly="temperature_2m_previous_day1", models=mid,
+                               start_date=d0.isoformat(), end_date=(d0 + dt.timedelta(days=3)).isoformat(),
+                               timezone="Asia/Kolkata", wind_speed_unit="ms"), tries=2)
+            vals = ((j or {}).get("hourly") or {}).get("temperature_2m_previous_day1") or []
+            if any(x is not None for x in vals):
+                used = mid; break
+        if not used:
+            log(f"  {name}: no archived runs found under {ids}; not run"); res["models"][name] = {"error": "no archive"}; continue
+        for v in WX:
+            series[(name, v)] = np.full((D.T + 2 * H, D.N), np.nan, np.float32)
+        for i, s in enumerate(D.stations):
+            g = coords.get(s)
+            if not g or not any(res["variables"][v]["has"][i] for v in WX):
+                continue
+            j = http(api, dict(latitude=round(g[0], 3), longitude=round(g[1], 3), models=used,
+                               hourly=",".join(var + "_previous_day1" for var, _ in WX.values()),
+                               start_date=d0.isoformat(), end_date=d1.isoformat(), timezone="Asia/Kolkata", wind_speed_unit="ms"))
+            h = (j or {}).get("hourly", {})
+            for v, (var, _) in WX.items():
+                for ts, x in zip(h.get("time", []), h.get(var + "_previous_day1", []) or []):
+                    kk = int((dt.datetime.fromisoformat(ts) - t0d).total_seconds() // 3600)
+                    if 0 <= kk < D.T + 2 * H and x is not None:
+                        series[(name, v)][kk, i] = x
+        res["models"][name] = {"open_meteo_model": used, "run": "previous_day1 (issued the day before each forecast hour)"}
+        log(f"  {name}: archive '{used}' fetched")
+    # scoring --------------------------------------------------------------------------------------------------
+    o = ["# Atlas League v2.0, group D: Atlas v1.3's weather forecasts against the global weather models", "",
+         f"Check: Atlas v1.3's PM2.5 channel equals the saved forecasts (largest difference {dpm:.4f} ug/m3).", ""]
+    tt = te[:, None] + np.arange(H)[None]                                 # [W, H]
+    for v, (var, unit) in WX.items():
+        V = res["variables"][v]
+        raw, has = V["raw"], V["has"]
+        y = raw[tt].transpose(0, 2, 1)                                    # [W, N, H]
+        qa = V["q_atlas"]
+        ent = {"Atlas v1.3 (ours; weather is a by-product, loss weight 0.05)": qa}
+        for name in NWP:
+            if (name, v) not in series:
+                continue
+            C = series[(name, v)]
+            p = C[tt].transpose(0, 2, 1)
+            ent[name + ", archived run"] = np.repeat(p[..., None], 3, -1)
+            lag = tt[:, :, None] - SPD * np.arange(1, 31)[None, None]                  # trailing 30 days, same hour
+            e = C[np.clip(lag, 0, None)] - raw[np.clip(lag, 0, D.T - 1)]
+            with np.errstate(all="ignore"):
+                bias = np.where(np.isfinite(e).sum(2) >= 10, np.nanmean(e, 2), 0.0)    # [W, H, N]
+            ent[name + " + 30-day local bias correction"] = np.repeat((p - bias.transpose(0, 2, 1))[..., None], 3, -1)
+        o += [f"## {v} ({var}, {unit}): {int(has.sum())} stations measure it", "",
+              "| Entry | Trained: MAE | Never trained: MAE | MAE@1h | MAE@6h | MAE@24h | Atlas v1.3 against it (trained / never trained) | Verdict |",
+              "|---|---|---|---|---|---|---|---|"]
+        A = list(ent)[0]
+        rows = []
+        for nm, q in ent.items():
+            r = {}
+            for t, c in (("S", S), ("U", U)):
+                cc = c[has[c]]
+                if len(cc) == 0:
+                    r[t] = None; continue
+                ok = np.isfinite(q[:, cc][..., 1]) & np.isfinite(qa[:, cc][..., 1])
+                yy = np.where(ok, y[:, cc], np.nan)
+                r[t] = dict(score=E.score(np.nan_to_num(q[:, cc]), yy, horizons=R.HZ, floor=0.0, step_min=60),
+                            sig=None if nm == A else E.compare(np.nan_to_num(qa[:, cc]), np.nan_to_num(q[:, cc]), yy, R.PER_DAY,
+                                                               "MAE", reps=a.reps, floor=0.0))
+            vs = [r[t]["sig"]["verdict"] if r.get(t) and r[t]["sig"] else None for t in ("S", "U")]
+            got = [x for x in vs if x]
+            claim = "–" if nm == A else ("Atlas BEATS it" if got and all(x == "WIN" for x in got) else
+                                         "Atlas LOSES to it" if "LOSS" in got else "level")
+            res["significance"].setdefault(v, {})[nm] = {t: (r[t]["sig"] if r.get(t) else None) for t in ("S", "U")}
+            res["claims"].setdefault(v, {})[nm] = claim
+            f = lambda t, m: f"{r[t]['score'][m]:.2f}" if r.get(t) else "–"
+            sg = " / ".join((f"{r[t]['sig']['verdict']} {r[t]['sig']['rel_diff_pct']:+.1f}% (p={r[t]['sig']['p']:.2g})"
+                             if r.get(t) and r[t]["sig"] else "–") for t in ("S", "U"))
+            rows.append((r["S"]["score"]["MAE"] if r.get("S") else 1e9,
+                         f"| {nm} | {f('S', 'MAE')} | {f('U', 'MAE')} | {f('S', 'MAE@1h')} | {f('S', 'MAE@6h')} | {f('S', 'MAE@24h')} | {sg} | {claim} |"))
+            log(f"WX {v} {nm}: trained {f('S', 'MAE')}, never trained {f('U', 'MAE')}; {sg} -> {claim}")
+        o += [x for _, x in sorted(rows)] + [""]
+    for v in WX:
+        for k in ("q_atlas", "raw", "has"):
+            res["variables"][v].pop(k, None)
+    json.dump(res, open(os.path.join(OUT, "weather_results.json"), "w"), indent=1, default=float)
+    open(os.path.join(OUT, "WEATHER_REPORT.md"), "w").write("\n".join(o) + "\n")
+    log("\n".join(o))
+
+
 # ================================================================================================ scoring
 def score(a):
     D, te, va, va4 = league()
@@ -469,6 +637,7 @@ if __name__ == "__main__":
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--tsfm", help="one of tfm3, tfm3mv, moirai2, toto, tirex, ttm, sundial")
     ap.add_argument("--chunk", type=int, default=256)
+    ap.add_argument("--weather", action="store_true", help="group D: Atlas v1.3's weather channels against IFS, AIFS, ICON, GFS ...")
     ap.add_argument("--score", action="store_true")
     ap.add_argument("--reps", type=int, default=2000)
     ap.add_argument("--quick", action="store_true")
@@ -479,5 +648,7 @@ if __name__ == "__main__":
         spec(a)
     if a.tsfm:
         tsfm(a)
+    if a.weather:
+        weather(a)
     if a.score:
         score(a)

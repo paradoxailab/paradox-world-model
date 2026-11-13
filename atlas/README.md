@@ -1258,10 +1258,13 @@ none of them was made with Atlas. This league makes them with Atlas.
      Kaggle T4 GPU (on the CPU STAEformer and AGCRN would finish only an epoch or two), and the run says whether the
      budget or the authors' rule stopped it. DCRNN and STGCN are not run:
      their official code is TensorFlow 1.x, which does not run on current Kaggle images.
-   * **D. Weather models: ECMWF IFS, ECMWF AIFS, DWD ICON, NOAA GFS** (archived runs, Open-Meteo Previous Runs API,
-     the run issued the day before each forecast hour), against Atlas v1.3's own forecasts of temperature, humidity
-     and wind speed at the CPCB stations that measure them (the same saved weights, all output channels). Atlas was
-     trained with a weight of 0.05 on these channels, so this tests a by-product, and it is said so.
+   * **D. Weather models: ECMWF IFS, ECMWF AIFS, DWD ICON, NOAA GFS**, and NOAA AIGFS (GraphCast-based) and DWD
+     AICON where Open-Meteo's archive has them (archived runs, Open-Meteo Previous Runs API, the run issued the day
+     before each forecast hour; each raw and with the same trailing 30-day local bias correction as CAMS), against
+     Atlas v1.3's own forecasts of temperature, humidity and wind speed at the CPCB stations that measure them (the
+     same saved weights, all output channels; MAE in physical units). Atlas was trained with a weight of 0.05 on these
+     channels, so this tests a by-product, and it is said so. (AIGFS, AICON and the bias-corrected variants were added
+     to this rule on 2026-11-13, before any weather score.)
    * **E. AI weather models without an archive**, run by us from real analyses on the free GPU: Pangu-Weather,
      FourCastNet (SFNO), GraphCast (1°), on the same weather variables as D. Those that do not fit the free GPU are
      reported as not run.

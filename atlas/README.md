@@ -1457,6 +1457,61 @@ Atlas at this data size. Not shown: that the physics form itself (relaxation and
 to the summary inputs or simply being small; the day-3 removals test that. The Delhi test period is reused, so these
 are provisional like every Delhi result.
 
+### Atlas-W days 2 and 3: rules and predictions (written 2026-11-13, before any of these runs)
+
+**Change to the day-2 plan, made before running.** The 72-hour horizon for five pollutants is taken out of day 2.
+It needs its own league (new windows, new baselines, and SO₂, which the Delhi league file does not carry), and its
+rules will be written before it runs. Day 2 is now only the v1.3 recipe below, so that Atlas-W v1 can be scored in
+the same league as everything else.
+
+**Day 2: Atlas-W v1, trained the way Atlas v1.3 was** (`delhi/kaggle_atlasw13.sh`; the same scripts as v1.3, with
+`ATLAS_MODEL=atlasw:32` so that they build Atlas-W instead of Atlas).
+1. Model: Atlas-W v0 unchanged, width 32 (the width validation chose on day 1), 14,043 parameters.
+2. Recipe: v1.3's, unchanged. (a) Pre-train one set of weights on the 13 other Indian networks, with no Delhi
+   station (`run_atlas_india.py --skip Delhi --pretrain-only`, the early-stopping checkpoint E). (b) Stage B: all
+   valid Delhi windows since 2018 at 0.3 × the learning rate, up to 12,000 steps. (c) Stage C: B fine-tuned on the
+   league's 16 months at 0.2 × the learning rate. Seeds 320, 321 and 322, one notebook each.
+3. B or C is chosen by the lower mean validation MAE over the three seeds. The three chosen models are averaged,
+   calibrated on validation exactly as every league entry is, and scored once in Atlas League v2.0 against
+   everything there. The forecasts of the pre-trained weights before any Delhi training (P) are scored as a separate
+   entry: Atlas-W with no Delhi training at all.
+4. Words as in the league: "Atlas-W v1 beats X" only with a significant win on both tracks; "level"; "loses".
+
+*Predictions.* Atlas-W gains less from more data than Atlas did: its day-1 curve was already flatter, and Atlas went
+from 33.42 to 28.91 (−13.5%) with this recipe. Atlas-W v1: about 29.5 to 31.0 on trained stations. That is level with
+or better than TimesFM 2.5 (30.83) and Moirai 2.0 (30.50), and behind Atlas v1.3 (28.91). P (no Delhi training):
+about 32 to 35, worse than v0, which saw Delhi.
+
+**Day 3a: the minimum-information table** (`delhi/run_atlasw_ablate.py`). The setting is day 1's full-data model:
+width 32, the league's 16 months, the same windows, steps and caps. Each variant is run with seeds 0 and 1, and the
+full model is run again in the same notebook as the base. One thing is removed at a time:
+
+| Variant | What is removed |
+|---|---|
+| R1 | exchange between stations in the update (κ = 0) |
+| R2 | mixing of the summary between graph neighbours |
+| R3 | the physics form: the median is the last value plus a direct output for each hour (no recurrence, no κ) |
+| R4 | the 6, 24 and 72-hour means (the summary keeps the last value, the observed share and the any-value flag) |
+| R5 | weather as an input (weather is still forecast as an output) |
+| R6 | the other pollutants (PM10, NO₂, ozone) as inputs (still forecast as outputs) |
+| R7 | the static and calendar summary |
+| R8 | the calendar of the hours being forecast |
+
+For each variant, the 2-seed average is compared with the base's. The measure is validation MAE on trained stations;
+test MAE is also reported, with the league's test (day blocks, both tracks) against the base. A part "earns its place"
+if removing it raises validation MAE by 1% or more, and "is not needed" if the change is under 1%. "The physics form
+helps" only if R3 is at least 1% worse on validation and the base beats it significantly on trained stations.
+Nothing is removed from the model on the strength of this table until a new version is written down and run again.
+
+*Predictions.* R8 and R7 hurt most (3% or more: PM2.5 in Delhi follows the clock). R4 hurts (more than 3%). R3:
+2–5% worse, but this is the least certain prediction. R5 and R6: 1–2%. R1 and R2: under 1%.
+
+**Day 3b: the threshold function with the parameter axis** (`run_atlasw.py --grid-only --widths 16,128`). The day-1
+grid (the last 0.5, 1, 2, 4, 8 and 15 months, 2 seeds) is run at widths 16 and 128. e = floor + a·N^-α + b·P^-β is
+fitted to all four widths together (Atlas-W runs only). Reported: the fitted numbers, the misfit, and the best width
+at each data amount. *Prediction:* width 16 is close to 32 at small data; 128 is no better than 64 at full data, so
+the parameter term is small and data is what limits Atlas-W.
+
 ## Atlas-Live: the continuously updating model (rules written before any score)
 
 Adi's brief (2026-11-13): the model must keep updating as new data arrives. `delhi/run_live.py` is the engine. Its

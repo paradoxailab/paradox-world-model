@@ -1654,6 +1654,51 @@ until a rule that passes this replay exists; candidates, to be written as rules 
 full year of new data, or with the all-India mixture kept in every batch, or a much stricter gate (several weeks,
 significance required). The live feed still needs the API key.
 
+## ICML programme, wave 1: rules and predictions (written 2026-11-14, before any of these runs)
+
+Wave 1 answers the two objections a reviewer will raise first: that the Delhi test was reused, and that the
+architecture is standard. Later waves (stronger baselines: fine-tuned foundation models, foundation models given
+neighbouring stations, the five graph models; benchmarks outside India; removal tests on Atlas itself) get their own
+rules before they run.
+
+**L1. Leave one network out (the confirmation that rule 7 of v1.3 asked for).** Four networks, fixed now as the four
+largest after Delhi: Uttar Pradesh, Haryana, Maharashtra, Karnataka. For each network X (`delhi/kaggle_lono.sh`):
+1. Pre-train Atlas (967,632 parameters, the all-India recipe) on the 13 networks other than X (`run_atlas_india.py
+   --skip X --pretrain-only`, early-stopping checkpoint E). Seed 500.
+2. Adapt to X: X's own training windows only, 0.3 × the learning rate, up to 12,000 steps, a look at X's validation
+   every 400 steps, stopping after 10 looks without improvement (Delhi v1.3's stage B, unchanged). The checkpoint
+   with the best validation error on X is kept.
+3. Score on X's all-India test windows, calibrated on X's validation exactly as in the all-India league, against
+   TimesFM 2.5's forecasts of the same windows (run atlas-india-opp-gpu v2), with the league's test (day blocks, both
+   tracks). The pre-trained weights before adaptation (P) are scored too.
+
+*Rule.* The v1.3 recipe is **confirmed** if the adapted model beats TimesFM 2.5 (a significant win on both tracks) on
+at least three of the four networks and loses on none. **Not confirmed** if it beats TimesFM 2.5 on two or fewer, or
+loses on any. One seed is used. If a network's verdict depends on it, two more seeds are run before anything is
+claimed, and the rule is applied to the three-seed average.
+
+*Predictions.* Atlas-India (trained on all 14 networks) beat TimesFM 2.5 on Uttar Pradesh (−8.3%) and Haryana
+(−5.5%) and was level on Maharashtra (+1.2%) and Karnataka (−1.2%). Leaving the network out of pre-training should
+cost a little, and adaptation should give some of it back. Predicted: beats on Uttar Pradesh and Haryana; level on
+Maharashtra and Karnataka. That is two of four, so **not confirmed**. P, the model never trained on X: level with
+TimesFM 2.5 on all four.
+
+**A1. Atlas-P: Atlas with a physics decoder.** Atlas unchanged up to the decoder. Then, per hour and per variable,
+the decoder gives the equilibrium offset, the relaxation rate and two spreads, and the median is stepped hour by hour
+as in Atlas-W: x[t+1] = x[t] + k (x* − x) + κ (neighbour mean − x). κ per station and variable comes from the
+encoded state, the neighbour mean from the same station graph as the attention, and the rates start near zero, so an
+untrained Atlas-P is persistence. 978,507 parameters (width 144, as Atlas).
+1. Trained exactly as Atlas-India (all 14 networks, 60,000 steps, the same seeds 400, 401 and 402), with
+   `ATLAS_PHYS=1`.
+2. Decision on validation only: Atlas-P replaces Atlas if its pooled validation MAE, averaged over the three seeds,
+   is lower than Atlas-India's three seeds by more than 2 standard errors of the paired difference.
+3. The all-India test is reported once, as a second use of that period (Atlas-India's was the first), with the
+   league's test against Atlas-India and TimesFM 2.5.
+
+*Prediction.* Removing the physics update cost Atlas-W 5.0% on validation, but Atlas's latent dynamics and
+attention already capture much of what it does. Atlas-P: 1% to 3% lower validation MAE than Atlas. That clears the
+2-standard-error bar only if the seed spread is small.
+
 ## What has not been done (as of 2026-11-13)
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

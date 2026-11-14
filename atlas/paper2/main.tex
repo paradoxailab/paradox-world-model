@@ -23,11 +23,12 @@
 \usepackage{float}
 \usepackage{url}
 \usepackage{booktabs}
-\usepackage{amsfonts,amsmath}
+\usepackage{amsfonts,amsmath,amssymb}
 \usepackage{microtype}
 \usepackage{xcolor}
 \usepackage{graphicx}
 \usepackage{tabularx}
+\usepackage{multirow}
 \usepackage{caption}
 \captionsetup{font=small,labelfont=bf}
 \usepackage{enumitem}
@@ -44,7 +45,10 @@
 \newcommand{\IoneRMSE}{\textbf{54.24}}\newcommand{\IoneMAE}{\textbf{31.27}}\newcommand{\IoneMBE}{$-8.66$}\newcommand{\IoneR}{\textbf{0.85}}
 \newcommand{\IoneMAPE}{\textbf{21}}\newcommand{\IoneObs}{159}\newcommand{\IoneHours}{3{,}624}
 
-\title{Atlas-F: A Small Indian Sensor Model Fused with a Foundation Model, Confirmed Across India and Set Against India's Operational Air-Quality Forecasts}
+
+\newcommand{\IoneMAEci}{26.7--36.4}\newcommand{\IoneRMSEci}{42.6--66.5}
+
+\title{Atlas-F: Pre-Registered PM$_{2.5}$ Forecasting Across India by Online Fusion of a Small Station-Graph Model and a Foundation Model}
 
 \ifpreprint
 \author{%
@@ -60,77 +64,128 @@
 \maketitle
 
 \begin{abstract}
-A sub-million-parameter model trained only on Indian monitoring-station data, Atlas, was reported to beat
-time-series foundation models at forecasting \pmtf{} 24 hours ahead. We continue that work under the same
-pre-registered protocol. A confirmation test that repeats its recipe with each of four networks left out of
-pre-training succeeds in Uttar Pradesh but fails in Maharashtra and Karnataka, where the station graph harms stations
-the model never trained on. We repair this with Atlas-F, which averages Atlas with TimesFM~2.5 using weights re-chosen
-every day from the previous 30 days only. On the all-India test (14 networks, 263 stations) Atlas-F beats Atlas
-($-1.2\%$ / $-2.0\%$) and TimesFM~2.5 ($-7.2\%$ / $-6.8\%$) on trained and never-trained stations ($p<10^{-13}$), and
-has lower error than TimesFM~2.5 in all 28 network-tracks, meeting a dominance rule fixed before the run. Against
-India's operational forecasts, which publish no archive, we score an Atlas trained on nothing after 30 September 2024 on
-the quantity an independent evaluation used for IITM's WRF-Chem and IMD's SILAM: Delhi's average hourly \pmtf{} in
-winter 2024--25. Atlas's error (RMSE 54.2, MAE 31.3\,\pmu{}) is below the published Day-1 errors of WRF-Chem (92.5, 58.8) and SILAM (108.0, 71.7), as predicted before the run; the comparison is by number only, and a same-hour-yesterday forecast is also below both, which we discuss. We report every failure, including a discarded scoring run.
+Small models trained on a country's own monitoring stations and large time-series foundation models (TSFMs) are both
+proposed for air-quality forecasting, but they are rarely compared under a protocol that fixes the claims before the
+scores are seen, and almost never against the forecasts a government actually issues. We report a pre-registered study
+of 24-hour \pmtf{} forecasting at 263 Indian stations in 14 networks. A confirmation test of Atlas, a 0.97M-parameter
+station-graph model previously reported to beat TSFMs, \emph{fails} its pre-registered rule: with each of four networks
+held out of pre-training it beats TimesFM~2.5 in Uttar Pradesh but loses in Maharashtra and Karnataka, and the losses
+trace to never-trained stations in geographically spread networks, where attention over all stations mixes unrelated
+sites. We propose Atlas-F, which combines Atlas and TimesFM~2.5 with weights re-chosen each day from the previous 30 days
+of verified forecasts. On the all-India test Atlas-F beats both members on trained and never-trained stations
+($-1.2\%$/$-2.0\%$ against Atlas, $-7.2\%$/$-6.8\%$ against TimesFM~2.5; Diebold--Mariano $p<10^{-13}$) and has lower
+error than TimesFM~2.5 in all 28 network--track cells, meeting a dominance rule fixed in advance; ablations show
+that the gain comes from network-specific weights: equal weights are significantly worse ($+0.9\%$/$+0.8\%$), a static per-network rule fitted on validation is equivalent, and Atlas-F is within 0.2\% of an oracle. Finally, an Atlas trained only on data up to 30 September 2024 has an hourly Delhi-average error of
+RMSE 54.2 and MAE 31.3\,\pmu{} in winter 2024--25 (95\% CI for MAE \IoneMAEci), below the published Day-1 errors of the
+operational WRF-Chem (92.5, 58.8) and SILAM (108.0, 71.7) systems; we show why this by-number comparison, which
+persistence also passes, measures a different skill from what those systems are built for.
 \end{abstract}
 
 % =================================================================================================================
 \section{Introduction}
 \label{sec:intro}
 
-Time-series foundation models (TSFMs) forecast new series zero-shot~\citep{das2024timesfm,ansari2024chronos,woo2024moirai}.
-Our first paper~\citep{atlas1} showed that Atlas, a 0.97M-parameter model trained only on Indian station data, beats
-them on Indian \pmtf{}: across India by 6.1\% and 4.8\% on trained and never-trained stations, and on Delhi against six
-TSFMs. Two questions were left open. The Delhi result rested on a test period scored by several versions, so it needed
-confirmation on networks no version had been tuned on. And Atlas had not been set against the forecasts India actually
-issues, IITM's Air Quality Early Warning System~\citep{jena2021delhi400m} and IMD's SILAM, because neither publishes an
-archive of past forecasts.
+Fine particulate matter is the largest environmental health risk in India: ambient and household air pollution were
+associated with an estimated 1.67 million deaths in 2019~\citep{gbd2021india}. Short-range forecasts drive the warnings
+and emergency measures that limit exposure, such as Delhi's Graded Response Action Plan. India's operational forecasts
+come from chemistry-transport models (CTMs): IITM's Air Quality Early Warning System, built on WRF-Chem at
+400\,m~\citep{grell2005wrfchem,jena2021delhi400m}, and IMD's SILAM~\citep{sofiev2015silam}. Machine learning offers two
+alternatives that read the monitoring network directly: small spatio-temporal models trained on the network's own
+history~\citep{zheng2015airquality,wang2020pm25gnn,liang2023airformer}, and time-series foundation models (TSFMs) that
+forecast any series zero-shot~\citep{das2024timesfm,ansari2024chronos,woo2024moirai}.
 
-This paper answers both, under the protocol of~\citep{atlas1}: every rule and most predictions were committed to a
-public repository before the runs they govern, every comparison is a Diebold--Mariano test on trained and
-never-trained stations separately, and failures are reported with the same weight as successes. Our contributions:
+Comparisons among these three are hard to trust for three reasons. Test periods are reused across model versions, so
+reported gains drift upward~\citep{hewamalage2023pitfalls}; never-trained stations, the case that matters when a network
+grows, are rarely scored separately; and operational forecasts are not archived, so ML papers almost never compare
+against them. Prior work~\citep{atlas1} introduced Atlas, a 0.97M-parameter station-graph model, and a protocol in
+which every rule is committed to a public repository before the score it governs~\citep{nosek2018prereg}. That work
+reported that Atlas beats six TSFMs on Delhi and TimesFM~2.5 across India. This paper puts that claim to a confirmation
+test, repairs what the test found, and sets the result against India's operational forecasts.
+
+\paragraph{Contributions.}
 \begin{itemize}
-\item \textbf{A confirmation test that partly failed} (\S\ref{sec:lono}). With each of four networks left out of
-  pre-training, the recipe beats TimesFM~2.5 in Uttar Pradesh, is level in Haryana and loses in Maharashtra and
-  Karnataka. The losses locate a specific failure: the station graph misleads never-trained stations where cities are
-  far apart.
-\item \textbf{Atlas-F} (\S\ref{sec:arch}, \S\ref{sec:fusion}), a fused system whose weights between Atlas and
-  TimesFM~2.5 are learned online from the trailing 30 days. It beats both members across India on both tracks and
-  TimesFM~2.5 in every network, and its weights rediscover where Atlas is weak.
-\item \textbf{A comparison with India's operational forecasts} (\S\ref{sec:india_ops}): an Atlas trained on data up to
-  30 September 2024, scored on Delhi's average hourly \pmtf{} for winter 2024--25 exactly as an independent evaluation
-  scored IITM's WRF-Chem and IMD's SILAM~\citep{ceew2025}: RMSE 54.2 and MAE 31.3 against 92.5 and 58.8 (WRF-Chem) and 108.0 and 71.7 (SILAM). The comparison is by number, with its limits stated, including that simple persistence is also below the published errors.
-\item \textbf{Two experiments under way}, pre-registered with their rules: architecture changes aimed at the failure
-  (neighbour-only attention, a station gate) and the transfer threshold function (\S\ref{sec:ongoing}).
+\item \textbf{A pre-registered confirmation test that partly fails} (\S\ref{sec:lono}). With each of four networks
+  held out of pre-training, Atlas beats TimesFM~2.5 in Uttar Pradesh, is level in Haryana and loses in Maharashtra and
+  Karnataka. The losses localise a failure mode of station attention: never-trained stations in spread-out networks.
+\item \textbf{Atlas-F} (\S\ref{sec:method}, \S\ref{sec:fusion}), an online combination of the small model and the TSFM
+  whose weights are re-chosen daily from verified forecasts only. It beats both members across India and TimesFM~2.5 in
+  every network--track cell, its learned weights recover the confirmation test's finding without being told it, and
+  ablations against equal, static and oracle weights isolate what the online rule adds.
+\item \textbf{The first comparison of an ML forecaster with India's operational CTM forecasts on a common quantity and
+  window} (\S\ref{sec:ops}), with an Atlas trained before the window, bootstrap intervals, persistence references and an
+  explicit account of what the comparison does and does not show.
+\item \textbf{A complete record}: every rule, prediction and failure, including a discarded scoring run, with the code
+  and the notebooks that produced each number.
 \end{itemize}
 
 % =================================================================================================================
-\section{Background: Atlas and the protocol}
-\label{sec:background}
+\section{Related work}
+\label{sec:related}
 
-Atlas~\citep{atlas1} is a 967,632-parameter forecaster that reads 72 hours of 15 channels at every station of a
-monitoring network, mixes stations by attention with a learned graph bias, and forecasts the 10\%, 50\% and 90\%
-quantiles of each station's \pmtf{} for the next 24 hours in six latent steps of four hours. It reads only station
-measurements and the calendar. \emph{Atlas-India} is one set of weights trained on all 14 Indian networks of the
-all-India league (263 stations; test period 1 October 2022 to 31 March 2023); the v1.3 recipe pre-trains on other
-networks and then adapts on the target network.
+\paragraph{Operational air-quality forecasting in India.} India's operational systems are CTMs driven by emission
+inventories and numerical weather prediction: SAFAR~\citep{beig2021safar}, IITM's WRF-Chem-based Early Warning
+System~\citep{jena2021delhi400m} and IMD's SILAM~\citep{sofiev2015silam}. Their evaluations are run by the modelling
+groups~\citep{jena2021delhi400m,sengupta2022delhi,yadav2025aqews} or, recently, by an independent
+think-tank~\citep{ceew2025}; none compares against a station-trained statistical forecaster, and none releases the
+forecasts for others to score. Global CTM products such as CAMS~\citep{inness2019cams} have the same structure.
 
-We keep the protocol of~\citep{atlas1} unchanged. Every rule and most predictions are committed to a public
-repository before the score they govern. In each network a seeded fifth of the stations is never used for training;
-Track \trk{s} scores trained stations and Track \trk{u} the never-trained ones. Every entry is calibrated identically
-by conformalised quantile regression~\citep{romano2019cqr} on validation windows. A Diebold--Mariano
-test~\citep{diebold1995dm} with a day-block bootstrap decides each comparison: A \emph{beats} B only with a
-significant MAE win on both tracks, a significant loss on either is a loss, and anything else is level. All choices are
-made on validation, on trained stations only.
+\paragraph{Data-driven station forecasting.} Spatio-temporal models forecast pollutant concentrations from monitoring
+networks with attention over sensors~\citep{liang2018geoman}, graph neural networks~\citep{wang2020pm25gnn} and
+transformers at national scale~\citep{liang2023airformer}, building on traffic-forecasting architectures that learn or
+impose a sensor graph~\citep{li2018dcrnn,wu2019graphwavenet,bai2020agcrn}. Atlas belongs to this family; it is small
+(0.97M parameters), reads only station measurements and the calendar, and scores never-trained stations separately.
+Graph attention restricted to neighbours~\citep{velickovic2018gat} is one of the remedies we test for its failure mode.
 
-The first paper reported that Atlas-India beats TimesFM~2.5~\citep{timesfm25} across India ($-6.1\%$ / $-4.8\%$) and
-that Atlas beats six zero-shot foundation models on Delhi, with the Delhi result provisional because its test period
-was reused. This paper reports what happened when that result was put to a confirmation test, how the failure it
-found was repaired, and how Atlas compares with India's operational forecasts.
+\paragraph{Time-series foundation models.} TSFMs pre-trained on large corpora forecast new series
+zero-shot~\citep{das2024timesfm,ansari2024chronos,woo2024moirai,rasul2023lagllama,ekambaram2024ttm,liu2025sundial,auer2025tirex}.
+Benchmarks such as GIFT-Eval~\citep{aksu2024gifteval} rank them on aggregate; simple baselines remain
+competitive~\citep{zeng2023dlinear}. Whether a small in-domain model or a large general one is better for a given
+network is the question~\citep{atlas1} raised; we find the answer differs by region, which motivates combining them.
 
+\paragraph{Forecast combination and online weighting.} Averaging forecasts goes back to~\citet{bates1969combination};
+estimated weights often fail to beat the simple average, the ``forecast combination
+puzzle''~\citep{timmermann2006combinations,smith2009puzzle,claeskens2016puzzle}. Online learning with expert
+advice~\citep{cesabianchi2006prediction} chooses weights from past losses. Atlas-F is a deliberately simple member of
+this family, a follow-the-leader rule on a grid with a 30-day memory; our contribution is not the rule but evidence of
+when such a combination helps, including a test of the equal-weight baseline. Intervals are calibrated by conformalised
+quantile regression~\citep{romano2019cqr} and scored with proper scoring rules~\citep{gneiting2007scoring}.
 
 % =================================================================================================================
-\section{Architecture}
-\label{sec:arch}
+\section{Problem setup and protocol}
+\label{sec:setup}
+
+\paragraph{Data.} Hourly measurements of India's continuous ambient air-quality monitoring stations~\citep{cpcb}, from
+a public copy of the Central Pollution Control Board's exports~\citep{kaggleaq} (January 2017 -- March 2023), cleaned
+with fixed rules (physical ceilings, stuck sensors, clock checks). A station enters the all-India league if it reports
+\pmtf{} on at least half of the test hours and 12.5\% of training hours; every state with six or more such stations is a
+network and the rest are pooled as ``other states'', giving 14 networks and 263 stations
+(Appendix~\ref{app:data}). Each station has 15 channels (four pollutant targets, four other pollutants, six weather
+variables, solar radiation). The test period is 1 October 2022 -- 31 March 2023, with a forecast issued every 6 hours
+(725 windows per network); the 61 days before it are validation and everything earlier is training.
+
+\paragraph{Task.} At issue time $t$, forecast the 10\%, 50\% and 90\% quantiles of each station's hourly \pmtf{} for
+$t{+}1,\dots,t{+}24$\,h. Let $y_{s,t+h}$ be the measurement and $\hat q^{(\tau)}_{s,t,h}$ the forecast quantile. The
+point forecast is the median.
+
+\paragraph{Tracks.} In every network a seeded fifth of the stations is never used for training. Track \trk{s} scores
+the trained stations and Track \trk{u} the never-trained ones; graph links to never-trained stations are built from the
+validation period only.
+
+\paragraph{Metrics and tests.} MAE of the median (primary), RMSE, mean pinball loss QL over the three quantiles, the
+80\% interval score IS80 and empirical coverage COV80~\citep{gneiting2007scoring}, on observed truth only. Every entry
+is calibrated identically by conformalised quantile regression on each network's validation
+windows~\citep{romano2019cqr}. A comparison is a Diebold--Mariano test on per-window loss
+differences~\citep{diebold1995dm} with Newey--West variance~\citep{newey1987hac} and a day-block
+bootstrap~\citep{kunsch1989bootstrap}: A \emph{beats} B only with a significant MAE win ($p<0.05$ and a 95\% interval
+excluding zero) on \emph{both} tracks; a significant loss on either track is a loss; anything else is level.
+
+\paragraph{Pre-registration.} Each rule, and most predictions, were committed to the public repository before the run
+it governs; Appendix~\ref{app:prereg} lists them with their order. Analyses that were not pre-registered are labelled
+\emph{post hoc} and cannot change a verdict.
+
+% =================================================================================================================
+\section{Method}
+\label{sec:method}
 
 \begin{figure}[t]
 \centering
@@ -172,7 +227,7 @@ weight, self-loop, edge); each station links to the six stations whose daily \pm
 the training period for trained stations and only the validation period for never-trained ones. The 24 forecast hours
 come from six latent steps of four hours: the state absorbs that block's calendar forcing, passes two shared residual
 blocks, is mixed again across stations, and is decoded into three quantiles for every channel and hour
-(Fig.~\ref{fig:atlas}). Training minimises pinball loss (weight 1.0 on \pmtf{}, 0.1 on other pollutants, 0.05 on
+(Fig.~\ref{fig:atlas}; parameter budget in Table~\ref{tab:params}). Training minimises pinball loss (weight 1.0 on \pmtf{}, 0.1 on other pollutants, 0.05 on
 weather) plus 0.2 times the reconstruction of 0--40\% randomly hidden input cells, with AdamW. Table~\ref{tab:params}
 gives the parameter budget: the station attention, the only part that lets one station use another, holds 8.7\%.
 
@@ -202,94 +257,111 @@ record of the previous 30 days only; never-trained stations reuse the weight fit
 \label{fig:atlasf}
 \end{figure}
 
-\paragraph{Atlas-F.} Fig.~\ref{fig:atlasf} shows the fused system; \S\ref{sec:fusion} gives its rule and results.
-The two members see different information: Atlas reads every station's 15 channels, TimesFM~2.5 reads one station's
-\pmtf{} history. A weight learned from the recent record lets the system lean on whichever has been more accurate in
-each network and at each lead time.
 
-\begin{table}[t]
-\caption{\textbf{Where Atlas's parameters sit} (counted from the code; totals match the trained checkpoints).}
-\label{tab:params}
-\centering\small
-\begin{tabular}{llrr}
-\toprule
-Part & Role & Parameters & Share \\
-\midrule
-Input projection & 2,526 inputs per station $\to$ 144 & 363,888 & 37.6\% \\
-Encoder & 2 residual blocks & 167,328 & 17.3\% \\
-Transition & 2 shared residual blocks, run 6 times & 167,328 & 17.3\% \\
-Reconstruction head & hidden-cell reconstruction (training only) & 156,600 & 16.2\% \\
-Station attention & 4 heads, learned graph bias, shared across steps & 83,940 & 8.7\% \\
-Decoder & 3 quantiles $\times$ 15 channels $\times$ 4 h & 26,100 & 2.7\% \\
-Forcing embedding & hour and weekday of the next 4 h & 2,448 & 0.3\% \\
-\midrule
-Total & & 967,632 & \\
-\bottomrule
-\end{tabular}
-\end{table}
+\paragraph{Atlas.} For each station, Atlas reads 72 hours of the 15 channels with observed flags and 78 static numbers
+(14 daily \pmtf{} means, the value one week before each forecast hour, a log scale), with pollutants divided by the
+station's own mean over the past week so that one set of weights serves clean and polluted stations alike. An input
+projection maps the 2{,}526 inputs to a 144-wide state $z_s$, followed by two residual MLP blocks. Stations are mixed by
+four-head attention whose logits carry a learned bias from each pair's graph features,
+\begin{equation}
+\alpha_{ss'} = \operatorname{softmax}_{s'}\!\Big(\tfrac{(W_Q z_s)^\top W_K z_{s'}}{\sqrt{d}} + \phi(g_{ss'})\Big),\qquad
+g_{ss'} = \big[A_{ss'},\ \mathbb{1}[s{=}s'],\ \mathbb{1}[A_{ss'}{>}0]\big],
+\label{eq:att}
+\end{equation}
+where $A$ links each station to the six whose daily \pmtf{} co-moves most with its own. The 24 hours are produced in six
+latent steps of 4\,h: the state absorbs the calendar forcing of the next block, passes two shared residual blocks, is
+mixed again by Eq.~\eqref{eq:att}, and is decoded into non-crossing quantile offsets from the last observation, so that
+an untrained Atlas forecasts persistence (Fig.~\ref{fig:atlas}; parameter budget in Table~\ref{tab:params}). Training minimises pinball loss plus 0.2 times the
+reconstruction of 0--40\% randomly hidden input cells. \emph{Atlas-India} is one set of weights trained on all 14
+networks, three seeds (400--402), ensembled. Note that Eq.~\eqref{eq:att} attends over \emph{every} station of a network;
+the graph enters only as a bias.
+
+\paragraph{Atlas-F.} Let $\hat q^{A}$ and $\hat q^{T}$ be the CQR-calibrated quantile forecasts of Atlas-India and of
+TimesFM~2.5~\citep{timesfm25} (200M parameters, zero-shot, 512\,h of each station's own \pmtf{}). Atlas-F forecasts
+\begin{equation}
+\hat q^{F}_{s,t,h} = \operatorname{sort}\Big(w_{n,b(h)}(t)\,\hat q^{A}_{s,t,h} + \big(1-w_{n,b(h)}(t)\big)\,\hat q^{T}_{s,t,h}\Big),
+\label{eq:fuse}
+\end{equation}
+with one weight per network $n$ and lead block $b\in\{1\text{--}6, 7\text{--}12, 13\text{--}24\,\text{h}\}$. At the start of
+each test day $d$, the weight is the grid value that minimised MAE over the previous 30 days of \emph{verified}
+forecasts on trained stations:
+\begin{equation}
+w_{n,b}(d) = \arg\min_{w\in\{0,0.05,\dots,1\}} \sum_{t\in\mathcal{H}_{d}} \sum_{s\in\mathcal{S}_n} \sum_{h\in b}
+\big|w\,\hat q^{A,(0.5)}_{s,t,h} + (1-w)\,\hat q^{T,(0.5)}_{s,t,h} - y_{s,t+h}\big|,
+\label{eq:w}
+\end{equation}
+where $\mathcal{H}_d=\{t: t\ge d-30\,\text{days},\ t+24\,\text{h}\le d\}$ contains only forecasts whose targets were all
+observed before day $d$ began (validation windows fill the first month), and $\mathcal{S}_n$ are the network's trained
+stations; never-trained stations reuse the weight. No information from a forecast's future is used. The grid, window and
+blocks were fixed before the run. Both members are open-licence (TimesFM~2.5 is Apache-2.0).
 
 % =================================================================================================================
-\section{The confirmation test and the failure it found}
+\section{Confirmation test: where the small model fails}
 \label{sec:lono}
 
 \begin{table}[t]
-\caption{\textbf{Leave one network out.} Atlas pre-trained on the other 13 networks, adapted on the target's history as
-in v1.3, scored on its all-India test windows (725 windows). MAE \trk{s} / \trk{u} in \pmu. Kaggle runs
-atlas-lono-$\ast$ and atlas-lono-score.}
+\caption{\textbf{Leave one network out} (pre-registered). Atlas pre-trained on the other 13 networks, adapted on the
+target's history, scored on its all-India test windows. MAE \trk{s}\,/\,\trk{u} in \pmu; verdict against TimesFM~2.5
+with relative MAE difference and Diebold--Mariano $p$ per track.}
 \label{tab:lono}
 \centering\small
+\setlength{\tabcolsep}{3.5pt}
 \resizebox{\linewidth}{!}{%
 \begin{tabular}{lcccc l}
 \toprule
-Network & Adapted & Pre-trained only & TimesFM 2.5 & Atlas-India (all 14) & Verdict \\
+Network (stations) & Adapted & Pre-trained only & TimesFM 2.5 & Atlas-India (all 14) & Verdict, adapted vs TimesFM~2.5 \\
 \midrule
-Uttar Pradesh & \textbf{21.45} / \textbf{23.14} & 21.76 / 23.29 & 22.78 / 24.32 & 20.89 / 22.46 & beats ($-5.8\%$, $p{=}2{\times}10^{-7}$ / $-4.8\%$, $p{=}3{\times}10^{-4}$) \\
-Haryana & 24.93 / 22.85 & 25.31 / 23.17 & 25.72 / 23.20 & 24.32 / 22.31 & level ($-3.1\%$, $p{=}0.001$ / $-1.5\%$, $p{=}0.20$) \\
-Maharashtra & 19.86 / 28.28 & 20.39 / 25.44 & 19.45 / \textbf{22.25} & 19.68 / 24.92 & loses ($+2.1\%$, $p{=}0.003$ / $+27.1\%$, $p{=}2{\times}10^{-19}$) \\
-Karnataka & 8.97 / 9.68 & 9.26 / 9.44 & 8.98 / 9.43 & 8.87 / 9.20 & loses ($-0.1\%$, $p{=}0.96$ / $+2.7\%$, $p{=}0.03$) \\
+Uttar Pradesh (40) & \textbf{21.45}\,/\,\textbf{23.14} & 21.76\,/\,23.29 & 22.78\,/\,24.32 & 20.89\,/\,22.46 & beats ($-5.8\%$, $p{=}2{\times}10^{-7}$\,/\,$-4.8\%$, $p{=}3{\times}10^{-4}$) \\
+Haryana (30) & 24.93\,/\,22.85 & 25.31\,/\,23.17 & 25.72\,/\,23.20 & 24.32\,/\,22.31 & level ($-3.1\%$, $p{=}0.001$\,/\,$-1.5\%$, $p{=}0.20$) \\
+Maharashtra (27) & 19.86\,/\,28.28 & 20.39\,/\,25.44 & 19.45\,/\,\textbf{22.25} & 19.68\,/\,24.92 & loses ($+2.1\%$, $p{=}0.003$\,/\,$+27.1\%$, $p{=}2{\times}10^{-19}$) \\
+Karnataka (24) & 8.97\,/\,9.68 & 9.26\,/\,9.44 & 8.98\,/\,9.43 & 8.87\,/\,9.20 & loses ($-0.1\%$, $p{=}0.96$\,/\,$+2.7\%$, $p{=}0.03$) \\
 \bottomrule
 \end{tabular}}
 \end{table}
 
-The rule fixed before the runs required the v1.3 recipe, repeated with each of the four largest networks after Delhi
-left out of pre-training, to beat TimesFM~2.5 on at least three and lose on none. It did not (Table~\ref{tab:lono}):
-one win, one level, two losses; more seeds cannot change this because the Maharashtra loss is decisive. We had
-predicted wins on Uttar Pradesh and Haryana and level on the other two.
+The rule committed before the runs required the recipe of~\citep{atlas1}, repeated with each of the four largest
+networks after Delhi held out of pre-training, to beat TimesFM~2.5 on at least three and lose on none. It did not
+(Table~\ref{tab:lono}): one win, one level, two losses. We had predicted wins in Uttar Pradesh and Haryana and level
+elsewhere. Additional seeds cannot rescue the rule, because the Maharashtra loss on Track~\trk{u} is decisive.
 
-Two findings follow. First, the gain is geographic: Delhi, Uttar Pradesh and Haryana share the Indo-Gangetic airshed
-and its winter regime, Maharashtra and Karnataka do not. Second, the failure is at \emph{never-trained} stations of
-spread-out networks. Adapting on Maharashtra's 22 trained stations raised its never-trained error from 25.44 to 28.28,
-and even Atlas-India is 12\% behind TimesFM~2.5 there. Atlas mixes every station of a network by attention; only a
-learned bias separates graph neighbours, whose links to never-trained stations come from 61 validation days. Where
-cities are hundreds of kilometres apart, unrelated stations can outweigh related ones, a failure a univariate model
-cannot have.
+Two regularities explain the pattern. \emph{The gain is regional}: Delhi, Uttar Pradesh and Haryana share the
+Indo-Gangetic airshed and its winter inversion regime, which the pre-training data is dominated by; Maharashtra and
+Karnataka do not. \emph{The failure is at never-trained stations of spread-out networks}: adapting on Maharashtra's
+trained stations \emph{raised} its never-trained error from 25.44 to 28.28, and even Atlas-India, trained on all 14
+networks, is 12\% behind TimesFM~2.5 there. Eq.~\eqref{eq:att} lets every station attend to every other station; only a
+learned bias separates graph neighbours, and links to never-trained stations come from 61 validation days. Where cities
+are hundreds of kilometres apart, unrelated stations can dominate the attention, a failure that a univariate model such
+as TimesFM cannot have. This motivates combining the two.
 
 % =================================================================================================================
-\section{Atlas-F: letting the record decide between Atlas and a foundation model}
+\section{Atlas-F: results and ablations}
 \label{sec:fusion}
 
-\paragraph{Method.} Atlas-F averages two calibrated forecasts, Atlas-India and TimesFM~2.5, with weight $w$ on Atlas:
-\begin{equation}
-\hat q^{F}_{t} = w_{t,b}\,\hat q^{\text{Atlas}}_{t} + (1-w_{t,b})\,\hat q^{\text{TimesFM}}_{t},
-\end{equation}
-with $w$ on a 0.05 grid, one weight per network and lead block $b$ (1--6, 7--12, 13--24 hours). At the start of each
-test day $w$ is re-chosen to minimise MAE on the previous 30 days of forecasts whose 24 target hours were observed
-before that day began (validation windows fill the first month), on trained stations only; never-trained stations reuse
-it. Nothing from a forecast's future is used. The grid, the window and the blocks were fixed in the repository before
-the run; TimesFM~2.5 is Apache-2.0 licensed, and no non-commercial model is a member.
-
 \begin{table}[t]
-\caption{\textbf{All-India league} (14 networks, 263 stations, 725 windows per network; third use of this test period).
-Every entry calibrated on each network's validation windows. Kaggle run atlas-fusion-f (version 2).}
+\caption{\textbf{All-India test} (14 networks, 263 stations, 725 windows each). Every entry calibrated on each network's
+validation windows. Top: pre-registered comparison (rule: beat both members pooled on both tracks and lose to
+TimesFM~2.5 in no network--track). Bottom: probabilistic scores (post hoc), \trk{s}\,/\,\trk{u}.}
 \label{tab:fusion}
 \centering\small
-\setlength{\tabcolsep}{4pt}\begin{tabular}{lcc l}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcc l}
 \toprule
-Entry & \trk{s} MAE & \trk{u} MAE & Atlas-F against it (\trk{s} / \trk{u}) \\
+Entry & \trk{s} MAE & \trk{u} MAE & Atlas-F against it (\trk{s}\,/\,\trk{u}) \\
 \midrule
 \textbf{Atlas-F} & \textbf{20.75} & \textbf{20.44} & -- \\
-Atlas-India (v1.3, 3 seeds) & 20.99 & 20.86 & beats: $-1.16\%$ ($p{=}5{\times}10^{-14}$) / $-2.05\%$ ($p{=}6{\times}10^{-22}$) \\
-TimesFM 2.5, zero-shot & 22.35 & 21.93 & beats: $-7.16\%$ ($p{=}10^{-37}$) / $-6.80\%$ ($p{=}10^{-28}$) \\
+Atlas-India (3 seeds) & 20.99 & 20.86 & beats: $-1.16\%$ ($p{=}5{\times}10^{-14}$)\,/\,$-2.05\%$ ($p{=}6{\times}10^{-22}$) \\
+TimesFM 2.5, zero-shot & 22.35 & 21.93 & beats: $-7.16\%$ ($p{=}10^{-37}$)\,/\,$-6.80\%$ ($p{=}10^{-28}$) \\
+\bottomrule
+\end{tabular}
+
+\vspace{4pt}
+\begin{tabular}{lccc}
+\toprule
+Entry & QL $\downarrow$ & IS80 $\downarrow$ & COV80 (\%; target 80) \\
+\midrule
+Atlas-India & 6.91\,/\,6.86 & 102.4\,/\,101.5 & 78.8\,/\,78.2 \\
+TimesFM 2.5 & 7.37\,/\,7.21 & 109.3\,/\,106.6 & 79.8\,/\,79.8 \\
+\textbf{Atlas-F} & \textbf{6.82}\,/\,\textbf{6.70} & \textbf{100.8}\,/\,\textbf{98.7} & 80.4\,/\,80.3 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -297,38 +369,272 @@ TimesFM 2.5, zero-shot & 22.35 & 21.93 & beats: $-7.16\%$ ($p{=}10^{-37}$) / $-6
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/fusion_networks.pdf}
-\caption{\textbf{Network by network}, MAE relative to TimesFM~2.5. Atlas-India alone is worse than TimesFM~2.5 in
-Maharashtra and Gujarat (trained stations), Kerala, and Maharashtra's never-trained stations ($+12\%$); Atlas-F is
-better than TimesFM~2.5 in all 28 network-tracks.}
+\caption{\textbf{Network by network}, MAE relative to TimesFM~2.5 (left of zero is better). Atlas-India alone is worse
+than TimesFM~2.5 in four network--track cells (Maharashtra both tracks, Gujarat and Kerala trained), worst at
+Maharashtra's never-trained stations ($+12\%$); Atlas-F is better
+than TimesFM~2.5 in all 28.}
 \label{fig:fusion}
 \end{figure}
 
-\paragraph{Results.} Atlas-F beats both of its members on both tracks (Table~\ref{tab:fusion}), and its MAE is below
-TimesFM~2.5's in all 28 network-tracks (Fig.~\ref{fig:fusion}; smallest margins: Kerala trained stations 7.93 against
-7.96, Maharashtra never-trained 22.16 against 22.25). The pre-registered dominance rule (beat both members pooled on
-both tracks and lose to TimesFM~2.5 on no network-track) is therefore met; we had given it even odds. The weights
-follow the confirmation test without being told it: the mean weight on Atlas is 0.86 in Delhi and 0.80 in Uttar Pradesh,
-but 0.46 in Maharashtra, 0.42 in Gujarat and 0.23 in Kerala. Atlas-F repairs Atlas's worst cells: Maharashtra's
-never-trained error falls from 24.92 to 22.16, and Kerala's trained-station error from 8.51 to 7.93.
+\paragraph{Main result.} Atlas-F beats both members on both tracks (Table~\ref{tab:fusion}) and has lower MAE than
+TimesFM~2.5 in all 28 network--track cells (Fig.~\ref{fig:fusion}; smallest margins Kerala \trk{s} 7.93 vs 7.96 and
+Maharashtra \trk{u} 22.16 vs 22.25), so the pre-registered dominance rule is met; we had given it even odds. It repairs
+Atlas's worst cells: Maharashtra \trk{u} falls from 24.92 to 22.16 and Kerala \trk{s} from 8.51 to 7.93. Atlas-F is also the best probabilistic forecast: its pinball loss and interval score are the lowest of the three on both tracks and its 80\% band covers 80.4\% and 80.3\% of observations (Table~\ref{tab:fusion}, bottom).
 
-\paragraph{A discarded run.} The first run of the scorer read Atlas-India forecasts made before a recorded input fix
-(unscaled pressure or temperature at never-trained stations of Gujarat, Kerala and Punjab), which put Atlas-India's
-never-trained error at 21.25 instead of 20.86. It was discarded; the scorer now re-forecasts with the fix and refuses
-older files, and the reported run reproduces the recorded Atlas-India numbers before scoring Atlas-F.
+\paragraph{The weights recover the confirmation test.} Nothing tells Atlas-F where Atlas is weak, yet the mean weight on
+Atlas is 0.86 in Delhi and 0.80 in Uttar Pradesh but 0.46 in Maharashtra, 0.42 in Gujarat and 0.23 in Kerala
+(Fig.~\ref{fig:weights}): the region-dependence found by the held-out-network test reappears as a learned quantity.
 
+\begin{table}[t]
+\caption{\textbf{Ablation of the weight rule} (post hoc; all-India test, everything else fixed). MAE \trk{s}\,/\,\trk{u};
+last column: Atlas-F's relative MAE difference against the variant, with Diebold--Mariano $p$ (negative = Atlas-F better;
+bold = significant). The oracle chooses weights on the test windows and is an upper bound, not a forecast.}
+\label{tab:abl}
+\centering\small
+\setlength{\tabcolsep}{3pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{llcc l}
+\toprule
+& Weight rule & \trk{s} MAE & \trk{u} MAE & Atlas-F vs variant (\trk{s}\,/\,\trk{u}) \\
+\midrule
+& \textbf{Atlas-F}: online, 30 days, per network and lead block & \textbf{20.750} & \textbf{20.436} & -- \\
+\midrule
+\multirow{3}{*}{\rotatebox{90}{\scriptsize static}} & equal weights, $w=0.5$ & 20.942 & 20.595 & $\mathbf{-0.92\%}$ ($p{=}8{\times}10^{-6}$)\,/\,$\mathbf{-0.77\%}$ ($p{=}2{\times}10^{-4}$) \\
+& one $w$ for all of India, from validation ($w{=}0.75$) & 20.775 & 20.525 & $-0.12\%$ ($p{=}0.12$)\,/\,$\mathbf{-0.43\%}$ ($p{=}5{\times}10^{-4}$) \\
+& per network and block, from validation & 20.753 & 20.436 & $-0.01\%$ ($p{=}0.85$)\,/\,$+0.00\%$ ($p{=}0.97$) \\
+\midrule
+\multirow{4}{*}{\rotatebox{90}{\scriptsize online}} & one block for all 24 lead hours & 20.747 & 20.435 & $+0.01\%$ ($p{=}0.54$)\,/\,$+0.00\%$ ($p{=}0.90$) \\
+& 7-day window & 20.831 & 20.475 & $\mathbf{-0.39\%}$ ($p{=}10^{-4}$)\,/\,$-0.19\%$ ($p{=}0.14$) \\
+& 14-day window & 20.782 & 20.431 & $\mathbf{-0.15\%}$ ($p{=}0.003$)\,/\,$+0.02\%$ ($p{=}0.70$) \\
+& 60-day window & 20.735 & 20.428 & $+0.07\%$ ($p{=}0.06$)\,/\,$+0.04\%$ ($p{=}0.33$) \\
+\midrule
+& oracle: per network and block, chosen on test & 20.708 & 20.393 & $\mathbf{+0.20\%}$ ($p{=}0.001$)\,/\,$\mathbf{+0.21\%}$ ($p{=}0.005$) \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/weights_lead.pdf}
+\caption{\textbf{(a)} Atlas-F's mean weight on Atlas per network against Atlas-India's MAE relative to TimesFM~2.5
+(trained stations): the weight falls where Atlas is weak. \textbf{(b, c)} MAE by lead hour relative to TimesFM~2.5.
+Atlas-India's advantage is zero (trained) or negative (never-trained) at 1\,h and grows to 4--8\% by 6\,h; Atlas-F is
+below both members at every lead on both tracks.}
+\label{fig:weights}
+\end{figure}
+
+\paragraph{Ablations (post hoc).} Table~\ref{tab:abl} replaces the weight rule while keeping everything else fixed.
+Three findings answer the forecast combination puzzle for this
+pair. (i) \emph{Learned weights matter}: equal weights, the usual hard-to-beat baseline~\citep{smith2009puzzle}, are
+significantly worse on both tracks, because the members are far from equally good in most networks. (ii) \emph{What
+matters is that weights differ by network}: a single all-India weight is worse on never-trained stations, while a
+static per-network rule fitted once on validation is statistically indistinguishable from Atlas-F; daily re-fitting
+and separate lead blocks add nothing measurable on this test period, and windows of 7 or 14 days are slightly worse
+than 30. The online rule's practical value is that it needs no validation period and adapts if a network changes;
+on this test period the weights were stable. (iii) \emph{The rule is near-optimal for its family}: weights chosen on the
+test windows themselves improve MAE by only 0.2\%.
+
+\paragraph{Lead time and seeds.} Atlas-India's advantage over TimesFM~2.5 is negligible at a 1-hour lead on trained
+stations and negative on never-trained ones ($+5.5\%$), and grows to 4--8\% from 6\,h onward (Fig.~\ref{fig:weights}b,c):
+the network's other stations and channels help most when persistence has decayed. Atlas-F has lower MAE than both members at every lead
+hour on both tracks (equal weights are marginally lower at the first hour only). Single Atlas-India seeds score 21.47, 21.29 and 21.35 (\trk{s}) and 21.32, 21.36 and 21.53
+(\trk{u}); seed-to-seed standard deviation is 0.09 and 0.12\,\pmu, an order of magnitude below the gaps in
+Table~\ref{tab:fusion}, and every single seed is below TimesFM~2.5 on both tracks. Ensembling the three seeds lowers MAE
+by about 2\%.
+
+\paragraph{A discarded run.} The first scoring run read Atlas-India forecasts made before a recorded loader fix
+(an unscaled weather input at never-trained stations of three networks), which put Atlas-India's \trk{u} error at 21.25
+instead of 20.86. It was discarded; the scorer now refuses such files, and the reported run reproduces the recorded
+Atlas-India numbers before scoring Atlas-F (Appendix~\ref{app:prereg}).
 
 % =================================================================================================================
 \section{Comparison with India's operational forecasts}
-\label{sec:india_ops}
+\label{sec:ops}
 
-\paragraph{What can be compared.} India's operational air-quality forecasts for Delhi are IITM's Air Quality Early
-Warning System, built on WRF-Chem at 400~m~\citep{jena2021delhi400m}, and IMD's SILAM. Their portals show current
-forecasts as maps and charts; neither publishes an archive of past station forecasts, so no paired significance test is
-possible. An independent evaluation by CEEW~\citep{ceew2025} scraped both systems' Day-1 forecasts and scored them on
-Delhi's spatially averaged hourly \pmtf{} for 1 October 2024 to 28 February 2025. We score Atlas on that quantity and
-window.
+\paragraph{What can be compared.} Neither IITM's WRF-Chem system nor IMD's SILAM publishes an archive of past station
+forecasts, so a paired test is impossible. CEEW~\citep{ceew2025} collected both systems' Day-1 forecasts and scored them
+on Delhi's spatially averaged hourly \pmtf{} for 1 October 2024 -- 28 February 2025. We score Atlas on that quantity and
+window, with a protocol fixed in advance (Appendix~\ref{app:prereg}): an Atlas pre-trained on the 13 other networks and
+trained on Delhi's history to 31 July 2024, validated on August--September 2024 (so it saw nothing after 30 September
+2024; Fig.~\ref{fig:i1design} in Appendix~\ref{app:i1}), forecasting at 00:00 IST for that day's 24 hours, with the Delhi
+average taken over the stations reporting each hour. Atlas is said to have lower error than a system only if both its
+MAE and RMSE are lower, and never to beat it significantly.
+
+\begin{table}[t]
+\caption{\textbf{Delhi, 1 October 2024 -- 28 February 2025}, hourly Delhi-average \pmtf{} (\pmu). Atlas and the
+persistence references are scored on our series (151 days, 3{,}624 hours; Atlas: three seeds, issued 00:00 IST, lead
+1--24\,h); WRF-Chem and SILAM are CEEW's published Day-1 values on their own observation set (3{,}512 hours). By
+number only.}
+\label{tab:i1}
+\centering\small
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{lcccccc}
+\toprule
+Forecast & RMSE & MAE & Bias & $r$ & MAPE\,\% & Obs.\ mean \\
+\midrule
+\textbf{Atlas} (sensors only) & \textbf{54.24} & \textbf{31.27} & $-8.66$ & \textbf{0.85} & \textbf{21} & 159 \\
+\quad 95\% bootstrap interval & \IoneRMSEci & \IoneMAEci & & & & \\
+Same hour yesterday & 76.67 & 48.38 & $+0.33$ & 0.71 & 33 & 159 \\
+Last value (23:00, held) & 83.32 & 56.27 & $+37.34$ & 0.74 & 50 & 159 \\
+\midrule
+IITM WRF-Chem 400\,m, Day 1 & 92.53 & 58.75 & $-25.21$ & 0.61 & 35 & 175 \\
+IMD SILAM, Day 1 & 107.95 & 71.68 & $-22.88$ & 0.47 & 45 & 177 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/i1_compare.pdf}
+\caption{\textbf{Next-day error on Delhi's average, winter 2024--25.} Atlas and the persistence references on our
+series; *WRF-Chem and SILAM as published by CEEW on their own observation set. By number only.}
+\label{fig:i1}
+\end{figure}
+
+\paragraph{Result.} Atlas's MAE and RMSE (31.27 and 54.24) are below both systems' published values
+(Table~\ref{tab:i1}, Fig.~\ref{fig:i1}), so by the rule fixed in advance it has lower error by number than both; all four
+parts of the advance prediction held (MAE in 25--40, RMSE in 35--60, below both systems, bias within $\pm15$). The margin is not a sampling accident: a day-block bootstrap over the 151 days gives 95\%
+intervals of 26.7--36.4 for Atlas's MAE and 42.6--66.5 for its RMSE, both entirely below the published values, and every
+single seed is also below both systems (MAE 34.85, 31.92, 31.58). On daily means Atlas's MAE is 24.2 and $r$ 0.90. On the
+identical series Atlas improves on same-hour-yesterday by 35\% in MAE (bootstrap interval of the difference $-21.3$ to
+$-13.1$\,\pmu). Its error grows with lead from 10\,\pmu{} at the first hour to 52 at the 24th, and is largest in the
+evening build-up of pollution (Appendix~\ref{app:i1}).
+
+\paragraph{What the comparison does and does not show.} Not predicted, and central to interpreting the result:
+same-hour-yesterday (MAE 48.38, RMSE 76.67) is \emph{also} below both published values. Next-day point error on measured
+station averages is where forecasts that read the stations are strongest, and where a CTM, which forecasts a city-wide
+field from emission inventories and weather and must get the absolute level right without seeing the stations, is
+weakest; both CTMs under-predict by 23--25\,\pmu, whereas Atlas's bias is $-8.7$. The observation sets also differ: our
+measured mean is 159\,\pmu{} against CEEW's 175--177; scaled by each set's mean, Atlas's MAE is 20\% of the mean against
+34\% (WRF-Chem) and 40\% (SILAM), so the ordering survives, but the size of the gap is uncertain. CEEW does not state the
+lead time of ``Day 1''; a longer lead would favour Atlas. The result therefore shows that a small station model gives a
+much better next-day point forecast of Delhi's measured average than the published operational skill; it does not show
+that it could replace CTMs, which also forecast unmonitored places, longer leads and source contributions.
+
+% =================================================================================================================
+\section{Discussion, limitations and conclusion}
+\label{sec:conclusion}
+
+\paragraph{What we learned.} A small in-domain model and a large general one fail in different places: Atlas where the
+station graph misleads it (never-trained stations of spread-out networks), TimesFM where the network's own regime
+carries information a univariate model cannot see (the Indo-Gangetic winter). A combination that tracks their recent
+record gets the better of each in every network, and its weights are themselves a diagnostic of where the small model
+can be trusted. The confirmation test was essential: without it the original result~\citep{atlas1} would have generalised a
+regional effect to the whole country.
+
+\paragraph{Limitations.} (i) Everything is \pmtf{} at Indian stations, 24\,h ahead. (ii) The all-India test period has
+now been scored three times; Atlas-F's free choices were fixed before its run and the ablations are post hoc, but a fresh
+test season would make the claim cleaner. (iii) Atlas-F needs a 200M-parameter member, so it is not a small model; its
+value is that the small model makes the large one better. (iv) The operational comparison is by number, on a different
+observation set and possibly a different lead time, and cannot be paired until forecasts are archived. (v) The
+station-graph failure is repaired by fusion, not yet inside Atlas.
+
+\paragraph{Pre-registered work in progress.} Two experiments are committed with their rules but not yet scored:
+architecture changes aimed at the failure mode (attention restricted to graph neighbours, a learned per-station gate, and
+both; adopted only if validation MAE falls by at least 1\%), and a transfer threshold study that varies the months of
+target-network data from 0 to all to measure how much data pre-training substitutes for~\citep{hernandez2021scaling}.
+
+\paragraph{Broader impact.} Better short-range forecasts can improve warnings and exposure reduction in one of the most
+polluted regions of the world. The risks are over-reliance on a station model where stations are sparse, and
+misreading a by-number comparison as evidence that operational CTMs are unnecessary; we have tried to state both limits
+plainly. All data are public; no personal data is used.
+
+\paragraph{Conclusion.} The claim of~\citet{atlas1} survived its confirmation test only in the Indo-Gangetic plain. The test
+located the failure, and an online combination with a foundation model repairs it: Atlas-F beats both Atlas and
+TimesFM~2.5 across India and TimesFM~2.5 in every network. Against India's operational forecasts, an Atlas trained before
+the window has lower next-day error on Delhi's measured average by a wide margin, with the comparison's limits, above all
+that persistence also passes it, stated beside the result. A paired comparison now depends on the operational forecasts
+being archived.
+
+\ifpreprint
+\paragraph{Code and data.} Code, every rule and prediction in the order written, and the notebooks that produced every
+number: \url{https://github.com/paradoxailab/paradox-world-model} (branch \texttt{atlas-v0.1}). No data, weights or
+keys are stored in it; all data are public.
+\else
+\paragraph{Code and data.} Code, the time-stamped rules and the notebooks are in a public repository whose link is
+withheld for review.
+\fi
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\appendix
+% =================================================================================================================
+\section{Data and networks}
+\label{app:data}
+
+\begin{table}[h]
+\caption{\textbf{The 14 networks of the all-India league} (stations reporting \pmtf{} on $\ge$50\% of test hours and
+$\ge$12.5\% of training hours). A seeded fifth of each network is never trained on (Track \trk{u}).}
+\label{tab:nets}
+\centering\small
+\begin{tabular}{lr@{\hspace{18pt}}lr@{\hspace{18pt}}lr}
+\toprule
+Network & Stations & Network & Stations & Network & Stations \\
+\midrule
+Uttar Pradesh & 40 & Other states & 22 & Gujarat & 9 \\
+Delhi & 37 & Madhya Pradesh & 14 & Tamil Nadu & 9 \\
+Haryana & 30 & West Bengal & 14 & Punjab & 8 \\
+Maharashtra & 27 & Bihar & 12 & Kerala & 7 \\
+Karnataka & 24 & Rajasthan & 10 & \textbf{Total} & \textbf{263} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Atlas: parameters and training}
+\label{app:atlas}
+
+\begin{table}[h]
+\caption{\textbf{Where Atlas's parameters sit} (counted from the code; totals match the trained checkpoints).}
+\label{tab:params}
+\centering\small
+\begin{tabular}{llrr}
+\toprule
+Part & Role & Parameters & Share \\
+\midrule
+Input projection & 2{,}526 inputs per station $\to$ 144 & 363{,}888 & 37.6\% \\
+Encoder & 2 residual blocks (LN, 144$\to$288$\to$144) & 167{,}328 & 17.3\% \\
+Transition & 2 shared residual blocks, run 6 times & 167{,}328 & 17.3\% \\
+Reconstruction head & hidden-cell reconstruction (training only) & 156{,}600 & 16.2\% \\
+Station attention & 4 heads, learned graph bias, shared across steps & 83{,}940 & 8.7\% \\
+Decoder & 3 quantiles $\times$ 15 channels $\times$ 4\,h & 26{,}100 & 2.7\% \\
+Forcing embedding & hour and weekday of the next 4\,h & 2{,}448 & 0.3\% \\
+\midrule
+Total & & 967{,}632 & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Training.} AdamW~\citep{loshchilov2019adamw}; pinball loss with weight 1.0 on \pmtf{}, 0.1 on the other
+pollutant targets and 0.05 on weather, plus 0.2 times the reconstruction loss of 0--40\% randomly hidden input cells.
+Atlas-India: 60{,}000 steps, each drawing a network in proportion to its valid training windows and 16 windows from
+it; early stopping on pooled validation MAE; seeds 400--402, about 31 minutes each on one T4 GPU. TimesFM~2.5 is run
+zero-shot with 512 hours of context on a T4 GPU. Atlas-F's weight selection and all scoring run on CPU in minutes.
+
+\section{Pre-registration record}
+\label{app:prereg}
+
+All rules are in the repository's \texttt{atlas/README.md}, committed before the runs they govern; the commit history
+gives their order.
+\begin{enumerate}
+\item \textbf{Leave-one-network-out (L1).} Rule: beat TimesFM~2.5 on at least three of four held-out networks and lose
+  on none. Prediction: wins in Uttar Pradesh and Haryana, level elsewhere. Outcome: one win, one level, two losses;
+  rule failed.
+\item \textbf{Atlas-F (F).} Weight grid, 30-day window, lead blocks, trained-station fitting and the dominance rule fixed
+  before the run. Prediction: beats both members by 1--3\% against the better one; dominance 50/50. Outcome: $-1.16\%$
+  and $-2.05\%$; dominance met. A first run that read pre-fix Atlas-India forecasts was discarded and is recorded.
+\item \textbf{Operational comparison (I1).} Training cut-off, issue time, Delhi-average definition, metrics and the
+  by-number rule fixed before training. Prediction: MAE 25--40, RMSE 35--60, both below WRF-Chem and SILAM, bias within
+  $\pm15$. Outcome: all four held.
+\item \textbf{Post hoc} (labelled in the text): the combination ablations, window sensitivity, lead-time curves,
+  probabilistic scores and seed spread of \S\ref{sec:fusion}, and the bootstrap intervals, per-seed, daily-mean and
+  by-hour results of \S\ref{sec:ops}. None changes a verdict.
+\end{enumerate}
+
+\section{Operational comparison: design and further results}
+\label{app:i1}
+
+\begin{figure}[h]
 \centering
 \resizebox{\linewidth}{!}{%
 \begin{tikzpicture}[font=\footnotesize, x=1.75cm, y=0.6cm]
@@ -351,117 +657,102 @@ to December 2023 in the public record), validated on August--September 2024, and
 \label{fig:i1design}
 \end{figure}
 
-\paragraph{Protocol.} The Atlas here is trained by the v1.3 recipe on nothing after 30 September 2024
-(Fig.~\ref{fig:i1design}): pre-trained on the 13 other networks (the v1.3 checkpoints, seeds 320--322), then trained on
-Delhi's history to 31 July 2024 and validated on August--September 2024, with the final stage chosen on validation.
-Forecasts are issued at 00:00 IST every day for that day's 24 hours. The Delhi average at each hour is the mean over the
-stations that reported \pmtf{} in that hour, for forecast and measurement alike; RMSE, MAE, mean bias, Pearson $r$ and
-MAPE are computed on the hourly series, as in~\citep{ceew2025}. The rule fixed in advance: Atlas is said to have lower
-error than a system only if both its MAE and RMSE are lower, and never to have beaten it significantly.
 
-\begin{table}[t]
-\caption{\textbf{Delhi, 1 October 2024 -- 28 February 2025}, spatially averaged hourly \pmtf{} (\pmu). Operational
-systems: Day-1 forecasts as evaluated by CEEW~\citep{ceew2025}. Atlas: trained on nothing after 30 September 2024,
-issued 00:00 IST, lead 1--24 h, three seeds, stage C chosen on validation; 151 days, 3{,}624 hours (CEEW: 3{,}512 stated). The two reference forecasts are computed on Atlas's series. Kaggle run atlas-i1-score. By number only.}
-\label{tab:i1}
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figures/i1_byhour.pdf}
+\caption{\textbf{Delhi, winter 2024--25: MAE by hour of day.} Atlas is issued at 00:00 IST, so the hour of day is the
+lead minus one. Shaded: the measured Delhi mean (right axis). Atlas's error rises with lead and with the evening
+build-up of pollution; same-hour-yesterday is worst at night, when concentrations peak.}
+\label{fig:i1hour}
+\end{figure}
+
+\begin{table}[h]
+\caption{\textbf{Delhi comparison: robustness} (post hoc). Each seed alone and daily means (days with $\ge$18 hours).}
+\label{tab:i1extra}
 \centering\small
-\setlength{\tabcolsep}{4pt}\begin{tabular}{lcccccc}
+\begin{tabular}{lcccc}
 \toprule
-Forecast & RMSE & MAE & Bias & $r$ & MAPE \% & Meas.\ mean \\
+Forecast & RMSE & MAE & Bias & $r$ \\
 \midrule
-\textbf{Atlas} (0.97M, sensors only) & \IoneRMSE & \IoneMAE & \IoneMBE & \IoneR & \IoneMAPE & \IoneObs \\
-Same hour yesterday & 76.67 & 48.38 & $+0.33$ & 0.71 & 33 & 159 \\
-Last observed value (23:00, held) & 83.32 & 56.27 & $+37.34$ & 0.74 & 50 & 159 \\
+Atlas, seed 320 alone & 60.26 & 34.85 & $-21.83$ & 0.836 \\
+Atlas, seed 321 alone & 53.90 & 31.92 & $-0.34$ & 0.843 \\
+Atlas, seed 322 alone & 53.96 & 31.58 & $-3.82$ & 0.844 \\
+Atlas, three seeds (reported) & 54.24 & 31.27 & $-8.66$ & 0.85 \\
 \midrule
-IITM WRF-Chem 400 m (AQEWS), Day 1 & 92.53 & 58.75 & $-25.21$ & 0.61 & 35 & 175 \\
-IMD SILAM, Day 1 & 107.95 & 71.68 & $-22.88$ & 0.47 & 45 & 177 \\
+Atlas, daily mean (151 days) & 39.18 & 24.21 & $-8.66$ & 0.897 \\
+Same hour yesterday, daily mean & 52.55 & 35.48 & $+0.33$ & 0.812 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
+The stage used (C, the short final adaptation on the most recent months) was chosen on validation (mean validation MAE
+13.289 against 13.347 for stage B). Winter 2023--24, the other season in~\citep{ceew2025}, cannot be scored: Delhi's
+public record has a gap from April to December 2023.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{figures/i1_compare.pdf}
-\caption{\textbf{Delhi, winter 2024--25: next-day error of Atlas against India's operational forecasts.} Delhi's
-average hourly \pmtf{}, 1 October 2024 -- 28 February 2025. Atlas and the two persistence forecasts: our series
-(3{,}624 hours, measured mean 159\,\pmu{}). *WRF-Chem and SILAM: values published by CEEW~\citep{ceew2025} on their
-own observation set (3{,}512 hours, mean 175--177). By number only; no paired test is possible.}
-\label{fig:i1}
-\end{figure}
+\section{Per-network results}
+\label{app:nets}
 
-\paragraph{Result.} Atlas's error on Delhi's winter 2024--25 average is RMSE 54.24 and MAE 31.27\,\pmu{}, with a mean
-bias of $-8.66$ and correlation 0.85 (Table~\ref{tab:i1}, Fig.~\ref{fig:i1}). Both its MAE and RMSE are below the published Day-1 values of
-WRF-Chem (58.75, 92.53) and SILAM (71.68, 107.95), so by the rule fixed in advance Atlas has lower error \emph{by
-number} than both. Every part of the advance prediction held: MAE in 25--40, RMSE in 35--60, both below the two systems,
-and bias within $\pm15$. On the identical series, Atlas improves on same-hour-yesterday by 35\% (MAE) and 29\% (RMSE);
-this is the like-for-like part of the result. Its bias is a third of the operational systems' (both under-predict by
-about 23--25\,\pmu{}).
+\begin{table}[h]
+\caption{\textbf{MAE per network} (\pmu), trained\,/\,never-trained stations, all-India test.}
+\label{tab:pernet}
+\centering\small
+\begin{tabular}{lccc}
+\toprule
+Network & Atlas-India & TimesFM 2.5 & Atlas-F \\
+\midrule
+Uttar Pradesh & 20.89\,/\,22.46 & 22.78\,/\,24.32 & \textbf{20.80}\,/\,\textbf{22.34} \\
+Delhi & 37.34\,/\,35.56 & 41.87\,/\,40.54 & \textbf{37.27}\,/\,\textbf{35.56} \\
+Haryana & 24.32\,/\,22.31 & 25.72\,/\,23.20 & \textbf{24.12}\,/\,\textbf{22.09} \\
+Maharashtra & 19.68\,/\,24.92 & 19.45\,/\,22.25 & \textbf{18.96}\,/\,\textbf{22.16} \\
+Karnataka & 8.87\,/\,9.20 & 8.98\,/\,9.43 & \textbf{8.64}\,/\,\textbf{9.00} \\
+Other states & 15.12\,/\,9.12 & 15.19\,/\,9.40 & \textbf{14.71}\,/\,\textbf{9.00} \\
+Madhya Pradesh & 16.23\,/\,13.86 & 17.07\,/\,13.88 & \textbf{16.04}\,/\,\textbf{13.42} \\
+West Bengal & 14.65\,/\,14.81 & 15.79\,/\,15.69 & \textbf{14.59}\,/\,\textbf{14.69} \\
+Bihar & 27.74\,/\,25.05 & 29.35\,/\,26.10 & \textbf{27.47}\,/\,\textbf{24.70} \\
+Rajasthan & 19.07\,/\,15.33 & 19.67\,/\,15.87 & \textbf{18.86}\,/\,\textbf{15.09} \\
+Gujarat & 18.47\,/\,18.41 & 18.20\,/\,19.49 & \textbf{17.86}\,/\,\textbf{18.25} \\
+Tamil Nadu & 12.64\,/\,16.39 & 13.39\,/\,16.73 & \textbf{12.56}\,/\,\textbf{16.04} \\
+Punjab & 17.31\,/\,28.08 & 18.20\,/\,28.09 & \textbf{17.16}\,/\,\textbf{27.64} \\
+Kerala & 8.51\,/\,12.32 & 7.96\,/\,12.36 & \textbf{7.93}\,/\,\textbf{12.02} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\paragraph{What the persistence rows show.} Not predicted, and important: even same-hour-yesterday (MAE 48.38, RMSE
-76.67) is below both published values. Point error at 1--24\,h on measured station averages is where station-trained
-forecasts are strongest and where a chemistry-transport model, which forecasts a city-wide field from emissions and
-weather, is weakest; CEEW's ``Day 1'' may also be a longer lead. The observation sets also differ: our measured mean is
-159\,\pmu{} against CEEW's 175--177. Scaled by each set's mean, Atlas's MAE is 20\% of the mean against WRF-Chem's 34\% and
-SILAM's 40\%, so the ordering holds, but the size of the gap is uncertain. The result says Atlas is a much better next-day
-point forecast of Delhi's measured average; it does not say Atlas could replace those systems.
+\newpage
+\section*{NeurIPS Paper Checklist}
 
-\paragraph{Limits of this comparison.} (i) No paired test: the operational forecasts are not archived. (ii) CEEW does
-not state its station set; our measured mean is shown beside theirs as a check. (iii) CEEW does not state the lead time
-of ``Day 1''; if it is longer than Atlas's 1--24 hours, the comparison favours Atlas. (iv) The operational systems
-forecast a city-wide field from emissions and meteorology and serve other purposes (attribution, emergency planning)
-that a station model does not. (v) Winter 2023--24, CEEW's other season, cannot be scored: Delhi's public record has a
-gap from April to December 2023.
+\newcommand{\ans}[2]{\textbf{Answer:} \textsc{#1}\quad \textbf{Justification:} #2\par\smallskip}
+\begin{enumerate}[leftmargin=1.4em,itemsep=2pt]
+\item \textbf{Claims.} Do the main claims in the abstract and introduction accurately reflect the paper's contributions
+  and scope? \ans{Yes}{Each claim is tied to a table or figure; the failed confirmation test and the by-number nature of
+  the operational comparison are stated in the abstract.}
+\item \textbf{Limitations.} \ans{Yes}{\S\ref{sec:conclusion} (Limitations) and \S\ref{sec:ops} (what the comparison
+  does and does not show).}
+\item \textbf{Theory assumptions and proofs.} \ans{N/A}{No theoretical results.}
+\item \textbf{Experimental result reproducibility.} \ans{Yes}{\S\ref{sec:setup}, \S\ref{sec:method} and
+  Appendix~\ref{app:atlas} give data rules, model, training and scoring; the repository holds the code and the notebook
+  that produced every number.}
+\item \textbf{Open access to data and code.} \ans{Yes}{All data are public (CPCB exports); code and rules are in a
+  public repository (link withheld for review).}
+\item \textbf{Experimental setting/details.} \ans{Yes}{Splits, tracks, calibration, weight rule and hyperparameters
+  are in \S\ref{sec:setup}--\ref{sec:method} and Appendix~\ref{app:atlas}.}
+\item \textbf{Experiment statistical significance.} \ans{Yes}{Every comparison uses a Diebold--Mariano test with a
+  day-block bootstrap on both tracks; the operational comparison reports bootstrap intervals for Atlas; seed spread is
+  reported.}
+\item \textbf{Experiments compute resources.} \ans{Yes}{Appendix~\ref{app:atlas}: single T4 GPU for training and
+  TimesFM, CPU for fusion and scoring.}
+\item \textbf{Code of ethics.} \ans{Yes}{Public environmental data only; no human subjects.}
+\item \textbf{Broader impacts.} \ans{Yes}{\S\ref{sec:conclusion} (Broader impact).}
+\item \textbf{Safeguards.} \ans{N/A}{No high-risk models or data are released.}
+\item \textbf{Licenses for existing assets.} \ans{Yes}{TimesFM~2.5 is Apache-2.0; the CPCB data are public; the
+  operational skill numbers are cited from their published source~\citep{ceew2025}.}
+\item \textbf{New assets.} \ans{Yes}{Code and rules are documented in the repository; no new dataset is released.}
+\item \textbf{Crowdsourcing and research with human subjects.} \ans{N/A}{None.}
+\item \textbf{IRB approvals.} \ans{N/A}{None required.}
+\item \textbf{Declaration of LLM usage.} \ans{Yes}{An LLM assistant was used for code, analysis scripts and drafting
+  under the authors' direction; every number was produced by the released code and checked against its run log.}
+\end{enumerate}
 
-% =================================================================================================================
-\section{Experiments under way}
-\label{sec:ongoing}
-
-Both were pre-registered before their runs; no result is reported here.
-
-\paragraph{Fixing the failure inside Atlas (v1.4).} Three candidates differ from Atlas-India in one respect each:
-\emph{neighbour attention} (each station attends only to itself and its graph neighbours; 967,632 parameters), a
-\emph{station gate} (a learned per-station gate on the attention update; 988,512), and both. The candidate with the
-lowest validation MAE is adopted only if it is at least 1\% below Atlas-India's, and then tested once against
-Atlas-India and TimesFM~2.5; it improves on v1.3 if it wins on at least one track and loses on neither.
-
-\paragraph{The transfer threshold function.} On the four leave-one-out networks Atlas gets only the most recent
-$B\in\{0,\tfrac12,1,2,4,8,16,\text{all}\}$ months of the target's data, trained from scratch or from the 13-network
-checkpoint. We fit the scratch law $r=c_X+a\,n^{-\alpha}$ (relative error against TimesFM~2.5, $n$ local windows) and
-the data transferred by pre-training, $D_T(n)=n_{\mathrm{eq}}-n$~\citep{hernandez2021scaling}. The rule: pre-training
-lowers the data threshold if it reaches TimesFM~2.5's level with fewer months than scratch on at least three of four
-networks.
-
-% =================================================================================================================
-\section{Limitations and conclusion}
-\label{sec:conclusion}
-
-\paragraph{Limitations.} Everything here is \pmtf{} at Indian stations, 24 hours ahead. The all-India test period has
-now been used three times; Atlas-F's free choices were fixed before its run, but a fresh test period would make the
-claim cleaner. Atlas-F depends on a 200M-parameter member, so it is not a small model; its value is that a small,
-domain-trained model and a general one, weighed by their recent record, beat both. The comparison with India's
-operational forecasts is by number, on a different station set and possibly a different lead time. The station-graph
-failure is repaired by fusion, not yet inside Atlas.
-
-\paragraph{Conclusion.} The first paper's claim survived its confirmation test only in the Indo-Gangetic plain. The test
-located the failure (never-trained stations in spread-out networks), and a fused system whose weights are learned from
-the trailing month repairs it: Atlas-F beats both Atlas and TimesFM~2.5 across India and TimesFM~2.5 in every network.
-Set against India's operational forecasts on the quantity an independent evaluation used, an Atlas trained
-on nothing after September 2024 has lower next-day error than IITM's WRF-Chem and IMD's SILAM by number (MAE 31.3 against
-58.8 and 71.7\,\pmu{}), with the comparison's limits, above all that persistence is also below their published errors,
-stated beside it. The priority now is a fix inside Atlas for spread-out networks (\S\ref{sec:ongoing}) and a paired
-comparison, which needs the operational forecasts to be archived.
-
-\ifpreprint
-\paragraph{Code and data.} Code, every rule and prediction in the order written, and the notebooks that produced every
-number: \url{https://github.com/paradoxailab/paradox-world-model} (branch \texttt{atlas-v0.1}). No data, weights or
-keys are stored; all data are public.
-\else
-\paragraph{Code and data.} Code, the time-stamped rules and the notebooks are in a public repository whose link is
-withheld for review.
-\fi
-
-\bibliographystyle{plainnat}
-\bibliography{refs}
 
 \end{document}

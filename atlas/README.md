@@ -1904,6 +1904,34 @@ stations reporting PM2.5 each hour, 1 October 2024 00:00 – 28 February 2025 23
 (right), mean bias within ±15 (−8.66, right). Not predicted: that same-hour-yesterday would also be below both published
 values.
 
+### Post-hoc analyses for paper 2 (Kaggle run atlas-analysis, version 1, 2026-11-15, CPU; not pre-registered)
+
+These analyses were written after the F and I1 results and change no verdict. The run first reproduces Atlas-F
+exactly (20.750 / 20.436; weights identical to atlas-fusion-f).
+
+*Weight rule ablation (all-India test, PM2.5 MAE trained / never-trained; Atlas-F's relative difference, DM p):*
+equal weights 20.942 / 20.595 (Atlas-F −0.92%, p = 8e-6 / −0.77%, p = 2e-4: **Atlas-F better**); one weight for
+all of India from validation (w = 0.75) 20.775 / 20.525 (−0.12%, p = 0.12 / −0.43%, p = 5e-4); per network and block
+from validation 20.753 / 20.436 (level, p = 0.85 / 0.97); online with one block 20.747 / 20.435 (level); online 7 days
+20.831 / 20.475 (Atlas-F better on trained, p = 1e-4); 14 days 20.782 / 20.431; 60 days 20.735 / 20.428 (level);
+oracle weights chosen on the test windows 20.708 / 20.393 (Atlas-F +0.20% / +0.21% worse). **Reading:** learned
+weights beat equal weights; what matters is that the weights differ by network; a static per-network rule from
+validation is equivalent on this test period; Atlas-F is within 0.2% of the oracle.
+
+*Probabilistic (QL / IS80 / COV80, trained; never-trained):* Atlas-India 6.91 / 102.4 / 78.8%; 6.86 / 101.5 / 78.2%.
+TimesFM 2.5 7.37 / 109.3 / 79.8%; 7.21 / 106.6 / 79.8%. Atlas-F 6.82 / 100.8 / 80.4%; 6.70 / 98.7 / 80.3%.
+
+*Lead time:* Atlas-India vs TimesFM 2.5 at 1 h: +0.1% trained, +5.5% never-trained; from 6 h on −4% to −8%. Atlas-F
+is below both members at every lead on both tracks (equal weights are marginally lower at 1 h only).
+
+*Seeds:* single Atlas-India seeds 21.47 / 21.29 / 21.35 (trained), 21.32 / 21.36 / 21.53 (never trained); SD 0.09 /
+0.12; every seed below TimesFM 2.5 on both tracks.
+
+*I1 additions:* day-block bootstrap (5,000 resamples over 151 days): Atlas MAE 95% CI 26.72–36.44, RMSE 42.56–66.46;
+MAE minus same-hour-yesterday −21.30 to −13.06. Seeds alone: 320 RMSE 60.26 / MAE 34.85 / bias −21.83; 321 53.90 /
+31.92 / −0.34; 322 53.96 / 31.58 / −3.82. Daily means: Atlas RMSE 39.18, MAE 24.21, r 0.897; same-hour-yesterday 52.55,
+35.48, 0.812. MAE by hour of day rises from 10.1 (00 IST, lead 1) to 52.0 (23 IST, lead 24).
+
 ## What has not been done (as of 2026-11-13)
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

@@ -106,11 +106,59 @@ def main(a):
     json.dump(res, open(os.path.join(OUT, "i1_results.json"), "w"), indent=1, default=float)
     open(os.path.join(OUT, "I1_REPORT.md"), "w").write("\n".join(o) + "\n")
     log("\n".join(o))
+    if a.extra:
+        extra(D, Z, st, mid, org, fo, y, obs, ym, pm, pd, res)
+
+
+def extra(D, Z, st, mid, org, fo, y, obs, ym, pm, pd, res):
+    """Post-hoc additions for the paper (not pre-registered; no verdict changes): a day-block bootstrap interval for
+    Atlas's MAE and RMSE and for its difference from same-hour-yesterday, each seed alone, metrics on the daily mean,
+    and MAE by hour of day (= lead hour, since forecasts are issued at 00:00 IST)."""
+    rng = np.random.default_rng(0)
+    nd = len(org)
+    def boot(f, reps=5000):
+        v = np.array([f(rng.integers(0, nd, nd)) for _ in range(reps)])
+        return [float(np.nanpercentile(v, 2.5)), float(np.nanpercentile(v, 97.5))]
+    e = pm - ym
+    ep = pd - ym
+    ok = np.isfinite(e)
+    mae_d = lambda E_, i: np.nanmean(np.abs(E_[i]))
+    rmse_d = lambda E_, i: np.sqrt(np.nanmean(E_[i] ** 2))
+    x = {"MAE_ci95": boot(lambda i: mae_d(e, i)), "RMSE_ci95": boot(lambda i: rmse_d(e, i)),
+         "MAE_minus_yesterday_ci95": boot(lambda i: mae_d(e, i) - mae_d(ep, i))}
+    log(f"I1-EXTRA bootstrap (days, 5000): Atlas MAE 95% CI {x['MAE_ci95'][0]:.2f}..{x['MAE_ci95'][1]:.2f}, RMSE "
+        f"{x['RMSE_ci95'][0]:.2f}..{x['RMSE_ci95'][1]:.2f}; MAE minus same-hour-yesterday "
+        f"{x['MAE_minus_yesterday_ci95'][0]:.2f}..{x['MAE_minus_yesterday_ci95'][1]:.2f}")
+    per = []
+    for z in Z:
+        m = json.loads(str(z["meta"]))
+        p1 = z[f"{st}_t"][..., 1][mid]
+        with np.errstate(all="ignore"):
+            pm1 = np.where(obs.any(1), np.nansum(np.where(obs, p1, 0), 1) / obs.sum(1), np.nan)
+        r = metrics(pm1.reshape(-1), ym.reshape(-1))
+        per.append(dict(seed=m["seed"], **r))
+        log(f"I1-EXTRA seed {m['seed']} alone: RMSE {r['RMSE']:.2f}, MAE {r['MAE']:.2f}, MBE {r['MBE']:+.2f}, r {r['R']:.3f}")
+    x["per_seed"] = per
+    dm = lambda arr: np.where(np.isfinite(arr).sum(1) >= 18, np.nanmean(arr, 1), np.nan)     # daily mean, >= 18 of 24 hours
+    for k, arr in (("Atlas", pm), ("Same hour yesterday", pd)):
+        r = metrics(dm(np.where(np.isfinite(ym), arr, np.nan)), dm(ym))
+        x[f"daily_{k}"] = r
+        log(f"I1-EXTRA daily mean ({r['hours']} days) {k}: RMSE {r['RMSE']:.2f}, MAE {r['MAE']:.2f}, MBE {r['MBE']:+.2f}, r {r['R']:.3f}")
+    x["MAE_by_hour"] = [float(np.nanmean(np.abs(e[:, h]))) for h in range(e.shape[1])]
+    x["MAE_by_hour_yesterday"] = [float(np.nanmean(np.abs(ep[:, h]))) for h in range(ep.shape[1])]
+    log("I1-EXTRA MAE by hour (00-23 IST) Atlas: " + " ".join(f"{v:.1f}" for v in x["MAE_by_hour"]))
+    log("I1-EXTRA MAE by hour (00-23 IST) yesterday: " + " ".join(f"{v:.1f}" for v in x["MAE_by_hour_yesterday"]))
+    x["obs_by_hour"] = [float(np.nanmean(ym[:, h])) for h in range(ym.shape[1])]
+    log("I1-EXTRA measured mean by hour: " + " ".join(f"{v:.0f}" for v in x["obs_by_hour"]))
+    res["extra"] = x
+    json.dump(res, open(os.path.join(OUT, "i1_results.json"), "w"), indent=1, default=float)
+    log("I1-EXTRA-DONE")
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--tag", default="i1")
     ap.add_argument("--first", default="2018-01-01")
+    ap.add_argument("--extra", action="store_true", help="post-hoc additions for the paper (bootstrap, seeds, daily, by hour)")
     a = ap.parse_args()
     main(a)

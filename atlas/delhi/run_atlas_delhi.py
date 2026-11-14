@@ -114,6 +114,10 @@ def build(D, size, sysid):
               lo=[0.0] * D.K + [float("-inf")] * D.Ca, sysid=bool(sysid), K=2, lags=3, id_ch=1, fill="interp")
     if os.environ.get("ATLAS_PHYS") == "1":               # Atlas-P (ICML programme): the physics decoder
         kw["phys_dec"] = True
+    if os.environ.get("ATLAS_NBR") == "1":                # v1.4 candidates (README): attention to graph neighbours only
+        kw["nbr_mask"] = True
+    if os.environ.get("ATLAS_GATE") == "1":               # v1.4 candidates: per-station gate on the attention update
+        kw["sp_gate"] = True
     return sized(int(size), **kw).to(DEV)
 
 

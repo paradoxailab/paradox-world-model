@@ -71,6 +71,14 @@ class Delhi:
         keep = np.where((cov_tr >= (min_cov * 0.5 if min_cov_train is None else min_cov_train)) & (cov_te >= min_cov))[0]   # rule fixed in advance
         self.stations = [str(s) for s in z["stations"][keep]]
         X = X[:, keep]
+        sp = os.environ.get("PW_SPLIT", "")
+        if sp:                                                              # I1 (README, v1.4 programme): earlier dates
+            v0, t0, t1 = (int((np.datetime64(d).astype("datetime64[h]") - self.start.astype("datetime64[h]")).astype(int))
+                          for d in sp.split(","))                          # validation start, test start, test end (excl.)
+            assert 0 < v0 < t0 < t1 <= T, f"PW_SPLIT {sp} outside the data"
+            X, T = X[:t1], t1                                              # nothing after the test period is kept
+            self.bounds = {"train": (0, v0), "val": (v0, t0), "test": (t0, t1)}
+            b = v0
         self.avail_from = avail_from
         if avail_from is not None:                                          # T1: nothing measured before avail_from
             X = X.copy(); X[:avail_from] = np.nan

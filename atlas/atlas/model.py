@@ -32,26 +32,44 @@ class Block(nn.Module):
 
 
 class GeoAttention(nn.Module):
-    """Attention between nodes; an MLP of the pair geometry adds a bias per head (who can influence whom)."""
+    """Attention between nodes; an MLP of the pair geometry adds a bias per head (who can influence whom).
 
-    def __init__(self, d, heads, geo_dim):
+    v1.4 options (README, "Atlas v1.4"), both off by default so earlier checkpoints load unchanged:
+      nbr_mask  a node attends only to itself and its graph neighbours (geo[..., 1] self, geo[..., 2] edge); in v1.3
+                every node attends to every node of the network and only the bias separates neighbours from the rest;
+      gate      the attention update is scaled per node and channel by sigmoid(W LN(z) + b), b starting at 2, so each
+                station can learn how much of its neighbours' signal to take."""
+
+    def __init__(self, d, heads, geo_dim, nbr_mask=False, gate=False):
         super().__init__()
         self.h = heads
         self.n = nn.LayerNorm(d); self.qkv = nn.Linear(d, 3 * d); self.o = nn.Linear(d, d)
         self.geo = nn.Sequential(nn.Linear(geo_dim, 16), nn.GELU(), nn.Linear(16, heads))
+        self.nbr_mask = nbr_mask
+        self.g = None
+        if gate:
+            self.g = nn.Linear(d, d)
+            nn.init.zeros_(self.g.weight); nn.init.constant_(self.g.bias, 2.0)
 
     def forward(self, z, geo):
         B, N, d = z.shape
-        q, k, v = self.qkv(self.n(z)).reshape(B, N, 3, self.h, d // self.h).permute(2, 0, 3, 1, 4)
+        zn = self.n(z)
+        q, k, v = self.qkv(zn).reshape(B, N, 3, self.h, d // self.h).permute(2, 0, 3, 1, 4)
         bias = self.geo(geo).permute(2, 0, 1)[None]                      # [1, h, N, N]
+        if self.nbr_mask:
+            keep = (geo[..., 1] + geo[..., 2]) > 0                       # [N, N]: self or graph neighbour
+            bias = bias.masked_fill(~keep[None, None], float("-inf"))
         y = F.scaled_dot_product_attention(q, k, v, attn_mask=bias)
-        return z + self.o(y.transpose(1, 2).reshape(B, N, d))
+        u = self.o(y.transpose(1, 2).reshape(B, N, d))
+        if self.g is not None:
+            u = torch.sigmoid(self.g(zn)) * u
+        return z + u
 
 
 class Atlas(nn.Module):
     def __init__(self, d=64, L=16, H=16, C=1, U=1, enc_depth=2, dyn_depth=2, lat_steps=4, heads=4,
                  spatial=False, geo_dim=3, lo=None, hi=None, conserve=False, dt=1.0, sysid=False, K=1, lags=2, gate=False, fill="rec",
-                 static=0, id_ch=None, phys_dec=False):
+                 static=0, id_ch=None, phys_dec=False, nbr_mask=False, sp_gate=False):
         super().__init__()
         assert H % lat_steps == 0
         self.cfg = dict(d=d, L=L, H=H, C=C, U=U, enc_depth=enc_depth, dyn_depth=dyn_depth, lat_steps=lat_steps,
@@ -59,6 +77,10 @@ class Atlas(nn.Module):
                         sysid=sysid, K=K, lags=lags, gate=gate, fill=fill, static=static, id_ch=id_ch)
         if phys_dec:                                          # Atlas-P (README, ICML programme): only added when on,
             self.cfg["phys_dec"] = True                       # so earlier checkpoints keep their exact cfg
+        if nbr_mask:                                          # v1.4 options, same convention
+            self.cfg["nbr_mask"] = True
+        if sp_gate:
+            self.cfg["sp_gate"] = True
         self.L, self.H, self.C, self.U, self.S, self.k = L, H, C, U, lat_steps, H // lat_steps
         self.lo, self.hi, self.conserve, self.dt = lo, hi, conserve, dt
         if isinstance(lo, (list, tuple)):                     # one lower bound per variable (-inf = none)
@@ -66,7 +88,7 @@ class Atlas(nn.Module):
         self.inp = nn.Linear(L * (2 * C + U) + static, d)     # static: extra per-node inputs (e.g. daily means)
         self.enc = nn.ModuleList([Block(d) for _ in range(enc_depth)])
         self.rec = nn.Linear(d, L * C)
-        self.sp = GeoAttention(d, heads, geo_dim) if spatial else None
+        self.sp = GeoAttention(d, heads, geo_dim, nbr_mask=nbr_mask, gate=sp_gate) if spatial else None
         self.uemb = nn.Linear(self.k * U, d)
         self.dyn = nn.ModuleList([Block(d) for _ in range(dyn_depth)])
         self.phys_dec = phys_dec

@@ -1785,6 +1785,62 @@ the validation period under the T1 rules, the "all" rows are not identical to L1
    (about 250 windows) of at least 2,000 windows (about 8 months); at 4 months and above, at least half of the
    pre-trained runs lie below every scratch floor (D_T infinite).
 
+## Atlas v1.4 programme: rules and predictions (written 2026-11-15, before any of these runs)
+
+L1 found one specific failure: on networks whose cities are far apart (Maharashtra above all), Atlas is worse than
+TimesFM 2.5 at never-trained stations, and even Atlas-India is 12% behind there. In v1.3, station attention covers every
+station of a network; only a learned bias separates graph neighbours from the rest, so many unrelated stations can
+outweigh the few related ones. v1.4 tests two changes aimed at that failure, a fused system, and a comparison with
+India's operational forecasts. Code: `atlas/model.py` (`GeoAttention` options), `delhi/score_v14.py`,
+`delhi/score_i1.py`, `delhi/kaggle_v14.sh`, `delhi/kaggle_i1.sh`, `pw/ddata.py` (`PW_SPLIT`).
+
+**V1, selection (validation only).** Three candidates, each trained exactly as Atlas-India (all 14 networks, 60,000
+steps, seed 400) with one difference: **v14n**, each station attends only to itself and its graph neighbours
+(`ATLAS_NBR=1`; 967,632 parameters, as v1.3); **v14g**, a learned per-station gate on the attention update
+(`ATLAS_GATE=1`; 988,512); **v14ng**, both. The candidate with the lowest pooled validation MAE is chosen if that MAE is
+at least 1% below Atlas-India seed 400's; otherwise no v1.4 architecture is adopted. Validation is on trained stations,
+as for every earlier choice; never-trained stations are not used for any choice. Atlas-P is decided by its own rule of
+2026-11-14 (lower validation MAE by more than 2 standard errors over seeds 400–402, paired). If both are adopted, the
+one with the lower mean validation MAE goes forward.
+
+**V2, test (once).** The chosen model's seeds 400–402 (ensemble, calibrated per network on validation) against
+Atlas-India (seeds 400–402) and TimesFM 2.5 on the all-India test windows (third use of that period), both tracks,
+Diebold–Mariano with a day-block bootstrap, and per network. **Rule:** v1.4 improves on v1.3 if it wins significantly
+on at least one track and loses on neither.
+
+**F, Atlas-F (the fused system).** The best Atlas (v1.4 if adopted, else Atlas-India) and TimesFM 2.5, each
+calibrated as above, averaged with weight w on Atlas (0.05 grid; one w per network and lead block 1–6, 7–12, 13–24 h),
+w re-chosen at the start of every test day from the previous 30 days of forecasts whose targets were all observed before
+that day (validation windows fill the first month), fitted on trained stations and reused at never-trained ones.
+**Rule:** Atlas-F dominates if it beats both its members pooled on both tracks and loses to TimesFM 2.5 on none of the
+28 network-tracks. TimesFM 2.5 is Apache-2.0; TimesFM 3.0 stays evaluation-only and is never a member.
+
+**I1, India's operational forecasts (by number).** India's operational systems publish no archive of station forecasts,
+so no paired test is possible. CEEW's issue brief *How Well can Delhi Predict Air Quality?* (October 2025) scores IITM's
+WRF-Chem (400 m, the Air Quality Early Warning System) and IMD's SILAM on Delhi's spatially averaged hourly PM2.5, Day-1
+forecast, 1 October 2024 to 28 February 2025: WRF-Chem RMSE 92.53, MAE 58.75 µg/m³; SILAM RMSE 107.95, MAE 71.68. Atlas
+is scored on that quantity and window: trained on nothing after 30 September 2024 (pre-trained on the 13 other networks,
+data to 2022, seeds 320–322 as v1.3; then Delhi to 31 July 2024, validation 1 August–30 September 2024; stage B or C
+chosen on validation), forecasts issued at 00:00 IST for that day's 24 hours, the Delhi average taken over the stations
+reporting each hour, metrics on the hourly series. **Rule:** Atlas is reported as having lower error by number than a
+system only if both its MAE and RMSE are lower; it is never called a significant win. **Stated now:** CEEW's station set
+and Day-1 lead time are not given (its lead may be longer than Atlas's 1–24 h, which would favour Atlas); its stated
+hour count (3,512) is below the window's 3,624; our measured mean is printed beside CEEW's (about 175 µg/m³) as a check.
+Winter 2023–24, the brief's other season, cannot be scored: Delhi's history has a gap from April to December 2023.
+
+**Predictions.**
+1. V1: v14n lowers pooled validation MAE by 0–2%; v14g changes it by less than 0.5%; v14ng is chosen or v14n is; the 1%
+   bar is met (60% confident). Atlas-P is not adopted.
+2. V2 (if a candidate is adopted): level on trained stations; win at never-trained stations (−1% to −3% pooled), most of
+   it from Maharashtra, whose never-trained error falls from 24.92 to below 23.5. Rule met.
+3. F: Atlas-F beats both members pooled on both tracks (−1% to −3% against the better member); it loses to TimesFM 2.5 on
+   at most two network-tracks, so the dominance rule fails narrowly or passes (50/50).
+4. I1: Atlas's Delhi-average hourly error in winter 2024–25 is MAE 25–40 and RMSE 35–60 µg/m³, both below WRF-Chem's
+   and SILAM's published values; its mean bias is within ±15 µg/m³.
+
+**Order.** V1 candidates and I1 seeds as CPU slots free (after T1 and Atlas-P seed 402), then V2 seeds, then the
+scorings. T1, the L1 record and the Atlas-P rule are unchanged by this section.
+
 ## What has not been done (as of 2026-11-13)
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

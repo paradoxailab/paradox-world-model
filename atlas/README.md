@@ -1699,6 +1699,38 @@ untrained Atlas-P is persistence. 978,507 parameters (width 144, as Atlas).
 attention already capture much of what it does. Atlas-P: 1% to 3% lower validation MAE than Atlas. That clears the
 2-standard-error bar only if the seed spread is small.
 
+### L1 results: leave one network out (Kaggle runs atlas-lono-up / -haryana / -maharashtra / -karnataka and atlas-lono-score, 2026-11-14, CPU)
+
+Pre-training on the other 13 networks took 94–100 minutes per network; adaptation stopped early at 4,800–9,600 steps.
+PM2.5 test MAE in µg/m³, trained stations / unseen stations, calibrated on each network's validation windows:
+
+| Network | adapted | not adapted (P) | TimesFM 2.5 | Atlas-India, all 14 (reference) | adapted vs TimesFM 2.5 (S / U) | verdict |
+|---|---|---|---|---|---|---|
+| Uttar Pradesh | 21.45 / 23.14 | 21.76 / 23.29 | 22.78 / 24.32 | 20.89 / 22.46 | −5.8% (p = 2e-7) / −4.8% (p = 0.0003) | **beats** |
+| Haryana | 24.93 / 22.85 | 25.31 / 23.17 | 25.72 / 23.20 | 24.32 / 22.31 | −3.1% (p = 0.001) / −1.5% (p = 0.20) | level |
+| Maharashtra | 19.86 / 28.28 | 20.39 / 25.44 | 19.45 / 22.25 | 19.68 / 24.92 | +2.1% (p = 0.003) / **+27.1%** (p = 2e-19) | loses |
+| Karnataka | 8.97 / 9.68 | 9.26 / 9.44 | 8.98 / 9.43 | 8.87 / 9.20 | −0.1% (p = 0.96) / +2.7% (p = 0.03) | loses |
+
+**Rule L1: not confirmed** (one win, two losses). The extra seeds the rule allows cannot change this: the Maharashtra
+loss is decisive (p = 2e-19), and a loss on any network fails the rule. The v1.3 recipe is therefore confirmed on
+Delhi and Uttar Pradesh only, and its Delhi result stays labelled provisional in the sense of rule 7 of v1.3.
+
+**Prediction check.** Predicted: beats on Uttar Pradesh and Haryana, level on Maharashtra and Karnataka, rule not
+confirmed. Right on Uttar Pradesh and on the rule; wrong on the other three (Haryana level instead of a win;
+Maharashtra and Karnataka losses instead of level). P was predicted level with TimesFM 2.5 everywhere; it is ahead on
+Uttar Pradesh and Haryana's trained stations and behind on Maharashtra.
+
+**Reading.**
+1. **Atlas wins in the Indo-Gangetic plain and not in the west and south.** Delhi, Uttar Pradesh and (at trained
+   stations) Haryana share one airshed and winter regime; Maharashtra and Karnataka do not. Pre-training on the other
+   networks is worth most where the target resembles them. This is the question T1 measures.
+2. **Adaptation over-fits the trained stations on Maharashtra.** Unseen-station error rose from 25.44 (P) to 28.28
+   after adapting on Maharashtra's 22 trained stations, while trained-station error fell slightly. Even Atlas-India is
+   12% behind TimesFM 2.5 at Maharashtra's unseen stations (24.92 against 22.25): the station graph, whose links to
+   unseen stations come from 61 validation days, does not help where cities are far apart. A univariate model has
+   no such failure mode. Next versions must not let the graph override a station's own history at new stations.
+3. **Adaptation helped trained stations on all four networks** (−1.4% to −3.1% against P), never by much.
+
 ## ICML programme, T1: the transfer threshold function (rules and predictions, written 2026-11-14, before any of these runs)
 
 **Question.** Stage 8B measured the data threshold from random weights: on Delhi a single Atlas would need about four to

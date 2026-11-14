@@ -54,6 +54,8 @@ def load(tag):
         if tag == "india" and not b[len("india_s"):-4].isdigit():
             continue
         z = np.load(f); m = json.loads(str(z["meta"]))
+        if tag == "india":                                  # forecasts from before the input fix of 2026-11-13 are refused
+            assert "input_fix" in m or "loader" in m, f"{b} predates the input fix: run run_atlas_india.py --reforecast first"
         out[int(m["seed"])] = (z, m)
     return out
 

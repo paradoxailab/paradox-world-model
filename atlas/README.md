@@ -1841,6 +1841,37 @@ Winter 2023–24, the brief's other season, cannot be scored: Delhi's history ha
 **Order.** V1 candidates and I1 seeds as CPU slots free (after T1 and Atlas-P seed 402), then V2 seeds, then the
 scorings. T1, the L1 record and the Atlas-P rule are unchanged by this section.
 
+### F results: Atlas-F, Atlas-India fused with TimesFM 2.5 (Kaggle run atlas-fusion-f, version 2, 2026-11-15, CPU)
+
+**A first run was discarded.** Version 1 of atlas-fusion-f read Atlas-India seed 400's forecasts from before the input
+fix of 2026-11-13 (never-trained stations of Gujarat, Kerala and Punjab), which put Atlas-India's never-trained error at
+21.25 instead of the recorded 20.86. The scorer now re-forecasts with the fix first and refuses pre-fix forecasts
+(commit 4de240e); version 2 reproduces the recorded Atlas-India numbers (20.99 / 20.86) before scoring Atlas-F.
+
+PM2.5 MAE in µg/m³, all 14 networks pooled, every entry calibrated on each network's validation windows:
+
+| Entry | trained stations | never-trained stations |
+|---|---|---|
+| **Atlas-F** | **20.75** | **20.44** |
+| Atlas-India (v1.3 recipe, three seeds) | 20.99 | 20.86 |
+| TimesFM 2.5, zero-shot | 22.35 | 21.93 |
+
+* Atlas-F against Atlas-India: −1.16% (p = 5×10⁻¹⁴) / −2.05% (p = 6×10⁻²²): **beats**.
+* Atlas-F against TimesFM 2.5: −7.16% (p = 1×10⁻³⁷) / −6.80% (p = 1×10⁻²⁸): **beats**.
+* Per network, Atlas-F has lower MAE than TimesFM 2.5 in all 28 network-tracks (lowest margins: Kerala trained
+  7.93 against 7.96, Maharashtra never-trained 22.16 against 22.25), so it can lose to it in none.
+* **Rule F: met. Atlas-F dominates both its members.**
+
+Mean weight on Atlas (lead blocks 1–6 / 7–12 / 13–24 h): highest in Delhi (0.87 / 0.91 / 0.81) and Uttar Pradesh
+(0.74 / 0.85 / 0.81), below one half in Maharashtra (0.44 / 0.47 / 0.48), Gujarat (0.37 / 0.46 / 0.43) and Kerala
+(0.10 / 0.24 / 0.35): the weights learned from the past 30 days follow the L1 finding without being told it. The
+fusion repairs Atlas's worst cells: Maharashtra never-trained 24.92 → 22.16, Gujarat 18.41 → 18.25, Kerala trained
+8.51 → 7.93.
+
+**Prediction check.** Predicted: beats both members pooled on both tracks, −1% to −3% against the better member (right:
+−1.16% and −2.05% against Atlas-India); dominance rule 50/50 (it passed). This is the third use of the all-India test
+period; Atlas-F's only free choices (the weight grid, the 30-day window, the lead blocks) were fixed before the run.
+
 ## What has not been done (as of 2026-11-13)
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

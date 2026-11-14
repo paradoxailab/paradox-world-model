@@ -42,10 +42,17 @@ def _kmeans(X, k, seed=0, iters=50):
 
 
 class Delhi:
-    def __init__(self, path=None, targets=TARGETS, min_cov=0.5, backbone=True, wxfc=True, first=None, min_cov_train=None):
+    def __init__(self, path=None, targets=TARGETS, min_cov=0.5, backbone=True, wxfc=True, first=None, min_cov_train=None,
+                 avail_from=None):
         """first (ISO date, long-history file only): drop everything before it. With a long-history file
         (tools/build_delhi_long.py) the stations are still chosen on the league's own hours, so the station list,
-        the seen / unseen split and the validation and test windows are exactly the league's."""
+        the seen / unseen split and the validation and test windows are exactly the league's.
+
+        avail_from (hour index; ICML T1, the transfer threshold): the network as if it had been measuring only from
+        that hour. The stations are still the league's (chosen on the full record, as above), but every value before
+        avail_from is removed, and everything computed from the past (input scaling, the fallback scale, the graph
+        links between trained stations) uses only what remains before the test period: the training hours from
+        avail_from on plus the validation period. avail_from = 0 keeps all data under the same rules."""
         z = np.load(path or os.path.join(RAW, "DELHI.npz"), allow_pickle=False)
         X, names = z["X"].astype(np.float32), list(z["vars"])
         self.start = np.datetime64(str(z["start"]))
@@ -64,6 +71,10 @@ class Delhi:
         keep = np.where((cov_tr >= (min_cov * 0.5 if min_cov_train is None else min_cov_train)) & (cov_te >= min_cov))[0]   # rule fixed in advance
         self.stations = [str(s) for s in z["stations"][keep]]
         X = X[:, keep]
+        self.avail_from = avail_from
+        if avail_from is not None:                                          # T1: nothing measured before avail_from
+            X = X.copy(); X[:avail_from] = np.nan
+            b = self.bounds["val"][1]                                       # statistics: training from avail_from + validation
         self.T, self.N = X.shape[:2]
         self.seen, self.unseen = unseen_split(self.N)
         self.targets = list(targets)
@@ -138,11 +149,15 @@ class Delhi:
 
     def _graph(self, k=6):
         tr, va = self._daily(*self.bounds["train"]), self._daily(*self.bounds["val"])
+        ntr = 60
+        if self.avail_from is not None:                                     # T1: trained links from what remains
+            a0 = self.avail_from - (self.avail_from - self.bounds["train"][0]) % SPD
+            tr, ntr = self._daily(max(a0, 0), self.bounds["val"][1]), 30
         hold = set(self.unseen.tolist())
         C = np.zeros((self.N, self.N))
         for i in range(self.N):
             for j in range(i + 1, self.N):
-                d, need = (va, 30) if (i in hold or j in hold) else (tr, 60)
+                d, need = (va, 30) if (i in hold or j in hold) else (tr, ntr)
                 m = np.isfinite(d[:, i]) & np.isfinite(d[:, j])
                 if m.sum() >= need:
                     C[i, j] = C[j, i] = np.corrcoef(d[m, i], d[m, j])[0, 1]

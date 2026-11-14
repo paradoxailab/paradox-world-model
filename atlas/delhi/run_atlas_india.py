@@ -40,8 +40,15 @@ def log(*a):
     print(*a, flush=True)
 
 
-def networks(quick=False):
-    """Split INDIA_LONG.npz into state networks and load each with the Delhi league's loader."""
+def budget_from(b, months):
+    """ICML T1: the first hour a network is allowed to have measured, given a budget of the most recent `months` of
+    training data before the validation period (a month is 30 days; "all" keeps every hour under the same rules)."""
+    return 0 if str(months) == "all" else max(0, b - int(round(float(months) * 30 * SPD)))
+
+
+def networks(quick=False, budget=None):
+    """Split INDIA_LONG.npz into state networks and load each with the Delhi league's loader. budget = (network,
+    months): that network as if it had only measured for the last `months` of training (ICML T1)."""
     z = np.load(os.path.join(RAW, "INDIA_LONG.npz"), allow_pickle=False)
     X, names, state, city, vars_ = z["X"], [str(s) for s in z["stations"]], [str(s) for s in z["state"]], \
         [str(s) for s in z["city"]], [str(v) for v in z["vars"]]
@@ -66,7 +73,8 @@ def networks(quick=False):
         ix = np.array(nets[k])
         f = os.path.join(d, re.sub(r"[^a-z0-9]+", "_", k.lower()) + ".npz")
         np.savez(f, X=X[:, ix], vars=np.array(vars_), stations=np.array([names[j] for j in ix]), start=z["start"])
-        D = Delhi(path=f, targets=TARGETS, backbone=False, wxfc=False, min_cov_train=0.125)
+        av = budget_from(b, budget[1]) if budget and budget[0] == k else None
+        D = Delhi(path=f, targets=TARGETS, backbone=False, wxfc=False, min_cov_train=0.125, avail_from=av)
         assert D.N == len(ix), (k, D.N, len(ix))
         D.name, D.cities = k, [city[j] for j in ix]
         os.remove(f)
@@ -157,7 +165,9 @@ def reforecast(a):
 
 def main(a):
     q = a.quick
-    nets = networks(q)
+    if a.budget:
+        assert a.only, "--budget applies to the one network given with --only"
+    nets = networks(q, (a.only, a.budget) if a.budget else None)
     skip = {s.strip() for s in a.skip.split(",") if s.strip()}
     if skip:                                               # e.g. pretraining for another league: that city is left out
         assert skip <= {D.name for D in nets}, f"no such network: {skip - {D.name for D in nets}}"
@@ -167,11 +177,18 @@ def main(a):
         assert a.only in {D.name for D in nets}, f"no such network: {a.only}"
         nets = [D for D in nets if D.name == a.only]
         log(f"adapting to one network only: {a.only}")
+        if a.budget:
+            D = nets[0]
+            log(f"BUDGET {a.budget} months: {a.only} as if measuring only from {D.dates[D.avail_from]} "
+                f"(statistics from then to the end of validation)")
     O = [origins(D, q) for D in nets]
     for D, (tr, va4, te) in zip(nets, O):
         log(f"NET {D.name}: {D.N} stations ({len(D.seen)} trained on, {len(D.unseen)} unseen), {len(tr)} valid training windows, "
             f"{len(va4)} validation and {len(te)} test windows; PM2.5 missing {100 * np.isnan(D.Y[..., 0]).mean():.0f}%")
     w = np.array([len(o[0]) for o in O], float)
+    if a.budget and str(a.budget) == "0":                  # T1, budget 0: no training at all (needs --init)
+        assert a.init, "budget 0 means the pre-trained weights as they are"
+        a.steps = 0; w = np.ones_like(w)
     assert (w > 0).all(), "a network has no valid training window"
     p = w / w.sum()
     log(f"{len(nets)} networks, {sum(D.N for D in nets)} stations, {int(w.sum())} valid training windows; test "
@@ -187,10 +204,10 @@ def main(a):
         m.load_state_dict(ck["E"]); log(f"initialised from {a.init} (pre-trained on {len(ck['networks'])} networks)")
         if not a.pretrain_only:
             fP = forecasts(m, nets, O)                     # P: the pre-trained weights, before any training here
-    steps, every = (60, 20) if q else (a.steps, a.every)
+    steps, every = (60 if a.steps else 0, 20) if q else (a.steps, a.every)
     opt = torch.optim.AdamW(m.parameters(), lr=lr, weight_decay=1e-4)
     sched = torch.optim.lr_scheduler.LambdaLR(
-        opt, lambda s: min(1, (s + 1) / 100) * (0.1 + 0.45 * (1 + math.cos(math.pi * min(1, s / steps)))))
+        opt, lambda s: min(1, (s + 1) / 100) * (0.1 + 0.45 * (1 + math.cos(math.pi * min(1, s / max(steps, 1))))))
     D0 = nets[0]
     chw = torch.tensor([1.0] + [0.1] * (D0.K - 1) + [0.05] * D0.Ca, device=DEV)
     qs = torch.tensor([0.1, 0.5, 0.9], device=DEV)
@@ -230,7 +247,8 @@ def main(a):
     capped = bool(time.time() - t0 > a.cap * 60)
     if step % every != 0 and step != steps:
         v = pooled_val(m, nets, O)
-    res = dict(seed=a.seed, loader="input fix of 2026-11-13", inputs_dropped={D.name: D.aux_dropped for D in nets if D.aux_dropped},
+    res = dict(seed=a.seed, loader="input fix of 2026-11-13", budget=a.budget or None, init=os.path.basename(a.init) or None,
+               lr_scale=a.lr_scale, avail_from=str(nets[0].dates[nets[0].avail_from]) if a.budget else None, inputs_dropped={D.name: D.aux_dropped for D in nets if D.aux_dropped},
                params=m.n_params(), networks=[D.name for D in nets], stations=[D.N for D in nets],
                train_windows=[len(o[0]) for o in O], hit_time_cap=capped, minutes_train=round((time.time() - t0) / 60, 1),
                E=dict(val_MAE=best, steps=frozen or step), F=dict(val_MAE=v, steps=step))
@@ -282,6 +300,7 @@ if __name__ == "__main__":
     ap.add_argument("--only", default="", help="ICML L1: train (adapt) on this one network only")
     ap.add_argument("--init", default="", help="ICML L1: start from these pre-trained weights (.pt, checkpoint E)")
     ap.add_argument("--lr-scale", type=float, default=1.0, help="multiplies the learning rate (adaptation: 0.3)")
+    ap.add_argument("--budget", default="", help="ICML T1: months of --only's training data (most recent), or 'all'")
     ap.add_argument("--quick", action="store_true")
     a = ap.parse_args()
     reforecast(a) if a.reforecast else main(a)

@@ -1699,6 +1699,60 @@ untrained Atlas-P is persistence. 978,507 parameters (width 144, as Atlas).
 attention already capture much of what it does. Atlas-P: 1% to 3% lower validation MAE than Atlas. That clears the
 2-standard-error bar only if the seed spread is small.
 
+## ICML programme, T1: the transfer threshold function (rules and predictions, written 2026-11-14, before any of these runs)
+
+**Question.** Stage 8B measured the data threshold from random weights: on Delhi a single Atlas would need about four to
+five years of local history to reach TimesFM 2.5 (an extrapolation). v1.3 then beat TimesFM 2.5 on Delhi after
+pre-training on the rest of India. T1 measures how much local data pre-training replaces, as a function of how much
+local data there is: the threshold function for transfer.
+
+**Design** (`delhi/kaggle_threshold.sh`, `run_atlas_india.py --budget`, `score_threshold.py`). The four L1 networks
+(Uttar Pradesh, Haryana, Maharashtra, Karnataka). For each, data budgets B = 0, 0.5, 1, 2, 4, 8, 16 months and all
+(a month is 30 days; the budget is the most recent B months of training data before the validation period). The
+network is treated as if it had started measuring B months before validation: every value before then is removed,
+and the input scaling, the fallback scale and the graph links between trained stations are computed from what
+remains up to the end of validation (`Delhi(avail_from=...)`). The station list, the seen / unseen split and the
+validation and test windows are the league's. "All" uses the same rules with nothing removed.
+* **pre**: Atlas pre-trained on the other 13 networks (the L1 checkpoint, seed 500), adapted on the budget exactly
+  as in L1 (0.3 × learning rate, up to 12,000 steps, a look at validation every 400, stop after 10 without
+  improvement). B = 0 is the pre-trained model as it is (one run).
+* **scratch**: the same Atlas (967,632 parameters) from random weights on the budget alone, full learning rate, up
+  to 30,000 steps, the same stopping rule (the larger step cap favours scratch, deliberately).
+* Two seeds per cell (500, 501; for pre, the adaptation seed; pre-training is seed 500 throughout).
+* Every single model is calibrated on the network's validation windows (CQR, as in the league) and scored on its
+  test windows. TimesFM 2.5's forecasts of the same windows are calibrated the same way.
+
+**Measures.** r = test MAE / TimesFM 2.5's test MAE, trained stations (Track S; unseen stations reported), mean over
+the seeds. n* = the smallest budget with r ≤ 1, per network and arm. The scratch law r = c_X + a·n^−α (n = valid
+training windows; a floor c_X per network, a and α shared), fitted in log space to the scratch runs. The effective
+data transferred by pre-training, D_T(n) = n_eq − n, where n_eq is the number of windows at which the network's
+scratch law reaches the pre-trained run's r (infinite if the pre-trained run is below the scratch floor), and the
+transfer law D_T = k·n^γ fitted to the finite values (Hernandez et al. 2021's form, with the pre-training data and
+model size fixed). Each budget's two-seed ensemble is also tested against TimesFM 2.5 (day blocks, both tracks),
+as in the league.
+
+**Rule (T1).** Pre-training **lowers the threshold** if the pre arm's n* is smaller than the scratch arm's on at
+least 3 of the 4 networks (a scratch arm that never reaches TimesFM 2.5's level counts as larger than all; a network
+where neither arm reaches it is not support). Otherwise not confirmed.
+
+**Known limits, stated now.** (1) The most recent months before validation (which is August and September 2022) are
+monsoon months; the test period is October to March. Small budgets therefore contain no winter. That is what a
+network deployed in summer would have, and it is part of what pre-training supplies, but it means the curves mix
+"more data" with "more seasons" (as in stage 8B). (2) The all-India test period was already used by Atlas-India and
+L1; T1 measures curves and makes no new league claim. (3) One pre-training seed. (4) Because the statistics include
+the validation period under the T1 rules, the "all" rows are not identical to L1's adapted model.
+
+**Predictions.**
+1. Scratch with all data: r between 1.00 and 1.10 on every network (stage 8B on Delhi: about 1.11 for a single
+   uncalibrated model with 15 months). Scratch reaches TimesFM 2.5's level on at most one network.
+2. Pre with B = 0: r between 0.98 and 1.06.
+3. Pre reaches TimesFM 2.5's level with 2 months or less on Uttar Pradesh and Haryana, and with 8 months or more, or
+   not at all, on Maharashtra and Karnataka (where Atlas-India was only level).
+4. Rule T1: support on Uttar Pradesh, Haryana and one of the other two: **confirmed**, with Maharashtra the likely miss.
+5. Scratch law: α between 0.05 and 0.2 (stage 8B: 0.087). Transfer law: γ between 0 and 1, and D_T at one month
+   (about 250 windows) of at least 2,000 windows (about 8 months); at 4 months and above, at least half of the
+   pre-trained runs lie below every scratch floor (D_T infinite).
+
 ## What has not been done (as of 2026-11-13)
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

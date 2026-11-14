@@ -1872,6 +1872,38 @@ fusion repairs Atlas's worst cells: Maharashtra never-trained 24.92 → 22.16, G
 −1.16% and −2.05% against Atlas-India); dominance rule 50/50 (it passed). This is the third use of the all-India test
 period; Atlas-F's only free choices (the weight grid, the 30-day window, the lead blocks) were fixed before the run.
 
+### I1 results: Atlas against India's operational forecasts, Delhi winter 2024–25 (Kaggle run atlas-i1-score, version 1, 2026-11-15, CPU)
+
+Atlas trained on nothing after 30 September 2024 (runs atlas-i1-s320/321/322: v1.3 pre-training checkpoints, then Delhi
+to 31 July 2024). Stage chosen on validation: C (mean validation MAE B 13.347, C 13.289). Delhi average over the
+stations reporting PM2.5 each hour, 1 October 2024 00:00 – 28 February 2025 23:00 IST, 151 forecasts issued at 00:00 IST
+(lead 1–24 h), seed medians averaged. µg/m³:
+
+| Forecast | RMSE | MAE | Mean bias | r | MAPE % | hours | measured mean |
+|---|---|---|---|---|---|---|---|
+| **Atlas** (0.97M parameters, sensors only) | **54.24** | **31.27** | −8.66 | **0.85** | **21** | 3,624 | 159 |
+| Same hour yesterday | 76.67 | 48.38 | +0.33 | 0.71 | 33 | 3,624 | 159 |
+| Last observed value (23:00, held) | 83.32 | 56.27 | +37.34 | 0.74 | 50 | 3,624 | 159 |
+| IITM WRF-Chem 400 m (AQEWS), Day 1, as CEEW reports | 92.53 | 58.75 | −25.21 | 0.61 | 35 | 3,512 | 175 |
+| IMD SILAM, Day 1, as CEEW reports | 107.95 | 71.68 | −22.88 | 0.47 | 45 | 3,512 | 177 |
+
+* **Rule I1: Atlas has lower error by number than both WRF-Chem and SILAM (MAE and RMSE both lower).** By number only:
+  no paired test is possible, and this is not called a significant win.
+* Atlas improves on same-hour-yesterday by 35% (MAE) and 29% (RMSE) on the identical series; this is the like-for-like
+  part of the result.
+* **What limits the comparison.** (1) Our measured mean is 159 µg/m³ against CEEW's 175–177: the observation sets
+  differ (stations and/or hours). Scaled by each set's measured mean, Atlas's MAE is 20% of the mean against WRF-Chem's
+  34% and SILAM's 40%, so the ordering holds, but the size of the gap is uncertain. (2) Even the naive same-hour-yesterday
+  forecast has lower MAE and RMSE than both published values. Point error at 1–24 h is where station-trained forecasts
+  are strongest and where a chemistry-transport model, which forecasts a city-wide field from emissions and weather and
+  also serves attribution and emergency planning, is weakest; CEEW's Day 1 may also mean a longer lead than 1–24 h. The
+  result says Atlas is a much better next-day point forecast of Delhi's measured average; it does not say Atlas could
+  replace those systems.
+
+**Prediction check.** Predicted: MAE 25–40 (31.27, right), RMSE 35–60 (54.24, right), both below WRF-Chem's and SILAM's
+(right), mean bias within ±15 (−8.66, right). Not predicted: that same-hour-yesterday would also be below both published
+values.
+
 ## What has not been done (as of 2026-11-13)
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

@@ -374,6 +374,19 @@ from 2.5~\pmu{} (v1.2) to 0.2 (v1.3). Before the run we predicted the single-mod
 measured on Delhi: 29.2 if another state's window is worth a Delhi window, 31.5 if it is worth a tenth and 32.4 if it is
 worth nothing. The measured 29.81 lies between the first two, nearer the first.
 
+% ---- T1 (pre-registered 2026-11-14, README "ICML programme, T1"): enable when score_threshold.py has run ----
+\iffalse
+\paragraph{The transfer threshold function.} How much local history does pre-training replace? On the four
+leave-one-network-out networks we give Atlas only the most recent $B\in\{0,\tfrac12,1,2,4,8,16,\text{all}\}$ months
+of a network's data. The network is treated as if it had started measuring then: every earlier value is removed,
+and scaling and graph links are recomputed from what remains. Atlas is then trained from random weights (scratch) or
+adapted from the 13-network checkpoint (pre). With $r$ the test MAE relative to TimesFM~2.5, we fit the scratch law
+$r=c_X+a\,n^{-\alpha}$ ($n$ = local training windows) and define the effective data transferred,
+$D_T(n)=n_{\mathrm{eq}}-n$, where the scratch law reaches the pre-trained model's $r$ at $n_{\mathrm{eq}}$
+\citep{hernandez2021scaling}. TABLE/FIGURE: r vs months, both arms, four networks; n* per arm; fitted $\alpha$, $k$,
+$\gamma$. RULE: pre lowers n* on $\ge3$ of 4 networks -- RESULT.
+\fi
+
 \subsection{Atlas-W: how small can the model be?}
 \label{sec:atlasw}
 

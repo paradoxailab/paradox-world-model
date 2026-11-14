@@ -70,7 +70,10 @@ test that no model choice ever touched (14 networks, 263 stations, winter 2022--
 TimesFM~2.5 by 6.1\% at trained and 4.8\% at never-trained stations ($p<10^{-10}$). On Delhi it beats six zero-shot
 TSFMs (Moirai~2.0, TiRex, TimesFM~2.5, Chronos-2, Chronos-Bolt, Granite TTM) by 5.2--8.6\% at trained stations
 and the ECMWF CAMS forecast by 29--54\%. The decisive ingredient is related data, not scale: pre-training on 13 other Indian networks
-makes Atlas level with TimesFM~2.5 on Delhi before it has seen any Delhi data. A 14K-parameter variant whose forecast
+makes Atlas level with TimesFM~2.5 on Delhi before it has seen any Delhi data. A pre-registered confirmation that
+repeats this recipe with each of four networks left out of pre-training succeeds on Uttar Pradesh but fails on
+Maharashtra and Karnataka, where the station graph hurts never-trained stations: transfer wins where the target
+resembles the networks it learned from. A 14K-parameter variant whose forecast
 is an explicit relaxation--exchange update is more data-efficient than Atlas at every data budget, and removing the
 update costs it 5.6--6.5\%. We also report three pre-registered failures: a lockdown counterfactual, a cross-domain
 data-scaling law and continuous retraining.
@@ -106,6 +109,9 @@ contributions, each stated only as far as the tests support it:
 \item \textbf{Related data beats scale.} Pre-training on other cities, not more parameters or longer training, turned a
   model level with the TSFMs into one that beats them; zero-shot cross-city transfer alone matches TimesFM~2.5
   (\S\ref{sec:transfer}).
+\item \textbf{A confirmation test, reported as it came out.} Repeated with each of four networks left out of
+  pre-training, the recipe beats TimesFM~2.5 on one, is level on one and loses on two; the losses locate a failure of
+  the station graph at new stations where cities are far apart (\S\ref{sec:lono}).
 \item \textbf{An inductive-bias study.} Atlas-W, a 14,043-parameter model whose forecast is an explicit
   relaxation--exchange update, is more data-efficient than Atlas at every budget; removal tests show which parts
   carry its accuracy and that size does not (\S\ref{sec:atlasw}).
@@ -216,6 +222,9 @@ steps of four hours: the state absorbs that block's forcing (hour of day, day of
 blocks, is mixed again across stations and decoded (Fig.~\ref{fig:atlas}). Training minimises the pinball loss
 (weight 1.0 for \pmtf{}, 0.1 for other pollutants, 0.05 for weather) plus a reconstruction loss on 0--40\% randomly
 hidden input cells, with AdamW~\citep{loshchilov2019adamw}; full settings are in Appendix~\ref{app:hparams}.
+Of the 967,632 parameters, 37.6\% are the input projection, 34.6\% the encoder and the shared transition blocks,
+16.2\% a reconstruction head used only in training, 8.7\% the station attention and 2.7\% the decoder
+(Table~\ref{tab:params}); the forecasting path has 811,032.
 
 \paragraph{Recipe: pre-train on other cities, then adapt.} \emph{Atlas v1.3}, our Delhi model, is pre-trained on the 13
 networks other than Delhi (226 stations, 144,671 windows, ending two years before Delhi's validation period), then
@@ -243,6 +252,27 @@ scored from its archived forecasts at the nearest grid cell, raw and with a 30-d
 % =================================================================================================================
 \section{Results}
 \label{sec:results}
+
+\begin{table}[t]
+\caption{\textbf{Every verdict in one place} (\pmtf{} next 24 h; verdicts by the pre-registered rule, both tracks).
+Delhi rows are provisional (test period reused across versions); the all-India and leave-one-out rows are on test
+periods no Atlas choice used.}
+\label{tab:verdicts}
+\centering\small
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{llll}
+\toprule
+Where & Atlas entry & Beats & Level / loses \\
+\midrule
+All India, 14 networks & Atlas-India & TimesFM 2.5 & -- \\
+Delhi league & Atlas v1.3 & Moirai 2.0, TiRex, TimesFM 2.5, Chronos-2, Chronos-Bolt, & -- \\
+ & & Granite TTM, TSFM fusion, CAMS (raw and bias-corrected) & \\
+Leave one network out & adapted Atlas & TimesFM 2.5 on Uttar Pradesh & level: Haryana; loses: Maharashtra, Karnataka \\
+\midrule
+Not scored & \multicolumn{3}{l}{TimesFM 3.0 (by number only), Sundial, Toto, graph models, IITM early-warning system and SAFAR (no archive)} \\
+\bottomrule
+\end{tabular}}
+\end{table}
 
 \subsection{All of India: the clean test}
 \label{sec:india}
@@ -374,6 +404,39 @@ from 2.5~\pmu{} (v1.2) to 0.2 (v1.3). Before the run we predicted the single-mod
 measured on Delhi: 29.2 if another state's window is worth a Delhi window, 31.5 if it is worth a tenth and 32.4 if it is
 worth nothing. The measured 29.81 lies between the first two, nearer the first.
 
+\subsection{Confirmation: leave one network out}
+\label{sec:lono}
+
+\begin{table}[t]
+\caption{\textbf{Leave one network out} (four largest networks after Delhi, fixed in advance). Atlas pre-trained on
+the other 13 networks (seed 500), adapted on the network's history as in v1.3, scored on its all-India test windows.
+MAE \trk{s} / \trk{u} in \pmu; last column: adapted against TimesFM~2.5.}
+\label{tab:lono}
+\centering\small
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lcccc l}
+\toprule
+Network & Adapted & Pre-trained only & TimesFM 2.5 & Atlas-India (all 14) & Verdict \\
+\midrule
+Uttar Pradesh & \textbf{21.45} / \textbf{23.14} & 21.76 / 23.29 & 22.78 / 24.32 & 20.89 / 22.46 & beats ($-5.8\%$, $p{=}2{\times}10^{-7}$ / $-4.8\%$, $p{=}3{\times}10^{-4}$) \\
+Haryana & 24.93 / 22.85 & 25.31 / 23.17 & 25.72 / 23.20 & 24.32 / 22.31 & level ($-3.1\%$, $p{=}0.001$ / $-1.5\%$, $p{=}0.20$) \\
+Maharashtra & 19.86 / 28.28 & 20.39 / 25.44 & 19.45 / \textbf{22.25} & 19.68 / 24.92 & loses ($+2.1\%$, $p{=}0.003$ / $+27.1\%$, $p{=}2{\times}10^{-19}$) \\
+Karnataka & 8.97 / 9.68 & 9.26 / 9.44 & 8.98 / 9.43 & 8.87 / 9.20 & loses ($-0.1\%$, $p{=}0.96$ / $+2.7\%$, $p{=}0.03$) \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+Because Delhi's test period was reused, the v1.3 recipe counted as confirmed only if, repeated with each of four
+networks left out of pre-training, it beat TimesFM~2.5 on at least three and lost on none (rule fixed before the
+runs). It did not (Table~\ref{tab:lono}): one win, one level, two losses; extra seeds cannot change this, since the
+Maharashtra loss is decisive. We had predicted wins on Uttar Pradesh and Haryana and level on the other two. The
+pattern is geographic. Delhi, Uttar Pradesh and Haryana share the Indo-Gangetic airshed and its winter regime, and
+there pre-training pays; Maharashtra and Karnataka do not, and there it does not. The Maharashtra loss is at
+never-trained stations: adapting on its 22 trained stations raised their error from 25.44 to 28.28, and even
+Atlas-India is 12\% behind TimesFM~2.5 there. Links to never-trained stations are estimated from 61 validation days,
+and where cities are hundreds of kilometres apart the graph mixes in unrelated stations; a univariate model cannot
+fail this way. The Delhi result is therefore confirmed for the Indo-Gangetic plain only.
+
 % ---- T1 (pre-registered 2026-11-14, README "ICML programme, T1"): enable when score_threshold.py has run ----
 \iffalse
 \paragraph{The transfer threshold function.} How much local history does pre-training replace? On the four
@@ -455,13 +518,17 @@ than the target series (TimesFM~3.0: 30.31 univariate, 29.95 multivariate). (ii)
 many stations.} The gap opens at 6 hours, when the day's build-up or clearing must be forecast, and in Atlas-W the
 calendar of the forecast hours is the most consequential input ($+11.9\%$ on test when removed). (iii)~\emph{Domain
 exposure.} Atlas-W's error is insensitive to a 19-fold change in parameters, while Atlas's fell by 13.5\% when it was
-pre-trained on other Indian cities. Together these suggest that what holds the TSFMs back on this task is what they
-see, not their size.
+pre-trained on other Indian cities. The leave-one-out test bounds this: the gain appears where the target network resembles
+the pre-training networks and disappears where it does not (\S\ref{sec:lono}). Together these suggest that what holds
+the TSFMs back on this task is what they see, not their size, and that what helps Atlas is related data, not data in
+general.
 
 \paragraph{Limitations.} All results are \pmtf{} at Indian stations; nothing here shows that Atlas works for other
 variables, regions or horizons beyond 24 hours. Both test periods contain the north-Indian winter. Delhi's test period
-was reused across versions, so the Delhi gain is provisional until the leave-one-network-out repetition of the v1.3
-recipe succeeds elsewhere; the all-India win is on clean data but uses a model trained on all networks at once.
+was reused across versions; the leave-one-network-out repetition confirmed the v1.3 recipe on Uttar Pradesh but not on
+Maharashtra or Karnataka, so the Delhi gain holds for the Indo-Gangetic plain only. The all-India win is on clean data
+but uses a model trained on all networks at once. At never-trained stations in networks whose cities are far apart,
+the station graph can make Atlas worse than a univariate model; it should not be deployed there without a fallback.
 The TSFMs were run zero-shot and univariate, as released; fine-tuned or multivariate variants could do better.
 TimesFM~3.0, Sundial, Toto, the graph architectures and AI weather models run by us had not been scored when this
 paper was written. Operational Indian forecasts~\citep{yadav2025aqews} publish no archive at these stations; a forward
@@ -470,7 +537,8 @@ counterfactual test failed, so we make no world-model claim.
 
 \paragraph{Conclusion.} A model of under one million parameters, trained only on station measurements, forecasts
 Indian \pmtf{} significantly better than six zero-shot foundation models with up to 205M parameters, at stations it was
-trained on and at stations it never saw, and on a test period that no choice touched. The deciding factor was related
+trained on and at stations it never saw, and on a test period that no choice touched. Repeated with other networks held out, the advantage survives in the
+Indo-Gangetic plain and not beyond it. The deciding factor was related
 data from other cities, not size: a 14K-parameter model with a physical update is more data-efficient still, and
 size made no difference to it. Foundation models are not made redundant (fused with Atlas they still lower the
 error), but on this domain a small model with the right data and structure is the stronger forecaster.
@@ -549,6 +617,27 @@ Atlas-W & width 32, 14,043 parameters; inputs: 6 summary features $\times$ 15 va
  & one residual block, one neighbour mixing, heads for $x^*$, $k$, $\kappa$, spread; rate biases start at $-4$ \\
 \bottomrule
 \end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\caption{Where Atlas's parameters sit (counted from the code; totals match the trained checkpoints).}
+\label{tab:params}
+\centering\small
+\begin{tabular}{llrr}
+\toprule
+Part & Role & Parameters & Share \\
+\midrule
+Input projection & 2,526 inputs per station $\to$ 144 & 363,888 & 37.6\% \\
+Encoder & 2 residual blocks & 167,328 & 17.3\% \\
+Transition & 2 shared residual blocks, run 6 times & 167,328 & 17.3\% \\
+Reconstruction head & hidden-cell reconstruction (training only) & 156,600 & 16.2\% \\
+Station attention & 4 heads, learned graph bias, shared across steps & 83,940 & 8.7\% \\
+Decoder & 3 quantiles $\times$ 15 channels $\times$ 4 h & 26,100 & 2.7\% \\
+Forcing embedding & hour and weekday of the next 4 h & 2,448 & 0.3\% \\
+\midrule
+Total & & 967,632 & \\
+\bottomrule
+\end{tabular}
 \end{table}
 
 \section{Weather by-product}
@@ -675,7 +764,7 @@ Chronos-Bolt and Granite TTM are Apache-2.0; Moirai~2.0 (CC-BY-NC-4.0), TiRex (N
 \begin{enumerate}[leftmargin=1.5em]
 \item \textbf{Claims.} Do the abstract and introduction accurately reflect the paper's contributions and scope?
   \textbf{[Yes]} Each contribution is stated with its test; provisional and failed claims are labelled (\S\ref{sec:intro}, \S\ref{sec:negative}).
-\item \textbf{Limitations.} \textbf{[Yes]} \S\ref{sec:conclusion}: one country, one target, winter-dominated tests, Delhi test reuse, zero-shot opponents, unscored opponents, no world-model claim.
+\item \textbf{Limitations.} \textbf{[Yes]} \S\ref{sec:conclusion}: one country, one target, winter-dominated tests, Delhi test reuse and its partly failed confirmation, zero-shot opponents, unscored opponents, no world-model claim.
 \item \textbf{Theory assumptions and proofs.} \textbf{[NA]} No theoretical results.
 \item \textbf{Experimental result reproducibility.} \textbf{[Yes]} Data sources, cleaning, splits, architecture, settings and protocol are in \S\ref{sec:data}--\ref{sec:models} and Appendices~\ref{app:data}--\ref{app:hparams}.
 \item \textbf{Open access to data and code.} \textbf{[Yes]} All data are public; code, rules and notebooks are in a public repository (anonymised for review).

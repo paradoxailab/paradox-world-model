@@ -1932,6 +1932,54 @@ MAE minus same-hour-yesterday −21.30 to −13.06. Seeds alone: 320 RMSE 60.26 
 31.92 / −0.34; 322 53.96 / 31.58 / −3.82. Daily means: Atlas RMSE 39.18, MAE 24.21, r 0.897; same-hour-yesterday 52.55,
 35.48, 0.812. MAE by hour of day rises from 10.1 (00 IST, lead 1) to 52.0 (23 IST, lead 24).
 
+### V1 results: no v1.4 architecture is adopted; Atlas-P is not adopted (Kaggle runs atlas-v14n/g/ng-s400, atlas-indiap-s400..402, 2026-11-15)
+
+Pooled validation MAE (trained stations, checkpoint E), against Atlas-India seed 400's **9.104**: v14n (neighbours
+only) **9.106** (+0.02%); v14g (station gate) **9.075** (−0.32%); v14ng (both) **9.118** (+0.15%). The best, v14g, is
+0.32% lower, below the 1% bar: **no v1.4 architecture is adopted, so V2 does not run.** Atlas-P (physics decoder),
+seeds 400–402: 9.227, 9.260, 9.139 against Atlas-India's 9.104, 9.070, 9.059, worse on every seed: **not adopted.**
+Prediction 1 was wrong: v14n did not lower validation error, and the 1% bar was not met. At 1M parameters, changing how
+stations attend to each other does not move pooled validation; the Maharashtra failure stays repaired only by Atlas-F.
+(The training logs print each run's test error; no choice here used it.)
+
+## Atlas v2 programme: the parameter ladder (rules and predictions written 2026-11-15, before any of these runs)
+
+**Why now.** On Delhi alone (16 months to 7 years of one city) and on the exact simulators, Atlas stopped improving
+beyond about 0.25–1M parameters (stages 2, 7, 8). Atlas-India trains on 14 networks and seven years (about 150,000 valid
+windows), a data regime about ten times larger, and its validation error was still falling at 56,000–60,000 steps. The
+project's cap is 10M parameters. The ladder asks whether, at this data size, more parameters finally help, stage by
+stage up to the cap. Nothing else changes: same inputs, loss, data, 60,000 steps, early stopping on pooled validation,
+and the learning-rate rule already in the code (1e-3 up to width 256, 5e-4 above). Only `--size` changes.
+
+| Stage | `--size` | width | parameters |
+|---|---|---|---|
+| S1 (Atlas-India, exists) | 1,000,000 | 144 | 967,632 |
+| S2 | 3,000,000 | 300 | 2,950,392 |
+| S3 | 9,990,000 | 616 | 9,949,792 |
+
+**S, selection (validation only, seed 400).** A stage is adopted if its pooled validation MAE is at least 1% below that
+of the best stage adopted so far (S1 to begin with: 9.104). The largest adopted stage goes forward. If S3 is adopted and
+its best validation check is the last one (still improving), one extension is allowed: S3 again with 120,000 steps
+(S3+), adopted by the same 1% rule against S3. Never-trained stations and test windows are used for no choice. If no
+stage beyond S1 is adopted, the ladder's answer is that size does not help at this data size either, and it stops.
+
+**T, test (once; the fourth use of the all-India test period).** The chosen size's seeds 400–402, ensembled and
+calibrated per network on validation as before, on both tracks, Diebold–Mariano with a day-block bootstrap, and per
+network. Pre-registered criteria, each reported pass or fail:
+* **B1:** the larger Atlas beats Atlas-India (significant win on at least one track, loss on neither).
+* **B2 (dominance without a foundation model):** the larger Atlas alone loses to TimesFM 2.5 in none of the 28
+  network-tracks and beats it pooled on both tracks.
+* **B3:** the larger Atlas alone is level with or better than Atlas-F on both tracks.
+* **B4:** Atlas-F2, the larger Atlas fused with TimesFM 2.5 by the frozen Atlas-F rule, beats Atlas-F on both tracks.
+
+**Predictions.** S2 lowers validation MAE by 0.5–2% and is adopted (55%). S3 improves on S2 by less than 1% and is not
+adopted (60%). If a larger size is adopted: B1 passes (60%); B2 fails, with Maharashtra never-trained stations the cell
+still lost (65%); B3 fails (60%); B4 passes (50%). A "breakthrough" in this project means B2 or B3: a single model
+with no foundation model inside that is never worse than TimesFM 2.5 anywhere in India, or that matches the fusion.
+
+**Compute.** Kaggle T4 GPU, one run per notebook (`delhi/kaggle_scale.sh`; notebooks `atlas_scale3m_s400`,
+`atlas_scale10m_s400`). TimesFM 3.0 stays evaluation-only.
+
 ## What has not been done (as of 2026-11-13)
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

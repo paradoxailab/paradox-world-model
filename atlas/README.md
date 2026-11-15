@@ -1980,6 +1980,24 @@ with no foundation model inside that is never worse than TimesFM 2.5 anywhere in
 **Compute.** Kaggle T4 GPU, one run per notebook (`delhi/kaggle_scale.sh`; notebooks `atlas_scale3m_s400`,
 `atlas_scale10m_s400`). TimesFM 3.0 stays evaluation-only.
 
+### S results: more parameters do not help, up to the 10M cap (Kaggle runs atlas-scale3m-s400 / atlas-scale10m-s400, 2026-11-15, GPU T4)
+
+Pooled validation MAE on trained stations (checkpoint E), seed 400, everything else as Atlas-India:
+
+| Stage | parameters | best validation MAE | at step | vs S1 | training time |
+|---|---|---|---|---|---|
+| S1 (Atlas-India) | 967,632 | **9.104** | 60,000 | – | about 31 min (T4) |
+| S2 | 2,950,392 | 9.139 | 44,000 (stopped improving; E fixed at 56,000) | +0.38% | 28 min |
+| S3 | 9,949,792 | 9.222 | 34,000 (E fixed at 46,000) | +1.30% | 34 min |
+
+**Neither larger stage is adopted; by rule S the ladder stops, and T and B1–B4 do not run.** Larger models reach their
+best earlier and then get worse on validation, so they were not short of training steps (S3+ does not apply). The
+predictions were half right: S2 was predicted to be adopted (wrong); S3 not adopted (right). One confound is fixed in the
+code and was stated in advance: the learning rate is 1e-3 up to width 256 and 5e-4 above, so S2 and S3 also train with
+half S1's learning rate. **Reading:** at this data size (14 networks, about 150,000 windows) Atlas is not limited by
+parameters; the same answer as on Delhi and on the simulators. The gap to TimesFM 2.5 at Maharashtra's never-trained
+stations is a matter of information, not capacity. (The logs print each run's test error; no choice used it.)
+
 ## What has not been done (as of 2026-11-13)
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

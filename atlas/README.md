@@ -2007,9 +2007,12 @@ TimesFM, which reads only the pollution history, cannot use them. v2-W gives eve
 72 input hours and 24 forecast hours, and asks whether, with that information, the 10M model beats the 1M one.
 
 **Data** (`delhi/tools/fetch_weather_india.py`, Kaggle run atlas-wx-fetch; Open-Meteo, no key, non-commercial use, data
-CC BY 4.0). ERA5 reanalysis at each league city's 0.25-degree cell, 1 January 2019 – 28 February 2025, nine series
-(temperature, relative humidity, precipitation, boundary-layer height, wind speed, u and v at 10 m, surface pressure,
-cloud cover), moved to Indian hours; hours before 2019 have no weather and a flag says so. Forecasts issued the day
+CC BY 4.0). ERA5 reanalysis at each league city's 0.25-degree cell, nine series (temperature, relative humidity, precipitation,
+boundary-layer height, wind speed, u and v at 10 m, surface pressure, cloud cover), moved to Indian hours: Delhi's cell
+1 January 2019 – 28 February 2025, every other cell 1 January 2020 – 31 March 2023 (amended before any run, to fit the
+archive's free daily allowance); hours outside a cell's period have no weather and a flag says so. Cities are placed by
+the geocoder only inside their own state; six towns it misses have fixed coordinates; anything still unplaced takes the
+centre of its state's placed cities, or the state capital, and the fetch log lists each case. Forecasts issued the day
 before (ECMWF IFS 0.25°, Open-Meteo previous-runs archive) exist only from January 2024, so they are available at Delhi
 for the winter-2024-25 window of the operational comparison and nowhere in the all-India test period. The fetch run
 prints what was served; the variable list above is final unless the archive does not serve one, in which case that

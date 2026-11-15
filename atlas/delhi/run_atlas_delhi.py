@@ -94,7 +94,11 @@ def make_batch(D, org, nodes, dev=DEV):
     eye = torch.eye(n, device=dev)
     geo = torch.stack([A, eye, (A > 0).float()], -1)
     basis = torch.stack([eye, A / A.sum(1, keepdim=True).clamp(min=1e-6)])
-    return dict(yc=yc * mc, mc=mc, uc=cal(hl), uf=cal(fo_raw), yf=yf, of=of, static=static, geo=geo, basis=basis,
+    uc, uf = cal(hl), cal(fo_raw)
+    if getattr(D, "WX", None) is not None:                # Atlas v2: each station's weather, past and next 24 h, + flag
+        wx = lambda ix: torch.cat([D.t_wx[ix][:, :, nd], D.t_wxo[ix][:, :, nd, None].float()], -1).permute(0, 2, 1, 3)
+        uc, uf = torch.cat([uc, wx(hl)], -1), torch.cat([uf, wx(fo_raw)], -1)
+    return dict(yc=yc * mc, mc=mc, uc=uc, uf=uf, yf=yf, of=of, static=static, geo=geo, basis=basis,
                 s=s[:, :, 0])
 
 
@@ -110,7 +114,8 @@ def build(D, size, sysid):
         from atlas.atlasw import AtlasW
         return AtlasW(d=int(am.split(":")[1]) if ":" in am else 32, L=L, H=H, C=C, U=4, static=2 * DM + 2 * H + 2 + 2 * LONG,
                       lo=[0.0] * D.K + [float("-inf")] * D.Ca).to(DEV)
-    kw = dict(L=L, H=H, C=C, U=4, lat_steps=6, spatial=True, geo_dim=3, static=2 * DM + 2 * H + 2 + 2 * LONG,
+    U = 4 + (D.Cx + 1 if getattr(D, "WX", None) is not None else 0)
+    kw = dict(L=L, H=H, C=C, U=U, lat_steps=6, spatial=True, geo_dim=3, static=2 * DM + 2 * H + 2 + 2 * LONG,
               lo=[0.0] * D.K + [float("-inf")] * D.Ca, sysid=bool(sysid), K=2, lags=3, id_ch=1, fill="interp")
     if os.environ.get("ATLAS_PHYS") == "1":               # Atlas-P (ICML programme): the physics decoder
         kw["phys_dec"] = True
@@ -118,6 +123,8 @@ def build(D, size, sysid):
         kw["nbr_mask"] = True
     if os.environ.get("ATLAS_GATE") == "1":               # v1.4 candidates: per-station gate on the attention update
         kw["sp_gate"] = True
+    if float(os.environ.get("ATLAS_DROP", "0") or 0) > 0:  # Atlas v2: dropout on the state
+        kw["drop"] = float(os.environ["ATLAS_DROP"])
     return sized(int(size), **kw).to(DEV)
 
 

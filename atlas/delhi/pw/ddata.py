@@ -135,6 +135,9 @@ class Delhi:
             mu, sd = np.nanmean(W[:b], 0), np.nanstd(W[:b], 0) + 1e-6
             self.WF = ((W - mu) / sd).astype(np.float32)
             self.Cw = W.shape[1]
+        self.WX, self.Cx = None, 0
+        if os.environ.get("ATLAS_WX") == "1":                      # Atlas v2: each station's weather (ERA5, its city's cell)
+            self._load_wx(T, b, path)
         self.bb_row, self.BB, self.NB = None, None, 0
         bb_path = os.path.join(RAW, "DELHI_backbone.npz")
         if backbone and os.path.exists(bb_path) and self.targets == ["PM2.5"]:
@@ -148,6 +151,46 @@ class Delhi:
             self.bb_row[z2["origins"]] = np.arange(len(z2["origins"]))
         self.regions = self._regions()
         self._dev = None
+
+    def _load_wx(self, T, b, path):
+        """WX [T + 2H, N, V]: ERA5 at each station's 0.25-degree cell (tools/fetch_weather_india.py), standardised
+        with this network's training hours; NaN where not served (a flag tells the model). Stations of a Delhi-only
+        file (DELHI_LONG) take Delhi's cell. ATLAS_WX_FC=<DELHI_FC_*.npz>: from L hours before the test period on,
+        every weather value is the forecast issued the day before (real forecasts, for the Delhi 2024-25 test)."""
+        w = np.load(os.path.join(RAW, "INDIA_WX.npz"))
+        names, sc = [str(s) for s in w["stations"]], w["station_cell"]
+        delhi = "DELHI" in os.path.basename(path or "DELHI.npz").upper()
+        cell = []
+        for st in self.stations:
+            if st in names and sc[names.index(st)] >= 0:
+                cell.append(int(sc[names.index(st)]))
+            else:
+                assert delhi, f"no weather cell for station {st}"
+                cell.append(int(w["delhi_cell"]))
+        E = w["era5"]
+        off = int((self.start.astype("datetime64[h]") - np.datetime64(str(w["start"])).astype("datetime64[h]")).astype(int))
+        n = T + 2 * H
+        X = np.full((n, self.N, E.shape[2]), np.nan, np.float32)
+        r = np.arange(n) + off
+        ok = (r >= 0) & (r < len(E))
+        X[ok] = E[r[ok]][:, cell]
+        fc = os.environ.get("ATLAS_WX_FC", "")
+        if fc:
+            z = np.load(fc if os.path.isabs(fc) else os.path.join(RAW, fc))
+            assert list(z["vars"]) == list(w["vars"]), "forecast variables differ from the reanalysis'"
+            fo = int((self.start.astype("datetime64[h]") - np.datetime64(str(z["start"])).astype("datetime64[h]")).astype(int))
+            t0 = self.bounds["test"][0] - L
+            rr = np.arange(t0, n) + fo
+            okf = (rr >= 0) & (rr < len(z["X"]))
+            F = np.full((n - t0, E.shape[2]), np.nan, np.float32)
+            F[okf] = z["X"][rr[okf]]
+            X[t0:] = F[:, None, :]
+            self.wx_fc = dict(file=os.path.basename(fc), from_hour=str(self.dates[t0]) if t0 < len(self.dates) else None,
+                              served=float(np.isfinite(F).all(1).mean()))
+        mu, sd = np.nanmean(X[:b], (0, 1)), np.nanstd(X[:b], (0, 1)) + 1e-6
+        self.WX = ((X - mu) / sd).astype(np.float32)
+        self.Cx = E.shape[2]
+        self.wx_served = float(np.isfinite(X[:b]).all(2).mean())
 
     def _daily(self, a, b):
         D = (b - a) // SPD
@@ -210,6 +253,8 @@ class Delhi:
         self.t_tod, self.t_dow, self.t_mon = f(self.tod), f(self.dow), f(self.month)
         if self.WF is not None:
             self.t_wf, self.t_wfo = f(np.nan_to_num(self.WF)), f(np.isfinite(self.WF))
+        if self.WX is not None:
+            self.t_wx, self.t_wxo = f(np.nan_to_num(self.WX)), f(np.isfinite(self.WX).all(-1))
         if self.BB is not None:
             self.t_bb, self.t_bbr = f(self.BB), f(self.bb_row)
         self._dev = dev

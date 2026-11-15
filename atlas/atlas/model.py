@@ -69,7 +69,7 @@ class GeoAttention(nn.Module):
 class Atlas(nn.Module):
     def __init__(self, d=64, L=16, H=16, C=1, U=1, enc_depth=2, dyn_depth=2, lat_steps=4, heads=4,
                  spatial=False, geo_dim=3, lo=None, hi=None, conserve=False, dt=1.0, sysid=False, K=1, lags=2, gate=False, fill="rec",
-                 static=0, id_ch=None, phys_dec=False, nbr_mask=False, sp_gate=False):
+                 static=0, id_ch=None, phys_dec=False, nbr_mask=False, sp_gate=False, drop=0.0):
         super().__init__()
         assert H % lat_steps == 0
         self.cfg = dict(d=d, L=L, H=H, C=C, U=U, enc_depth=enc_depth, dyn_depth=dyn_depth, lat_steps=lat_steps,
@@ -81,6 +81,9 @@ class Atlas(nn.Module):
             self.cfg["nbr_mask"] = True
         if sp_gate:
             self.cfg["sp_gate"] = True
+        if drop:                                              # Atlas v2: dropout on the state (only when on)
+            self.cfg["drop"] = float(drop)
+        self.drop = float(drop)
         self.L, self.H, self.C, self.U, self.S, self.k = L, H, C, U, lat_steps, H // lat_steps
         self.lo, self.hi, self.conserve, self.dt = lo, hi, conserve, dt
         if isinstance(lo, (list, tuple)):                     # one lower bound per variable (-inf = none)
@@ -129,6 +132,8 @@ class Atlas(nn.Module):
         B, N = yc.shape[:2]
         x = torch.cat([(yc * mc).flatten(2), mc.flatten(2), uc.flatten(2)] + ([static] if static is not None else []), -1)
         z = self.inp(x)
+        if self.drop:
+            z = F.dropout(z, self.drop, self.training)
         for b in self.enc:
             z = b(z)
         if self.sp is not None:
@@ -182,6 +187,8 @@ class Atlas(nn.Module):
             z = z + self.uemb(uf[:, :, s * self.k:(s + 1) * self.k].flatten(2))
             for b in self.dyn:
                 z = b(z)
+                if self.drop:
+                    z = F.dropout(z, self.drop, self.training)
             if self.sp is not None:
                 z = self.sp(z, geo)
             outs.append(self.dec(z).reshape(B, N, self.k, self.C, 4 if self.phys_dec else 3))

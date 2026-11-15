@@ -205,7 +205,7 @@ def main(a):
         if not a.pretrain_only:
             fP = forecasts(m, nets, O)                     # P: the pre-trained weights, before any training here
     steps, every = (60 if a.steps else 0, 20) if q else (a.steps, a.every)
-    opt = torch.optim.AdamW(m.parameters(), lr=lr, weight_decay=1e-4)
+    opt = torch.optim.AdamW(m.parameters(), lr=lr, weight_decay=a.wd)
     sched = torch.optim.lr_scheduler.LambdaLR(
         opt, lambda s: min(1, (s + 1) / 100) * (0.1 + 0.45 * (1 + math.cos(math.pi * min(1, s / max(steps, 1))))))
     D0 = nets[0]
@@ -299,6 +299,7 @@ if __name__ == "__main__":
     ap.add_argument("--reforecast", action="store_true", help="forecast again from the saved weights (input fix of 2026-11-13)")
     ap.add_argument("--only", default="", help="ICML L1: train (adapt) on this one network only")
     ap.add_argument("--init", default="", help="ICML L1: start from these pre-trained weights (.pt, checkpoint E)")
+    ap.add_argument("--wd", type=float, default=1e-4, help="AdamW weight decay (Atlas v2 candidates: 0.05)")
     ap.add_argument("--lr-scale", type=float, default=1.0, help="multiplies the learning rate (adaptation: 0.3)")
     ap.add_argument("--budget", default="", help="ICML T1: months of --only's training data (most recent), or 'all'")
     ap.add_argument("--quick", action="store_true")

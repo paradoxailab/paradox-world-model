@@ -1998,6 +1998,53 @@ half S1's learning rate. **Reading:** at this data size (14 networks, about 150,
 parameters; the same answer as on Delhi and on the simulators. The gap to TimesFM 2.5 at Maharashtra's never-trained
 stations is a matter of information, not capacity. (The logs print each run's test error; no choice used it.)
 
+## Atlas v2-W: the 10M model with weather (rules and predictions written 2026-11-15, before any of these runs)
+
+**Why.** The ladder showed that, given the same inputs, 3M and 10M parameters only fit noise (validation 9.139 and
+9.222 against 9.104). A larger model can only help if it is given information the 1M model lacks. The largest missing
+piece is the weather of the next 24 hours: wind, rain, mixing height and temperature decide where PM2.5 goes, and
+TimesFM, which reads only the pollution history, cannot use them. v2-W gives every station its city's weather for its
+72 input hours and 24 forecast hours, and asks whether, with that information, the 10M model beats the 1M one.
+
+**Data** (`delhi/tools/fetch_weather_india.py`, Kaggle run atlas-wx-fetch; Open-Meteo, no key, non-commercial use, data
+CC BY 4.0). ERA5 reanalysis at each league city's 0.25-degree cell, 1 January 2019 – 28 February 2025, nine series
+(temperature, relative humidity, precipitation, boundary-layer height, wind speed, u and v at 10 m, surface pressure,
+cloud cover), moved to Indian hours; hours before 2019 have no weather and a flag says so. Forecasts issued the day
+before (ECMWF IFS 0.25°, Open-Meteo previous-runs archive) exist only from January 2024, so they are available at Delhi
+for the winter-2024-25 window of the operational comparison and nowhere in the all-India test period. The fetch run
+prints what was served; the variable list above is final unless the archive does not serve one, in which case that
+series is dropped everywhere before any training and the drop is recorded.
+
+**Model.** Atlas unchanged except the forcing: calendar (4) + nine standardised weather series + one missing flag per
+hour, for the input hours and the forecast hours (`ATLAS_WX=1`). Training uses ERA5 for the future weather (the
+perfect-prognosis convention), so validation scores are with the weather that happened.
+
+**W, selection (validation only, seed 400, all 14 networks, 60,000 steps, GPU T4).** Three candidates:
+* **W1**: 1M parameters with weather (learning rate 1e-3, weight decay 1e-4, as Atlas-India).
+* **W10**: 10M with weather, the code's defaults (5e-4, 1e-4).
+* **W10r**: 10M with weather, regularised: learning rate 1e-3 (as the 1M model), weight decay 0.05, dropout 0.1.
+
+Weather is adopted if W1's pooled validation MAE is at least 1% below Atlas-India's 9.104 (≤ 9.013). The better 10M
+candidate is adopted if at least 1% below the best adopted so far (W1 if weather is adopted, else 9.104). The adopted
+model gets seeds 401 and 402. Never-trained stations and test windows are used for no choice.
+
+**T-A, all-India test with the weather that happened (the fourth use of that period; an upper bound).** B1–B4 of the
+ladder, each reported pass or fail and labelled "with perfect weather": a real forecaster would have had forecasts,
+not the reanalysis, so these scores overstate what is achievable.
+
+**T-B, the real test: Delhi, 1 October 2024 – 28 February 2025, with real forecasts.** The adopted architecture
+trained by the I1 recipe (pre-trained on the 13 other networks with ERA5, then Delhi to 31 July 2024 with ERA5,
+validation August–September 2024, seeds 320–322); in the test window every weather value, input hours included, is the
+ECMWF forecast issued the day before (`ATLAS_WX_FC`). Scored on the I1 quantity (Delhi-average hourly PM2.5, issued
+00:00 IST, lead 1–24 h). **B5:** the weather Atlas beats the I1 Atlas (MAE 31.27, RMSE 54.24, no weather) by a paired
+Diebold–Mariano test with a day-block bootstrap on the same hourly series (significant MAE win). Against WRF-Chem and
+SILAM the comparison stays by number only, as in I1.
+
+**Predictions.** W1 lowers validation MAE by 2–6% and is adopted (75%). With weather, a 10M candidate is adopted (45%),
+and if so it is W10r (70%). T-A: B1 passes (70%); B2 (no network-track lost to TimesFM 2.5) passes (40%); B3 (level
+with or better than Atlas-F) passes (55%). T-B: the weather Atlas's MAE is below 31.27 (65%) and B5 passes (50%); the
+gain with real forecasts is smaller than with perfect weather.
+
 ## What has not been done (as of 2026-11-13)
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

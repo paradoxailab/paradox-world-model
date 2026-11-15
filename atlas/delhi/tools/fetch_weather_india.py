@@ -51,7 +51,8 @@ STOP = [False]
 # cities the geocoder misses or places in another state (coordinates of the town centre)
 OVERRIDE = {("Chikkaballapur", "Karnataka"): (13.435, 77.728), ("Davanagere", "Karnataka"): (14.464, 75.922),
             ("Eloor", "Kerala"): (10.075, 76.300), ("Gummidipoondi", "Tamil Nadu"): (13.407, 80.108),
-            ("Mandi Gobindgarh", "Punjab"): (30.668, 76.302), ("Ramanagara", "Karnataka"): (12.722, 77.281)}
+            ("Mandi Gobindgarh", "Punjab"): (30.668, 76.302), ("Ramanagara", "Karnataka"): (12.722, 77.281),
+            ("Vatva", "Gujarat"): (22.960, 72.630)}                  # an industrial area of Ahmedabad
 # last resort for a state none of whose cities could be placed: its capital
 CAPITAL = {"Uttar Pradesh": (26.85, 80.95), "Delhi": (28.61, 77.21), "Haryana": (30.73, 76.78), "Maharashtra": (19.08, 72.88),
            "Karnataka": (12.97, 77.59), "Madhya Pradesh": (23.26, 77.41), "West Bengal": (22.57, 88.36), "Bihar": (25.59, 85.14),

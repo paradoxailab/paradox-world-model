@@ -2018,7 +2018,15 @@ for the winter-2024-25 window of the operational comparison and nowhere in the a
 prints what was served; the variable list above is final unless the archive does not serve one, in which case that
 series is dropped everywhere before any training and the drop is recorded.
 
-**Model.** Atlas unchanged except the forcing: calendar (4) + nine standardised weather series + one missing flag per
+**Data, as served (atlas-wx-fetch version 2, 2026-11-15; recorded before any training).** The day-1 forecast archive
+does **not** serve boundary-layer height (0% of hours for both ECMWF IFS and best match), so by the rule above it is
+dropped everywhere: **eight series** (temperature, relative humidity, precipitation, wind speed, u, v, surface pressure,
+cloud cover). ECMWF IFS day-1 forecasts at Delhi's cell are served on 92% of hours (relative humidity 86%) from January
+2024; gaps carry the missing flag. The first pass placed all 263 stations (131 cities by the geocoder, 6 by fixed
+coordinates, Vatva by its state's centre, corrected to Ahmedabad for the second pass) in 130 cells and filled 104 cells
+before the daily allowance; the second pass completes the rest.
+
+**Model.** Atlas unchanged except the forcing: calendar (4) + eight standardised weather series + one missing flag per
 hour, for the input hours and the forecast hours (`ATLAS_WX=1`). Training uses ERA5 for the future weather (the
 perfect-prognosis convention), so validation scores are with the weather that happened.
 

@@ -25,6 +25,7 @@ LH, DM = 72, 14                              # v0.2 long context: 72 h of the ta
 DAYLAGS = (1, 2, 7)                          # same hours 1, 2 and 7 days earlier, at the forecast times
 TARGETS = ["PM2.5", "PM10", "NO2", "Ozone"]
 AUX = ["CO", "SO2", "NH3", "NO", "AT", "RH", "WS", "WD", "SR", "BP"]
+WX_DROP = ("boundary_layer_height",)    # v2-W: the day-1 forecast archive does not serve it, so it is used nowhere
 FLOOR = {"PM2.5": 10.0, "PM10": 20.0, "NO2": 5.0, "Ozone": 5.0}   # MAPE only where truth >= floor
 TEST_DAYS, VAL_DAYS = 182, 61
 UNSEEN_SEED, UNSEEN_SHARE = 2026, 0.2
@@ -167,7 +168,8 @@ class Delhi:
             else:
                 assert delhi, f"no weather cell for station {st}"
                 cell.append(int(w["delhi_cell"]))
-        E = w["era5"]
+        use = [j for j, v in enumerate(w["vars"]) if str(v) not in WX_DROP]      # v2-W: series the forecasts lack
+        E = w["era5"][..., use]
         off = int((self.start.astype("datetime64[h]") - np.datetime64(str(w["start"])).astype("datetime64[h]")).astype(int))
         n = T + 2 * H
         X = np.full((n, self.N, E.shape[2]), np.nan, np.float32)
@@ -183,7 +185,7 @@ class Delhi:
             rr = np.arange(t0, n) + fo
             okf = (rr >= 0) & (rr < len(z["X"]))
             F = np.full((n - t0, E.shape[2]), np.nan, np.float32)
-            F[okf] = z["X"][rr[okf]]
+            F[okf] = z["X"][rr[okf]][:, use]
             X[t0:] = F[:, None, :]
             self.wx_fc = dict(file=os.path.basename(fc), from_hour=str(self.dates[t0]) if t0 < len(self.dates) else None,
                               served=float(np.isfinite(F).all(1).mean()))

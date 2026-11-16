@@ -2288,6 +2288,12 @@ ECMWF-HRES (85%); beats PhysicsFormer (45%). The 10M Atlas-5K beats the 1M one b
 year at 24 h (60%): WEATHER-5K has about 40 times the station-hours of the all-India set, which is where v3's data
 threshold says a larger model should start to pay.
 
+**C1 (Kaggle run atlas-w5k-fetch, 2026-11-16, CPU, 15 minutes): passed.** The authors' archive (6.44 GB, 5,675 files)
+downloaded in 5 minutes; 5,672 station files converted straight from the zip: 87,648 hours (2014-01-01 to 2023-12-31)
+× 5 variables, no missing values (the benchmark's files are already gap-filled), coordinates and SEDI percentiles
+found for all 5,672 stations. Sampled means 12.57 °C, 6.77 °C, 187.7°, 3.24 m/s, 1015.09 hPa against the benchmark's
+scaler 12.71, 6.53, 191.2, 3.37, 1014.85. Pressure is stored as SLP − 1000 hPa in float16 (about 0.03 hPa resolution).
+
 **WB2 — GIFT-Eval** (Salesforce; the main leaderboard for time-series foundation models): its weather and air-quality
 datasets (e.g. KDD Cup 2018 air quality, Jena weather, temperature-rain), scored with its own code against the
 leaderboard's per-dataset results. Rules are written before it runs.

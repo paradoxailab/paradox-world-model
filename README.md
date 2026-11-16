@@ -3,6 +3,22 @@
 **Paradox AI Lab** · [paradoxailab.com](https://paradoxailab.com) · contact.paradoxailab@gmail.com
 Authors: Aditya Kumar, Anupam Singh
 
+## Latest: PWM-Atlas (2026-11-17) — [`atlas/`](atlas)
+
+**Atlas** is the station-graph world model of PWM (about 1M parameters). Highlights, each with its pre-registered rule
+and full log in [`atlas/README.md`](atlas/README.md):
+
+* **WEATHER-5K world benchmark** (ICML 2026; 5,672 stations worldwide, test year 2023), 24 h: the 0.97M Atlas-5K is level
+  with the 19.3M PhysicsFormer on temperature and dew point and has lower error than ECMWF's operational forecast on
+  four of five variables (not pressure); our pipeline reproduces the published DLinear numbers within 2.8%.
+* **India:** with real day-before ECMWF forecasts, Atlas-W cuts next-day PM2.5 error on Delhi's winter 2024–25 by 9.9%
+  against the no-weather Atlas (p = 0.0009); MAE 28.19 against published Day-1 values of 58.75 (IITM WRF-Chem) and 71.68
+  (IMD SILAM), by number.
+* **Threshold functions:** every fitted data/parameter/transfer law in [`atlas/THRESHOLD_FUNCTIONS.md`](atlas/THRESHOLD_FUNCTIONS.md);
+  model card in [`atlas/MODELS.md`](atlas/MODELS.md); trained weights in [`atlas/models/`](atlas/models).
+
+---
+
 **Current version: PWM-Dyn v0.7 · ParadoxBench-1.2 (2026-11-04)**, built for real operating conditions (sensor outages);
 see [`v0.7-realworld/`](v0.7-realworld). v0.6 (2026-11-03) remains the best model on clean data. Paper: [`paper-conference/named/PWM-Dyn_ParadoxBench_v0.6.pdf`](paper-conference/named/PWM-Dyn_ParadoxBench_v0.6.pdf)
 (an anonymous build for double-blind review is in [`paper-conference/`](paper-conference)).

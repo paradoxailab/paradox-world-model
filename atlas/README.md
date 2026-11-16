@@ -2294,6 +2294,12 @@ downloaded in 5 minutes; 5,672 station files converted straight from the zip: 87
 found for all 5,672 stations. Sampled means 12.57 °C, 6.77 °C, 187.7°, 3.24 m/s, 1015.09 hPa against the benchmark's
 scaler 12.71, 6.53, 191.2, 3.37, 1014.85. Pressure is stored as SLP − 1000 hPa in float16 (about 0.03 hPa resolution).
 
+**Launch order (recorded 2026-11-16 11:40 UTC, before any Atlas-5K number exists).** The Kaggle T4 queue held two v3
+grid runs for over 90 minutes (no other GPU is offered), so v3's part A was cancelled while still queued and its slot
+given to the first Atlas-5K run (1M parameters, H = 24, seed 600, `atlas-w5k-atlas1m-h24`), launched while C2 was still
+running on CPU. C2 finishes long before that run reaches its test step; if C2 fails, the run's test numbers are
+discarded and not reported as a benchmark result. v3 part A is re-queued when a slot frees.
+
 **WB2 — GIFT-Eval** (Salesforce; the main leaderboard for time-series foundation models): its weather and air-quality
 datasets (e.g. KDD Cup 2018 air quality, Jena weather, temperature-rain), scored with its own code against the
 leaderboard's per-dataset results. Rules are written before it runs.

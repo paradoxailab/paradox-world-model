@@ -2126,6 +2126,69 @@ never-trained 24.92 → 24.26, still above TimesFM 2.5's 22.25). Fusion weights 
 (Maharashtra 0.44–0.48 → 0.49–0.63; Gujarat 0.37–0.46 → 0.41–0.59). What this does not show: that the gain survives
 real forecasts. That is T-B (Delhi winter 2024–25, real ECMWF day-before forecasts), running now.
 
+### T-B results: the weather gain survives real day-before forecasts (Kaggle runs atlas-tb-s320 / s321 / s322 and atlas-tb-score, 2026-11-16, CPU)
+
+The adopted weather model (W1 architecture) by the I1 recipe: pre-trained on the 13 other networks with ERA5, trained on
+Delhi to 31 July 2024, validated August–September 2024, nothing after 30 September 2024. **In the test window every
+weather value, input hours included, is ECMWF IFS's forecast issued the day before** (served for 98.8% of the window's
+hours; the rest flagged missing). Same series, window and Delhi-average definition as I1 (151 days, 3,624 hours, issued
+00:00 IST, lead 1–24 h). Stage B was chosen by validation (each run logs both stages; the test was used for nothing).
+
+| Forecast | RMSE | MAE | Bias | r | MAPE % |
+|---|---|---|---|---|---|
+| **Atlas with weather forecasts (W1, 3 seeds)** | **50.61** | **28.19** | −6.38 | **0.87** | **18** |
+| Atlas I1 (no weather, the paper-2 result) | 54.24 | 31.27 | −8.66 | 0.85 | 21 |
+| Same hour yesterday | 76.67 | 48.38 | +0.33 | 0.71 | 33 |
+| IITM WRF-Chem 400 m (AQEWS), Day 1 (CEEW, by number) | 92.53 | 58.75 | −25.21 | 0.61 | 35 |
+| IMD SILAM, Day 1 (CEEW, by number) | 107.95 | 71.68 | −22.88 | 0.47 | 45 |
+
+**B5 (paired, same 151 days): PASS.** MAE −9.85% (95% CI −14.89 to −4.33), Diebold–Mariano p = 0.0009; RMSE −6.69%
+(95% CI −12.96 to −1.77), p = 0.005. The I1 by-number verdict holds and widens: lower MAE and RMSE than both operational
+systems' published Day-1 values (with I1's caveats: different observation set, CEEW's lead time unstated, persistence
+also below them).
+
+**Reading.** T-A's gain was an upper bound with perfect weather; T-B shows most of it is real. On Delhi the all-India
+upper bound was −7.9% (trained stations); with real day-before forecasts the paired gain on the Delhi average is
+−9.9% MAE. The two numbers measure different things (station MAE vs city average, 2022–23 vs 2024–25), so this is
+not a claim that forecasts beat the reanalysis; it is a claim that the weather gain does not vanish when the weather
+is forecast. **Weather forcing is now part of Atlas** (W1 inputs) for every later run.
+
+### T1 results: pre-training replaces about three and a half years of local data (Kaggle runs atlas-thr-pre-* / atlas-thr-scratch-* and atlas-thr-score-t1, 2026-11-16)
+
+r = calibrated test MAE / TimesFM 2.5's, trained stations (never-trained in brackets), mean of 2 seeds; months of the
+network's own data.
+
+| Network | arm | 0 | 0.5 | 1 | 2 | 4 | 8 | 16 | all | n* |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Uttar Pradesh | pre | 1.021 | 1.020 | 1.020 | **0.983** | 0.969 | 0.956 | 0.954 | 0.938 (0.945) | **2 mo** |
+| Uttar Pradesh | scratch | – | 1.554 | 1.597 | 1.329 | 1.319 | 1.095 | 1.052 | 1.004 (1.001) | not reached |
+| Haryana | pre | 1.015 | 1.014 | 1.015 | 1.008 | 1.005 | **0.985** | 0.981 | 0.968 (0.979) | **8 mo** |
+| Haryana | scratch | – | 1.347 | 1.547 | 1.402 | 1.305 | 1.143 | 1.136 | 1.054 (1.065) | not reached |
+| Maharashtra | pre | 1.051 | 1.048 | 1.048 | 1.053 | 1.040 | 1.040 | 1.043 | 1.015 (1.242) | not reached |
+| Maharashtra | scratch | – | 1.415 | 1.415 | 1.536 | 1.383 | 1.276 | 1.218 | 1.175 (1.626) | not reached |
+| Karnataka | pre | 1.048 | 1.049 | 1.051 | 1.107 | 1.071 | 1.007 | 1.008 | **0.996** (1.007) | **all** |
+| Karnataka | scratch | – | 1.475 | 1.478 | 1.419 | 1.302 | 1.190 | 1.162 | 1.093 (1.149) | not reached |
+
+**Rule T1: CONFIRMED** (pre-training lowers n* on Uttar Pradesh, Haryana and Karnataka; Maharashtra reaches TimesFM
+2.5's level with neither arm). **The threshold functions:** scratch law r = c_X + 2.18·n^−0.080 (misfit ×1.057; floors
+c = 0.001 Uttar Pradesh, 0.012 Haryana, 0.041 Karnataka, 0.087 Maharashtra); **transfer law D_T = 1.04×10⁴ · n^0.094**
+(28 points): pre-training on the other 13 networks is worth about 10,000 local training windows at the smallest budgets
+(about 43 months at roughly 240 windows a month) and grows slowly with local data. Scratch Atlas from all of a network's
+data never reaches TimesFM 2.5's level on trained stations (best r = 1.004, Uttar Pradesh).
+
+Predictions: (1) scratch all-data r in 1.00–1.10 on every network: 3 of 4 (Maharashtra 1.175 missed); scratch reaches
+TimesFM 2.5 on at most one: held (none). (2) pre B=0 r in 0.98–1.06: held on all four (1.015–1.051). (3) pre reaches
+TimesFM 2.5 with ≤ 2 months on Uttar Pradesh (held) and Haryana (missed: 8 months); 8 months or more or never on
+Maharashtra and Karnataka: held. (4) Rule confirmed with Maharashtra the miss: held exactly. (5) α in 0.05–0.2: held
+(0.080); γ in 0–1: held (0.094); D_T at one month ≥ 2,000 windows: held (about 17,000); at 4 months and above at least
+half of pre-trained runs below every scratch floor: **wrong** (none is; the transfer is large but finite).
+
+**Reading.** The data threshold for a station model is mostly a transfer problem: a city with two months of its own
+measurements and a model pre-trained on the rest of India is at TimesFM 2.5's level in the Indo-Gangetic plain, where a
+model trained on that city alone does not get there with six years. Where the region differs (Maharashtra's spread-out
+network) no amount of local data closes the gap in this design; this is the same failure the confirmation test found,
+measured now as a curve.
+
 ## Atlas v3: the data × size threshold function (rules and predictions written 2026-11-16, before any of these runs)
 
 **Why.** Every size test so far (simulators, Delhi, the all-India ladder, and the ladder again with weather) gave the

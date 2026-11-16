@@ -55,7 +55,10 @@ class GeoAttention(nn.Module):
         B, N, d = z.shape
         zn = self.n(z)
         q, k, v = self.qkv(zn).reshape(B, N, 3, self.h, d // self.h).permute(2, 0, 3, 1, 4)
-        bias = self.geo(geo).permute(2, 0, 1)[None]                      # [1, h, N, N]
+        if geo.dim() == 4:                                               # per-sample geometry [B, N, N, g] (WEATHER-5K)
+            bias = self.geo(geo).permute(0, 3, 1, 2)                     # [B, h, N, N]
+        else:
+            bias = self.geo(geo).permute(2, 0, 1)[None]                  # [1, h, N, N]
         if self.nbr_mask:
             keep = (geo[..., 1] + geo[..., 2]) > 0                       # [N, N]: self or graph neighbour
             bias = bias.masked_fill(~keep[None, None], float("-inf"))

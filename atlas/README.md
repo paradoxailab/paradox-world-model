@@ -2383,6 +2383,12 @@ then the WB1 entry at 24 h (v1's test number is reported beside it either way). 
 **Predictions.** v2a lowers E by 1–4% (70%). v2c lowers it by a further 0–2% over v2a (50%): more neighbours help
 sparse regions but dilute attention in dense ones.
 
+**v2a result (Kaggle run atlas-w5k-v2a, GPU T4, 113 min; validation only):** final validation 2022 MAE 1.524 / 1.580 /
+55.81 / 1.225 / 1.615 (T / Td / WD / WS / SLP) against v1's 1.547 / 1.603 / 56.45 / 1.236 / 1.677: E 0.28869 vs 0.29292,
+**−1.44%**, past the 1% bar; every variable improves (−1.5%, −1.4%, −1.1%, −0.9%, and pressure, the largest gap to the
+published leaders, −3.7%). Prediction (1–4%): held. Under the rule the choice between v2a and v2c is made when v2c has run;
+only the chosen one is scored on 2023.
+
 **WB2 — GIFT-Eval** (Salesforce; the main leaderboard for time-series foundation models): its weather and air-quality
 datasets (e.g. KDD Cup 2018 air quality, Jena weather, temperature-rain), scored with its own code against the
 leaderboard's per-dataset results. Rules are written before it runs.

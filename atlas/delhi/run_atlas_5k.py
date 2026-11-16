@@ -91,8 +91,10 @@ def time_feats(t0, n):
 
 
 class Batcher:
-    def __init__(self, Z, nb, geo, st, H):
+    def __init__(self, Z, nb, geo, st, H, center_only=False):
         self.Z, self.H = Z, H
+        if center_only:                                   # persistence and DLinear read only the station itself
+            nb = nb[:, :1]; geo = geo[:, :1, :1]
         self.nb = torch.from_numpy(nb).to(DEV); self.geo = torch.from_numpy(geo).to(DEV); self.st = torch.from_numpy(st).to(DEV)
 
     def __call__(self, s, t0):
@@ -102,7 +104,7 @@ class Batcher:
         tt = t0[:, None] + torch.arange(L + H, device=DEV)[None]           # [B, L+H]
         w = self.Z[ids[:, :, None], tt[:, None, :]].float()                # [B, K, L+H, 5]
         m = torch.isfinite(w).float(); w = torch.nan_to_num(w)
-        tf = time_feats(t0, L + H)[:, None].expand(-1, K, -1, -1)
+        tf = time_feats(t0, L + H)[:, None].expand(-1, ids.shape[1], -1, -1)
         return dict(yc=w[:, :, :L], mc=m[:, :, :L], uc=tf[:, :, :L], uf=tf[:, :, L:], geo=self.geo[s],
                     static=self.st[ids], y=w[:, :, L:], my=m[:, :, L:])
 
@@ -170,7 +172,7 @@ def main(a):
     Z, lat, lon, elev, M = load(a.quick)
     N = Z.shape[0]
     nb = neighbours(lat, lon); geo = geometry(lat, lon, nb); st = static_feats(lat, lon, elev)
-    bt = Batcher(Z, nb, geo, st, a.H)
+    bt = Batcher(Z, nb, geo, st, a.H, center_only=(a.model != "atlas"))
     miss = {y: float(torch.isnan(Z[:, YEARS[y][0]:YEARS[y][1]]).float().mean()) for y in YEARS}
     log(f"W5K: {N} stations, {Z.shape[1]} hours, missing share by split {json.dumps({k: round(v, 4) for k, v in miss.items()})}; "
         f"neighbourhood median radius {np.median(geo[:, 0, :, 2].max(1)) * 1000:.0f} km; device {DEV}")

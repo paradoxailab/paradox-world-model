@@ -2300,6 +2300,35 @@ given to the first Atlas-5K run (1M parameters, H = 24, seed 600, `atlas-w5k-atl
 running on CPU. C2 finishes long before that run reaches its test step; if C2 fails, the run's test numbers are
 discarded and not reported as a benchmark result. v3 part A is re-queued when a slot frees.
 
+### WB1-T: the data threshold function at 1M parameters on WEATHER-5K (rules and predictions written 2026-11-16 11:50 UTC, before any of these runs and before any Atlas-5K result)
+
+**Decision (Adi, 2026-11-16).** The entry's parameter budget is **1M**: Atlas-5K is developed and reported as a 1M
+model (968,672 parameters), the aim being the best model of any size on WEATHER-5K at that budget. The 10M Atlas-5K and
+v3's remaining parts (A and C, India, 3M/10M) are deferred, not dropped; v3 part B (10M × three shares) is recorded.
+
+**Question.** Does the project's threshold function, error = floor + a·n^−α, describe and **predict** how a 1M Atlas
+improves with data on a large real benchmark, and is there a better form?
+
+**Design** (`run_atlas_5k.py --frac`, `kaggle_w5k.sh`, notebooks `atlas_w5k_thr_a/b`, `score_w5k_thr.py`). The 1M
+Atlas-5K at H = 24 h trained on nested shares 1/64, 1/32, 1/16, 1/8, 1/4, 1/2 and all of the 2014–2021 training days (all
+5,672 stations every time; a share keeps a fixed set of days chosen by a permutation with seed 12345, so smaller shares
+are subsets of larger ones), seed 600, the all-data run's settings otherwise. n = training station-days (all data: 2,920
+days × 5,672 stations = 16.6M). Measures on **validation 2022 only** (every 4th station, every 6th hour): E = mean over
+the five variables of MAE divided by the benchmark's scale, and temperature MAE. The shares are not scored on the test
+year (only the all-data run is, once).
+
+**Fit and predict.** Three forms are fitted (least squares in log error) on the four smallest shares only (1/64–1/8):
+A pure power law, B power law + floor (the project's form), C saturating (c + a / (1 + (n/n0)^α)). Each predicts E at
+1/4, 1/2 and all; score = mean |log(predicted / measured)|.
+
+**Rule (WB1-T).** The threshold function is **verified** if form B predicts E at each of the three held-out shares
+within 3%. A new form is **adopted** as threshold function v2 if it beats B's held-out score by at least half.
+
+**Predictions.** 1. E falls smoothly with data, no step (85%). 2. Form B verified (60%); A misses by more than 3% at the
+largest share because it has no floor (65%). 3. Fitted exponent α for E between 0.1 and 0.5 (larger than the India
+station curves' 0.08, because each added station-day here is a new place and season rather than more of one network).
+4. All-data 1M Atlas-5K is within 2% of the 1/2-share run on E (the 1M model is near its data-saturation at this size).
+
 **WB2 — GIFT-Eval** (Salesforce; the main leaderboard for time-series foundation models): its weather and air-quality
 datasets (e.g. KDD Cup 2018 air quality, Jena weather, temperature-rain), scored with its own code against the
 leaderboard's per-dataset results. Rules are written before it runs.

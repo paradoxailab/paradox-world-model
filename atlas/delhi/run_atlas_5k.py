@@ -192,13 +192,21 @@ def main(a):
         scaler = torch.amp.GradScaler(enabled=(DEV == "cuda" and a.model == "atlas"))
         ta, te = YEARS["train"]
         rng = np.random.default_rng(a.seed)
+        tmax = te - (L + a.H)                                                # last valid first-input hour
+        days = np.arange(ta // 24, tmax // 24 + 1)
+        if a.frac < 1:                                    # threshold study: a fixed, nested share of training days
+            perm = np.random.default_rng(12345).permutation(days)            # same for every size and seed
+            days = np.sort(perm[:int(math.ceil(a.frac * len(days)))])
+        kd = torch.from_numpy(days).to(DEV)
+        res.update(frac=a.frac, train_days=int(len(days)), train_station_days=int(len(days)) * N)
+        log(f"training data: {len(days)} days x {N} stations ({a.frac:g} of 2014-2021)")
         vst = rng.choice(N, min(N, 300 if not a.quick else N), replace=False)   # validation: 300 stations, every 6th hour
         best, best_step, bad, f_best = float("inf"), 0, 0, os.path.join(OUT, f"{a.tag}_s{a.seed}.pt")
         t0 = time.time()
         for step in range(1, a.steps + 1):
             model.train()
             s = torch.randint(0, N, (a.bs,), device=DEV)
-            t = torch.randint(ta, te - (L + a.H) + 1, (a.bs,), device=DEV)
+            t = (kd[torch.randint(0, len(kd), (a.bs,), device=DEV)] * 24 + torch.randint(0, 24, (a.bs,), device=DEV)).clamp(ta, tmax)
             b = bt(s, t)
             with torch.autocast(DEV, dtype=torch.float16, enabled=(DEV == "cuda" and a.model == "atlas")):
                 if a.model == "atlas":
@@ -255,5 +263,6 @@ if __name__ == "__main__":
     ap.add_argument("--cap", type=float, default=600, help="minutes")
     ap.add_argument("--tag", default="w5k")
     ap.add_argument("--no-test", action="store_true")
+    ap.add_argument("--frac", type=float, default=1.0, help="threshold study: share of training days kept (nested)")
     ap.add_argument("--quick", action="store_true")
     main(ap.parse_args())

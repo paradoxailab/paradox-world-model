@@ -2056,6 +2056,24 @@ and if so it is W10r (70%). T-A: B1 passes (70%); B2 (no network-track lost to T
 with or better than Atlas-F) passes (55%). T-B: the weather Atlas's MAE is below 31.27 (65%) and B5 passes (50%); the
 gain with real forecasts is smaller than with perfect weather.
 
+### W results: weather is adopted; the 10M model is not (Kaggle runs atlas-w1/w10/w10r-s400, 2026-11-16, GPU T4)
+
+Pooled validation MAE on trained stations (checkpoint E), seed 400, eight ERA5 series as forcing (validation uses the
+weather that happened):
+
+| Candidate | parameters | best validation MAE | at step | vs Atlas-India 9.104 | vs W1 |
+|---|---|---|---|---|---|
+| **W1** (1M + weather) | 985,216 | **8.684** | 58,000 | **−4.61%** | – |
+| W10 (10M + weather) | 9,909,792 | 8.773 | 48,000 (stopped improving) | −3.64% | +1.02% |
+| W10r (10M + weather, lr 1e-3, weight decay 0.05, dropout 0.1) | 9,909,792 | 8.825 | 58,000 | −3.07% | +1.62% |
+
+**Weather is adopted** (8.684 ≤ 9.013): the largest validation gain of the project so far. **No 10M candidate is
+adopted** (both are worse than W1; the bar was 8.597). Even with information the 1M model lacked, ten times the
+parameters do not help at this data size, and regularising the 10M model made it worse, not better. The adopted model is
+**W1**, whose seeds 401 and 402 run next, then T-A and T-B. Predictions: W1 adopted with a 2–6% gain (right, 4.6%); a 10M
+candidate adopted (45%; wrong); if so W10r (moot). Caveat for every number here: the forcing is the reanalysis, so these
+gains are an upper bound until T-B scores real day-before forecasts.
+
 ## What has not been done (as of 2026-11-13)
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

@@ -103,9 +103,12 @@ def main(a):
             o.append(f"| {s} (CEEW) | {v['RMSE']:.2f} | {v['MAE']:.2f} | {v['MBE']:+.2f} | {v['R']:.2f} | {v['MAPE']} | 3512 (stated) | {v['obs_mean']} | {v['pred_mean']} |")
     o += ["", f"Source of the operational numbers: {CEEW['source']}. By number only; see the caveats in score_i1.py."]
     os.makedirs(OUT, exist_ok=True)
-    json.dump(res, open(os.path.join(OUT, "i1_results.json"), "w"), indent=1, default=float)
-    open(os.path.join(OUT, "I1_REPORT.md"), "w").write("\n".join(o) + "\n")
+    sfx = "" if a.tag == "i1" else f"_{a.tag}"
+    json.dump(res, open(os.path.join(OUT, f"i1_results{sfx}.json"), "w"), indent=1, default=float)
+    open(os.path.join(OUT, f"I1_REPORT{sfx}.md"), "w").write("\n".join(o) + "\n")
     log("\n".join(o))
+    if a.ref:
+        b5(a, D, te, mid, obs, ym, pm, res)
     if a.extra:
         extra(D, Z, st, mid, org, fo, y, obs, ym, pm, pd, res)
 
@@ -155,10 +158,41 @@ def extra(D, Z, st, mid, org, fo, y, obs, ym, pm, pd, res):
     log("I1-EXTRA-DONE")
 
 
+def b5(a, D, te, mid, obs, ym, pm, res):
+    """v2-W T-B, criterion B5 (README, "Atlas v2-W"): the weather Atlas (this run's tag) against the I1 Atlas (--ref,
+    no weather) on the same hourly Delhi-average series: paired Diebold-Mariano with a day-block bootstrap
+    (pw/evaluate.compare, one window per issue day). B5 passes on a significant MAE win."""
+    from pw import evaluate as E
+    Z = [np.load(f) for f in found(f"{a.ref}_s*.npz")]
+    assert Z, f"no {a.ref}_s*.npz attached for B5"
+    metas = [json.loads(str(z["meta"])) for z in Z]
+    st = "C" if np.mean([m["C"]["val_MAE"] for m in metas]) < np.mean([m["B"]["val_MAE"] for m in metas]) else "B"
+    for z in Z:
+        assert (z["test_origins"] == te).all(), "the reference forecasts are on other windows"
+    p = np.mean([z[f"{st}_t"] for z in Z], 0)[..., 1][mid]
+    with np.errstate(all="ignore"):
+        rm = np.where(obs.any(1), np.nansum(np.where(obs, p, 0), 1) / obs.sum(1), np.nan)
+    R0 = metrics(rm.reshape(-1), ym.reshape(-1))
+    q = lambda m: np.repeat(m[:, None, :, None], 3, -1)
+    out = {"reference": f"{a.ref} (stage {st}, seeds {[m['seed'] for m in metas]})", "reference_metrics": R0}
+    for met in ("MAE", "RMSE"):
+        out[met] = E.compare(q(pm), q(rm), ym[:, None, :], 1, met, reps=5000)
+    out["B5"] = "PASS" if out["MAE"]["verdict"] == "WIN" else "FAIL"
+    res["B5"] = out
+    log(f"B5 reference {out['reference']}: RMSE {R0['RMSE']:.2f}, MAE {R0['MAE']:.2f}")
+    for met in ("MAE", "RMSE"):
+        c = out[met]
+        log(f"B5 {a.tag} vs {a.ref} {met}: {c['rel_diff_pct']:+.2f}% (95% CI {c['ci95_pct'][0]:+.2f} .. {c['ci95_pct'][1]:+.2f}), "
+            f"DM p={c['p']:.2g}, {c['windows']} days -> {c['verdict']}")
+    log("B5-RULE " + json.dumps(dict(verdict=out["B5"], MAE=out["MAE"], RMSE=out["RMSE"]), default=float))
+    json.dump(res, open(os.path.join(OUT, f"i1_results_{a.tag}.json"), "w"), indent=1, default=float)
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--tag", default="i1")
     ap.add_argument("--first", default="2018-01-01")
+    ap.add_argument("--ref", default="", help="v2-W T-B: tag of the reference run for B5 (i1)")
     ap.add_argument("--extra", action="store_true", help="post-hoc additions for the paper (bootstrap, seeds, daily, by hour)")
     a = ap.parse_args()
     main(a)

@@ -2074,6 +2074,17 @@ parameters do not help at this data size, and regularising the 10M model made it
 candidate adopted (45%; wrong); if so W10r (moot). Caveat for every number here: the forcing is the reanalysis, so these
 gains are an upper bound until T-B scores real day-before forecasts.
 
+**T-A and T-B code (committed 2026-11-16, before either runs; the rules above are unchanged).** T-A:
+`delhi/score_wa.py` (`kaggle_ta.sh`, notebook `atlas_wa_score`, CPU) scores W1 seeds 400–402, Atlas-India, TimesFM 2.5,
+Atlas-F and Atlas-F2 (W1 + TimesFM 2.5 by the frozen online rule of `score_v14.py`) and prints B1–B4, each labelled
+"with perfect weather". T-B: `kaggle_tb.sh` (notebooks `atlas_tb_s320..322`) pre-trains the W1 architecture on the 13
+other networks with ERA5 (`--skip Delhi --pretrain-only`, tag `wx13`), then runs the I1 recipe on Delhi
+(`run_atlas_long.py --lr-b 0.3 --steps 12000`, tag `wi1`) with `ATLAS_WX_FC=DELHI_FC_ecmwf_ifs025.npz`; the run logs
+what share of the test window's weather the forecasts serve. Scoring (`atlas_tb_score`) is `score_i1.py --tag wi1
+--ref i1`: the I1 table for the weather Atlas plus **B5**, a paired Diebold–Mariano test against the I1 Atlas on the same
+hourly Delhi-average series, one block per issue day (`pw/evaluate.compare`), MAE and RMSE; B5 passes on a significant
+MAE win. Compute: CPU, as I1 (the GPU slots hold W1 seeds 401 and 402).
+
 ## What has not been done (as of 2026-11-13)
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

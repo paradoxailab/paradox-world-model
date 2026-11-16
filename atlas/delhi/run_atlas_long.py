@@ -119,6 +119,9 @@ def main(a):
         va, va_fast, va4, te = va[:24], va[:24:2], va[:24:4], te[:20]
     yv, yt = R.truth(D, va_fast, S), R.truth(D, te, ALL)
     res = dict(seed=a.seed, first=a.first, train_windows=int(len(tr)), league_windows=int(len(tr_league)), describe=D.describe())
+    if getattr(D, "WX", None) is not None:                 # v2-W: weather forcing (ATLAS_WX=1), real forecasts in the test window
+        res["weather"] = dict(series=int(D.Cx), served_train=round(D.wx_served, 4), forecasts=getattr(D, "wx_fc", None))
+        log("WEATHER " + json.dumps(res["weather"]))
 
     def forecasts(m):
         out = {}

@@ -9,6 +9,7 @@ for j in ${JOBS:?}; do
   IFS=: read m h sz fr <<< "$j"; sz=${sz:-1000000}; fr=${fr:-1}
   t=w5k_${m}$( [ "$m" = atlas ] && echo _$((sz / 1000000))m )_h$h
   extra=""; [ "$m" = dlinear ] && extra="--steps ${DL_STEPS:-30000} --bs 1024 --lr 5e-3 --every 3000"
+  t=${t}${TAGSFX}
   if [ "$fr" != "1" ]; then t=${t}_f$(echo $fr | tr -d .); extra="$extra --frac $fr --no-test"; fi   # WB1-T: validation only
   python -u run_atlas_5k.py --model $m --H $h --size $sz --seed ${SEED:-600} --tag $t ${extra} ${EXTRA} 2>&1 \
     | grep --line-buffered -v "Warning\|warn(" | tee $ATLAS_OUT/log_${t}.txt

@@ -33,6 +33,8 @@ def log(*a):
 def load():
     pts = {}
     for f in set(glob.glob(os.path.join(OUT, "w5k_atlas_1m_h24*.json")) + glob.glob("/kaggle/input/**/w5k_atlas_1m_h24*.json", recursive=True)):
+        if "_v2" in os.path.basename(f):                  # improvement candidates are not points of the data curve
+            continue
         r = json.load(open(f))
         fr = float(r.get("frac") or 1.0)
         v = r["val"]["MAE"]

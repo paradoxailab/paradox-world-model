@@ -2329,6 +2329,22 @@ largest share because it has no floor (65%). 3. Fitted exponent α for E between
 station curves' 0.08, because each added station-day here is a new place and season rather than more of one network).
 4. All-data 1M Atlas-5K is within 2% of the 1/2-share run on E (the 1M model is near its data-saturation at this size).
 
+### Atlas-5K v2: improving the 1M entry (rules written 2026-11-16 12:10 UTC, before any of these runs and before the v1 test number exists)
+
+**Why.** The v1 run (60,000 steps, 16 stations per neighbourhood) was still improving on validation when its learning-rate
+schedule ended (pooled validation E 0.2948 at step 42,000 and falling), and each station read only its 15 nearest
+neighbours. Two changes that keep the model at 968,672 parameters (the neighbourhood size does not change the weights):
+* **v2a**: 150,000 steps (2.5× the schedule), everything else as v1.
+* **v2c**: 150,000 steps and 32 stations per neighbourhood (itself + 31 nearest).
+
+**Rule.** Selection on the 2022 validation year only (E = the standardised mean of the five variables' MAE, every 4th
+station, every 6th hour, the run's final validation). A candidate is **adopted** if its E is at least 1% below v1's; if
+both are, the lower one. The candidates are not scored on the test year; only the adopted model is, once, and it is
+then the WB1 entry at 24 h (v1's test number is reported beside it either way). Seed 600 for all.
+
+**Predictions.** v2a lowers E by 1–4% (70%). v2c lowers it by a further 0–2% over v2a (50%): more neighbours help
+sparse regions but dilute attention in dense ones.
+
 **WB2 — GIFT-Eval** (Salesforce; the main leaderboard for time-series foundation models): its weather and air-quality
 datasets (e.g. KDD Cup 2018 air quality, Jena weather, temperature-rain), scored with its own code against the
 leaderboard's per-dataset results. Rules are written before it runs.

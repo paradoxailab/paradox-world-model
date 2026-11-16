@@ -171,12 +171,12 @@ def main(a):
     torch.manual_seed(a.seed); np.random.seed(a.seed)
     Z, lat, lon, elev, M = load(a.quick)
     N = Z.shape[0]
-    nb = neighbours(lat, lon); geo = geometry(lat, lon, nb); st = static_feats(lat, lon, elev)
+    nb = neighbours(lat, lon, a.k); geo = geometry(lat, lon, nb); st = static_feats(lat, lon, elev)
     bt = Batcher(Z, nb, geo, st, a.H, center_only=(a.model != "atlas"))
     miss = {y: float(torch.isnan(Z[:, YEARS[y][0]:YEARS[y][1]]).float().mean()) for y in YEARS}
     log(f"W5K: {N} stations, {Z.shape[1]} hours, missing share by split {json.dumps({k: round(v, 4) for k, v in miss.items()})}; "
         f"neighbourhood median radius {np.median(geo[:, 0, :, 2].max(1)) * 1000:.0f} km; device {DEV}")
-    res = dict(model=a.model, H=a.H, seed=a.seed, tag=a.tag, stations=N, protocol="WEATHER-5K: L=48, train 2014-2021, val 2022, test 2023, all hourly windows")
+    res = dict(model=a.model, H=a.H, seed=a.seed, tag=a.tag, stations=N, k=a.k, steps=a.steps, protocol="WEATHER-5K: L=48, train 2014-2021, val 2022, test 2023, all hourly windows")
     model = None
     if a.model in ("atlas", "dlinear"):
         if a.model == "atlas":
@@ -263,6 +263,7 @@ if __name__ == "__main__":
     ap.add_argument("--cap", type=float, default=600, help="minutes")
     ap.add_argument("--tag", default="w5k")
     ap.add_argument("--no-test", action="store_true")
+    ap.add_argument("--k", type=int, default=K, help="stations per neighbourhood (itself + k-1 nearest)")
     ap.add_argument("--frac", type=float, default=1.0, help="threshold study: share of training days kept (nested)")
     ap.add_argument("--quick", action="store_true")
     main(ap.parse_args())

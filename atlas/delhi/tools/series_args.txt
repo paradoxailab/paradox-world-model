@@ -1,1 +1,1 @@
-release --plan tools/series_plan.json
+release --plan tools/series_plan.json --push

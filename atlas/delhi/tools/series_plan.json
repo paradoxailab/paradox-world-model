@@ -1145,6 +1145,24 @@
    "family": "Atlas",
    "task": "next 24 h of temperature, dew point, wind direction, wind speed, sea-level pressure at stations",
    "id": 56
+  },
+  {
+   "name": "atlas-5k-v2c",
+   "file": "atlas-5k_v2c_weather5k_adopted",
+   "version": "Atlas-5K v2c (adopted)",
+   "datasets": [
+    "WEATHER-5K (ICML 2026): 5,672 weather stations worldwide, hourly 2014–2023"
+   ],
+   "source_run": "Kaggle atlas-w5k-v2c, 2026-11-16/17",
+   "source_glob": "atlas-w5k-v2c/out/w5k_atlas_1m_h24_v2c_s600.pt",
+   "weights_key": "sd",
+   "date": "2026-11-17",
+   "result": "validation E 0.28140 (-3.93% vs v1; all five variables better): adopted as the WB1 entry; 2023 test pending (GPU quota)",
+   "improvement": "32 stations per neighbourhood + 150,000 steps",
+   "status": "adopted, test pending",
+   "family": "Atlas",
+   "task": "next 24 h of temperature, dew point, wind direction, wind speed, sea-level pressure at stations",
+   "id": 57
   }
  ],
  "commit_message": "Model series: every saved PWM model version with its dataset inside the file\n\nBuilt and verified on Kaggle (atlas-model-series): one file per version and dataset, the reported weights only,\nwith a meta block (series number, name, version, family, task, datasets, parameters, result, source run and the\nsource file's SHA-256). Index: models/series/README.md, SERIES.json, SHA256SUMS.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01TCvEAwgYb9HyrCaEGd5YWa"

@@ -218,6 +218,11 @@ add(name="atlas-5k-v2a", file="atlas-5k_v2a_weather5k", version="Atlas-5K v2a", 
     source_glob="atlas-w5k-v2a/out/w5k_atlas_1m_h24_v2a_s600.pt", weights_key="sd", date="2026-11-16",
     result="validation E 0.28869 vs 0.29292 (-1.44%); not yet tested", improvement="150,000 training steps", status="validation only", **W)
 
+add(name="atlas-5k-v2c", file="atlas-5k_v2c_weather5k_adopted", version="Atlas-5K v2c (adopted)", datasets=[W5K], source_run="Kaggle atlas-w5k-v2c, 2026-11-16/17",
+    source_glob="atlas-w5k-v2c/out/w5k_atlas_1m_h24_v2c_s600.pt", weights_key="sd", date="2026-11-17",
+    result="validation E 0.28140 (-3.93% vs v1; all five variables better): adopted as the WB1 entry; 2023 test pending (GPU quota)",
+    improvement="32 stations per neighbourhood + 150,000 steps", status="adopted, test pending", **W)
+
 plan = {"models": M, "commit_message": "Model series: every saved PWM model version with its dataset inside the file\n\n"
         "Built and verified on Kaggle (atlas-model-series): one file per version and dataset, the reported weights only,\n"
         "with a meta block (series number, name, version, family, task, datasets, parameters, result, source run and the\n"

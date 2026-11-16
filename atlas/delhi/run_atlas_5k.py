@@ -187,6 +187,7 @@ def main(a):
     log(f"W5K: {N} stations, {Z.shape[1]} hours, missing share by split {json.dumps({k: round(v, 4) for k, v in miss.items()})}; "
         f"neighbourhood median radius {np.median(geo[:, 0, :, 2].max(1)) * 1000:.0f} km; device {DEV}")
     res = dict(model=a.model, H=a.H, seed=a.seed, tag=a.tag, stations=N, k=a.k, steps=a.steps, protocol="WEATHER-5K: L=48, train 2014-2021, val 2022, test 2023, all hourly windows")
+    res["gpu"] = torch.cuda.get_device_name(0) if DEV == "cuda" else "cpu"
     model = None
     if a.eval:                                            # score a saved model once; no training
         f = a.eval if os.path.exists(a.eval) else next(iter(glob.glob(f"/kaggle/input/**/{a.eval}", recursive=True)), a.eval)

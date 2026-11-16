@@ -2405,6 +2405,52 @@ shares (1/64, 1/32, 1/16, 1/8), so no fit is reported until atlas-w5k-thr-b (1/3
 place). At Adi's request the trained weights are published in `models/` (about 4 MB each), replacing the earlier
 "no weights in the repository" rule for these model files; data and keys stay out.
 
+### Atlas-5K 10M: the adopted 1M model, grown and trained on (rules and predictions written 2026-11-17 05:30 IST, before any of these runs and before any 2023 test number of v2c)
+
+**Decision (Adi, 2026-11-17).** After the 1M entry, one 10M Atlas-5K, built as a **continuation of v2c**, not from a
+random start. Compute: Google Colab under ParadoxAI Lab's Google AI Pro plan (200 compute units a month); any GPU
+Colab gives; the GPU type is recorded with the result.
+
+**Why now, when the earlier 10M models lost.** The India 10M runs (S3, W10, W10r) trained from scratch on about 150,000
+windows and fitted noise. WEATHER-5K's training years hold about 400M station-hour windows; an 80,000-step run sees
+about 20M of them, so no window repeats; and the WB1-T curve at 1M flattens with data (E 0.2971 at 1/4, 0.2929 at all),
+which says the 1M model, not the data, is the limit.
+
+**Model** (`atlas/grow.py`, `run_atlas_5k.py --init --grow 2,7,7`). v2c (968,672 parameters, width 196, 4 heads,
+2 encoder and 2 dynamics blocks) grown to **9,639,780 parameters** (under the 10M cap): width 392 and 8 heads (head size
+unchanged) by tiling every vector of the state; layers that read a tiled vector get their weights divided by two plus a
+perturbation that sums to zero over the copies (5% of the weights' spread), so the grown model computes **the same
+forecasts as v2c** at the start (largest difference measured on random inputs 2.6e-5, against outputs of about 1.2),
+while the copies get different gradients and can specialise; 5 encoder and 5 dynamics blocks are appended with their
+output layer at zero, so each starts as the identity.
+
+**Training.** As v2c except where stated: 32 stations per neighbourhood, batch 256, all 2014–2021 training days, seed
+600, pinball loss plus the masked-input reconstruction term; AdamW with peak learning rate **3e-4** (v2c: 1e-3; the
+start is already trained), 3% warm-up then the one-cycle decay, weight decay 1e-4, **80,000 steps**, validation every
+2,000 steps on the same 300 stations (every 6th hour of 2022), patience 8 checks, best checkpoint kept. Runs pause at a
+session's time cap and resume from a full checkpoint (model, optimiser, schedule, step) in Google Drive
+(`--pause-at-cap`); a resumed run continues the same schedule.
+
+**Check G0 (growth).** The step-0 validation of the grown model equals v2c's best on the same 300 stations (0.2796)
+within 0.5%. If not, the run is stopped and the growth code fixed; such a run is not counted.
+
+**Rule 10M-A (validation only).** E = the standardised mean of the five variables' MAE on the 2022 validation year
+(every 4th station, every 6th hour, the run's final validation), as for v1/v2a/v2c. The 10M model is **adopted** if
+E ≤ **0.2786** (1% below v2c's 0.28140). Only if adopted is it scored, once, on the 2023 test year (`--test-if-below
+0.2786` decides this mechanically). v2c is scored once on 2023 in the same notebook, as already pre-registered; both test
+numbers are reported. The WB1 entry at 24 h is the adopted model with the lower validation E. Rule WB1 is unchanged:
+beating PhysicsFormer needs lower MAE on at least four of the five variables; beating ECMWF-HRES needs lower MAE on
+temperature, dew point, wind speed and pressure. By number only (no published forecasts for a paired test).
+
+**What comes after (not decided now).** A larger model (about 40M, the 10M grown again) only if the threshold fit on
+measured sizes predicts it pays; the 10M cap would be lifted in writing here before that run.
+
+**Predictions.** G0 passes (95%). The 10M model is adopted (60%); if adopted, its E is between 0.270 and 0.278 (60%).
+v2c on 2023 beats PhysicsFormer by the four-of-five rule (60%: its validation MAE is lower on temperature, dew point,
+wind direction and, by 0.4%, wind speed; pressure stays higher, 90%). If the 10M model is adopted it beats
+PhysicsFormer (75%) and its pressure MAE is still above PhysicsFormer's 1.43 (75%). Neither beats ECMWF-HRES under the
+four-variable rule (95%; its pressure MAE is 0.86).
+
 **WB2 — GIFT-Eval** (Salesforce; the main leaderboard for time-series foundation models): its weather and air-quality
 datasets (e.g. KDD Cup 2018 air quality, Jena weather, temperature-rain), scored with its own code against the
 leaderboard's per-dataset results. Rules are written before it runs.

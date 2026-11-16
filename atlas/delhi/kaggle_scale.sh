@@ -14,7 +14,7 @@ find /kaggle/input -name "DELHI_FC_*.npz" -exec cp -n {} $PW_RAW/ \; 2>/dev/null
 nvidia-smi -L || true
 F='Warning\|warn(\|nanmean\|invalid value\|c /= \|stddev\|corrcoef\|_ureduce\|reshape(D'
 for s in ${SEEDS:-400}; do
-  python -u run_atlas_india.py --seed $s --size ${SIZE:?} --steps ${STEPS:-60000} --cap ${CAP:-650} --lr-scale ${LRS:-1} --wd ${WD:-0.0001} --tag ${TAG:?} 2>&1 \
+  python -u run_atlas_india.py --seed $s --size ${SIZE:?} --steps ${STEPS:-60000} --cap ${CAP:-650} --lr-scale ${LRS:-1} --wd ${WD:-0.0001} --frac ${FRAC:-1} --tag ${TAG:?} 2>&1 \
     | grep --line-buffered -v "$F" | tee $ATLAS_OUT/log_${TAG}_s$s.txt
 done
 rm -rf $PW_RAW/INDIA_LONG.npz $PW_RAW/INDIA_WX.npz $PW_RAW/india_nets

@@ -2085,6 +2085,53 @@ what share of the test window's weather the forecasts serve. Scoring (`atlas_tb_
 hourly Delhi-average series, one block per issue day (`pw/evaluate.compare`), MAE and RMSE; B5 passes on a significant
 MAE win. Compute: CPU, as I1 (the GPU slots hold W1 seeds 401 and 402).
 
+**W1 seeds 401 and 402 (Kaggle runs atlas-w1-s401 / s402, 2026-11-16, GPU T4):** pooled validation MAE 8.711 and
+8.718 (seed 400: 8.684); relative standard deviation over the three seeds 0.21%. The weather gain is not one seed's
+luck: every W1 seed is 4.2–4.6% below Atlas-India seed 400's 9.104. (Their logs print single-model test errors; no
+choice used them. T-A scores the three-seed ensemble once.)
+
+## Atlas v3: the data × size threshold function (rules and predictions written 2026-11-16, before any of these runs)
+
+**Why.** Every size test so far (simulators, Delhi, the all-India ladder, and the ladder again with weather) gave the
+same answer: at the data we have, a 10M Atlas is no better than a 1M one, and a little worse. That leaves open the
+question that decides whether the 10M goal is reachable and how: **how much data does each size need before it pays?**
+The project's threshold function asks the minimum data for a target error; v3 asks it across model size on real
+all-India data with weather: the data threshold at which a larger model starts to beat the 1M one. If the 10M model's
+deficit shrinks as data grows, the trend says how much more data 10M needs; if it does not shrink, more data alone
+will not make 10M worth it either.
+
+**Grid** (`delhi/kaggle_dxp.sh`, `run_atlas_india.py --frac`, `score_dxp.py`; Kaggle GPU T4). Sizes 1M, 3M and 10M,
+data shares 1/8, 1/4, 1/2 and all. Every run: weather forcing (the adopted W1 inputs), all 14 networks, seed 400,
+60,000 steps, the code's defaults (learning rate 1e-3 up to width 256 and 5e-4 above, weight decay 1e-4; the same as
+W1 and W10). A share keeps a fixed fraction of each network's training **days**, chosen by a permutation that depends
+only on the network's name, so every size sees the same windows at one share and a smaller share is a subset of a
+larger one; validation and test windows, the stations and the graph are unchanged. The all-data cells are the
+existing W1 (1M) and W10 (10M) runs; 3M at all data is new. Ten new runs.
+
+**Measures (validation only).** E(f, P) = pooled validation MAE on trained stations (checkpoint E). The size gap
+g_P(f) = E(f, P) / E(f, 1M) − 1. The interaction D_P = g_P(1/8) − g_P(all). The trend g_P = g0 + s·log2(n / n_all) over
+the four shares (n = training windows), and the crossover n_x = n_all · 2^(−g_P(all) / s), the data at which the trend
+reaches zero (defined only if s < 0). Noise: σ = the relative standard deviation of W1's validation MAE over seeds
+400–402 (0.21%); a parametric bootstrap gives 90% intervals for s and n_x. Test windows are used for no choice and no
+measure here.
+
+**Rule (v3).** The data–size interaction is **confirmed** for size P if D_P > 4σ (the gap at 1/8 of the data exceeds the
+gap at all data by more than twice the noise of a difference of two gaps). A 10M model is **adopted** at any share only
+if it beats the 1M model at that share by at least 1%; this cannot happen at all data (measured: +1.02%) and is
+reported for the smaller shares as a check on the trend. The crossover is an extrapolation and is reported as one.
+
+**Known limits, stated now.** One seed per cell (σ is used as the noise of every cell). Input scaling and the graph
+are computed from all training data, so small shares are slightly favoured equally at every size. The learning-rate
+step at width 256 (3M and 10M train at half 1M's rate) is the code's rule, kept so the all-data cells are the
+recorded runs; W10r showed a 1M-like rate does not help the 10M model at all data. A straight line in log data is a
+local description; the crossover is only as good as that line.
+
+**Predictions.** 1. The 1M model's error rises as data shrinks: E(1/8, 1M) between 9.6 and 10.8 (Atlas-India's
+data-scaling exponent on Delhi was about 0.09, which predicts about 10.4 for one eighth). 2. The gap shrinks with
+data for 10M: g_10M(1/8) between +3% and +10%, interaction confirmed (70%). 3. For 3M, g_3M(all) between −1% and +1.5%
+and the interaction confirmed (60%). 4. Extrapolated crossover for 10M between 2× and 30× the current data (if
+confirmed); for 3M between 1× and 8×. 5. No larger model beats 1M by 1% at any share (85%).
+
 ## What has not been done (as of 2026-11-13)
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

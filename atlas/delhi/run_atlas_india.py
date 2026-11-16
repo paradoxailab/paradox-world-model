@@ -163,6 +163,18 @@ def reforecast(a):
     log("INDIA-REFORECAST " + json.dumps(res, default=float))
 
 
+def subsample_days(D, tr, frac):
+    """Keep the training windows whose issue day is among the first ceil(frac * days) of a permutation of the
+    network's training days fixed by its name alone (independent of the model seed), so every size and seed at one
+    share sees the same windows and smaller shares are subsets of larger ones."""
+    import zlib
+    day = tr // SPD
+    days = np.unique(day)
+    perm = np.random.default_rng(zlib.crc32(D.name.encode())).permutation(days)
+    keep = set(perm[:int(math.ceil(frac * len(days)))].tolist())
+    return tr[np.array([d in keep for d in day], bool)]
+
+
 def main(a):
     q = a.quick
     if a.budget:
@@ -182,6 +194,10 @@ def main(a):
             log(f"BUDGET {a.budget} months: {a.only} as if measuring only from {D.dates[D.avail_from]} "
                 f"(statistics from then to the end of validation)")
     O = [origins(D, q) for D in nets]
+    if a.frac < 1:                                         # Atlas v3 D x P grid: a fixed, nested share of training days
+        O = [(subsample_days(D, tr, a.frac), va4, te) for D, (tr, va4, te) in zip(nets, O)]
+        log(f"FRAC {a.frac}: each network keeps the same {a.frac:.4g} of its training days for every model size and seed "
+            f"(nested: a smaller share is a subset of a larger one); validation and test windows unchanged")
     for D, (tr, va4, te) in zip(nets, O):
         log(f"NET {D.name}: {D.N} stations ({len(D.seen)} trained on, {len(D.unseen)} unseen), {len(tr)} valid training windows, "
             f"{len(va4)} validation and {len(te)} test windows; PM2.5 missing {100 * np.isnan(D.Y[..., 0]).mean():.0f}%")
@@ -247,7 +263,7 @@ def main(a):
     capped = bool(time.time() - t0 > a.cap * 60)
     if step % every != 0 and step != steps:
         v = pooled_val(m, nets, O)
-    res = dict(seed=a.seed, loader="input fix of 2026-11-13", budget=a.budget or None, init=os.path.basename(a.init) or None,
+    res = dict(seed=a.seed, loader="input fix of 2026-11-13", budget=a.budget or None, frac=a.frac, init=os.path.basename(a.init) or None,
                lr_scale=a.lr_scale, avail_from=str(nets[0].dates[nets[0].avail_from]) if a.budget else None, inputs_dropped={D.name: D.aux_dropped for D in nets if D.aux_dropped},
                params=m.n_params(), networks=[D.name for D in nets], stations=[D.N for D in nets],
                train_windows=[len(o[0]) for o in O], hit_time_cap=capped, minutes_train=round((time.time() - t0) / 60, 1),
@@ -302,6 +318,7 @@ if __name__ == "__main__":
     ap.add_argument("--wd", type=float, default=1e-4, help="AdamW weight decay (Atlas v2 candidates: 0.05)")
     ap.add_argument("--lr-scale", type=float, default=1.0, help="multiplies the learning rate (adaptation: 0.3)")
     ap.add_argument("--budget", default="", help="ICML T1: months of --only's training data (most recent), or 'all'")
+    ap.add_argument("--frac", type=float, default=1.0, help="Atlas v3 D x P grid: share of training days kept (nested)")
     ap.add_argument("--quick", action="store_true")
     a = ap.parse_args()
     reforecast(a) if a.reforecast else main(a)

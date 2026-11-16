@@ -2335,9 +2335,8 @@ temperature and dew point (within 0.4%), slightly behind on wind speed, ahead on
 sea-level pressure; at 24 h it has lower error than ECMWF's operational model at the stations on four of five variables.
 Pressure is the one large gap, to both: the 48-hour station history carries little of the synoptic-scale pressure
 change that a global model (or PhysicsFormer's pressure–wind physics terms) can represent; it is the target of the next
-changes. Among published models of at most 1M parameters (DLinear, SparseTSF, TimeMixer 0.06M, WPMixer, STID 0.24M),
-Atlas-5K has the lowest error on every variable whose per-model averages are published (comparison of Table 2 averages
-requires Atlas's four leads, which follow).
+changes. The published models of at most 1M parameters (DLinear, SparseTSF, TimeMixer 0.06M, WPMixer, STID 0.24M)
+are reported here only as four-lead averages, so ranking Atlas-5K against them waits for its 72, 120 and 168 h runs.
 
 ### WB1-T: the data threshold function at 1M parameters on WEATHER-5K (rules and predictions written 2026-11-16 11:50 UTC, before any of these runs and before any Atlas-5K result)
 

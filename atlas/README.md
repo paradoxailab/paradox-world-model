@@ -2389,6 +2389,14 @@ sparse regions but dilute attention in dense ones.
 published leaders, −3.7%). Prediction (1–4%): held. Under the rule the choice between v2a and v2c is made when v2c has run;
 only the chosen one is scored on 2023.
 
+**WB1-T interim (Kaggle run atlas-w5k-thr-a, GPU T4, 125 min; validation only):** E at share 1/64 = 0.3376 (temperature
+1.889), 1/16 = 0.3129 (1.681), 1/4 = 0.2971 (1.585); all data (v1) 0.2929 (1.547). The rule's fit uses the four smallest
+shares (1/64, 1/32, 1/16, 1/8), so no fit is reported until atlas-w5k-thr-b (1/32, 1/8, 1/2) has run.
+
+**Release v0.2 (2026-11-17).** `MODELS.md` (model card) and `THRESHOLD_FUNCTIONS.md` (every fitted threshold law in one
+place). At Adi's request the trained weights are published in `models/` (about 4 MB each), replacing the earlier
+"no weights in the repository" rule for these model files; data and keys stay out.
+
 **WB2 — GIFT-Eval** (Salesforce; the main leaderboard for time-series foundation models): its weather and air-quality
 datasets (e.g. KDD Cup 2018 air quality, Jena weather, temperature-rain), scored with its own code against the
 leaderboard's per-dataset results. Rules are written before it runs.

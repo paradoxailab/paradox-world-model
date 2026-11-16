@@ -2300,6 +2300,45 @@ given to the first Atlas-5K run (1M parameters, H = 24, seed 600, `atlas-w5k-atl
 running on CPU. C2 finishes long before that run reaches its test step; if C2 fails, the run's test numbers are
 discarded and not reported as a benchmark result. v3 part A is re-queued when a slot frees.
 
+### WB1 results, v1 at 24 h (Kaggle runs atlas-w5k-check, CPU, 163 min; atlas-w5k-atlas1m-h24, GPU T4, 86 min; 2026-11-16)
+
+**C2 (protocol check): PASSED.** Our DLinear, trained and scored in our pipeline at the four leads, against its
+published Table 2 average (mean of the four leads): temperature **3.469 vs 3.57 (−2.8%)**, within the 5% rule; dew point
+3.408 vs 3.49 (−2.3%), wind speed 1.605 vs 1.61 (−0.3%), pressure 4.631 vs 4.60 (+0.7%). Per lead (temperature):
+2.659, 3.409, 3.786, 4.022. Our evaluation reproduces the published protocol.
+
+**Atlas-5K v1 at 24 h** (968,672 parameters, 16-station neighbourhoods, 60,000 steps, seed 600; best validation at the
+last check). Test 2023, all 5,672 stations, every hourly window, 1,182,816,192 scored values per variable. MAE:
+
+| Model (parameters) | Temperature | Dew point | Wind speed | Wind direction | Pressure |
+|---|---|---|---|---|---|
+| **Atlas-5K v1 (0.97M)** | **1.553** | **1.596** | **1.228** | **56.46** | **1.664** |
+| PhysicsFormer (19.3M), published | 1.55 | 1.59 | 1.21 | 57.37 | 1.43 |
+| ECMWF-HRES (operational NWP), published | 1.76 | 1.85 | 1.48 | 63.8 | 0.86 |
+| DLinear (0.002M), our run | 2.659 | 2.438 | 1.439 | 66.64 | 3.107 |
+| Persistence (last value held), our run | 3.743 | 2.229 | 1.747 | 75.48 | 2.735 |
+
+Validation 2022 (all stations' every 4th, every 6th hour): 1.547 / 1.603 / 1.236 / 56.45 / 1.677, so test and validation
+agree to within 1%. Test MSE: 5.679 / 6.436 / 3.441 / 7106.7 / 7.500.
+
+**Rule WB1 (by number; the published forecasts are not available for a paired test):**
+* Against PhysicsFormer: lower MAE on 1 of 5 variables (wind direction, −1.6%); temperature +0.2%, dew point +0.4%, wind
+  speed +1.5%, pressure +16.3%. **Does not beat it.**
+* Against ECMWF-HRES: lower MAE on temperature (−11.8%), dew point (−13.7%) and wind speed (−17.0%) (and wind direction,
+  −11.5%), higher on pressure (+93%). Three of the four rule variables: **does not beat it** under the four-variable rule.
+
+**Predictions:** beats PhysicsFormer at 24 h (55%): wrong; beats ECMWF-HRES on temperature, dew point and wind speed
+(60%): held; not on pressure (70%): held.
+
+**Reading.** With 20 times fewer parameters, Atlas-5K is level with the benchmark's best time-series model on
+temperature and dew point (within 0.4%), slightly behind on wind speed, ahead on wind direction, and clearly behind on
+sea-level pressure; at 24 h it has lower error than ECMWF's operational model at the stations on four of five variables.
+Pressure is the one large gap, to both: the 48-hour station history carries little of the synoptic-scale pressure
+change that a global model (or PhysicsFormer's pressure–wind physics terms) can represent; it is the target of the next
+changes. Among published models of at most 1M parameters (DLinear, SparseTSF, TimeMixer 0.06M, WPMixer, STID 0.24M),
+Atlas-5K has the lowest error on every variable whose per-model averages are published (comparison of Table 2 averages
+requires Atlas's four leads, which follow).
+
 ### WB1-T: the data threshold function at 1M parameters on WEATHER-5K (rules and predictions written 2026-11-16 11:50 UTC, before any of these runs and before any Atlas-5K result)
 
 **Decision (Adi, 2026-11-16).** The entry's parameter budget is **1M**: Atlas-5K is developed and reported as a 1M

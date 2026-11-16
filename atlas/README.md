@@ -2231,6 +2231,81 @@ data for 10M: g_10M(1/8) between +3% and +10%, interaction confirmed (70%). 3. F
 and the interaction confirmed (60%). 4. Extrapolated crossover for 10M between 2× and 30× the current data (if
 confirmed); for 3M between 1× and 8×. 5. No larger model beats 1M by 1% at any share (85%).
 
+## World benchmarks: plan, rules and predictions (written 2026-11-16, before any benchmark data is downloaded)
+
+**Goal.** Test Atlas, under the 10M-parameter cap, on the best-known public benchmarks that measure what it does
+(forecasting at measuring stations from their recent observations), against the published leaders, with the same
+rules as everything above: protocol and predictions first, a check that our pipeline reproduces a published number
+before any Atlas score, and every loss reported.
+
+**WB1 — WEATHER-5K** (Han et al.; ICML 2026 benchmark paper "Benchmarking Physics-Informed Time-Series Models for
+Operational Global Station Weather Forecasting"; data and code github.com/taohan10200/WEATHER-5K). 5,672 weather
+stations worldwide (NOAA ISD), hourly 2014–2023; temperature, dew point, wind direction, wind speed and sea-level
+pressure. **Protocol (the benchmark's, unchanged):** input the last 48 hours; forecast the next H = 24, 72, 120 and 168
+hours of all five variables; train 2014–2021, validate 2022, test 2023 on every hourly window of every station; MAE
+and MSE per variable averaged over all lead hours 1..H, in the variables' own units; SEDI for extremes with the
+benchmark's percentile file. Published models span 0.0002M–666M parameters (PhysicsFormer 19.3M, Pyraformer 7.5M,
+iTransformer 4.8M, PatchTST 6.7M, Chronos 48M, Timer 84M), and ECMWF-HRES is scored at the stations.
+
+Published test MAE (paper v3; Table 2 is the average over the four leads, Tables 8–9 per lead):
+
+| Model (parameters) | Temperature | Dew point | Wind speed | Sea-level pressure |
+|---|---|---|---|---|
+| ECMWF-HRES (operational NWP), mean of 4 leads | 1.94 | 2.06 | 1.56 | 1.29 |
+| PhysicsFormer (19.3M), best time-series model | 2.34 | 2.51 | 1.44 | 3.53 |
+| Pyraformer (7.5M) | 2.49 | 2.68 | 1.51 | 3.72 |
+| iTransformer (4.8M) | 2.64 | 2.87 | 1.52 | 4.11 |
+| TimeMixer (0.06M) | 2.69 | 2.84 | 1.52 | 4.06 |
+| Chronos (48M) | 3.03 | 3.28 | 1.72 | 4.62 |
+| DLinear (0.01M) | 3.57 | 3.49 | 1.61 | 4.60 |
+
+Per lead (temperature / dew point / wind speed / wind direction / pressure): ECMWF-HRES 24 h 1.76 / 1.85 / 1.48 / 63.8
+/ 0.86, 72 h 1.87 / 1.94 / 1.52 / 72.4 / 1.06, 120 h 1.99 / 2.14 / 1.58 / 75.4 / 1.38, 168 h 2.15 / 2.32 / 1.66 / 78.3 /
+1.87; PhysicsFormer 24 h 1.55 / 1.59 / 1.21 / 57.37 / 1.43, 72 h 2.22 / 2.38 / 1.46 / 69.28 / 3.42, 120 h 2.68 / 2.90 /
+1.54 / 73.98 / 4.40, 168 h 2.93 / 3.16 / 1.59 / 76.19 / 4.92.
+
+**Atlas-5K (the entry).** The Atlas core (`atlas/model.py`) unchanged in kind: each forecast is made for a station
+together with its 15 nearest stations (great-circle distance), which are read over the same 48 hours (all of them are
+observations available at forecast time; Corrformer and MTGNN on this benchmark also use several stations, and the
+entry is labelled "multi-station"). Geometry bias from the stations' offsets and distance; station latitude, longitude
+and elevation and the time of day and year as inputs; quantile loss, the median is the point forecast; the
+benchmark's fixed scaling. No numerical-weather-prediction or reanalysis input in this track. One model per lead, as
+the published baselines. Sizes 1M, 3M and 10M (cap). Selection on the 2022 validation year only.
+
+**Checks before any Atlas score (stop if one fails).** (C1) The converter keeps the benchmark's variables, units and
+hour grid (counts and means printed). (C2) Our evaluation reproduces a published number: DLinear trained and scored in
+our pipeline within 5% of its published temperature MAE (Table 2 average 3.57, or its per-lead values), and a
+persistence reference is reported.
+
+**Rule WB1, per lead.** Atlas-5K **beats the best published time-series model** at a lead if its MAE is lower than
+PhysicsFormer's on at least four of the five variables. It **beats ECMWF-HRES** at a lead if its MAE is lower on
+temperature, dew point, wind speed and sea-level pressure (all four). By number only: the published forecasts are not
+available for a paired test, which is said beside every result. The test year is used once per model.
+
+**Predictions.** At 24 h: Atlas-5K beats PhysicsFormer (55%); beats ECMWF-HRES on temperature, dew point and wind speed
+(60%) but not on pressure (70% that it does not), so not by the four-variable rule. At 72 h and beyond: does not beat
+ECMWF-HRES (85%); beats PhysicsFormer (45%). The 10M Atlas-5K beats the 1M one by at least 1% on the 2022 validation
+year at 24 h (60%): WEATHER-5K has about 40 times the station-hours of the all-India set, which is where v3's data
+threshold says a larger model should start to pay.
+
+**WB2 — GIFT-Eval** (Salesforce; the main leaderboard for time-series foundation models): its weather and air-quality
+datasets (e.g. KDD Cup 2018 air quality, Jena weather, temperature-rain), scored with its own code against the
+leaderboard's per-dataset results. Rules are written before it runs.
+
+**WB3 — WeatherBench 2** (Google; global gridded medium-range forecasts on ERA5 at 0.25–1.5°): **not attempted now.**
+Its leaders (GraphCast, GenCast, Pangu-Weather, FuXi, Aurora, NeuralGCM) are trained on decades of global 3-D fields on
+accelerator clusters; a 10M-parameter Atlas trained on Kaggle T4s is not a fair entry at its headline resolution, and
+Atlas is a station model. Revisited only with a low-resolution track and stated as such.
+
+**Our own benchmark — Paradox India Air Benchmark (PIAB v1).** Frozen as used above, with code in this repository: the
+all-India league (14 networks, 263 stations, train to 2022-07-31, validation 2022-08-01..09-30, test 2022-10-01..
+2023-03-31, trained and never-trained tracks, per-network calibration, Diebold–Mariano with day blocks;
+`score_india.py`, `score_wa.py`), the Delhi operational track (I1/T-B; `score_i1.py`) and the transfer-threshold track
+(T1; `score_threshold.py`). Current standings: on the league, Atlas-F2 19.66 / 19.52 and W1 19.86 / 19.92 (perfect
+weather), Atlas-F 20.75 / 20.44, Atlas-India 20.99 / 20.86, TimesFM 2.5 22.35 / 21.93; on Delhi winter 2024–25,
+Atlas-W 28.19 MAE with real forecasts, IITM WRF-Chem 58.75 and IMD SILAM 71.68 by number. A fresh test season needs
+CPCB data after March 2023, which the public copy used here does not hold (Delhi's own history does, to February 2025).
+
 ## What has not been done (as of 2026-11-13)
 
 * Sizes of 2M and above ran on the damped oscillator only, with one seed and three data amounts. The 10M ring

@@ -1,6 +1,13 @@
 # PWM model series (ParadoxAI Lab)
 
-Every saved model version, oldest first. Each file holds `meta` (name, version, family, task, datasets, parameters,
+Every saved model version, oldest first. **Each file also holds its full results** in `results`: the headline summary, every benchmark row for its task (PWM-Dyn: this model and every opponent, all tracks) and the significance tests, the record text written for that version (RESULTS.md / version README / atlas README sections / PWM-W branch README), and the training run's own output files (result JSON, reports, test tables, logs; copied from `atlas/results/kaggle/`). Files whose weights also stand for a later identical version carry that version's results in `results["identical_versions"]`.
+
+```python
+ck = torch.load("models/series/57_atlas-5k_v2c_weather5k_adopted.pt", map_location="cpu", weights_only=False)
+ck["results"]["summary"]; ck["results"]["run_outputs"].keys(); ck["results"]["records"]
+```
+
+Each file also holds `meta` (name, version, family, task, datasets, parameters,
 result, source run, source file SHA-256), `weights` (the reported weights only) and `cfg`; pre-training checkpoints also keep their own training record as `train_meta`. Results are copied from
 the repository's records; results of seed ensembles are marked as such (the file holds one seed).
 

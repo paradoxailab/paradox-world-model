@@ -1,0 +1,41 @@
+DELHI: 70128 hours x 39 stations, targets ['PM2.5', 'PM10', 'NO2', 'Ozone'] (missing 19.0%, 21.4%, 19.3%, 21.0%), 11 input channels, 362 graph links, 6 regions; splits {'train': ('2018-01-01T00', '2025-05-02T23'), 'val': ('2025-05-03T00', '2025-07-02T23'), 'test': ('2025-07-03T00', '2025-12-31T23')}
+device cpu; league hours start at index 52584
+training windows: 19082 valid since 2018-01-01 (3761 of them in the league's 16 months); by year 2018: 2784, 2019: 2920, 2020: 2928, 2021: 2920, 2022: 2920, 2023: 717, 2024: 2924, 2025: 969
+Atlas: 967,632 parameters, width 144
+  F-s310 start val MAE 26.882; 19082 training windows, lr 0.001, up to 24000 steps
+  F-s310 step 400 val MAE 25.946 (best 25.946) 68s
+  F-s310 step 800 val MAE 22.976 (best 22.976) 136s
+  F-s310 step 1200 val MAE 23.366 (best 22.976) 203s
+  F-s310 step 1600 val MAE 22.598 (best 22.598) 270s
+  F-s310 step 2000 val MAE 22.333 (best 22.333) 337s
+  F-s310 step 2400 val MAE 21.837 (best 21.837) 404s
+  F-s310 step 2800 val MAE 22.410 (best 21.837) 472s
+  F-s310 step 3200 val MAE 21.702 (best 21.702) 540s
+  F-s310 step 3600 val MAE 21.978 (best 21.702) 607s
+  F-s310 step 4000 val MAE 21.377 (best 21.377) 675s
+  F-s310 step 4400 val MAE 21.900 (best 21.377) 742s
+  F-s310 step 4800 val MAE 21.368 (best 21.368) 809s
+  F-s310 step 5200 val MAE 21.758 (best 21.368) 876s
+  F-s310 step 5600 val MAE 21.288 (best 21.288) 943s
+  F-s310 step 6000 val MAE 21.118 (best 21.118) 1010s
+  F-s310 step 6400 val MAE 22.682 (best 21.118) 1077s
+  F-s310 step 6800 val MAE 22.323 (best 21.118) 1144s
+  F-s310 step 7200 val MAE 21.503 (best 21.118) 1212s
+  F-s310 step 7600 val MAE 21.618 (best 21.118) 1279s
+  F-s310 step 8000 val MAE 21.642 (best 21.118) 1346s
+  F-s310 step 8400 val MAE 21.690 (best 21.118) 1414s
+  F-s310 step 8800 val MAE 21.455 (best 21.118) 1481s
+  F-s310 step 9200 val MAE 21.701 (best 21.118) 1548s
+  F-s310 step 9600 val MAE 21.625 (best 21.118) 1615s
+  F-s310 step 10000 val MAE 22.017 (best 21.118) 1683s
+  F-s310 step 12000 val MAE 21.968 (best 21.118, E fixed at step 10000) 2015s
+  F-s310 step 14000 val MAE 21.195 (best 21.118, E fixed at step 10000) 2348s
+  F-s310 step 16000 val MAE 21.670 (best 21.118, E fixed at step 10000) 2679s
+  F-s310 step 18000 val MAE 21.606 (best 21.118, E fixed at step 10000) 3011s
+  F-s310 step 20000 val MAE 22.370 (best 21.118, E fixed at step 10000) 3342s
+  F-s310 step 22000 val MAE 21.662 (best 21.118, E fixed at step 10000) 3674s
+  F-s310 step 24000 val MAE 21.760 (best 21.118, E fixed at step 10000) 4004s
+RUN {"name": "F-s310", "seed": 310, "train_windows": 19082, "minutes": 66.7, "start_val_MAE": 26.8824520111084, "hit_time_cap": false, "E": {"val_MAE": 21.117542266845703, "steps": 10000}, "F": {"val_MAE": 21.7601318359375, "steps": 24000}}
+TEST E seed 310 (one model, uncalibrated): trained stations 31.42, unseen 27.73; validation 21.118; steps 10000
+TEST F seed 310 (one model, uncalibrated): trained stations 32.28, unseen 28.07; validation 21.760; steps 24000
+LONG-RUN {"seed": 310, "first": "2018-01-01", "train_windows": 19082, "league_windows": 3761, "describe": "DELHI: 70128 hours x 39 stations, targets ['PM2.5', 'PM10', 'NO2', 'Ozone'] (missing 19.0%, 21.4%, 19.3%, 21.0%), 11 input channels, 362 graph links, 6 regions; splits {'train': ('2018-01-01T00', '2025-05-02T23'), 'val': ('2025-05-03T00', '2025-07-02T23'), 'test': ('2025-07-03T00', '2025-12-31T23')}", "E": {"val_MAE": 21.117542266845703, "steps": 10000, "test_S": 31.41754722595215, "test_U": 27.726428985595703}, "F": {"val_MAE": 21.7601318359375, "steps": 24000, "test_S": 32.27635955810547, "test_U": 28.074535369873047}, "params": 967632, "hit_time_cap": false, "minutes_total": 67.2}

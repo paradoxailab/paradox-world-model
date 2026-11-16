@@ -1,0 +1,35 @@
+DELHI: 70128 hours x 39 stations, targets ['PM2.5', 'PM10', 'NO2', 'Ozone'] (missing 19.0%, 21.4%, 19.3%, 21.0%), 11 input channels, 362 graph links, 6 regions; splits {'train': ('2018-01-01T00', '2025-05-02T23'), 'val': ('2025-05-03T00', '2025-07-02T23'), 'test': ('2025-07-03T00', '2025-12-31T23')}
+device cpu; league hours start at index 52584
+training windows: 19082 valid since 2018-01-01 (3761 of them in the league's 16 months); by year 2018: 2784, 2019: 2920, 2020: 2928, 2021: 2920, 2022: 2920, 2023: 717, 2024: 2924, 2025: 969
+Atlas: 967,632 parameters, width 144
+TEST P seed 320 (weights from the rest of India, no Delhi training; one model, uncalibrated): trained stations 30.67, unseen 26.62; validation 20.506
+  B-s320 start val MAE 20.506; 19082 training windows, lr 0.0003, up to 12000 steps
+  B-s320 step 400 val MAE 20.035 (best 20.035) 67s
+  B-s320 step 800 val MAE 20.356 (best 20.035) 134s
+  B-s320 step 1200 val MAE 19.922 (best 19.922) 203s
+  B-s320 step 1600 val MAE 20.017 (best 19.922) 274s
+  B-s320 step 2000 val MAE 20.043 (best 19.922) 348s
+  B-s320 step 2400 val MAE 20.219 (best 19.922) 417s
+  B-s320 step 2800 val MAE 20.214 (best 19.922) 484s
+  B-s320 step 3200 val MAE 20.065 (best 19.922) 552s
+  B-s320 step 3600 val MAE 20.308 (best 19.922) 622s
+  B-s320 step 4000 val MAE 20.510 (best 19.922) 691s
+  B-s320 step 4400 val MAE 20.189 (best 19.922) 763s
+  B-s320 step 4800 val MAE 20.041 (best 19.922) 833s
+  B-s320 step 5200 val MAE 20.227 (best 19.922) 906s
+RUN {"name": "B-s320", "seed": 320, "train_windows": 19082, "steps": 5200, "minutes": 15.1, "start_val_MAE": 20.50607681274414, "val_MAE": 19.921653747558594, "hit_time_cap": false}
+TEST B seed 320 (one model, uncalibrated): trained stations 29.76, unseen 26.19
+  C-s320 start val MAE 19.922; 3761 training windows, lr 0.0002, up to 3000 steps
+  C-s320 step 100 val MAE 20.498 (best 19.922) 18s
+  C-s320 step 200 val MAE 19.999 (best 19.922) 36s
+  C-s320 step 300 val MAE 20.304 (best 19.922) 55s
+  C-s320 step 400 val MAE 20.370 (best 19.922) 73s
+  C-s320 step 500 val MAE 20.748 (best 19.922) 92s
+  C-s320 step 600 val MAE 20.426 (best 19.922) 112s
+  C-s320 step 700 val MAE 20.998 (best 19.922) 131s
+  C-s320 step 800 val MAE 20.743 (best 19.922) 150s
+  C-s320 step 900 val MAE 21.570 (best 19.922) 168s
+  C-s320 step 1000 val MAE 20.852 (best 19.922) 185s
+RUN {"name": "C-s320", "seed": 1320, "train_windows": 3761, "steps": 1000, "minutes": 3.1, "start_val_MAE": 19.921653747558594, "val_MAE": 19.921653747558594, "hit_time_cap": false}
+TEST C seed 320 (one model, uncalibrated): trained stations 29.76, unseen 26.19
+LONG-RUN {"seed": 320, "first": "2018-01-01", "train_windows": 19082, "league_windows": 3761, "describe": "DELHI: 70128 hours x 39 stations, targets ['PM2.5', 'PM10', 'NO2', 'Ozone'] (missing 19.0%, 21.4%, 19.3%, 21.0%), 11 input channels, 362 graph links, 6 regions; splits {'train': ('2018-01-01T00', '2025-05-02T23'), 'val': ('2025-05-03T00', '2025-07-02T23'), 'test': ('2025-07-03T00', '2025-12-31T23')}", "P": {"val_MAE": 20.50607681274414, "steps": 0, "test_S": 30.67041778564453, "test_U": 26.624401092529297}, "pretrain": {"file": "atlas_india13_s320.pt", "key": "E", "networks": ["Uttar Pradesh", "Haryana", "Maharashtra", "Karnataka", "other states", "Madhya Pradesh", "West Bengal", "Bihar", "Rajasthan", "Gujarat", "Tamil Nadu", "Punjab", "Kerala"], "meta": {"seed": 320, "params": 967632, "networks": ["Uttar Pradesh", "Haryana", "Maharashtra", "Karnataka", "other states", "Madhya Pradesh", "West Bengal", "Bihar", "Rajasthan", "Gujarat", "Tamil Nadu", "Punjab", "Kerala"], "stations": [40, 30, 27, 24, 22, 14, 14, 12, 10, 9, 9, 8, 7], "train_windows": [12954, 10481, 9199, 11733, 14440, 13546, 12175, 7511, 14089, 9993, 8200, 13021, 7329], "hit_time_cap": false, "minutes_train": 96.4, "E": {"val_MAE": 8.506839133087453, "steps": 60000}, "F": {"val_MAE": 8.506839133087453, "steps": 60000}, "left_out": ["Delhi"], "minutes_total": 97.0}}, "lr_b": 0.3, "B": {"name": "B-s320", "seed": 320, "train_windows": 19082, "steps": 5200, "minutes": 15.1, "start_val_MAE": 20.50607681274414, "val_MAE": 19.921653747558594, "hit_time_cap": false, "test_S": 29.761444091796875, "test_U": 26.189563751220703}, "C": {"name": "C-s320", "seed": 1320, "train_windows": 3761, "steps": 1000, "minutes": 3.1, "start_val_MAE": 19.921653747558594, "val_MAE": 19.921653747558594, "hit_time_cap": false, "test_S": 29.761444091796875, "test_U": 26.189563751220703}, "params": 967632, "minutes_total": 18.7}

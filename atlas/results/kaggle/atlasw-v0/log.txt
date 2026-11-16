@@ -1,0 +1,650 @@
+  d = np.nanmean(self.Y[a:a + D * SPD, :, 0].reshape(D, SPD, self.N), 1)          # daily mean PM2.5
+DELHI: 17544 hours x 39 stations, targets ['PM2.5', 'PM10', 'NO2', 'Ozone'] (missing 7.0%, 6.1%, 6.5%, 9.7%), 11 input channels, 376 graph links, 6 regions; splits {'train': ('2024-01-01T00', '2025-05-02T23'), 'val': ('2025-05-03T00', '2025-07-02T23'), 'test': ('2025-07-03T00', '2025-12-31T23')}
+Atlas-W parameters: width 32: 14,043, width 64: 37,531; device cpu
+  W32-0.5mo-s0 start val MAE 26.511; 114 training windows, lr 0.001, up to 4000 steps
+  W32-0.5mo-s0 step 100 val MAE 24.050 (best 24.050) 7s
+  W32-0.5mo-s0 step 200 val MAE 23.249 (best 23.249) 14s
+  W32-0.5mo-s0 step 300 val MAE 23.292 (best 23.249) 22s
+  W32-0.5mo-s0 step 400 val MAE 24.775 (best 23.249) 29s
+  W32-0.5mo-s0 step 500 val MAE 24.763 (best 23.249) 36s
+  W32-0.5mo-s0 step 600 val MAE 25.493 (best 23.249) 43s
+  W32-0.5mo-s0 step 700 val MAE 24.203 (best 23.249) 50s
+  W32-0.5mo-s0 step 800 val MAE 23.990 (best 23.249) 57s
+  W32-0.5mo-s0 step 900 val MAE 23.436 (best 23.249) 64s
+  W32-0.5mo-s0 step 1000 val MAE 24.462 (best 23.249) 72s
+  W32-0.5mo-s0 step 1100 val MAE 23.902 (best 23.249) 79s
+  W32-0.5mo-s0 step 1200 val MAE 24.230 (best 23.249) 86s
+RUN {"name": "W32-0.5mo-s0", "seed": 0, "train_windows": 114, "steps": 1200, "minutes": 1.4, "start_val_MAE": 26.511402130126953, "val_MAE": 23.24862289428711, "hit_time_cap": false}
+ATLASW-GRID {"width": 32, "params": 14043, "months_asked": 0.5, "months": 0.47, "N": 114, "seed": 0, "val_MAE": 23.24862289428711, "test_MAE": 36.22106170654297, "steps": 1200, "minutes": 1.4}
+  W64-0.5mo-s0 start val MAE 26.511; 114 training windows, lr 0.001, up to 4000 steps
+  W64-0.5mo-s0 step 100 val MAE 23.092 (best 23.092) 8s
+  W64-0.5mo-s0 step 200 val MAE 23.610 (best 23.092) 16s
+  W64-0.5mo-s0 step 300 val MAE 23.027 (best 23.027) 23s
+  W64-0.5mo-s0 step 400 val MAE 22.216 (best 22.216) 31s
+  W64-0.5mo-s0 step 500 val MAE 24.020 (best 22.216) 39s
+  W64-0.5mo-s0 step 600 val MAE 22.935 (best 22.216) 47s
+  W64-0.5mo-s0 step 700 val MAE 22.830 (best 22.216) 54s
+  W64-0.5mo-s0 step 800 val MAE 22.652 (best 22.216) 62s
+  W64-0.5mo-s0 step 900 val MAE 23.001 (best 22.216) 70s
+  W64-0.5mo-s0 step 1000 val MAE 23.037 (best 22.216) 78s
+  W64-0.5mo-s0 step 1100 val MAE 22.899 (best 22.216) 85s
+  W64-0.5mo-s0 step 1200 val MAE 23.005 (best 22.216) 93s
+  W64-0.5mo-s0 step 1300 val MAE 23.252 (best 22.216) 100s
+  W64-0.5mo-s0 step 1400 val MAE 23.081 (best 22.216) 108s
+RUN {"name": "W64-0.5mo-s0", "seed": 0, "train_windows": 114, "steps": 1400, "minutes": 1.8, "start_val_MAE": 26.511402130126953, "val_MAE": 22.216136932373047, "hit_time_cap": false}
+ATLASW-GRID {"width": 64, "params": 37531, "months_asked": 0.5, "months": 0.47, "N": 114, "seed": 0, "val_MAE": 22.216136932373047, "test_MAE": 37.6686897277832, "steps": 1400, "minutes": 1.8}
+  W32-1mo-s0 start val MAE 26.511; 236 training windows, lr 0.001, up to 4000 steps
+  W32-1mo-s0 step 100 val MAE 23.513 (best 23.513) 7s
+  W32-1mo-s0 step 200 val MAE 22.638 (best 22.638) 14s
+  W32-1mo-s0 step 300 val MAE 22.680 (best 22.638) 21s
+  W32-1mo-s0 step 400 val MAE 22.348 (best 22.348) 29s
+  W32-1mo-s0 step 500 val MAE 23.009 (best 22.348) 36s
+  W32-1mo-s0 step 600 val MAE 23.391 (best 22.348) 43s
+  W32-1mo-s0 step 700 val MAE 23.347 (best 22.348) 50s
+  W32-1mo-s0 step 800 val MAE 22.001 (best 22.001) 57s
+  W32-1mo-s0 step 900 val MAE 22.150 (best 22.001) 64s
+  W32-1mo-s0 step 1000 val MAE 22.910 (best 22.001) 71s
+  W32-1mo-s0 step 1100 val MAE 22.245 (best 22.001) 78s
+  W32-1mo-s0 step 1200 val MAE 22.769 (best 22.001) 86s
+  W32-1mo-s0 step 1300 val MAE 22.868 (best 22.001) 93s
+  W32-1mo-s0 step 1400 val MAE 23.564 (best 22.001) 100s
+  W32-1mo-s0 step 1500 val MAE 23.319 (best 22.001) 107s
+  W32-1mo-s0 step 1600 val MAE 22.762 (best 22.001) 114s
+  W32-1mo-s0 step 1700 val MAE 22.854 (best 22.001) 121s
+  W32-1mo-s0 step 1800 val MAE 23.054 (best 22.001) 128s
+RUN {"name": "W32-1mo-s0", "seed": 0, "train_windows": 236, "steps": 1800, "minutes": 2.1, "start_val_MAE": 26.511402130126953, "val_MAE": 22.001142501831055, "hit_time_cap": false}
+ATLASW-GRID {"width": 32, "params": 14043, "months_asked": 1, "months": 0.97, "N": 236, "seed": 0, "val_MAE": 22.001142501831055, "test_MAE": 36.81782531738281, "steps": 1800, "minutes": 2.1}
+  W64-1mo-s0 start val MAE 26.511; 236 training windows, lr 0.001, up to 4000 steps
+  W64-1mo-s0 step 100 val MAE 22.378 (best 22.378) 7s
+  W64-1mo-s0 step 200 val MAE 22.003 (best 22.003) 15s
+  W64-1mo-s0 step 300 val MAE 21.911 (best 21.911) 23s
+  W64-1mo-s0 step 400 val MAE 21.755 (best 21.755) 30s
+  W64-1mo-s0 step 500 val MAE 22.375 (best 21.755) 38s
+  W64-1mo-s0 step 600 val MAE 22.637 (best 21.755) 46s
+  W64-1mo-s0 step 700 val MAE 22.119 (best 21.755) 54s
+  W64-1mo-s0 step 800 val MAE 22.239 (best 21.755) 61s
+  W64-1mo-s0 step 900 val MAE 22.254 (best 21.755) 69s
+  W64-1mo-s0 step 1000 val MAE 22.576 (best 21.755) 77s
+  W64-1mo-s0 step 1100 val MAE 22.610 (best 21.755) 84s
+  W64-1mo-s0 step 1200 val MAE 23.095 (best 21.755) 92s
+  W64-1mo-s0 step 1300 val MAE 22.908 (best 21.755) 100s
+  W64-1mo-s0 step 1400 val MAE 23.016 (best 21.755) 107s
+RUN {"name": "W64-1mo-s0", "seed": 0, "train_windows": 236, "steps": 1400, "minutes": 1.8, "start_val_MAE": 26.511402130126953, "val_MAE": 21.754980087280273, "hit_time_cap": false}
+ATLASW-GRID {"width": 64, "params": 37531, "months_asked": 1, "months": 0.97, "N": 236, "seed": 0, "val_MAE": 21.754980087280273, "test_MAE": 36.92214584350586, "steps": 1400, "minutes": 1.8}
+  W32-2mo-s0 start val MAE 26.511; 479 training windows, lr 0.001, up to 4000 steps
+  W32-2mo-s0 step 100 val MAE 23.607 (best 23.607) 7s
+  W32-2mo-s0 step 200 val MAE 22.591 (best 22.591) 14s
+  W32-2mo-s0 step 300 val MAE 22.455 (best 22.455) 22s
+  W32-2mo-s0 step 400 val MAE 23.283 (best 22.455) 29s
+  W32-2mo-s0 step 500 val MAE 22.807 (best 22.455) 36s
+  W32-2mo-s0 step 600 val MAE 22.123 (best 22.123) 44s
+  W32-2mo-s0 step 700 val MAE 22.104 (best 22.104) 51s
+  W32-2mo-s0 step 800 val MAE 21.509 (best 21.509) 58s
+  W32-2mo-s0 step 900 val MAE 22.081 (best 21.509) 66s
+  W32-2mo-s0 step 1000 val MAE 22.508 (best 21.509) 73s
+  W32-2mo-s0 step 1100 val MAE 21.819 (best 21.509) 80s
+  W32-2mo-s0 step 1200 val MAE 22.636 (best 21.509) 88s
+  W32-2mo-s0 step 1300 val MAE 21.730 (best 21.509) 95s
+  W32-2mo-s0 step 1400 val MAE 22.127 (best 21.509) 103s
+  W32-2mo-s0 step 1500 val MAE 21.765 (best 21.509) 110s
+  W32-2mo-s0 step 1600 val MAE 22.220 (best 21.509) 117s
+  W32-2mo-s0 step 1700 val MAE 21.776 (best 21.509) 124s
+  W32-2mo-s0 step 1800 val MAE 21.632 (best 21.509) 131s
+RUN {"name": "W32-2mo-s0", "seed": 0, "train_windows": 479, "steps": 1800, "minutes": 2.2, "start_val_MAE": 26.511402130126953, "val_MAE": 21.50925064086914, "hit_time_cap": false}
+ATLASW-GRID {"width": 32, "params": 14043, "months_asked": 2, "months": 1.97, "N": 479, "seed": 0, "val_MAE": 21.50925064086914, "test_MAE": 39.288169860839844, "steps": 1800, "minutes": 2.2}
+  W64-2mo-s0 start val MAE 26.511; 479 training windows, lr 0.001, up to 4000 steps
+  W64-2mo-s0 step 100 val MAE 22.766 (best 22.766) 8s
+  W64-2mo-s0 step 200 val MAE 22.251 (best 22.251) 16s
+  W64-2mo-s0 step 300 val MAE 22.730 (best 22.251) 23s
+  W64-2mo-s0 step 400 val MAE 22.201 (best 22.201) 31s
+  W64-2mo-s0 step 500 val MAE 21.768 (best 21.768) 39s
+  W64-2mo-s0 step 600 val MAE 22.054 (best 21.768) 47s
+  W64-2mo-s0 step 700 val MAE 21.435 (best 21.435) 54s
+  W64-2mo-s0 step 800 val MAE 21.275 (best 21.275) 62s
+  W64-2mo-s0 step 900 val MAE 21.997 (best 21.275) 70s
+  W64-2mo-s0 step 1000 val MAE 22.035 (best 21.275) 77s
+  W64-2mo-s0 step 1100 val MAE 21.864 (best 21.275) 85s
+  W64-2mo-s0 step 1200 val MAE 22.062 (best 21.275) 93s
+  W64-2mo-s0 step 1300 val MAE 21.662 (best 21.275) 100s
+  W64-2mo-s0 step 1400 val MAE 21.697 (best 21.275) 108s
+  W64-2mo-s0 step 1500 val MAE 21.904 (best 21.275) 116s
+  W64-2mo-s0 step 1600 val MAE 21.770 (best 21.275) 123s
+  W64-2mo-s0 step 1700 val MAE 22.212 (best 21.275) 131s
+  W64-2mo-s0 step 1800 val MAE 22.062 (best 21.275) 139s
+RUN {"name": "W64-2mo-s0", "seed": 0, "train_windows": 479, "steps": 1800, "minutes": 2.3, "start_val_MAE": 26.511402130126953, "val_MAE": 21.27547264099121, "hit_time_cap": false}
+ATLASW-GRID {"width": 64, "params": 37531, "months_asked": 2, "months": 1.97, "N": 479, "seed": 0, "val_MAE": 21.27547264099121, "test_MAE": 38.97190856933594, "steps": 1800, "minutes": 2.3}
+  W32-4mo-s0 start val MAE 26.511; 965 training windows, lr 0.001, up to 4000 steps
+  W32-4mo-s0 step 100 val MAE 24.190 (best 24.190) 7s
+  W32-4mo-s0 step 200 val MAE 22.582 (best 22.582) 15s
+  W32-4mo-s0 step 300 val MAE 21.522 (best 21.522) 22s
+  W32-4mo-s0 step 400 val MAE 21.529 (best 21.522) 30s
+  W32-4mo-s0 step 500 val MAE 21.435 (best 21.435) 38s
+  W32-4mo-s0 step 600 val MAE 21.658 (best 21.435) 45s
+  W32-4mo-s0 step 700 val MAE 21.901 (best 21.435) 53s
+  W32-4mo-s0 step 800 val MAE 22.374 (best 21.435) 61s
+  W32-4mo-s0 step 900 val MAE 21.224 (best 21.224) 70s
+  W32-4mo-s0 step 1000 val MAE 21.439 (best 21.224) 77s
+  W32-4mo-s0 step 1100 val MAE 21.452 (best 21.224) 85s
+  W32-4mo-s0 step 1200 val MAE 21.395 (best 21.224) 93s
+  W32-4mo-s0 step 1300 val MAE 21.190 (best 21.190) 100s
+  W32-4mo-s0 step 1400 val MAE 21.208 (best 21.190) 108s
+  W32-4mo-s0 step 1500 val MAE 21.429 (best 21.190) 115s
+  W32-4mo-s0 step 1600 val MAE 21.141 (best 21.141) 122s
+  W32-4mo-s0 step 1700 val MAE 21.199 (best 21.141) 129s
+  W32-4mo-s0 step 1800 val MAE 21.216 (best 21.141) 137s
+  W32-4mo-s0 step 1900 val MAE 21.396 (best 21.141) 144s
+  W32-4mo-s0 step 2000 val MAE 21.471 (best 21.141) 151s
+  W32-4mo-s0 step 2100 val MAE 21.459 (best 21.141) 158s
+  W32-4mo-s0 step 2200 val MAE 21.387 (best 21.141) 165s
+  W32-4mo-s0 step 2300 val MAE 21.757 (best 21.141) 173s
+  W32-4mo-s0 step 2400 val MAE 21.579 (best 21.141) 180s
+  W32-4mo-s0 step 2500 val MAE 21.295 (best 21.141) 187s
+  W32-4mo-s0 step 2600 val MAE 21.492 (best 21.141) 194s
+RUN {"name": "W32-4mo-s0", "seed": 0, "train_windows": 965, "steps": 2600, "minutes": 3.2, "start_val_MAE": 26.511402130126953, "val_MAE": 21.140954971313477, "hit_time_cap": false}
+ATLASW-GRID {"width": 32, "params": 14043, "months_asked": 4, "months": 3.97, "N": 965, "seed": 0, "val_MAE": 21.140954971313477, "test_MAE": 37.226131439208984, "steps": 2600, "minutes": 3.2}
+  W64-4mo-s0 start val MAE 26.511; 965 training windows, lr 0.001, up to 4000 steps
+  W64-4mo-s0 step 100 val MAE 22.268 (best 22.268) 8s
+  W64-4mo-s0 step 200 val MAE 21.421 (best 21.421) 15s
+  W64-4mo-s0 step 300 val MAE 21.180 (best 21.180) 23s
+  W64-4mo-s0 step 400 val MAE 21.616 (best 21.180) 31s
+  W64-4mo-s0 step 500 val MAE 21.497 (best 21.180) 38s
+  W64-4mo-s0 step 600 val MAE 21.508 (best 21.180) 46s
+  W64-4mo-s0 step 700 val MAE 21.750 (best 21.180) 54s
+  W64-4mo-s0 step 800 val MAE 22.129 (best 21.180) 62s
+  W64-4mo-s0 step 900 val MAE 21.512 (best 21.180) 70s
+  W64-4mo-s0 step 1000 val MAE 21.234 (best 21.180) 79s
+  W64-4mo-s0 step 1100 val MAE 21.239 (best 21.180) 87s
+  W64-4mo-s0 step 1200 val MAE 21.246 (best 21.180) 95s
+  W64-4mo-s0 step 1300 val MAE 21.242 (best 21.180) 103s
+RUN {"name": "W64-4mo-s0", "seed": 0, "train_windows": 965, "steps": 1300, "minutes": 1.7, "start_val_MAE": 26.511402130126953, "val_MAE": 21.179929733276367, "hit_time_cap": false}
+ATLASW-GRID {"width": 64, "params": 37531, "months_asked": 4, "months": 3.97, "N": 965, "seed": 0, "val_MAE": 21.179929733276367, "test_MAE": 36.88579559326172, "steps": 1300, "minutes": 1.7}
+  W32-8mo-s0 start val MAE 26.511; 1938 training windows, lr 0.001, up to 4000 steps
+  W32-8mo-s0 step 100 val MAE 24.346 (best 24.346) 8s
+  W32-8mo-s0 step 200 val MAE 22.107 (best 22.107) 15s
+  W32-8mo-s0 step 300 val MAE 22.128 (best 22.107) 23s
+  W32-8mo-s0 step 400 val MAE 22.632 (best 22.107) 30s
+  W32-8mo-s0 step 500 val MAE 22.053 (best 22.053) 37s
+  W32-8mo-s0 step 600 val MAE 22.411 (best 22.053) 45s
+  W32-8mo-s0 step 700 val MAE 21.858 (best 21.858) 52s
+  W32-8mo-s0 step 800 val MAE 21.661 (best 21.661) 60s
+  W32-8mo-s0 step 900 val MAE 21.698 (best 21.661) 68s
+  W32-8mo-s0 step 1000 val MAE 22.371 (best 21.661) 75s
+  W32-8mo-s0 step 1100 val MAE 21.509 (best 21.509) 82s
+  W32-8mo-s0 step 1200 val MAE 22.819 (best 21.509) 90s
+  W32-8mo-s0 step 1300 val MAE 21.817 (best 21.509) 97s
+  W32-8mo-s0 step 1400 val MAE 22.134 (best 21.509) 104s
+  W32-8mo-s0 step 1500 val MAE 21.867 (best 21.509) 112s
+  W32-8mo-s0 step 1600 val MAE 21.471 (best 21.471) 119s
+  W32-8mo-s0 step 1700 val MAE 21.264 (best 21.264) 126s
+  W32-8mo-s0 step 1800 val MAE 21.666 (best 21.264) 134s
+  W32-8mo-s0 step 1900 val MAE 21.678 (best 21.264) 141s
+  W32-8mo-s0 step 2000 val MAE 21.695 (best 21.264) 148s
+  W32-8mo-s0 step 2100 val MAE 21.676 (best 21.264) 156s
+  W32-8mo-s0 step 2200 val MAE 22.002 (best 21.264) 163s
+  W32-8mo-s0 step 2300 val MAE 21.647 (best 21.264) 170s
+  W32-8mo-s0 step 2400 val MAE 21.531 (best 21.264) 178s
+  W32-8mo-s0 step 2500 val MAE 21.739 (best 21.264) 185s
+  W32-8mo-s0 step 2600 val MAE 21.261 (best 21.261) 193s
+  W32-8mo-s0 step 2700 val MAE 21.529 (best 21.261) 200s
+  W32-8mo-s0 step 2800 val MAE 21.613 (best 21.261) 207s
+  W32-8mo-s0 step 2900 val MAE 21.508 (best 21.261) 215s
+  W32-8mo-s0 step 3000 val MAE 21.501 (best 21.261) 222s
+  W32-8mo-s0 step 3100 val MAE 21.564 (best 21.261) 230s
+  W32-8mo-s0 step 3200 val MAE 21.669 (best 21.261) 237s
+  W32-8mo-s0 step 3300 val MAE 21.453 (best 21.261) 245s
+  W32-8mo-s0 step 3400 val MAE 22.105 (best 21.261) 252s
+  W32-8mo-s0 step 3500 val MAE 21.615 (best 21.261) 260s
+  W32-8mo-s0 step 3600 val MAE 21.491 (best 21.261) 267s
+RUN {"name": "W32-8mo-s0", "seed": 0, "train_windows": 1938, "steps": 3600, "minutes": 4.4, "start_val_MAE": 26.511402130126953, "val_MAE": 21.26068878173828, "hit_time_cap": false}
+ATLASW-GRID {"width": 32, "params": 14043, "months_asked": 8, "months": 7.97, "N": 1938, "seed": 0, "val_MAE": 21.26068878173828, "test_MAE": 33.28559112548828, "steps": 3600, "minutes": 4.4}
+  W64-8mo-s0 start val MAE 26.511; 1938 training windows, lr 0.001, up to 4000 steps
+  W64-8mo-s0 step 100 val MAE 23.014 (best 23.014) 8s
+  W64-8mo-s0 step 200 val MAE 21.960 (best 21.960) 16s
+  W64-8mo-s0 step 300 val MAE 21.876 (best 21.876) 23s
+  W64-8mo-s0 step 400 val MAE 21.870 (best 21.870) 31s
+  W64-8mo-s0 step 500 val MAE 21.928 (best 21.870) 39s
+  W64-8mo-s0 step 600 val MAE 22.276 (best 21.870) 46s
+  W64-8mo-s0 step 700 val MAE 21.789 (best 21.789) 54s
+  W64-8mo-s0 step 800 val MAE 21.619 (best 21.619) 62s
+  W64-8mo-s0 step 900 val MAE 21.630 (best 21.619) 70s
+  W64-8mo-s0 step 1000 val MAE 22.216 (best 21.619) 77s
+  W64-8mo-s0 step 1100 val MAE 21.495 (best 21.495) 85s
+  W64-8mo-s0 step 1200 val MAE 22.052 (best 21.495) 93s
+  W64-8mo-s0 step 1300 val MAE 21.458 (best 21.458) 101s
+  W64-8mo-s0 step 1400 val MAE 21.589 (best 21.458) 108s
+  W64-8mo-s0 step 1500 val MAE 22.543 (best 21.458) 116s
+  W64-8mo-s0 step 1600 val MAE 21.098 (best 21.098) 124s
+  W64-8mo-s0 step 1700 val MAE 20.841 (best 20.841) 131s
+  W64-8mo-s0 step 1800 val MAE 21.547 (best 20.841) 139s
+  W64-8mo-s0 step 1900 val MAE 21.613 (best 20.841) 147s
+  W64-8mo-s0 step 2000 val MAE 22.262 (best 20.841) 155s
+  W64-8mo-s0 step 2100 val MAE 21.971 (best 20.841) 162s
+  W64-8mo-s0 step 2200 val MAE 21.962 (best 20.841) 170s
+  W64-8mo-s0 step 2300 val MAE 21.446 (best 20.841) 178s
+  W64-8mo-s0 step 2400 val MAE 21.688 (best 20.841) 185s
+  W64-8mo-s0 step 2500 val MAE 21.434 (best 20.841) 193s
+  W64-8mo-s0 step 2600 val MAE 21.091 (best 20.841) 200s
+  W64-8mo-s0 step 2700 val MAE 21.715 (best 20.841) 208s
+RUN {"name": "W64-8mo-s0", "seed": 0, "train_windows": 1938, "steps": 2700, "minutes": 3.5, "start_val_MAE": 26.511402130126953, "val_MAE": 20.841041564941406, "hit_time_cap": false}
+ATLASW-GRID {"width": 64, "params": 37531, "months_asked": 8, "months": 7.97, "N": 1938, "seed": 0, "val_MAE": 20.841041564941406, "test_MAE": 33.23799133300781, "steps": 2700, "minutes": 3.5}
+  W32-99mo-s0 start val MAE 26.511; 3673 training windows, lr 0.001, up to 4000 steps
+  W32-99mo-s0 step 100 val MAE 24.309 (best 24.309) 7s
+  W32-99mo-s0 step 200 val MAE 22.052 (best 22.052) 15s
+  W32-99mo-s0 step 300 val MAE 21.901 (best 21.901) 22s
+  W32-99mo-s0 step 400 val MAE 21.836 (best 21.836) 29s
+  W32-99mo-s0 step 500 val MAE 21.861 (best 21.836) 36s
+  W32-99mo-s0 step 600 val MAE 21.245 (best 21.245) 44s
+  W32-99mo-s0 step 700 val MAE 21.369 (best 21.245) 51s
+  W32-99mo-s0 step 800 val MAE 21.379 (best 21.245) 58s
+  W32-99mo-s0 step 900 val MAE 21.314 (best 21.245) 66s
+  W32-99mo-s0 step 1000 val MAE 21.102 (best 21.102) 73s
+  W32-99mo-s0 step 1100 val MAE 21.154 (best 21.102) 80s
+  W32-99mo-s0 step 1200 val MAE 21.106 (best 21.102) 87s
+  W32-99mo-s0 step 1300 val MAE 20.927 (best 20.927) 95s
+  W32-99mo-s0 step 1400 val MAE 21.256 (best 20.927) 102s
+  W32-99mo-s0 step 1500 val MAE 20.947 (best 20.927) 109s
+  W32-99mo-s0 step 1600 val MAE 20.857 (best 20.857) 116s
+  W32-99mo-s0 step 1700 val MAE 21.121 (best 20.857) 123s
+  W32-99mo-s0 step 1800 val MAE 21.071 (best 20.857) 130s
+  W32-99mo-s0 step 1900 val MAE 20.971 (best 20.857) 137s
+  W32-99mo-s0 step 2000 val MAE 20.930 (best 20.857) 145s
+  W32-99mo-s0 step 2100 val MAE 20.884 (best 20.857) 152s
+  W32-99mo-s0 step 2200 val MAE 20.916 (best 20.857) 159s
+  W32-99mo-s0 step 2300 val MAE 20.977 (best 20.857) 167s
+  W32-99mo-s0 step 2400 val MAE 20.861 (best 20.857) 174s
+  W32-99mo-s0 step 2500 val MAE 20.770 (best 20.770) 181s
+  W32-99mo-s0 step 2600 val MAE 20.925 (best 20.770) 188s
+  W32-99mo-s0 step 2700 val MAE 20.701 (best 20.701) 195s
+  W32-99mo-s0 step 2800 val MAE 20.769 (best 20.701) 203s
+  W32-99mo-s0 step 2900 val MAE 20.890 (best 20.701) 211s
+  W32-99mo-s0 step 3000 val MAE 20.868 (best 20.701) 218s
+  W32-99mo-s0 step 3100 val MAE 20.782 (best 20.701) 225s
+  W32-99mo-s0 step 3200 val MAE 20.735 (best 20.701) 233s
+  W32-99mo-s0 step 3300 val MAE 20.723 (best 20.701) 241s
+  W32-99mo-s0 step 3400 val MAE 20.763 (best 20.701) 249s
+  W32-99mo-s0 step 3500 val MAE 20.660 (best 20.660) 257s
+  W32-99mo-s0 step 3600 val MAE 20.850 (best 20.660) 264s
+  W32-99mo-s0 step 3700 val MAE 20.806 (best 20.660) 271s
+  W32-99mo-s0 step 3800 val MAE 20.811 (best 20.660) 279s
+  W32-99mo-s0 step 3900 val MAE 20.828 (best 20.660) 286s
+  W32-99mo-s0 step 4000 val MAE 20.836 (best 20.660) 293s
+RUN {"name": "W32-99mo-s0", "seed": 0, "train_windows": 3673, "steps": 4000, "minutes": 4.9, "start_val_MAE": 26.511402130126953, "val_MAE": 20.66039276123047, "hit_time_cap": false}
+ATLASW-GRID {"width": 32, "params": 14043, "months_asked": 99, "months": 15.1, "N": 3673, "seed": 0, "val_MAE": 20.66039276123047, "test_MAE": 32.024600982666016, "steps": 4000, "minutes": 4.9}
+  W64-99mo-s0 start val MAE 26.511; 3673 training windows, lr 0.001, up to 4000 steps
+  W64-99mo-s0 step 100 val MAE 23.184 (best 23.184) 8s
+  W64-99mo-s0 step 200 val MAE 21.682 (best 21.682) 15s
+  W64-99mo-s0 step 300 val MAE 21.847 (best 21.682) 23s
+  W64-99mo-s0 step 400 val MAE 21.552 (best 21.552) 31s
+  W64-99mo-s0 step 500 val MAE 21.658 (best 21.552) 38s
+  W64-99mo-s0 step 600 val MAE 21.105 (best 21.105) 46s
+  W64-99mo-s0 step 700 val MAE 21.093 (best 21.093) 53s
+  W64-99mo-s0 step 800 val MAE 21.376 (best 21.093) 61s
+  W64-99mo-s0 step 900 val MAE 21.164 (best 21.093) 69s
+  W64-99mo-s0 step 1000 val MAE 21.233 (best 21.093) 76s
+  W64-99mo-s0 step 1100 val MAE 21.764 (best 21.093) 84s
+  W64-99mo-s0 step 1200 val MAE 21.019 (best 21.019) 92s
+  W64-99mo-s0 step 1300 val MAE 20.936 (best 20.936) 99s
+  W64-99mo-s0 step 1400 val MAE 21.509 (best 20.936) 107s
+  W64-99mo-s0 step 1500 val MAE 21.088 (best 20.936) 115s
+  W64-99mo-s0 step 1600 val MAE 20.992 (best 20.936) 122s
+  W64-99mo-s0 step 1700 val MAE 21.256 (best 20.936) 130s
+  W64-99mo-s0 step 1800 val MAE 20.937 (best 20.936) 138s
+  W64-99mo-s0 step 1900 val MAE 20.995 (best 20.936) 146s
+  W64-99mo-s0 step 2000 val MAE 21.244 (best 20.936) 154s
+  W64-99mo-s0 step 2100 val MAE 20.837 (best 20.837) 161s
+  W64-99mo-s0 step 2200 val MAE 21.153 (best 20.837) 169s
+  W64-99mo-s0 step 2300 val MAE 20.961 (best 20.837) 177s
+  W64-99mo-s0 step 2400 val MAE 21.115 (best 20.837) 184s
+  W64-99mo-s0 step 2500 val MAE 20.821 (best 20.821) 192s
+  W64-99mo-s0 step 2600 val MAE 21.066 (best 20.821) 199s
+  W64-99mo-s0 step 2700 val MAE 20.750 (best 20.750) 207s
+  W64-99mo-s0 step 2800 val MAE 20.913 (best 20.750) 215s
+  W64-99mo-s0 step 2900 val MAE 21.031 (best 20.750) 222s
+  W64-99mo-s0 step 3000 val MAE 21.027 (best 20.750) 230s
+  W64-99mo-s0 step 3100 val MAE 20.976 (best 20.750) 238s
+  W64-99mo-s0 step 3200 val MAE 20.875 (best 20.750) 245s
+  W64-99mo-s0 step 3300 val MAE 20.896 (best 20.750) 253s
+  W64-99mo-s0 step 3400 val MAE 20.898 (best 20.750) 261s
+  W64-99mo-s0 step 3500 val MAE 20.794 (best 20.750) 269s
+  W64-99mo-s0 step 3600 val MAE 21.294 (best 20.750) 277s
+  W64-99mo-s0 step 3700 val MAE 21.117 (best 20.750) 285s
+RUN {"name": "W64-99mo-s0", "seed": 0, "train_windows": 3673, "steps": 3700, "minutes": 4.7, "start_val_MAE": 26.511402130126953, "val_MAE": 20.750152587890625, "hit_time_cap": false}
+ATLASW-GRID {"width": 64, "params": 37531, "months_asked": 99, "months": 15.1, "N": 3673, "seed": 0, "val_MAE": 20.750152587890625, "test_MAE": 32.50090026855469, "steps": 3700, "minutes": 4.7}
+  W32-0.5mo-s1 start val MAE 26.511; 114 training windows, lr 0.001, up to 4000 steps
+  W32-0.5mo-s1 step 100 val MAE 23.690 (best 23.690) 7s
+  W32-0.5mo-s1 step 200 val MAE 23.917 (best 23.690) 15s
+  W32-0.5mo-s1 step 300 val MAE 23.357 (best 23.357) 22s
+  W32-0.5mo-s1 step 400 val MAE 22.827 (best 22.827) 29s
+  W32-0.5mo-s1 step 500 val MAE 22.907 (best 22.827) 37s
+  W32-0.5mo-s1 step 600 val MAE 22.879 (best 22.827) 44s
+  W32-0.5mo-s1 step 700 val MAE 22.618 (best 22.618) 51s
+  W32-0.5mo-s1 step 800 val MAE 22.874 (best 22.618) 59s
+  W32-0.5mo-s1 step 900 val MAE 23.044 (best 22.618) 66s
+  W32-0.5mo-s1 step 1000 val MAE 23.311 (best 22.618) 73s
+  W32-0.5mo-s1 step 1100 val MAE 23.188 (best 22.618) 80s
+  W32-0.5mo-s1 step 1200 val MAE 23.768 (best 22.618) 87s
+  W32-0.5mo-s1 step 1300 val MAE 23.585 (best 22.618) 95s
+  W32-0.5mo-s1 step 1400 val MAE 23.636 (best 22.618) 102s
+  W32-0.5mo-s1 step 1500 val MAE 23.831 (best 22.618) 109s
+  W32-0.5mo-s1 step 1600 val MAE 23.420 (best 22.618) 116s
+  W32-0.5mo-s1 step 1700 val MAE 23.634 (best 22.618) 123s
+RUN {"name": "W32-0.5mo-s1", "seed": 1, "train_windows": 114, "steps": 1700, "minutes": 2.1, "start_val_MAE": 26.511402130126953, "val_MAE": 22.618186950683594, "hit_time_cap": false}
+ATLASW-GRID {"width": 32, "params": 14043, "months_asked": 0.5, "months": 0.47, "N": 114, "seed": 1, "val_MAE": 22.618186950683594, "test_MAE": 37.920448303222656, "steps": 1700, "minutes": 2.1}
+  W64-0.5mo-s1 start val MAE 26.511; 114 training windows, lr 0.001, up to 4000 steps
+  W64-0.5mo-s1 step 100 val MAE 22.696 (best 22.696) 8s
+  W64-0.5mo-s1 step 200 val MAE 23.295 (best 22.696) 15s
+  W64-0.5mo-s1 step 300 val MAE 22.726 (best 22.696) 23s
+  W64-0.5mo-s1 step 400 val MAE 22.442 (best 22.442) 31s
+  W64-0.5mo-s1 step 500 val MAE 22.466 (best 22.442) 38s
+  W64-0.5mo-s1 step 600 val MAE 22.376 (best 22.376) 46s
+  W64-0.5mo-s1 step 700 val MAE 22.713 (best 22.376) 54s
+  W64-0.5mo-s1 step 800 val MAE 22.827 (best 22.376) 61s
+  W64-0.5mo-s1 step 900 val MAE 22.833 (best 22.376) 69s
+  W64-0.5mo-s1 step 1000 val MAE 22.643 (best 22.376) 76s
+  W64-0.5mo-s1 step 1100 val MAE 22.968 (best 22.376) 84s
+  W64-0.5mo-s1 step 1200 val MAE 23.089 (best 22.376) 91s
+  W64-0.5mo-s1 step 1300 val MAE 23.232 (best 22.376) 99s
+  W64-0.5mo-s1 step 1400 val MAE 23.090 (best 22.376) 107s
+  W64-0.5mo-s1 step 1500 val MAE 23.654 (best 22.376) 114s
+  W64-0.5mo-s1 step 1600 val MAE 23.396 (best 22.376) 122s
+RUN {"name": "W64-0.5mo-s1", "seed": 1, "train_windows": 114, "steps": 1600, "minutes": 2.0, "start_val_MAE": 26.511402130126953, "val_MAE": 22.37643814086914, "hit_time_cap": false}
+ATLASW-GRID {"width": 64, "params": 37531, "months_asked": 0.5, "months": 0.47, "N": 114, "seed": 1, "val_MAE": 22.37643814086914, "test_MAE": 38.195098876953125, "steps": 1600, "minutes": 2.0}
+  W32-1mo-s1 start val MAE 26.511; 236 training windows, lr 0.001, up to 4000 steps
+  W32-1mo-s1 step 100 val MAE 23.499 (best 23.499) 7s
+  W32-1mo-s1 step 200 val MAE 22.229 (best 22.229) 14s
+  W32-1mo-s1 step 300 val MAE 22.534 (best 22.229) 22s
+  W32-1mo-s1 step 400 val MAE 21.796 (best 21.796) 29s
+  W32-1mo-s1 step 500 val MAE 22.217 (best 21.796) 36s
+  W32-1mo-s1 step 600 val MAE 21.739 (best 21.739) 43s
+  W32-1mo-s1 step 700 val MAE 21.491 (best 21.491) 51s
+  W32-1mo-s1 step 800 val MAE 22.022 (best 21.491) 58s
+  W32-1mo-s1 step 900 val MAE 22.490 (best 21.491) 65s
+  W32-1mo-s1 step 1000 val MAE 22.103 (best 21.491) 72s
+  W32-1mo-s1 step 1100 val MAE 21.695 (best 21.491) 79s
+  W32-1mo-s1 step 1200 val MAE 22.105 (best 21.491) 86s
+  W32-1mo-s1 step 1300 val MAE 22.232 (best 21.491) 94s
+  W32-1mo-s1 step 1400 val MAE 22.071 (best 21.491) 101s
+  W32-1mo-s1 step 1500 val MAE 22.077 (best 21.491) 108s
+  W32-1mo-s1 step 1600 val MAE 22.770 (best 21.491) 115s
+  W32-1mo-s1 step 1700 val MAE 22.068 (best 21.491) 122s
+RUN {"name": "W32-1mo-s1", "seed": 1, "train_windows": 236, "steps": 1700, "minutes": 2.0, "start_val_MAE": 26.511402130126953, "val_MAE": 21.490732192993164, "hit_time_cap": false}
+ATLASW-GRID {"width": 32, "params": 14043, "months_asked": 1, "months": 0.97, "N": 236, "seed": 1, "val_MAE": 21.490732192993164, "test_MAE": 38.02698516845703, "steps": 1700, "minutes": 2.0}
+  W64-1mo-s1 start val MAE 26.511; 236 training windows, lr 0.001, up to 4000 steps
+  W64-1mo-s1 step 100 val MAE 22.769 (best 22.769) 8s
+  W64-1mo-s1 step 200 val MAE 22.133 (best 22.133) 15s
+  W64-1mo-s1 step 300 val MAE 21.798 (best 21.798) 23s
+  W64-1mo-s1 step 400 val MAE 21.628 (best 21.628) 30s
+  W64-1mo-s1 step 500 val MAE 22.175 (best 21.628) 38s
+  W64-1mo-s1 step 600 val MAE 21.919 (best 21.628) 46s
+  W64-1mo-s1 step 700 val MAE 21.456 (best 21.456) 53s
+  W64-1mo-s1 step 800 val MAE 21.789 (best 21.456) 61s
+  W64-1mo-s1 step 900 val MAE 22.062 (best 21.456) 68s
+  W64-1mo-s1 step 1000 val MAE 22.511 (best 21.456) 76s
+  W64-1mo-s1 step 1100 val MAE 22.294 (best 21.456) 84s
+  W64-1mo-s1 step 1200 val MAE 22.609 (best 21.456) 92s
+  W64-1mo-s1 step 1300 val MAE 22.387 (best 21.456) 100s
+  W64-1mo-s1 step 1400 val MAE 23.012 (best 21.456) 108s
+  W64-1mo-s1 step 1500 val MAE 22.793 (best 21.456) 117s
+  W64-1mo-s1 step 1600 val MAE 23.175 (best 21.456) 126s
+  W64-1mo-s1 step 1700 val MAE 22.693 (best 21.456) 134s
+RUN {"name": "W64-1mo-s1", "seed": 1, "train_windows": 236, "steps": 1700, "minutes": 2.2, "start_val_MAE": 26.511402130126953, "val_MAE": 21.455717086791992, "hit_time_cap": false}
+ATLASW-GRID {"width": 64, "params": 37531, "months_asked": 1, "months": 0.97, "N": 236, "seed": 1, "val_MAE": 21.455717086791992, "test_MAE": 37.89744567871094, "steps": 1700, "minutes": 2.2}
+  W32-2mo-s1 start val MAE 26.511; 479 training windows, lr 0.001, up to 4000 steps
+  W32-2mo-s1 step 100 val MAE 23.418 (best 23.418) 7s
+  W32-2mo-s1 step 200 val MAE 23.250 (best 23.250) 15s
+  W32-2mo-s1 step 300 val MAE 22.583 (best 22.583) 22s
+  W32-2mo-s1 step 400 val MAE 21.578 (best 21.578) 29s
+  W32-2mo-s1 step 500 val MAE 21.956 (best 21.578) 37s
+  W32-2mo-s1 step 600 val MAE 22.487 (best 21.578) 44s
+  W32-2mo-s1 step 700 val MAE 21.595 (best 21.578) 51s
+  W32-2mo-s1 step 800 val MAE 21.536 (best 21.536) 58s
+  W32-2mo-s1 step 900 val MAE 22.095 (best 21.536) 66s
+  W32-2mo-s1 step 1000 val MAE 21.853 (best 21.536) 73s
+  W32-2mo-s1 step 1100 val MAE 21.638 (best 21.536) 80s
+  W32-2mo-s1 step 1200 val MAE 21.980 (best 21.536) 88s
+  W32-2mo-s1 step 1300 val MAE 21.311 (best 21.311) 95s
+  W32-2mo-s1 step 1400 val MAE 21.550 (best 21.311) 102s
+  W32-2mo-s1 step 1500 val MAE 21.833 (best 21.311) 109s
+  W32-2mo-s1 step 1600 val MAE 21.647 (best 21.311) 116s
+  W32-2mo-s1 step 1700 val MAE 21.585 (best 21.311) 123s
+  W32-2mo-s1 step 1800 val MAE 21.956 (best 21.311) 131s
+  W32-2mo-s1 step 1900 val MAE 21.832 (best 21.311) 138s
+  W32-2mo-s1 step 2000 val MAE 21.646 (best 21.311) 145s
+  W32-2mo-s1 step 2100 val MAE 21.576 (best 21.311) 152s
+  W32-2mo-s1 step 2200 val MAE 22.272 (best 21.311) 159s
+  W32-2mo-s1 step 2300 val MAE 22.230 (best 21.311) 166s
+RUN {"name": "W32-2mo-s1", "seed": 1, "train_windows": 479, "steps": 2300, "minutes": 2.8, "start_val_MAE": 26.511402130126953, "val_MAE": 21.311288833618164, "hit_time_cap": false}
+ATLASW-GRID {"width": 32, "params": 14043, "months_asked": 2, "months": 1.97, "N": 479, "seed": 1, "val_MAE": 21.311288833618164, "test_MAE": 39.691795349121094, "steps": 2300, "minutes": 2.8}
+  W64-2mo-s1 start val MAE 26.511; 479 training windows, lr 0.001, up to 4000 steps
+  W64-2mo-s1 step 100 val MAE 22.994 (best 22.994) 7s
+  W64-2mo-s1 step 200 val MAE 22.595 (best 22.595) 15s
+  W64-2mo-s1 step 300 val MAE 22.824 (best 22.595) 23s
+  W64-2mo-s1 step 400 val MAE 21.289 (best 21.289) 30s
+  W64-2mo-s1 step 500 val MAE 22.588 (best 21.289) 38s
+  W64-2mo-s1 step 600 val MAE 21.641 (best 21.289) 46s
+  W64-2mo-s1 step 700 val MAE 21.474 (best 21.289) 53s
+  W64-2mo-s1 step 800 val MAE 21.560 (best 21.289) 61s
+  W64-2mo-s1 step 900 val MAE 22.118 (best 21.289) 69s
+  W64-2mo-s1 step 1000 val MAE 22.103 (best 21.289) 76s
+  W64-2mo-s1 step 1100 val MAE 22.693 (best 21.289) 84s
+  W64-2mo-s1 step 1200 val MAE 21.709 (best 21.289) 92s
+  W64-2mo-s1 step 1300 val MAE 21.700 (best 21.289) 99s
+  W64-2mo-s1 step 1400 val MAE 21.319 (best 21.289) 107s
+RUN {"name": "W64-2mo-s1", "seed": 1, "train_windows": 479, "steps": 1400, "minutes": 1.8, "start_val_MAE": 26.511402130126953, "val_MAE": 21.289142608642578, "hit_time_cap": false}
+ATLASW-GRID {"width": 64, "params": 37531, "months_asked": 2, "months": 1.97, "N": 479, "seed": 1, "val_MAE": 21.289142608642578, "test_MAE": 39.329368591308594, "steps": 1400, "minutes": 1.8}
+  W32-4mo-s1 start val MAE 26.511; 965 training windows, lr 0.001, up to 4000 steps
+  W32-4mo-s1 step 100 val MAE 23.992 (best 23.992) 7s
+  W32-4mo-s1 step 200 val MAE 21.724 (best 21.724) 14s
+  W32-4mo-s1 step 300 val MAE 21.254 (best 21.254) 22s
+  W32-4mo-s1 step 400 val MAE 21.108 (best 21.108) 29s
+  W32-4mo-s1 step 500 val MAE 21.681 (best 21.108) 36s
+  W32-4mo-s1 step 600 val MAE 23.151 (best 21.108) 44s
+  W32-4mo-s1 step 700 val MAE 21.731 (best 21.108) 52s
+  W32-4mo-s1 step 800 val MAE 21.478 (best 21.108) 61s
+  W32-4mo-s1 step 900 val MAE 21.147 (best 21.108) 69s
+  W32-4mo-s1 step 1000 val MAE 21.378 (best 21.108) 76s
+  W32-4mo-s1 step 1100 val MAE 22.268 (best 21.108) 84s
+  W32-4mo-s1 step 1200 val MAE 21.263 (best 21.108) 93s
+  W32-4mo-s1 step 1300 val MAE 21.215 (best 21.108) 100s
+  W32-4mo-s1 step 1400 val MAE 22.053 (best 21.108) 107s
+RUN {"name": "W32-4mo-s1", "seed": 1, "train_windows": 965, "steps": 1400, "minutes": 1.8, "start_val_MAE": 26.511402130126953, "val_MAE": 21.107769012451172, "hit_time_cap": false}
+ATLASW-GRID {"width": 32, "params": 14043, "months_asked": 4, "months": 3.97, "N": 965, "seed": 1, "val_MAE": 21.107769012451172, "test_MAE": 37.32426452636719, "steps": 1400, "minutes": 1.8}
+  W64-4mo-s1 start val MAE 26.511; 965 training windows, lr 0.001, up to 4000 steps
+  W64-4mo-s1 step 100 val MAE 25.967 (best 25.967) 8s
+  W64-4mo-s1 step 200 val MAE 22.251 (best 22.251) 16s
+  W64-4mo-s1 step 300 val MAE 21.195 (best 21.195) 23s
+  W64-4mo-s1 step 400 val MAE 21.023 (best 21.023) 31s
+  W64-4mo-s1 step 500 val MAE 22.283 (best 21.023) 39s
+  W64-4mo-s1 step 600 val MAE 22.441 (best 21.023) 47s
+  W64-4mo-s1 step 700 val MAE 21.866 (best 21.023) 54s
+  W64-4mo-s1 step 800 val MAE 21.336 (best 21.023) 62s
+  W64-4mo-s1 step 900 val MAE 21.205 (best 21.023) 70s
+  W64-4mo-s1 step 1000 val MAE 21.226 (best 21.023) 77s
+  W64-4mo-s1 step 1100 val MAE 22.032 (best 21.023) 85s
+  W64-4mo-s1 step 1200 val MAE 21.207 (best 21.023) 93s
+  W64-4mo-s1 step 1300 val MAE 21.506 (best 21.023) 100s
+  W64-4mo-s1 step 1400 val MAE 21.626 (best 21.023) 108s
+RUN {"name": "W64-4mo-s1", "seed": 1, "train_windows": 965, "steps": 1400, "minutes": 1.8, "start_val_MAE": 26.511402130126953, "val_MAE": 21.02320671081543, "hit_time_cap": false}
+ATLASW-GRID {"width": 64, "params": 37531, "months_asked": 4, "months": 3.97, "N": 965, "seed": 1, "val_MAE": 21.02320671081543, "test_MAE": 36.223876953125, "steps": 1400, "minutes": 1.8}
+  W32-8mo-s1 start val MAE 26.511; 1938 training windows, lr 0.001, up to 4000 steps
+  W32-8mo-s1 step 100 val MAE 23.945 (best 23.945) 7s
+  W32-8mo-s1 step 200 val MAE 22.342 (best 22.342) 14s
+  W32-8mo-s1 step 300 val MAE 22.301 (best 22.301) 21s
+  W32-8mo-s1 step 400 val MAE 22.090 (best 22.090) 29s
+  W32-8mo-s1 step 500 val MAE 21.708 (best 21.708) 36s
+  W32-8mo-s1 step 600 val MAE 21.642 (best 21.642) 43s
+  W32-8mo-s1 step 700 val MAE 22.206 (best 21.642) 50s
+  W32-8mo-s1 step 800 val MAE 21.878 (best 21.642) 57s
+  W32-8mo-s1 step 900 val MAE 21.555 (best 21.555) 65s
+  W32-8mo-s1 step 1000 val MAE 21.468 (best 21.468) 72s
+  W32-8mo-s1 step 1100 val MAE 21.799 (best 21.468) 79s
+  W32-8mo-s1 step 1200 val MAE 21.795 (best 21.468) 86s
+  W32-8mo-s1 step 1300 val MAE 22.728 (best 21.468) 93s
+  W32-8mo-s1 step 1400 val MAE 21.349 (best 21.349) 101s
+  W32-8mo-s1 step 1500 val MAE 21.424 (best 21.349) 108s
+  W32-8mo-s1 step 1600 val MAE 21.537 (best 21.349) 115s
+  W32-8mo-s1 step 1700 val MAE 21.775 (best 21.349) 122s
+  W32-8mo-s1 step 1800 val MAE 22.272 (best 21.349) 129s
+  W32-8mo-s1 step 1900 val MAE 21.709 (best 21.349) 136s
+  W32-8mo-s1 step 2000 val MAE 21.332 (best 21.332) 143s
+  W32-8mo-s1 step 2100 val MAE 21.347 (best 21.332) 151s
+  W32-8mo-s1 step 2200 val MAE 21.647 (best 21.332) 158s
+  W32-8mo-s1 step 2300 val MAE 21.605 (best 21.332) 165s
+  W32-8mo-s1 step 2400 val MAE 21.464 (best 21.332) 172s
+  W32-8mo-s1 step 2500 val MAE 21.726 (best 21.332) 179s
+  W32-8mo-s1 step 2600 val MAE 22.235 (best 21.332) 186s
+  W32-8mo-s1 step 2700 val MAE 22.900 (best 21.332) 194s
+  W32-8mo-s1 step 2800 val MAE 21.752 (best 21.332) 201s
+  W32-8mo-s1 step 2900 val MAE 21.614 (best 21.332) 208s
+  W32-8mo-s1 step 3000 val MAE 22.009 (best 21.332) 215s
+RUN {"name": "W32-8mo-s1", "seed": 1, "train_windows": 1938, "steps": 3000, "minutes": 3.6, "start_val_MAE": 26.511402130126953, "val_MAE": 21.331958770751953, "hit_time_cap": false}
+ATLASW-GRID {"width": 32, "params": 14043, "months_asked": 8, "months": 7.97, "N": 1938, "seed": 1, "val_MAE": 21.331958770751953, "test_MAE": 32.6971435546875, "steps": 3000, "minutes": 3.6}
+  W64-8mo-s1 start val MAE 26.511; 1938 training windows, lr 0.001, up to 4000 steps
+  W64-8mo-s1 step 100 val MAE 23.219 (best 23.219) 8s
+  W64-8mo-s1 step 200 val MAE 22.209 (best 22.209) 15s
+  W64-8mo-s1 step 300 val MAE 22.097 (best 22.097) 23s
+  W64-8mo-s1 step 400 val MAE 22.508 (best 22.097) 30s
+  W64-8mo-s1 step 500 val MAE 21.996 (best 21.996) 38s
+  W64-8mo-s1 step 600 val MAE 21.893 (best 21.893) 45s
+  W64-8mo-s1 step 700 val MAE 22.018 (best 21.893) 53s
+  W64-8mo-s1 step 800 val MAE 21.596 (best 21.596) 60s
+  W64-8mo-s1 step 900 val MAE 21.253 (best 21.253) 68s
+  W64-8mo-s1 step 1000 val MAE 21.392 (best 21.253) 76s
+  W64-8mo-s1 step 1100 val MAE 21.494 (best 21.253) 84s
+  W64-8mo-s1 step 1200 val MAE 21.867 (best 21.253) 91s
+  W64-8mo-s1 step 1300 val MAE 21.781 (best 21.253) 99s
+  W64-8mo-s1 step 1400 val MAE 21.113 (best 21.113) 107s
+  W64-8mo-s1 step 1500 val MAE 21.127 (best 21.113) 114s
+  W64-8mo-s1 step 1600 val MAE 21.482 (best 21.113) 122s
+  W64-8mo-s1 step 1700 val MAE 21.443 (best 21.113) 130s
+  W64-8mo-s1 step 1800 val MAE 22.436 (best 21.113) 138s
+  W64-8mo-s1 step 1900 val MAE 22.177 (best 21.113) 146s
+  W64-8mo-s1 step 2000 val MAE 21.237 (best 21.113) 154s
+  W64-8mo-s1 step 2100 val MAE 21.517 (best 21.113) 162s
+  W64-8mo-s1 step 2200 val MAE 21.473 (best 21.113) 171s
+  W64-8mo-s1 step 2300 val MAE 22.417 (best 21.113) 179s
+  W64-8mo-s1 step 2400 val MAE 22.060 (best 21.113) 187s
+RUN {"name": "W64-8mo-s1", "seed": 1, "train_windows": 1938, "steps": 2400, "minutes": 3.1, "start_val_MAE": 26.511402130126953, "val_MAE": 21.112625122070312, "hit_time_cap": false}
+ATLASW-GRID {"width": 64, "params": 37531, "months_asked": 8, "months": 7.97, "N": 1938, "seed": 1, "val_MAE": 21.112625122070312, "test_MAE": 33.51763153076172, "steps": 2400, "minutes": 3.1}
+  W32-99mo-s1 start val MAE 26.511; 3673 training windows, lr 0.001, up to 4000 steps
+  W32-99mo-s1 step 100 val MAE 23.974 (best 23.974) 8s
+  W32-99mo-s1 step 200 val MAE 21.880 (best 21.880) 15s
+  W32-99mo-s1 step 300 val MAE 21.676 (best 21.676) 22s
+  W32-99mo-s1 step 400 val MAE 21.512 (best 21.512) 30s
+  W32-99mo-s1 step 500 val MAE 21.664 (best 21.512) 37s
+  W32-99mo-s1 step 600 val MAE 21.775 (best 21.512) 45s
+  W32-99mo-s1 step 700 val MAE 21.464 (best 21.464) 52s
+  W32-99mo-s1 step 800 val MAE 21.257 (best 21.257) 60s
+  W32-99mo-s1 step 900 val MAE 21.425 (best 21.257) 68s
+  W32-99mo-s1 step 1000 val MAE 21.367 (best 21.257) 75s
+  W32-99mo-s1 step 1100 val MAE 20.996 (best 20.996) 82s
+  W32-99mo-s1 step 1200 val MAE 20.980 (best 20.980) 89s
+  W32-99mo-s1 step 1300 val MAE 21.084 (best 20.980) 97s
+  W32-99mo-s1 step 1400 val MAE 21.127 (best 20.980) 104s
+  W32-99mo-s1 step 1500 val MAE 21.525 (best 20.980) 111s
+  W32-99mo-s1 step 1600 val MAE 21.092 (best 20.980) 118s
+  W32-99mo-s1 step 1700 val MAE 21.067 (best 20.980) 126s
+  W32-99mo-s1 step 1800 val MAE 21.155 (best 20.980) 133s
+  W32-99mo-s1 step 1900 val MAE 20.961 (best 20.961) 141s
+  W32-99mo-s1 step 2000 val MAE 21.383 (best 20.961) 148s
+  W32-99mo-s1 step 2100 val MAE 20.874 (best 20.874) 155s
+  W32-99mo-s1 step 2200 val MAE 20.847 (best 20.847) 162s
+  W32-99mo-s1 step 2300 val MAE 21.166 (best 20.847) 170s
+  W32-99mo-s1 step 2400 val MAE 20.867 (best 20.847) 177s
+  W32-99mo-s1 step 2500 val MAE 20.830 (best 20.830) 184s
+  W32-99mo-s1 step 2600 val MAE 21.111 (best 20.830) 191s
+  W32-99mo-s1 step 2700 val MAE 21.017 (best 20.830) 199s
+  W32-99mo-s1 step 2800 val MAE 21.050 (best 20.830) 206s
+  W32-99mo-s1 step 2900 val MAE 21.093 (best 20.830) 213s
+  W32-99mo-s1 step 3000 val MAE 21.066 (best 20.830) 220s
+  W32-99mo-s1 step 3100 val MAE 20.957 (best 20.830) 228s
+  W32-99mo-s1 step 3200 val MAE 20.938 (best 20.830) 235s
+  W32-99mo-s1 step 3300 val MAE 21.196 (best 20.830) 242s
+  W32-99mo-s1 step 3400 val MAE 21.128 (best 20.830) 250s
+  W32-99mo-s1 step 3500 val MAE 20.953 (best 20.830) 257s
+RUN {"name": "W32-99mo-s1", "seed": 1, "train_windows": 3673, "steps": 3500, "minutes": 4.3, "start_val_MAE": 26.511402130126953, "val_MAE": 20.830015182495117, "hit_time_cap": false}
+ATLASW-GRID {"width": 32, "params": 14043, "months_asked": 99, "months": 15.1, "N": 3673, "seed": 1, "val_MAE": 20.830015182495117, "test_MAE": 32.23455047607422, "steps": 3500, "minutes": 4.3}
+  W64-99mo-s1 start val MAE 26.511; 3673 training windows, lr 0.001, up to 4000 steps
+  W64-99mo-s1 step 100 val MAE 24.811 (best 24.811) 8s
+  W64-99mo-s1 step 200 val MAE 21.545 (best 21.545) 15s
+  W64-99mo-s1 step 300 val MAE 21.329 (best 21.329) 23s
+  W64-99mo-s1 step 400 val MAE 21.335 (best 21.329) 31s
+  W64-99mo-s1 step 500 val MAE 21.683 (best 21.329) 38s
+  W64-99mo-s1 step 600 val MAE 21.166 (best 21.166) 46s
+  W64-99mo-s1 step 700 val MAE 21.646 (best 21.166) 53s
+  W64-99mo-s1 step 800 val MAE 21.530 (best 21.166) 61s
+  W64-99mo-s1 step 900 val MAE 21.183 (best 21.166) 69s
+  W64-99mo-s1 step 1000 val MAE 21.416 (best 21.166) 77s
+  W64-99mo-s1 step 1100 val MAE 20.906 (best 20.906) 84s
+  W64-99mo-s1 step 1200 val MAE 20.994 (best 20.906) 92s
+  W64-99mo-s1 step 1300 val MAE 21.042 (best 20.906) 99s
+  W64-99mo-s1 step 1400 val MAE 21.099 (best 20.906) 107s
+  W64-99mo-s1 step 1500 val MAE 21.756 (best 20.906) 115s
+  W64-99mo-s1 step 1600 val MAE 21.255 (best 20.906) 122s
+  W64-99mo-s1 step 1700 val MAE 21.083 (best 20.906) 130s
+  W64-99mo-s1 step 1800 val MAE 21.185 (best 20.906) 138s
+  W64-99mo-s1 step 1900 val MAE 20.929 (best 20.906) 146s
+  W64-99mo-s1 step 2000 val MAE 21.116 (best 20.906) 154s
+  W64-99mo-s1 step 2100 val MAE 20.999 (best 20.906) 161s
+RUN {"name": "W64-99mo-s1", "seed": 1, "train_windows": 3673, "steps": 2100, "minutes": 2.7, "start_val_MAE": 26.511402130126953, "val_MAE": 20.90564727783203, "hit_time_cap": false}
+ATLASW-GRID {"width": 64, "params": 37531, "months_asked": 99, "months": 15.1, "N": 3673, "seed": 1, "val_MAE": 20.90564727783203, "test_MAE": 32.12251281738281, "steps": 2100, "minutes": 2.7}
+RULE2 {"months": [0.5, 1, 2, 4, 8, 99], "atlasw": {"32": [37.07075500488281, 37.42240524291992, 39.48998260498047, 37.275197982788086, 32.99136734008789, 32.12957572937012], "64": [37.931894302368164, 37.4097957611084, 39.150638580322266, 36.55483627319336, 33.377811431884766, 32.31170654296875]}, "atlasw_best": [37.07075500488281, 37.4097957611084, 39.150638580322266, 36.55483627319336, 32.99136734008789, 32.12957572937012], "atlas_best": [42.7, 42.8, 44.2, 40.0, 35.4, 34.3], "more_data_efficient": true, "months_to_below_same_hour_yesterday_40_30": {"atlasw": 0.5, "atlas": 4}, "months_to_below_36": {"atlasw": 8, "atlas": 8}}
+THRESHOLD-FIT {"fit": {"floor": 1.0370213165673327e-06, "a": 49.19559441888484, "alpha": 0.04801789034458828, "b": 4.013021900386779e-05, "beta": 0.8475379121393447, "rms_log": 0.044394868694733434, "n": 24}, "need": {"TimesFM 2.5": {"target": 30.83, "N": 16850.235611137352, "measured_max_N": 3673}, "Chronos-2": {"target": 31.17, "N": 13409.358387164495, "measured_max_N": 3673}, "Chronos-Bolt": {"target": 31.35, "N": 11894.018153734178, "measured_max_N": 3673}}}
+  W32-all-s2 start val MAE 26.511; 3673 training windows, lr 0.001, up to 4000 steps
+  W32-all-s2 step 100 val MAE 24.481 (best 24.481) 7s
+  W32-all-s2 step 200 val MAE 23.182 (best 23.182) 14s
+  W32-all-s2 step 300 val MAE 21.487 (best 21.487) 22s
+  W32-all-s2 step 400 val MAE 21.425 (best 21.425) 29s
+  W32-all-s2 step 500 val MAE 22.048 (best 21.425) 37s
+  W32-all-s2 step 600 val MAE 21.755 (best 21.425) 44s
+  W32-all-s2 step 700 val MAE 21.384 (best 21.384) 51s
+  W32-all-s2 step 800 val MAE 21.918 (best 21.384) 58s
+  W32-all-s2 step 900 val MAE 21.785 (best 21.384) 66s
+  W32-all-s2 step 1000 val MAE 21.110 (best 21.110) 73s
+  W32-all-s2 step 1100 val MAE 20.967 (best 20.967) 80s
+  W32-all-s2 step 1200 val MAE 21.353 (best 20.967) 87s
+  W32-all-s2 step 1300 val MAE 20.997 (best 20.967) 94s
+  W32-all-s2 step 1400 val MAE 21.339 (best 20.967) 102s
+  W32-all-s2 step 1500 val MAE 21.121 (best 20.967) 109s
+  W32-all-s2 step 1600 val MAE 21.124 (best 20.967) 116s
+  W32-all-s2 step 1700 val MAE 21.548 (best 20.967) 123s
+  W32-all-s2 step 1800 val MAE 21.168 (best 20.967) 130s
+  W32-all-s2 step 1900 val MAE 21.372 (best 20.967) 138s
+  W32-all-s2 step 2000 val MAE 21.358 (best 20.967) 145s
+  W32-all-s2 step 2100 val MAE 21.143 (best 20.967) 152s
+RUN {"name": "W32-all-s2", "seed": 2, "train_windows": 3673, "steps": 2100, "minutes": 2.5, "start_val_MAE": 26.511402130126953, "val_MAE": 20.966856002807617, "hit_time_cap": false}
+TEST Atlas-W v0 (14,043 parameters, 3 seeds, 16 months of Delhi): Track S MAE 31.97, Track U MAE 27.43
+TEST TimesFM 2.5 (Google, zero-shot): Track S MAE 30.83, Track U MAE 27.10
+SIG Atlas-W v0 vs TimesFM 2.5 (Google, zero-shot): S LOSS +3.71% p=0.015; U TIE +1.24% p=0.36 -> Atlas-W LOSES to it
+TEST Chronos-2 (Amazon, zero-shot): Track S MAE 31.17, Track U MAE 27.41
+SIG Atlas-W v0 vs Chronos-2 (Amazon, zero-shot): S TIE +2.56% p=0.077; U TIE +0.09% p=0.95 -> level
+TEST Chronos-Bolt (Amazon, zero-shot): Track S MAE 31.35, Track U MAE 27.94
+SIG Atlas-W v0 vs Chronos-Bolt (Amazon, zero-shot): S TIE +1.98% p=0.19; U TIE -1.80% p=0.26 -> level
+# Atlas-W air core v0 on Delhi (generated)
+
+## Data threshold: single-model test MAE on trained stations, mean of 2 seeds
+
+| model | parameters | 0.5 mo | 1 mo | 2 mo | 4 mo | 8 mo | all (15 mo) |
+|---|---|---|---|---|---|---|---|
+| Atlas-W width 32 | 14,043 | 37.1 | 37.4 | 39.5 | 37.3 | 33.0 | 32.1 |
+| Atlas-W width 64 | 37,531 | 37.9 | 37.4 | 39.2 | 36.6 | 33.4 | 32.3 |
+| Atlas (stage 8B) | 50,232 | 47.3 | 48.3 | 50.6 | 43.1 | 38.0 | 35.1 |
+| Atlas (stage 8B) | 231,312 | 43.5 | 47.1 | 51.9 | 43.6 | 36.9 | 34.9 |
+| Atlas (stage 8B) | 967,632 | 42.7 | 42.8 | 44.2 | 40.0 | 35.4 | 34.3 |
+
+Rule 2: {"months": [0.5, 1, 2, 4, 8, 99], "atlasw": {"32": [37.07075500488281, 37.42240524291992, 39.48998260498047, 37.275197982788086, 32.99136734008789, 32.12957572937012], "64": [37.931894302368164, 37.4097957611084, 39.150638580322266, 36.55483627319336, 33.377811431884766, 32.31170654296875]}, "atlasw_best": [37.07075500488281, 37.4097957611084, 39.150638580322266, 36.55483627319336, 32.99136734008789, 32.12957572937012], "atlas_best": [42.7, 42.8, 44.2, 40.0, 35.4, 34.3], "more_data_efficient": true, "months_to_below_same_hour_yesterday_40_30": {"atlasw": 0.5, "atlas": 4}, "months_to_below_36": {"atlasw": 8, "atlas": 8}}
+
+## Full data, 3-seed ensemble, calibrated
+
+| Entry | Trained: MAE | Never trained: MAE | QL | COV80 % | MAE@1h | MAE@6h | MAE@24h |
+|---|---|---|---|---|---|---|---|
+| Atlas-W v0 (14,043 parameters, 3 seeds, 16 months of Delhi) | 31.97 | 27.43 | 10.51 | 79 | 14.89 | 30.47 | 35.34 |
+| TimesFM 2.5 (Google, zero-shot) | 30.83 | 27.10 | 10.15 | 78 | 13.95 | 29.17 | 35.34 |
+| Chronos-2 (Amazon, zero-shot) | 31.17 | 27.41 | 10.23 | 79 | 14.10 | 29.29 | 35.99 |
+| Chronos-Bolt (Amazon, zero-shot) | 31.35 | 27.94 | 10.26 | 79 | 14.21 | 29.33 | 36.26 |
+| Atlas v1.0 (recorded) | 33.42 | 29.07 | | | | | |
+
+- against TimesFM 2.5 (Google, zero-shot): Atlas-W LOSES to it
+- against Chronos-2 (Amazon, zero-shot): level
+- against Chronos-Bolt (Amazon, zero-shot): level
+done in 67.9 min

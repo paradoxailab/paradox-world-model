@@ -1,0 +1,42 @@
+DELHI: 70128 hours x 39 stations, targets ['PM2.5', 'PM10', 'NO2', 'Ozone'] (missing 19.0%, 21.4%, 19.3%, 21.0%), 11 input channels, 362 graph links, 6 regions; splits {'train': ('2018-01-01T00', '2025-05-02T23'), 'val': ('2025-05-03T00', '2025-07-02T23'), 'test': ('2025-07-03T00', '2025-12-31T23')}
+device cpu; league hours start at index 52584
+training windows: 19082 valid since 2018-01-01 (3761 of them in the league's 16 months); by year 2018: 2784, 2019: 2920, 2020: 2928, 2021: 2920, 2022: 2920, 2023: 717, 2024: 2924, 2025: 969
+Atlas: 14,043 parameters, width 32
+TEST P seed 320 (weights from the rest of India, no Delhi training; one model, uncalibrated): trained stations 31.97, unseen 27.70; validation 21.071
+  B-s320 start val MAE 21.071; 19082 training windows, lr 0.0003, up to 12000 steps
+  B-s320 step 400 val MAE 20.626 (best 20.626) 32s
+  B-s320 step 800 val MAE 20.631 (best 20.626) 64s
+  B-s320 step 1200 val MAE 20.582 (best 20.582) 96s
+  B-s320 step 1600 val MAE 20.716 (best 20.582) 129s
+  B-s320 step 2000 val MAE 20.652 (best 20.582) 162s
+  B-s320 step 2400 val MAE 20.549 (best 20.549) 193s
+  B-s320 step 2800 val MAE 20.543 (best 20.543) 223s
+  B-s320 step 3200 val MAE 20.588 (best 20.543) 254s
+  B-s320 step 3600 val MAE 20.469 (best 20.469) 286s
+  B-s320 step 4000 val MAE 20.418 (best 20.418) 317s
+  B-s320 step 4400 val MAE 20.636 (best 20.418) 347s
+  B-s320 step 4800 val MAE 20.614 (best 20.418) 379s
+  B-s320 step 5200 val MAE 20.533 (best 20.418) 411s
+  B-s320 step 5600 val MAE 20.505 (best 20.418) 442s
+  B-s320 step 6000 val MAE 20.502 (best 20.418) 473s
+  B-s320 step 6400 val MAE 20.534 (best 20.418) 504s
+  B-s320 step 6800 val MAE 20.612 (best 20.418) 537s
+  B-s320 step 7200 val MAE 20.587 (best 20.418) 569s
+  B-s320 step 7600 val MAE 20.538 (best 20.418) 600s
+  B-s320 step 8000 val MAE 20.544 (best 20.418) 632s
+RUN {"name": "B-s320", "seed": 320, "train_windows": 19082, "steps": 8000, "minutes": 10.5, "start_val_MAE": 21.071395874023438, "val_MAE": 20.418109893798828, "hit_time_cap": false}
+TEST B seed 320 (one model, uncalibrated): trained stations 31.49, unseen 27.50
+  C-s320 start val MAE 20.418; 3761 training windows, lr 0.0002, up to 3000 steps
+  C-s320 step 100 val MAE 20.737 (best 20.418) 8s
+  C-s320 step 200 val MAE 20.726 (best 20.418) 17s
+  C-s320 step 300 val MAE 20.597 (best 20.418) 25s
+  C-s320 step 400 val MAE 20.693 (best 20.418) 33s
+  C-s320 step 500 val MAE 20.631 (best 20.418) 41s
+  C-s320 step 600 val MAE 20.636 (best 20.418) 49s
+  C-s320 step 700 val MAE 20.673 (best 20.418) 58s
+  C-s320 step 800 val MAE 20.680 (best 20.418) 66s
+  C-s320 step 900 val MAE 20.921 (best 20.418) 74s
+  C-s320 step 1000 val MAE 20.575 (best 20.418) 82s
+RUN {"name": "C-s320", "seed": 1320, "train_windows": 3761, "steps": 1000, "minutes": 1.4, "start_val_MAE": 20.418109893798828, "val_MAE": 20.418109893798828, "hit_time_cap": false}
+TEST C seed 320 (one model, uncalibrated): trained stations 31.49, unseen 27.50
+LONG-RUN {"seed": 320, "first": "2018-01-01", "train_windows": 19082, "league_windows": 3761, "describe": "DELHI: 70128 hours x 39 stations, targets ['PM2.5', 'PM10', 'NO2', 'Ozone'] (missing 19.0%, 21.4%, 19.3%, 21.0%), 11 input channels, 362 graph links, 6 regions; splits {'train': ('2018-01-01T00', '2025-05-02T23'), 'val': ('2025-05-03T00', '2025-07-02T23'), 'test': ('2025-07-03T00', '2025-12-31T23')}", "P": {"val_MAE": 21.071395874023438, "steps": 0, "test_S": 31.97185516357422, "test_U": 27.703670501708984}, "pretrain": {"file": "atlas_windia13_s320.pt", "key": "E", "networks": ["Uttar Pradesh", "Haryana", "Maharashtra", "Karnataka", "other states", "Madhya Pradesh", "West Bengal", "Bihar", "Rajasthan", "Gujarat", "Tamil Nadu", "Punjab", "Kerala"], "meta": {"seed": 320, "loader": "input fix of 2026-11-13", "inputs_dropped": {"Gujarat": ["BP"], "Punjab": ["AT"], "Kerala": ["BP"]}, "params": 14043, "networks": ["Uttar Pradesh", "Haryana", "Maharashtra", "Karnataka", "other states", "Madhya Pradesh", "West Bengal", "Bihar", "Rajasthan", "Gujarat", "Tamil Nadu", "Punjab", "Kerala"], "stations": [40, 30, 27, 24, 22, 14, 14, 12, 10, 9, 9, 8, 7], "train_windows": [12954, 10481, 9199, 11733, 14440, 13546, 12175, 7511, 14089, 9993, 8200, 13021, 7329], "hit_time_cap": false, "minutes_train": 43.8, "E": {"val_MAE": 8.825231925293174, "steps": 40000}, "F": {"val_MAE": 8.801798654557539, "steps": 60000}, "left_out": ["Delhi"], "minutes_total": 44.4}}, "lr_b": 0.3, "B": {"name": "B-s320", "seed": 320, "train_windows": 19082, "steps": 8000, "minutes": 10.5, "start_val_MAE": 21.071395874023438, "val_MAE": 20.418109893798828, "hit_time_cap": false, "test_S": 31.490276336669922, "test_U": 27.498245239257812}, "C": {"name": "C-s320", "seed": 1320, "train_windows": 3761, "steps": 1000, "minutes": 1.4, "start_val_MAE": 20.418109893798828, "val_MAE": 20.418109893798828, "hit_time_cap": false, "test_S": 31.490276336669922, "test_U": 27.498245239257812}, "params": 14043, "minutes_total": 12.3}

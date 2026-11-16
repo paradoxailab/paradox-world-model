@@ -1,0 +1,58 @@
+DELHI: 70128 hours x 39 stations, targets ['PM2.5', 'PM10', 'NO2', 'Ozone'] (missing 19.0%, 21.4%, 19.3%, 21.0%), 11 input channels, 362 graph links, 6 regions; splits {'train': ('2018-01-01T00', '2025-05-02T23'), 'val': ('2025-05-03T00', '2025-07-02T23'), 'test': ('2025-07-03T00', '2025-12-31T23')}
+device cpu; league hours start at index 52584
+training windows: 19082 valid since 2018-01-01 (3761 of them in the league's 16 months); by year 2018: 2784, 2019: 2920, 2020: 2928, 2021: 2920, 2022: 2920, 2023: 717, 2024: 2924, 2025: 969
+Atlas: 967,632 parameters, width 144
+  B-s300 start val MAE 26.882; 19082 training windows, lr 0.001, up to 24000 steps
+  B-s300 step 400 val MAE 28.417 (best 26.882) 67s
+  B-s300 step 800 val MAE 23.299 (best 23.299) 133s
+  B-s300 step 1200 val MAE 23.175 (best 23.175) 199s
+  B-s300 step 1600 val MAE 22.596 (best 22.596) 268s
+  B-s300 step 2000 val MAE 22.539 (best 22.539) 333s
+  B-s300 step 2400 val MAE 22.113 (best 22.113) 398s
+  B-s300 step 2800 val MAE 21.659 (best 21.659) 462s
+  B-s300 step 3200 val MAE 22.136 (best 21.659) 526s
+  B-s300 step 3600 val MAE 21.920 (best 21.659) 589s
+  B-s300 step 4000 val MAE 21.979 (best 21.659) 652s
+  B-s300 step 4400 val MAE 22.546 (best 21.659) 716s
+  B-s300 step 4800 val MAE 21.722 (best 21.659) 779s
+  B-s300 step 5200 val MAE 21.342 (best 21.342) 843s
+  B-s300 step 5600 val MAE 21.329 (best 21.329) 907s
+  B-s300 step 6000 val MAE 21.416 (best 21.329) 972s
+  B-s300 step 6400 val MAE 21.355 (best 21.329) 1036s
+  B-s300 step 6800 val MAE 21.082 (best 21.082) 1100s
+  B-s300 step 7200 val MAE 21.832 (best 21.082) 1163s
+  B-s300 step 7600 val MAE 21.568 (best 21.082) 1226s
+  B-s300 step 8000 val MAE 22.402 (best 21.082) 1292s
+  B-s300 step 8400 val MAE 22.229 (best 21.082) 1370s
+  B-s300 step 8800 val MAE 21.087 (best 21.082) 1435s
+  B-s300 step 9200 val MAE 21.332 (best 21.082) 1499s
+  B-s300 step 9600 val MAE 21.023 (best 21.023) 1569s
+  B-s300 step 10000 val MAE 21.020 (best 21.020) 1646s
+  B-s300 step 10400 val MAE 20.980 (best 20.980) 1713s
+  B-s300 step 10800 val MAE 21.037 (best 20.980) 1782s
+  B-s300 step 11200 val MAE 21.193 (best 20.980) 1848s
+  B-s300 step 11600 val MAE 22.080 (best 20.980) 1915s
+  B-s300 step 12000 val MAE 21.063 (best 20.980) 1980s
+  B-s300 step 12400 val MAE 22.178 (best 20.980) 2045s
+  B-s300 step 12800 val MAE 20.982 (best 20.980) 2111s
+  B-s300 step 13200 val MAE 21.619 (best 20.980) 2176s
+  B-s300 step 13600 val MAE 21.481 (best 20.980) 2242s
+  B-s300 step 14000 val MAE 22.046 (best 20.980) 2307s
+  B-s300 step 14400 val MAE 21.289 (best 20.980) 2375s
+RUN {"name": "B-s300", "seed": 300, "train_windows": 19082, "steps": 14400, "minutes": 39.6, "start_val_MAE": 26.8824520111084, "val_MAE": 20.980148315429688, "hit_time_cap": false}
+TEST B seed 300 (one model, uncalibrated): trained stations 31.96, unseen 27.89
+  C-s300 start val MAE 20.980; 3761 training windows, lr 0.0002, up to 3000 steps
+  C-s300 step 100 val MAE 20.733 (best 20.733) 17s
+  C-s300 step 200 val MAE 21.131 (best 20.733) 34s
+  C-s300 step 300 val MAE 21.408 (best 20.733) 51s
+  C-s300 step 400 val MAE 21.109 (best 20.733) 70s
+  C-s300 step 500 val MAE 21.525 (best 20.733) 88s
+  C-s300 step 600 val MAE 21.183 (best 20.733) 105s
+  C-s300 step 700 val MAE 21.207 (best 20.733) 122s
+  C-s300 step 800 val MAE 21.323 (best 20.733) 138s
+  C-s300 step 900 val MAE 21.353 (best 20.733) 155s
+  C-s300 step 1000 val MAE 21.484 (best 20.733) 172s
+  C-s300 step 1100 val MAE 21.899 (best 20.733) 188s
+RUN {"name": "C-s300", "seed": 1300, "train_windows": 3761, "steps": 1100, "minutes": 3.1, "start_val_MAE": 20.980148315429688, "val_MAE": 20.732589721679688, "hit_time_cap": false}
+TEST C seed 300 (one model, uncalibrated): trained stations 31.66, unseen 27.66
+LONG-RUN {"seed": 300, "first": "2018-01-01", "train_windows": 19082, "league_windows": 3761, "describe": "DELHI: 70128 hours x 39 stations, targets ['PM2.5', 'PM10', 'NO2', 'Ozone'] (missing 19.0%, 21.4%, 19.3%, 21.0%), 11 input channels, 362 graph links, 6 regions; splits {'train': ('2018-01-01T00', '2025-05-02T23'), 'val': ('2025-05-03T00', '2025-07-02T23'), 'test': ('2025-07-03T00', '2025-12-31T23')}", "B": {"name": "B-s300", "seed": 300, "train_windows": 19082, "steps": 14400, "minutes": 39.6, "start_val_MAE": 26.8824520111084, "val_MAE": 20.980148315429688, "hit_time_cap": false, "test_S": 31.9595890045166, "test_U": 27.88776206970215}, "C": {"name": "C-s300", "seed": 1300, "train_windows": 3761, "steps": 1100, "minutes": 3.1, "start_val_MAE": 20.980148315429688, "val_MAE": 20.732589721679688, "hit_time_cap": false, "test_S": 31.664371490478516, "test_U": 27.66416358947754}, "params": 967632, "minutes_total": 43.2}

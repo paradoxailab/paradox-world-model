@@ -2389,6 +2389,14 @@ sparse regions but dilute attention in dense ones.
 published leaders, −3.7%). Prediction (1–4%): held. Under the rule the choice between v2a and v2c is made when v2c has run;
 only the chosen one is scored on 2023.
 
+**v2c result and the choice (Kaggle run atlas-w5k-v2c, GPU T4, about 210 min; validation only; stopped by patience at
+step 146,000, best at 134,000):** final validation 2022 MAE 1.463 / 1.517 / 54.74 / 1.205 / 1.537 (T / Td / WD / WS /
+SLP): E **0.28140**, **−3.93%** against v1's 0.29292 and −2.53% against v2a's 0.28869; every variable improves on v1
+(−5.4%, −5.4%, −3.0%, −2.5%, and pressure −8.4%). Both candidates pass the 1% bar and v2c is lower: **v2c is adopted**
+as the WB1 entry at 24 h. Predictions: v2a 1–4% held; "v2c a further 0–2% over v2a" missed (it was 2.5%, so 32
+neighbours helped more than predicted). Next, as the rule says: v2c alone is scored once on the 2023 test year
+(`run_atlas_5k.py --eval`, notebook `atlas_w5k_final`, tag `w5k_atlas_1m_h24_final`); v1's test numbers stay beside it.
+
 **WB1-T interim (Kaggle run atlas-w5k-thr-a, GPU T4, 125 min; validation only):** E at share 1/64 = 0.3376 (temperature
 1.889), 1/16 = 0.3129 (1.681), 1/4 = 0.2971 (1.585); all data (v1) 0.2929 (1.547). The rule's fit uses the four smallest
 shares (1/64, 1/32, 1/16, 1/8), so no fit is reported until atlas-w5k-thr-b (1/32, 1/8, 1/2) has run.

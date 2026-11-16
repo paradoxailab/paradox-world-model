@@ -14,7 +14,7 @@ Atlas-5K reads each station together with its 15 nearest stations (great-circle)
   python run_atlas_5k.py --model dlinear --H 24 --tag w5k_dlinear_h24        # protocol check C2
   python run_atlas_5k.py --model persist --H 24 --tag w5k_persist_h24        # reference: last value held
 """
-import argparse, json, math, os, sys, time
+import argparse, glob, json, math, os, sys, time
 
 import numpy as np
 import torch
@@ -178,7 +178,14 @@ def main(a):
         f"neighbourhood median radius {np.median(geo[:, 0, :, 2].max(1)) * 1000:.0f} km; device {DEV}")
     res = dict(model=a.model, H=a.H, seed=a.seed, tag=a.tag, stations=N, k=a.k, steps=a.steps, protocol="WEATHER-5K: L=48, train 2014-2021, val 2022, test 2023, all hourly windows")
     model = None
-    if a.model in ("atlas", "dlinear"):
+    if a.eval:                                            # score a saved model once; no training
+        f = a.eval if os.path.exists(a.eval) else next(iter(glob.glob(f"/kaggle/input/**/{a.eval}", recursive=True)), a.eval)
+        ck = torch.load(f, map_location=DEV)
+        from atlas.model import Atlas
+        model = Atlas(**ck["cfg"]).to(DEV); model.load_state_dict(ck["sd"]); model.eval()
+        res.update(params=sum(p.numel() for p in model.parameters()), eval_of=os.path.basename(f))
+        log(f"EVAL {f}: {res['params']:,} parameters, k={a.k}")
+    elif a.model in ("atlas", "dlinear"):
         if a.model == "atlas":
             ls = {24: 6, 72: 6, 120: 6, 168: 7}[a.H] if a.H in (24, 72, 120, 168) else 6
             model = sized(a.size, L=L, H=a.H, C=5, U=4, lat_steps=ls, spatial=True, geo_dim=3, static=4, fill="interp").to(DEV)
@@ -266,4 +273,5 @@ if __name__ == "__main__":
     ap.add_argument("--k", type=int, default=K, help="stations per neighbourhood (itself + k-1 nearest)")
     ap.add_argument("--frac", type=float, default=1.0, help="threshold study: share of training days kept (nested)")
     ap.add_argument("--quick", action="store_true")
+    ap.add_argument("--eval", default="", help="checkpoint to score once (validation and the 2023 test); no training")
     main(ap.parse_args())

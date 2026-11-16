@@ -156,8 +156,13 @@ def release(plan_path, push):
     dst = os.path.join(stage, "models", "series")
     os.makedirs(dst, exist_ok=True)
     rows, same = [], []
+    index = []                                                   # one walk of the inputs instead of one glob per entry
+    for root, dirs, files in os.walk("/kaggle/input"):
+        dirs[:] = [d for d in dirs if d != ".git"]
+        index += [os.path.join(root, f) for f in files if f.endswith((".pt", ".pth", ".ckpt"))]
+    log(f"INDEX {len(index)} weight files")
     for e in plan["models"]:
-        hits = glob.glob(os.path.join("/kaggle/input", "**", e["source_glob"]), recursive=True)
+        hits = [h for h in index if h.endswith("/" + e["source_glob"])]
         hits = sorted(h for h in hits if all(x not in h for x in e.get("exclude", [])))
         if len(hits) != 1:
             log(f"SKIP {e['id']} {e['name']}: {len(hits)} matches for {e['source_glob']}: {hits[:4]}")

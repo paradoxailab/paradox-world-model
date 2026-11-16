@@ -13,6 +13,11 @@ Atlas-5K reads each station together with its 15 nearest stations (great-circle)
   python run_atlas_5k.py --model atlas --H 24 --size 1000000 --seed 600 --tag w5k_atlas1m_h24
   python run_atlas_5k.py --model dlinear --H 24 --tag w5k_dlinear_h24        # protocol check C2
   python run_atlas_5k.py --model persist --H 24 --tag w5k_persist_h24        # reference: last value held
+
+Atlas-5K 10M (README, "Atlas-5K 10M"): continue from the adopted 1M model, grown to 9.64M parameters, resumable:
+  python run_atlas_5k.py --init ../../models/series/57_atlas-5k_v2c_weather5k_adopted.pt --grow 2,7,7 --k 32 \
+      --steps 80000 --lr 3e-4 --tag w5k_atlas_10m_h24_g1 --no-test --test-if-below 0.2786 --pause-at-cap --cap 300
+Re-running the same command resumes from {tag}_s{seed}_last.pt in ATLAS_OUT (model, optimiser, schedule, step, best).
 """
 import argparse, glob, json, math, os, sys, time
 
@@ -166,6 +171,11 @@ def evaluate(model, kind, bt, N, year, stride=1, stations=None, bs=2048):
                 MAE_overall=float(mae.mean()), MSE_overall=float(mse.mean()), points=int(cnt[0].item()), windows_per_station=len(t0s))
 
 
+def std_E(v):
+    """The rule's E: mean over the five variables of MAE divided by the benchmark's scale."""
+    return float(np.mean([v["MAE"][n] / STD[i] for i, n in enumerate(NAMES)]))
+
+
 def main(a):
     t_start = time.time()
     torch.manual_seed(a.seed); np.random.seed(a.seed)
@@ -180,22 +190,33 @@ def main(a):
     model = None
     if a.eval:                                            # score a saved model once; no training
         f = a.eval if os.path.exists(a.eval) else next(iter(glob.glob(f"/kaggle/input/**/{a.eval}", recursive=True)), a.eval)
-        ck = torch.load(f, map_location=DEV)
-        from atlas.model import Atlas
-        model = Atlas(**ck["cfg"]).to(DEV); model.load_state_dict(ck["sd"]); model.eval()
+        from atlas.grow import load_any
+        model = load_any(f, DEV).to(DEV); model.eval()
         res.update(params=sum(p.numel() for p in model.parameters()), eval_of=os.path.basename(f))
         log(f"EVAL {f}: {res['params']:,} parameters, k={a.k}")
     elif a.model in ("atlas", "dlinear"):
-        if a.model == "atlas":
+        if a.model == "atlas" and a.init:                 # continue from a trained model (optionally grown)
+            from atlas.grow import grow, load_any
+            f = a.init if os.path.exists(a.init) else next(iter(glob.glob(f"/kaggle/input/**/{os.path.basename(a.init)}", recursive=True)), a.init)
+            model = load_any(f)
+            res.update(init=os.path.basename(f), init_params=model.n_params())
+            if a.grow:
+                gf, ge, gd = (int(x) for x in a.grow.split(","))
+                model = grow(model, f=gf, enc_depth=ge, dyn_depth=gd, noise=a.grow_noise, seed=a.seed)
+                res["grown"] = model.cfg["grown_from"]
+            model = model.to(DEV)
+            log(f"init from {f}: {res['init_params']:,} parameters" + (f", grown by {a.grow} (width x, encoder, dynamics blocks)" if a.grow else ""))
+        elif a.model == "atlas":
             ls = {24: 6, 72: 6, 120: 6, 168: 7}[a.H] if a.H in (24, 72, 120, 168) else 6
             model = sized(a.size, L=L, H=a.H, C=5, U=4, lat_steps=ls, spatial=True, geo_dim=3, static=4, fill="interp").to(DEV)
         else:
             model = DLinear(a.H).to(DEV)
         P = sum(p.numel() for p in model.parameters())
         res["params"] = P
+        assert P <= 10_000_000 or a.model != "atlas", f"{P:,} parameters is over the 10M cap"
         log(f"{a.model}: {P:,} parameters" + (f", width {model.cfg['d']}" if a.model == "atlas" else ""))
-        opt = torch.optim.AdamW(model.parameters(), lr=a.lr, weight_decay=1e-4)
-        sched = torch.optim.lr_scheduler.OneCycleLR(opt, a.lr, total_steps=a.steps, pct_start=0.03)
+        opt = torch.optim.AdamW(model.parameters(), lr=a.lr, weight_decay=a.wd)
+        sched = torch.optim.lr_scheduler.OneCycleLR(opt, a.lr, total_steps=a.steps, pct_start=a.warmup)
         scaler = torch.amp.GradScaler(enabled=(DEV == "cuda" and a.model == "atlas"))
         ta, te = YEARS["train"]
         rng = np.random.default_rng(a.seed)
@@ -209,8 +230,29 @@ def main(a):
         log(f"training data: {len(days)} days x {N} stations ({a.frac:g} of 2014-2021)")
         vst = rng.choice(N, min(N, 300 if not a.quick else N), replace=False)   # validation: 300 stations, every 6th hour
         best, best_step, bad, f_best = float("inf"), 0, 0, os.path.join(OUT, f"{a.tag}_s{a.seed}.pt")
-        t0 = time.time()
-        for step in range(1, a.steps + 1):
+        f_last, first, done = os.path.join(OUT, f"{a.tag}_s{a.seed}_last.pt"), 1, False
+        os.makedirs(OUT, exist_ok=True)
+        if os.path.exists(f_last):                        # resume: everything needed to continue exactly where it stopped
+            ck = torch.load(f_last, map_location=DEV, weights_only=False)
+            model.load_state_dict(ck["sd"]); opt.load_state_dict(ck["opt"]); sched.load_state_dict(ck["sched"])
+            scaler.load_state_dict(ck["scaler"])
+            best, best_step, bad, first, done = ck["best"], ck["best_step"], ck["bad"], ck["step"] + 1, ck.get("done", False)
+            res.update(ck.get("res_extra", {}))
+            log(f"RESUME from {f_last}: step {ck['step']}, best {best:.4f} at {best_step}" + (" (training already finished)" if done else ""))
+            torch.manual_seed(a.seed + ck["step"])
+        elif a.init:                                      # the starting point's validation, same stations as every check
+            v = evaluate(model, a.model, bt, N, "val", stride=6, stations=vst)
+            res["val_step0"] = std_E(v)
+            log(f"  step 0 (as initialised) val MAE (standardised mean) {res['val_step0']:.4f} T {v['MAE']['Temperature']:.3f}")
+
+        def save_last(step, done=False):
+            torch.save(dict(sd=model.state_dict(), opt=opt.state_dict(), sched=sched.state_dict(), scaler=scaler.state_dict(),
+                            step=step, best=best, best_step=best_step, bad=bad, done=done, cfg=getattr(model, "cfg", None),
+                            res_extra={k: res[k] for k in ("val_step0", "init", "init_params", "grown") if k in res}), f_last + ".tmp")
+            os.replace(f_last + ".tmp", f_last)           # never a half-written checkpoint, even if the session dies
+
+        t0, t_eval = time.time(), 0.0                     # t_eval: time spent validating (not training)
+        for step in (range(first, a.steps + 1) if not done else []):
             model.train()
             s = torch.randint(0, N, (a.bs,), device=DEV)
             t = (kd[torch.randint(0, len(kd), (a.bs,), device=DEV)] * 24 + torch.randint(0, 24, (a.bs,), device=DEV)).clamp(ta, tmax)
@@ -229,6 +271,7 @@ def main(a):
             nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             scaler.step(opt); scaler.update(); sched.step()
             if step % a.every == 0 or step == a.steps:
+                te0 = time.time()
                 v = evaluate(model, a.model, bt, N, "val", stride=6, stations=vst)
                 vm = v["MAE_overall_std"] if "MAE_overall_std" in v else float(np.mean([v["MAE"][n] / STD[i] for i, n in enumerate(NAMES)]))
                 if vm < best:
@@ -236,16 +279,31 @@ def main(a):
                     torch.save(dict(sd=model.state_dict(), cfg=getattr(model, "cfg", None)), f_best)
                 else:
                     bad += 1
+                t_eval += time.time() - te0
+                sps = (time.time() - t0 - t_eval) / max(1, step - first + 1)
                 log(f"  step {step} loss {loss.item():.4f} val MAE (standardised mean) {vm:.4f} (best {best:.4f} at {best_step}) "
-                    f"T {v['MAE']['Temperature']:.3f} {(time.time() - t0) / 60:.1f} min")
-                if bad >= a.patience or (time.time() - t_start) / 60 > a.cap:
-                    log(f"  stop at step {step} ({'patience' if bad >= a.patience else 'time cap'})"); break
+                    f"T {v['MAE']['Temperature']:.3f} {(time.time() - t0) / 60:.1f} min, {sps:.3f} s/step, "
+                    f"about {(sps * (a.steps - step) + t_eval / max(1, (step - first + 1) // a.every) * (a.steps - step) / a.every) / 3600:.1f} h left at most")
+                stop = bad >= a.patience or step == a.steps
+                save_last(step, done=stop)
+                if stop:
+                    log(f"  stop at step {step} ({'patience' if bad >= a.patience else 'end of schedule'})"); break
+                if (time.time() - t_start) / 60 > a.cap:
+                    if a.pause_at_cap:                    # a Colab/Kaggle session is ending: keep the state, finish later
+                        log(f"PAUSED at step {step} (time cap {a.cap} min). Run the same command again to resume.")
+                        return
+                    save_last(step, done=True)
+                    log(f"  stop at step {step} (time cap)"); break
         ck = torch.load(f_best, map_location=DEV); model.load_state_dict(ck["sd"])
         res.update(val_best=best, best_step=best_step, minutes_train=round((time.time() - t0) / 60, 1))
     v = evaluate(model, a.model, bt, N, "val", stride=6, stations=None if a.quick else np.arange(0, N, 4))
-    res["val"] = v
-    log(f"VAL {a.model} H={a.H}: " + json.dumps(v["MAE"]))
-    if not a.no_test:
+    res["val"] = v; res["val_E"] = std_E(v)
+    log(f"VAL {a.model} H={a.H}: " + json.dumps(v["MAE"]) + f"; E {res['val_E']:.5f}")
+    if a.test_if_below is not None:                       # the rule decides, mechanically, whether the test year is used
+        res["adopted"] = res["val_E"] <= a.test_if_below
+        log(f"RULE: E {res['val_E']:.5f} {'<=' if res['adopted'] else '>'} {a.test_if_below} -> "
+            + ("ADOPTED, scored once on the 2023 test year" if res["adopted"] else "NOT adopted, the test year is not used"))
+    if not a.no_test or res.get("adopted"):
         r = evaluate(model, a.model, bt, N, "test")
         res["test"] = r
         log(f"TEST {a.model} H={a.H} (all stations, every hourly window of 2023): MAE " + json.dumps(r["MAE"]) +
@@ -274,4 +332,11 @@ if __name__ == "__main__":
     ap.add_argument("--frac", type=float, default=1.0, help="threshold study: share of training days kept (nested)")
     ap.add_argument("--quick", action="store_true")
     ap.add_argument("--eval", default="", help="checkpoint to score once (validation and the 2023 test); no training")
+    ap.add_argument("--init", default="", help="start from this trained checkpoint (training-script or models/series file)")
+    ap.add_argument("--grow", default="", help="f,enc_depth,dyn_depth: width x f, blocks appended (function kept at start)")
+    ap.add_argument("--grow-noise", type=float, default=0.05)
+    ap.add_argument("--wd", type=float, default=1e-4)
+    ap.add_argument("--warmup", type=float, default=0.03, help="share of steps spent raising the learning rate")
+    ap.add_argument("--test-if-below", type=float, default=None, help="score the test year only if validation E <= this")
+    ap.add_argument("--pause-at-cap", action="store_true", help="at the time cap save and exit; re-run to resume")
     main(ap.parse_args())

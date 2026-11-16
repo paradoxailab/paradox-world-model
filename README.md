@@ -22,7 +22,7 @@ and full log in [`atlas/README.md`](atlas/README.md):
 | What | Where |
 |---|---|
 | Papers (PDF) | Atlas-India: [`atlas/paper/preprint.pdf`](atlas/paper/preprint.pdf) · Atlas-F: [`atlas/paper2/AtlasF_preprint.pdf`](atlas/paper2/AtlasF_preprint.pdf) · PWM-W weather: [`paper-weather/PWM-W_India_v0.3-v0.9.pdf`](paper-weather/PWM-W_India_v0.3-v0.9.pdf) · PWM-Dyn: [`paper-conference/named/PWM-Dyn_ParadoxBench_v0.6.pdf`](paper-conference/named/PWM-Dyn_ParadoxBench_v0.6.pdf), [`paper/PWM-Dyn_ParadoxBench.pdf`](paper/PWM-Dyn_ParadoxBench.pdf) |
-| Trained models | [`atlas/models/`](atlas/models) (SHA-256 in `SHA256SUMS`) |
+| Trained models | **Full series, 54 files, dataset named inside each:** [`models/series/`](models/series) · current Atlas releases: [`atlas/models/`](atlas/models) (SHA-256 in each folder's `SHA256SUMS`) |
 | Benchmarks and scoring code | WEATHER-5K: `atlas/delhi/score_w5k.py`, `score_w5k_thr.py` · India (PIAB v1): `score_india.py`, `score_wa.py`, `score_i1.py`, `score_threshold.py` · ParadoxBench: [`v0.7-realworld/paradoxbench/SPEC.md`](v0.7-realworld/paradoxbench/SPEC.md) |
 | Raw run outputs (logs, result JSON) | [`atlas/results/kaggle/`](atlas/results/kaggle) |
 | Pre-registered rules and full record | [`atlas/README.md`](atlas/README.md) |

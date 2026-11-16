@@ -1,7 +1,7 @@
 # PWM model series (ParadoxAI Lab)
 
 Every saved model version, oldest first. Each file holds `meta` (name, version, family, task, datasets, parameters,
-result, source run, source file SHA-256), `weights` (the reported weights only) and `cfg`. Results are copied from
+result, source run, source file SHA-256), `weights` (the reported weights only) and `cfg`; pre-training checkpoints also keep their own training record as `train_meta`. Results are copied from
 the repository's records; results of seed ensembles are marked as such (the file holds one seed).
 
 ```python
@@ -10,7 +10,7 @@ ck = torch.load("models/series/<file>.pt", map_location="cpu", weights_only=Fals
 print(ck["meta"]["name"], ck["meta"]["datasets"])   # the dataset is named inside the file
 ```
 
-Atlas files load into `atlas/atlas/model.py` (`Atlas(**ck["cfg"])`); PWM-Dyn files into the matching version folder's
+Atlas files load into `atlas/atlas/model.py` (`Atlas(**ck["cfg"])`), Atlas-W files (#43-45) into `atlas/atlas/atlasw.py` (`AtlasW(**ck["cfg"])`); files with two stages hold `weights = {"B": ..., "C": ...}`; PWM-Dyn files into the matching version folder's
 `pwm` package; PWM-W files into the code on the `delhi-v*` / `india-v2.0` branches.
 
 | # | Version | Family | Dataset | Task | Parameters | Result (from the records) | What changed | Status | File |

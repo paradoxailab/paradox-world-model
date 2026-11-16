@@ -195,7 +195,7 @@ def release(plan_path, push):
         out = {"meta": meta, "weights": w, "cfg": cfg}
         for k in e.get("extra_keys", []):
             if isinstance(obj, dict) and k in obj:
-                out[k] = obj[k]
+                out["train_meta" if k == "meta" else k] = obj[k]      # never overwrite the release meta block
         fn = f"{e['id']:02d}_{e['file']}.pt"
         torch.save(out, os.path.join(dst, fn))
         meta["file"] = fn

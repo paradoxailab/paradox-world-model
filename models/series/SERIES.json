@@ -1068,8 +1068,8 @@
    "organisation": "ParadoxAI Lab",
    "released": "2026-11-17",
    "file": "41_atlas_india_v1.3_pretrain.pt",
-   "bytes": 3885333,
-   "sha256": "6bdfd70696297f57cd019537ca037a886441b81f24f38bfb2ac57e648f4d9eb5"
+   "bytes": 3886485,
+   "sha256": "5d09112bd71ea39a3f738417c4ec2703d211b362db17b7b4560ab1c240f612e5"
   },
   {
    "series_no": 42,
@@ -1153,8 +1153,8 @@
    "organisation": "ParadoxAI Lab",
    "released": "2026-11-17",
    "file": "44_atlas-w_v1_pretrain.pt",
-   "bytes": 64173,
-   "sha256": "88dd7f1b52760807414c6b5d713bb87a1ec367977b42389789577edec6e475f3"
+   "bytes": 65197,
+   "sha256": "70e100a4d90fa8db0c846fd790f806919c2b535042882a328005a046add9cc59"
   },
   {
    "series_no": 45,

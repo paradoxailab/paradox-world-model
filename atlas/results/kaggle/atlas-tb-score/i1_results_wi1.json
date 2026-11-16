@@ -1,0 +1,110 @@
+{
+  "stage": "B",
+  "days": 151,
+  "first_hour": "2024-10-01T00",
+  "last_hour": "2025-02-28T23",
+  "stations": 39,
+  "ceew": {
+    "source": "CEEW issue brief 'How Well can Delhi Predict Air Quality?' (October 2025), winter 2024-25 = 1 Oct 2024 - 28 Feb 2025",
+    "IITM WRF-Chem 400 m (AQEWS), Day 1": {
+      "RMSE": 92.53,
+      "MAE": 58.75,
+      "MBE": -25.21,
+      "R": 0.61,
+      "MAPE": 35,
+      "obs_mean": 175,
+      "pred_mean": 149
+    },
+    "IMD SILAM, Day 1": {
+      "RMSE": 107.95,
+      "MAE": 71.68,
+      "MBE": -22.88,
+      "R": 0.47,
+      "MAPE": 45,
+      "obs_mean": 177,
+      "pred_mean": 154
+    }
+  },
+  "Atlas (00 IST, lead 1-24 h)": {
+    "hours": 3624,
+    "RMSE": 50.60995220443553,
+    "MAE": 28.192761134876932,
+    "MBE": -6.383922098772039,
+    "R": 0.8656836757230558,
+    "MAPE": 18.40981465327464,
+    "obs_mean": 159.02183372354435,
+    "pred_mean": 152.6379116247723
+  },
+  "Same hour yesterday": {
+    "hours": 3624,
+    "RMSE": 76.67025395880417,
+    "MAE": 48.38474433240517,
+    "MBE": 0.32737178368022135,
+    "R": 0.7084672040932555,
+    "MAPE": 32.89458282934799,
+    "obs_mean": 159.02183372354435,
+    "pred_mean": 159.34920550722455
+  },
+  "Last observed value": {
+    "hours": 3624,
+    "RMSE": 83.321049522901,
+    "MAE": 56.274785093725725,
+    "MBE": 37.343762097566525,
+    "R": 0.7435000436051363,
+    "MAPE": 49.51551466765768,
+    "obs_mean": 159.02183372354435,
+    "pred_mean": 196.36559582111087
+  },
+  "by_number": {
+    "IITM WRF-Chem 400 m (AQEWS), Day 1": {
+      "MAE": true,
+      "RMSE": true,
+      "verdict": "lower error by number"
+    },
+    "IMD SILAM, Day 1": {
+      "MAE": true,
+      "RMSE": true,
+      "verdict": "lower error by number"
+    }
+  },
+  "B5": {
+    "reference": "i1 (stage C, seeds [320, 321, 322])",
+    "reference_metrics": {
+      "hours": 3624,
+      "RMSE": 54.23650842821661,
+      "MAE": 31.27177407767741,
+      "MBE": -8.663915962913924,
+      "R": 0.8471426261061816,
+      "MAPE": 21.063198375110222,
+      "obs_mean": 159.02183372354435,
+      "pred_mean": 150.3579177606304
+    },
+    "MAE": {
+      "metric": "MAE",
+      "rel_diff_pct": -9.845981027978723,
+      "ci95_pct": [
+        -14.887083206351154,
+        -4.327590847868908
+      ],
+      "p": 0.0009317532797340543,
+      "dm": -3.3103621680550632,
+      "windows": 151,
+      "significant": true,
+      "verdict": "WIN"
+    },
+    "RMSE": {
+      "metric": "RMSE",
+      "rel_diff_pct": -6.686559162599737,
+      "ci95_pct": [
+        -12.958256763698495,
+        -1.7717728073657169
+      ],
+      "p": 0.005381464655113193,
+      "dm": -2.7832661156908447,
+      "windows": 151,
+      "significant": true,
+      "verdict": "WIN"
+    },
+    "B5": "PASS"
+  }
+}

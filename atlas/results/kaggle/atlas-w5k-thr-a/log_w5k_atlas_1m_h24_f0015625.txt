@@ -1,0 +1,23 @@
+W5K: 5672 stations, 87648 hours, missing share by split {"train": 0.0, "val": 0.0, "test": 0.0}; neighbourhood median radius 238 km; device cuda
+atlas: 968,672 parameters, width 196
+training data: 46 days x 5672 stations (0.015625 of 2014-2021)
+  step 2000 loss 0.1378 val MAE (standardised mean) 0.3429 (best 0.3429 at 2000) T 2.172 1.5 min
+  step 4000 loss 0.1319 val MAE (standardised mean) 0.3411 (best 0.3411 at 4000) T 2.103 2.9 min
+  step 6000 loss 0.1245 val MAE (standardised mean) 0.3381 (best 0.3381 at 6000) T 2.013 4.4 min
+  step 8000 loss 0.1214 val MAE (standardised mean) 0.3379 (best 0.3379 at 8000) T 2.028 5.9 min
+  step 10000 loss 0.1209 val MAE (standardised mean) 0.3363 (best 0.3363 at 10000) T 1.958 7.4 min
+  step 12000 loss 0.1156 val MAE (standardised mean) 0.3350 (best 0.3350 at 12000) T 1.933 9.0 min
+  step 14000 loss 0.1131 val MAE (standardised mean) 0.3359 (best 0.3350 at 12000) T 1.926 10.5 min
+  step 16000 loss 0.1140 val MAE (standardised mean) 0.3377 (best 0.3350 at 12000) T 1.948 12.0 min
+  step 18000 loss 0.1123 val MAE (standardised mean) 0.3353 (best 0.3350 at 12000) T 1.893 13.5 min
+  step 20000 loss 0.1128 val MAE (standardised mean) 0.3344 (best 0.3344 at 20000) T 1.871 15.0 min
+  step 22000 loss 0.1119 val MAE (standardised mean) 0.3343 (best 0.3343 at 22000) T 1.866 16.5 min
+  step 24000 loss 0.1104 val MAE (standardised mean) 0.3356 (best 0.3343 at 22000) T 1.880 18.0 min
+  step 26000 loss 0.1092 val MAE (standardised mean) 0.3359 (best 0.3343 at 22000) T 1.871 19.5 min
+  step 28000 loss 0.1073 val MAE (standardised mean) 0.3350 (best 0.3343 at 22000) T 1.871 21.0 min
+  step 30000 loss 0.1051 val MAE (standardised mean) 0.3359 (best 0.3343 at 22000) T 1.863 22.5 min
+  step 32000 loss 0.1084 val MAE (standardised mean) 0.3354 (best 0.3343 at 22000) T 1.859 24.0 min
+  step 34000 loss 0.1063 val MAE (standardised mean) 0.3359 (best 0.3343 at 22000) T 1.851 25.5 min
+  stop at step 34000 (patience)
+VAL atlas H=24: {"Temperature": 1.8886, "Dewpoint": 1.8895, "Wind direction": 62.1363, "Wind speed": 1.3774, "Sea-level pressure": 2.2591}
+W5K-RUN {"model": "atlas", "H": 24, "seed": 600, "tag": "w5k_atlas_1m_h24_f0015625", "stations": 5672, "k": 16, "steps": 60000, "protocol": "WEATHER-5K: L=48, train 2014-2021, val 2022, test 2023, all hourly windows", "params": 968672, "frac": 0.015625, "train_days": 46, "train_station_days": 260912, "val_best": 0.3343324065208435, "best_step": 22000, "minutes_train": 25.5, "val": {"MAE": {"Temperature": 1.8886, "Dewpoint": 1.8895, "Wind direction": 62.1363, "Wind speed": 1.3774, "Sea-level pressure": 2.2591}, "MSE": {"Temperature": 7.973, "Dewpoint": 8.566, "Wind direction": 7933.2569, "Wind speed": 4.2921, "Sea-level pressure": 14.2167}, "MAE_overall": 13.910161417627108, "MSE_overall": 1593.6609292317823, "points": 49312368, "windows_per_station": 1449}, "minutes_total": 28.1}

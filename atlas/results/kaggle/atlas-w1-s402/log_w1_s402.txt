@@ -1,0 +1,51 @@
+NET Uttar Pradesh: 40 stations (32 trained on, 8 unseen), 12954 valid training windows, 121 validation and 725 test windows; PM2.5 missing 49%
+NET Delhi: 37 stations (30 trained on, 7 unseen), 14222 valid training windows, 121 validation and 725 test windows; PM2.5 missing 19%
+NET Haryana: 30 stations (24 trained on, 6 unseen), 10481 valid training windows, 121 validation and 725 test windows; PM2.5 missing 39%
+NET Maharashtra: 27 stations (22 trained on, 5 unseen), 9199 valid training windows, 121 validation and 725 test windows; PM2.5 missing 52%
+NET Karnataka: 24 stations (19 trained on, 5 unseen), 11733 valid training windows, 121 validation and 725 test windows; PM2.5 missing 50%
+NET other states: 22 stations (18 trained on, 4 unseen), 14440 valid training windows, 121 validation and 725 test windows; PM2.5 missing 41%
+NET Madhya Pradesh: 14 stations (11 trained on, 3 unseen), 13546 valid training windows, 121 validation and 725 test windows; PM2.5 missing 35%
+NET West Bengal: 14 stations (11 trained on, 3 unseen), 12175 valid training windows, 121 validation and 725 test windows; PM2.5 missing 40%
+NET Bihar: 12 stations (10 trained on, 2 unseen), 7511 valid training windows, 121 validation and 725 test windows; PM2.5 missing 49%
+NET Rajasthan: 10 stations (8 trained on, 2 unseen), 14089 valid training windows, 121 validation and 725 test windows; PM2.5 missing 19%
+NET Gujarat: 9 stations (7 trained on, 2 unseen), 9993 valid training windows, 121 validation and 725 test windows; PM2.5 missing 53%
+NET Tamil Nadu: 9 stations (7 trained on, 2 unseen), 8200 valid training windows, 121 validation and 725 test windows; PM2.5 missing 48%
+NET Punjab: 8 stations (6 trained on, 2 unseen), 13021 valid training windows, 121 validation and 725 test windows; PM2.5 missing 22%
+NET Kerala: 7 stations (6 trained on, 1 unseen), 7329 valid training windows, 121 validation and 725 test windows; PM2.5 missing 53%
+14 networks, 263 stations, 158893 valid training windows; test 2022-10-01T00 .. 2023-03-31T23; device cuda
+Atlas: 985,216 parameters, width 136; 60000 steps, a look at validation every 2000
+  start pooled val MAE 11.901
+  step 2000 pooled val MAE 11.240 (best 11.240) 53s
+  step 4000 pooled val MAE 9.786 (best 9.786) 105s
+  step 6000 pooled val MAE 9.769 (best 9.769) 158s
+  step 8000 pooled val MAE 9.431 (best 9.431) 210s
+  step 10000 pooled val MAE 9.534 (best 9.431) 263s
+  step 12000 pooled val MAE 9.302 (best 9.302) 316s
+  step 14000 pooled val MAE 9.460 (best 9.302) 369s
+  step 16000 pooled val MAE 9.148 (best 9.148) 422s
+  step 18000 pooled val MAE 9.173 (best 9.148) 475s
+  step 20000 pooled val MAE 9.188 (best 9.148) 528s
+  step 22000 pooled val MAE 9.197 (best 9.148) 581s
+  step 24000 pooled val MAE 9.012 (best 9.012) 633s
+  step 26000 pooled val MAE 9.008 (best 9.008) 685s
+  step 28000 pooled val MAE 8.929 (best 8.929) 738s
+  step 30000 pooled val MAE 8.922 (best 8.922) 790s
+  step 32000 pooled val MAE 8.990 (best 8.922) 842s
+  step 34000 pooled val MAE 8.917 (best 8.917) 894s
+  step 36000 pooled val MAE 9.098 (best 8.917) 946s
+  step 38000 pooled val MAE 8.919 (best 8.917) 999s
+  step 40000 pooled val MAE 8.803 (best 8.803) 1051s
+  step 42000 pooled val MAE 8.805 (best 8.803) 1104s
+  step 44000 pooled val MAE 9.108 (best 8.803) 1156s
+  step 46000 pooled val MAE 8.832 (best 8.803) 1209s
+  step 48000 pooled val MAE 8.775 (best 8.775) 1261s
+  step 50000 pooled val MAE 8.817 (best 8.775) 1313s
+  step 52000 pooled val MAE 8.730 (best 8.730) 1365s
+  step 54000 pooled val MAE 8.724 (best 8.724) 1418s
+  step 56000 pooled val MAE 8.788 (best 8.724) 1470s
+  step 58000 pooled val MAE 8.815 (best 8.724) 1522s
+  step 60000 pooled val MAE 8.718 (best 8.718) 1574s
+RUN {"seed": 402, "loader": "input fix of 2026-11-13", "budget": null, "init": null, "lr_scale": 1.0, "avail_from": null, "inputs_dropped": {"Gujarat": ["BP"], "Punjab": ["AT"], "Kerala": ["BP"]}, "params": 985216, "networks": ["Uttar Pradesh", "Delhi", "Haryana", "Maharashtra", "Karnataka", "other states", "Madhya Pradesh", "West Bengal", "Bihar", "Rajasthan", "Gujarat", "Tamil Nadu", "Punjab", "Kerala"], "stations": [40, 37, 30, 27, 24, 22, 14, 14, 12, 10, 9, 9, 8, 7], "train_windows": [12954, 14222, 10481, 9199, 11733, 14440, 13546, 12175, 7511, 14089, 9993, 8200, 13021, 7329], "hit_time_cap": false, "minutes_train": 26.2, "E": {"val_MAE": 8.718217852470666, "steps": 60000}, "F": {"val_MAE": 8.718217852470666, "steps": 60000}}
+TEST E seed 402 (one model, uncalibrated, all networks pooled): trained stations 20.23, unseen 20.42; validation 8.718; steps 60000
+TEST F seed 402 (one model, uncalibrated, all networks pooled): trained stations 20.23, unseen 20.42; validation 8.718; steps 60000
+INDIA-RUN {"seed": 402, "loader": "input fix of 2026-11-13", "budget": null, "init": null, "lr_scale": 1.0, "avail_from": null, "inputs_dropped": {"Gujarat": ["BP"], "Punjab": ["AT"], "Kerala": ["BP"]}, "params": 985216, "networks": ["Uttar Pradesh", "Delhi", "Haryana", "Maharashtra", "Karnataka", "other states", "Madhya Pradesh", "West Bengal", "Bihar", "Rajasthan", "Gujarat", "Tamil Nadu", "Punjab", "Kerala"], "stations": [40, 37, 30, 27, 24, 22, 14, 14, 12, 10, 9, 9, 8, 7], "train_windows": [12954, 14222, 10481, 9199, 11733, 14440, 13546, 12175, 7511, 14089, 9993, 8200, 13021, 7329], "hit_time_cap": false, "minutes_train": 26.2, "E": {"val_MAE": 8.718217852470666, "steps": 60000, "test_S": 20.22565116721757, "test_U": 20.42294495834551}, "F": {"val_MAE": 8.718217852470666, "steps": 60000, "test_S": 20.22565116721757, "test_U": 20.42294495834551}, "minutes_total": 27.2}

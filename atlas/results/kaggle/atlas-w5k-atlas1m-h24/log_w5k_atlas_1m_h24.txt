@@ -1,0 +1,35 @@
+W5K: 5672 stations, 87648 hours, missing share by split {"train": 0.0, "val": 0.0, "test": 0.0}; neighbourhood median radius 238 km; device cuda
+atlas: 968,672 parameters, width 196
+  step 2000 loss 0.1460 val MAE (standardised mean) 0.3382 (best 0.3382 at 2000) T 2.153 1.5 min
+  step 4000 loss 0.1358 val MAE (standardised mean) 0.3252 (best 0.3252 at 4000) T 1.932 3.0 min
+  step 6000 loss 0.1359 val MAE (standardised mean) 0.3199 (best 0.3199 at 6000) T 1.848 4.5 min
+  step 8000 loss 0.1299 val MAE (standardised mean) 0.3178 (best 0.3178 at 8000) T 1.864 5.9 min
+  step 10000 loss 0.1290 val MAE (standardised mean) 0.3145 (best 0.3145 at 10000) T 1.825 7.4 min
+  step 12000 loss 0.1276 val MAE (standardised mean) 0.3137 (best 0.3137 at 12000) T 1.791 8.9 min
+  step 14000 loss 0.1298 val MAE (standardised mean) 0.3096 (best 0.3096 at 14000) T 1.770 10.4 min
+  step 16000 loss 0.1253 val MAE (standardised mean) 0.3101 (best 0.3096 at 14000) T 1.771 11.9 min
+  step 18000 loss 0.1262 val MAE (standardised mean) 0.3083 (best 0.3083 at 18000) T 1.752 13.3 min
+  step 20000 loss 0.1252 val MAE (standardised mean) 0.3035 (best 0.3035 at 20000) T 1.693 14.8 min
+  step 22000 loss 0.1197 val MAE (standardised mean) 0.3035 (best 0.3035 at 22000) T 1.682 16.3 min
+  step 24000 loss 0.1215 val MAE (standardised mean) 0.3024 (best 0.3024 at 24000) T 1.684 17.8 min
+  step 26000 loss 0.1213 val MAE (standardised mean) 0.3017 (best 0.3017 at 26000) T 1.641 19.3 min
+  step 28000 loss 0.1219 val MAE (standardised mean) 0.3019 (best 0.3017 at 26000) T 1.653 20.7 min
+  step 30000 loss 0.1218 val MAE (standardised mean) 0.2992 (best 0.2992 at 30000) T 1.638 22.2 min
+  step 32000 loss 0.1199 val MAE (standardised mean) 0.2979 (best 0.2979 at 32000) T 1.615 23.7 min
+  step 34000 loss 0.1215 val MAE (standardised mean) 0.2983 (best 0.2979 at 32000) T 1.633 25.2 min
+  step 36000 loss 0.1193 val MAE (standardised mean) 0.2969 (best 0.2969 at 36000) T 1.608 26.7 min
+  step 38000 loss 0.1196 val MAE (standardised mean) 0.2963 (best 0.2963 at 38000) T 1.603 28.1 min
+  step 40000 loss 0.1186 val MAE (standardised mean) 0.2949 (best 0.2949 at 40000) T 1.578 29.6 min
+  step 42000 loss 0.1186 val MAE (standardised mean) 0.2948 (best 0.2948 at 42000) T 1.583 31.1 min
+  step 44000 loss 0.1186 val MAE (standardised mean) 0.2942 (best 0.2942 at 44000) T 1.574 32.6 min
+  step 46000 loss 0.1167 val MAE (standardised mean) 0.2927 (best 0.2927 at 46000) T 1.557 34.1 min
+  step 48000 loss 0.1198 val MAE (standardised mean) 0.2925 (best 0.2925 at 48000) T 1.552 35.5 min
+  step 50000 loss 0.1196 val MAE (standardised mean) 0.2918 (best 0.2918 at 50000) T 1.546 37.0 min
+  step 52000 loss 0.1181 val MAE (standardised mean) 0.2916 (best 0.2916 at 52000) T 1.545 38.5 min
+  step 54000 loss 0.1197 val MAE (standardised mean) 0.2918 (best 0.2916 at 52000) T 1.546 40.0 min
+  step 56000 loss 0.1169 val MAE (standardised mean) 0.2912 (best 0.2912 at 56000) T 1.541 41.4 min
+  step 58000 loss 0.1151 val MAE (standardised mean) 0.2912 (best 0.2912 at 56000) T 1.541 42.9 min
+  step 60000 loss 0.1182 val MAE (standardised mean) 0.2912 (best 0.2912 at 60000) T 1.541 44.4 min
+VAL atlas H=24: {"Temperature": 1.5468, "Dewpoint": 1.603, "Wind direction": 56.4452, "Wind speed": 1.2362, "Sea-level pressure": 1.6769}
+TEST atlas H=24 (all stations, every hourly window of 2023): MAE {"Temperature": 1.5531, "Dewpoint": 1.5964, "Wind direction": 56.4627, "Wind speed": 1.2278, "Sea-level pressure": 1.6635}; MSE {"Temperature": 5.6794, "Dewpoint": 6.4364, "Wind direction": 7106.7293, "Wind speed": 3.4405, "Sea-level pressure": 7.5001}; 1,182,816,192 points
+W5K-RUN {"model": "atlas", "H": 24, "seed": 600, "tag": "w5k_atlas_1m_h24", "stations": 5672, "protocol": "WEATHER-5K: L=48, train 2014-2021, val 2022, test 2023, all hourly windows", "params": 968672, "val_best": 0.29119813442230225, "best_step": 60000, "minutes_train": 44.4, "val": {"MAE": {"Temperature": 1.5468, "Dewpoint": 1.603, "Wind direction": 56.4452, "Wind speed": 1.2362, "Sea-level pressure": 1.6769}, "MSE": {"Temperature": 5.6222, "Dewpoint": 6.3779, "Wind direction": 7146.7469, "Wind speed": 3.5091, "Sea-level pressure": 7.7266}, "MAE_overall": 12.501629764905973, "MSE_overall": 1433.9965168080678, "points": 49312368, "windows_per_station": 1449}, "test": {"MAE": {"Temperature": 1.5531, "Dewpoint": 1.5964, "Wind direction": 56.4627, "Wind speed": 1.2278, "Sea-level pressure": 1.6635}, "MSE": {"Temperature": 5.6794, "Dewpoint": 6.4364, "Wind direction": 7106.7293, "Wind speed": 3.4405, "Sea-level pressure": 7.5001}, "MAE_overall": 12.500700123277996, "MSE_overall": 1425.9571384541618, "points": 1182816192, "windows_per_station": 8689}, "minutes_total": 84.7}

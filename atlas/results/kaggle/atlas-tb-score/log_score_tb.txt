@@ -1,0 +1,23 @@
+DELHI: 62784 hours x 39 stations, targets ['PM2.5', 'PM10', 'NO2', 'Ozone'] (missing 20.5%, 23.2%, 20.9%, 22.3%), 11 input channels, 382 graph links, 6 regions; splits {'train': ('2018-01-01T00', '2024-07-31T23'), 'val': ('2024-08-01T00', '2024-09-30T23'), 'test': ('2024-10-01T00', '2025-02-28T23')}
+I1 stage chosen on validation: B (mean validation MAE B 12.101, C 12.101; seeds [320, 321, 322])
+I1 Atlas (00 IST, lead 1-24 h): RMSE 50.61, MAE 28.19, MBE -6.38, r 0.87, MAPE 18%, 3624 hours, measured mean 159, forecast mean 153
+I1 Same hour yesterday: RMSE 76.67, MAE 48.38, MBE +0.33, r 0.71, MAPE 33%, 3624 hours, measured mean 159, forecast mean 159
+I1 Last observed value: RMSE 83.32, MAE 56.27, MBE +37.34, r 0.74, MAPE 50%, 3624 hours, measured mean 159, forecast mean 196
+I1-BY-NUMBER {"IITM WRF-Chem 400 m (AQEWS), Day 1": {"MAE": true, "RMSE": true, "verdict": "lower error by number"}, "IMD SILAM, Day 1": {"MAE": true, "RMSE": true, "verdict": "lower error by number"}}
+# I1: Atlas against India's operational forecasts, Delhi winter 2024-25 (generated)
+
+Delhi average of the stations reporting each hour, 2024-10-01T00 .. 2025-02-28T23; Atlas stage B, 3 seeds.
+
+| Forecast | RMSE | MAE | MBE | r | MAPE % | hours | measured mean | forecast mean |
+|---|---|---|---|---|---|---|---|---|
+| Atlas (00 IST, lead 1-24 h) | 50.61 | 28.19 | -6.38 | 0.87 | 18 | 3624 | 159 | 153 |
+| Same hour yesterday | 76.67 | 48.38 | +0.33 | 0.71 | 33 | 3624 | 159 | 159 |
+| Last observed value | 83.32 | 56.27 | +37.34 | 0.74 | 50 | 3624 | 159 | 196 |
+| IITM WRF-Chem 400 m (AQEWS), Day 1 (CEEW) | 92.53 | 58.75 | -25.21 | 0.61 | 35 | 3512 (stated) | 175 | 149 |
+| IMD SILAM, Day 1 (CEEW) | 107.95 | 71.68 | -22.88 | 0.47 | 45 | 3512 (stated) | 177 | 154 |
+
+Source of the operational numbers: CEEW issue brief 'How Well can Delhi Predict Air Quality?' (October 2025), winter 2024-25 = 1 Oct 2024 - 28 Feb 2025. By number only; see the caveats in score_i1.py.
+B5 reference i1 (stage C, seeds [320, 321, 322]): RMSE 54.24, MAE 31.27
+B5 wi1 vs i1 MAE: -9.85% (95% CI -14.89 .. -4.33), DM p=0.00093, 151 days -> WIN
+B5 wi1 vs i1 RMSE: -6.69% (95% CI -12.96 .. -1.77), DM p=0.0054, 151 days -> WIN
+B5-RULE {"verdict": "PASS", "MAE": {"metric": "MAE", "rel_diff_pct": -9.845981027978723, "ci95_pct": [-14.887083206351154, -4.327590847868908], "p": 0.0009317532797340543, "dm": -3.3103621680550632, "windows": 151, "significant": true, "verdict": "WIN"}, "RMSE": {"metric": "RMSE", "rel_diff_pct": -6.686559162599737, "ci95_pct": [-12.958256763698495, -1.7717728073657169], "p": 0.005381464655113193, "dm": -2.7832661156908447, "windows": 151, "significant": true, "verdict": "WIN"}}

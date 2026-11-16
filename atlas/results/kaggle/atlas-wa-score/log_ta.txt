@@ -1,0 +1,69 @@
+w1 seed 400: 985,216 parameters, validation 8.684 at step 60000
+w1 seed 401: 985,216 parameters, validation 8.711 at step 60000
+w1 seed 402: 985,216 parameters, validation 8.718 at step 60000
+WEIGHTS Uttar Pradesh: on Atlas-India in Atlas-F [0.74, 0.85, 0.81], on W1 in Atlas-F2 [0.78, 0.86, 0.87] (lead blocks 1-6, 7-12, 13-24 h)
+WEIGHTS Delhi: on Atlas-India in Atlas-F [0.87, 0.91, 0.81], on W1 in Atlas-F2 [0.87, 0.92, 0.89] (lead blocks 1-6, 7-12, 13-24 h)
+WEIGHTS Haryana: on Atlas-India in Atlas-F [0.61, 0.77, 0.75], on W1 in Atlas-F2 [0.66, 0.85, 0.89] (lead blocks 1-6, 7-12, 13-24 h)
+WEIGHTS Maharashtra: on Atlas-India in Atlas-F [0.44, 0.47, 0.48], on W1 in Atlas-F2 [0.49, 0.55, 0.63] (lead blocks 1-6, 7-12, 13-24 h)
+WEIGHTS Karnataka: on Atlas-India in Atlas-F [0.44, 0.54, 0.6], on W1 in Atlas-F2 [0.48, 0.63, 0.65] (lead blocks 1-6, 7-12, 13-24 h)
+WEIGHTS other states: on Atlas-India in Atlas-F [0.46, 0.55, 0.59], on W1 in Atlas-F2 [0.51, 0.67, 0.73] (lead blocks 1-6, 7-12, 13-24 h)
+WEIGHTS Madhya Pradesh: on Atlas-India in Atlas-F [0.68, 0.7, 0.69], on W1 in Atlas-F2 [0.71, 0.76, 0.81] (lead blocks 1-6, 7-12, 13-24 h)
+WEIGHTS West Bengal: on Atlas-India in Atlas-F [0.74, 0.82, 0.81], on W1 in Atlas-F2 [0.73, 0.87, 0.9] (lead blocks 1-6, 7-12, 13-24 h)
+WEIGHTS Bihar: on Atlas-India in Atlas-F [0.64, 0.75, 0.74], on W1 in Atlas-F2 [0.67, 0.8, 0.83] (lead blocks 1-6, 7-12, 13-24 h)
+WEIGHTS Rajasthan: on Atlas-India in Atlas-F [0.62, 0.68, 0.69], on W1 in Atlas-F2 [0.67, 0.73, 0.77] (lead blocks 1-6, 7-12, 13-24 h)
+WEIGHTS Gujarat: on Atlas-India in Atlas-F [0.37, 0.46, 0.43], on W1 in Atlas-F2 [0.41, 0.57, 0.59] (lead blocks 1-6, 7-12, 13-24 h)
+WEIGHTS Tamil Nadu: on Atlas-India in Atlas-F [0.7, 0.78, 0.72], on W1 in Atlas-F2 [0.68, 0.73, 0.68] (lead blocks 1-6, 7-12, 13-24 h)
+WEIGHTS Punjab: on Atlas-India in Atlas-F [0.62, 0.76, 0.73], on W1 in Atlas-F2 [0.61, 0.81, 0.83] (lead blocks 1-6, 7-12, 13-24 h)
+WEIGHTS Kerala: on Atlas-India in Atlas-F [0.1, 0.24, 0.35], on W1 in Atlas-F2 [0.12, 0.26, 0.32] (lead blocks 1-6, 7-12, 13-24 h)
+TEST W1 (1M + weather): MAE trained 19.86, unseen 19.92
+TEST Atlas-India: MAE trained 20.99, unseen 20.86
+TEST TimesFM 2.5: MAE trained 22.35, unseen 21.93
+TEST Atlas-F: MAE trained 20.75, unseen 20.44
+TEST Atlas-F2 (W1 + TimesFM 2.5): MAE trained 19.66, unseen 19.52
+SIG W1 (1M + weather) vs Atlas-India: S WIN -5.38% p=1.4e-27; U WIN -4.53% p=4.5e-22 -> BEATS
+SIG W1 (1M + weather) vs TimesFM 2.5: S WIN -11.12% p=9.3e-47; U WIN -9.15% p=6.9e-26 -> BEATS
+SIG W1 (1M + weather) vs Atlas-F: S WIN -4.27% p=6.2e-16; U WIN -2.53% p=2e-06 -> BEATS
+SIG Atlas-F2 (W1 + TimesFM 2.5) vs Atlas-F: S WIN -5.23% p=1e-28; U WIN -4.47% p=2.7e-23 -> BEATS
+SIG Atlas-F2 (W1 + TimesFM 2.5) vs Atlas-India: S WIN -6.33% p=7.8e-43; U WIN -6.43% p=7.5e-47 -> BEATS
+SIG Atlas-F2 (W1 + TimesFM 2.5) vs TimesFM 2.5: S WIN -12.02% p=4.7e-63; U WIN -10.97% p=3.5e-43 -> BEATS
+NET Uttar Pradesh: {"W1 (1M + weather)": [19.5, 20.95], "Atlas-India": [20.89, 22.46], "TimesFM 2.5": [22.78, 24.32], "Atlas-F": [20.8, 22.34], "Atlas-F2 (W1 + TimesFM 2.5)": [19.4, 20.85]}
+NET Delhi: {"W1 (1M + weather)": [34.39, 33.2], "Atlas-India": [37.34, 35.56], "TimesFM 2.5": [41.87, 40.54], "Atlas-F": [37.27, 35.56], "Atlas-F2 (W1 + TimesFM 2.5)": [34.34, 33.03]}
+NET Haryana: {"W1 (1M + weather)": [23.04, 21.55], "Atlas-India": [24.32, 22.31], "TimesFM 2.5": [25.72, 23.2], "Atlas-F": [24.12, 22.09], "Atlas-F2 (W1 + TimesFM 2.5)": [22.92, 21.34]}
+NET Maharashtra: {"W1 (1M + weather)": [19.11, 24.26], "Atlas-India": [19.68, 24.92], "TimesFM 2.5": [19.45, 22.25], "Atlas-F": [18.96, 22.16], "Atlas-F2 (W1 + TimesFM 2.5)": [18.57, 21.92]}
+NET Karnataka: {"W1 (1M + weather)": [8.66, 8.86], "Atlas-India": [8.87, 9.2], "TimesFM 2.5": [8.98, 9.43], "Atlas-F": [8.64, 9.0], "Atlas-F2 (W1 + TimesFM 2.5)": [8.46, 8.71]}
+NET other states: {"W1 (1M + weather)": [14.43, 8.92], "Atlas-India": [15.12, 9.12], "TimesFM 2.5": [15.19, 9.4], "Atlas-F": [14.71, 9.0], "Atlas-F2 (W1 + TimesFM 2.5)": [14.16, 8.68]}
+NET Madhya Pradesh: {"W1 (1M + weather)": [15.56, 13.74], "Atlas-India": [16.23, 13.86], "TimesFM 2.5": [17.07, 13.88], "Atlas-F": [16.04, 13.42], "Atlas-F2 (W1 + TimesFM 2.5)": [15.46, 13.31]}
+NET West Bengal: {"W1 (1M + weather)": [13.91, 14.06], "Atlas-India": [14.65, 14.81], "TimesFM 2.5": [15.79, 15.69], "Atlas-F": [14.59, 14.69], "Atlas-F2 (W1 + TimesFM 2.5)": [13.86, 14.0]}
+NET Bihar: {"W1 (1M + weather)": [26.31, 23.72], "Atlas-India": [27.74, 25.05], "TimesFM 2.5": [29.35, 26.1], "Atlas-F": [27.47, 24.7], "Atlas-F2 (W1 + TimesFM 2.5)": [26.09, 23.45]}
+NET Rajasthan: {"W1 (1M + weather)": [18.53, 14.88], "Atlas-India": [19.07, 15.33], "TimesFM 2.5": [19.67, 15.87], "Atlas-F": [18.86, 15.09], "Atlas-F2 (W1 + TimesFM 2.5)": [18.36, 14.76]}
+NET Gujarat: {"W1 (1M + weather)": [17.97, 17.83], "Atlas-India": [18.47, 18.41], "TimesFM 2.5": [18.2, 19.49], "Atlas-F": [17.86, 18.25], "Atlas-F2 (W1 + TimesFM 2.5)": [17.5, 17.7]}
+NET Tamil Nadu: {"W1 (1M + weather)": [12.43, 16.11], "Atlas-India": [12.64, 16.39], "TimesFM 2.5": [13.39, 16.73], "Atlas-F": [12.56, 16.04], "Atlas-F2 (W1 + TimesFM 2.5)": [12.26, 15.64]}
+NET Punjab: {"W1 (1M + weather)": [16.85, 27.66], "Atlas-India": [17.31, 28.08], "TimesFM 2.5": [18.2, 28.09], "Atlas-F": [17.16, 27.64], "Atlas-F2 (W1 + TimesFM 2.5)": [16.72, 27.27]}
+NET Kerala: {"W1 (1M + weather)": [8.66, 12.03], "Atlas-India": [8.51, 12.32], "TimesFM 2.5": [7.96, 12.36], "Atlas-F": [7.93, 12.02], "Atlas-F2 (W1 + TimesFM 2.5)": [7.89, 11.85]}
+TA-CRITERIA (with perfect weather) {"B1 W1 beats Atlas-India": "PASS", "B2 W1 never loses to TimesFM 2.5 (28 network-tracks) and beats it pooled": "FAIL", "B3 W1 level with or better than Atlas-F": "PASS", "B4 Atlas-F2 beats Atlas-F": "PASS", "network-tracks W1 loses to TimesFM 2.5": ["Maharashtra U", "Kerala S"]}
+# Atlas v2-W, T-A: all-India test with perfect weather (generated)
+
+| Entry | trained MAE | unseen MAE |
+|---|---|---|
+| W1 (1M + weather) | 19.86 | 19.92 |
+| Atlas-India | 20.99 | 20.86 |
+| TimesFM 2.5 | 22.35 | 21.93 |
+| Atlas-F | 20.75 | 20.44 |
+| Atlas-F2 (W1 + TimesFM 2.5) | 19.66 | 19.52 |
+
+| Pair | trained | unseen | verdict |
+|---|---|---|---|
+| W1 (1M + weather) vs Atlas-India | -5.38% (p=1.4e-27) | -4.53% (p=4.5e-22) | BEATS |
+| W1 (1M + weather) vs TimesFM 2.5 | -11.12% (p=9.3e-47) | -9.15% (p=6.9e-26) | BEATS |
+| W1 (1M + weather) vs Atlas-F | -4.27% (p=6.2e-16) | -2.53% (p=2e-06) | BEATS |
+| Atlas-F2 (W1 + TimesFM 2.5) vs Atlas-F | -5.23% (p=1e-28) | -4.47% (p=2.7e-23) | BEATS |
+| Atlas-F2 (W1 + TimesFM 2.5) vs Atlas-India | -6.33% (p=7.8e-43) | -6.43% (p=7.5e-47) | BEATS |
+| Atlas-F2 (W1 + TimesFM 2.5) vs TimesFM 2.5 | -12.02% (p=4.7e-63) | -10.97% (p=3.5e-43) | BEATS |
+
+| Criterion (with perfect weather) | result |
+|---|---|
+| B1 W1 beats Atlas-India | PASS |
+| B2 W1 never loses to TimesFM 2.5 (28 network-tracks) and beats it pooled | FAIL |
+| B3 W1 level with or better than Atlas-F | PASS |
+| B4 Atlas-F2 beats Atlas-F | PASS |
+| network-tracks W1 loses to TimesFM 2.5 | ['Maharashtra U', 'Kerala S'] |

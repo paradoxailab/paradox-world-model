@@ -1,0 +1,16 @@
+W5K: 5672 stations, 87648 hours, missing share by split {"train": 0.0, "val": 0.0, "test": 0.0}; neighbourhood median radius 238 km; device cpu
+dlinear: 2,352 parameters
+  step 3000 loss 0.3750 val MAE (standardised mean) 0.3911 (best 0.3911 at 3000) T 2.741 0.8 min
+  step 6000 loss 0.3614 val MAE (standardised mean) 0.3952 (best 0.3911 at 3000) T 2.830 1.7 min
+  step 9000 loss 0.3559 val MAE (standardised mean) 0.3899 (best 0.3899 at 9000) T 2.662 2.5 min
+  step 12000 loss 0.3783 val MAE (standardised mean) 0.3893 (best 0.3893 at 12000) T 2.636 3.3 min
+  step 15000 loss 0.3669 val MAE (standardised mean) 0.3907 (best 0.3893 at 12000) T 2.690 4.1 min
+  step 18000 loss 0.3772 val MAE (standardised mean) 0.3926 (best 0.3893 at 12000) T 2.766 4.9 min
+  step 21000 loss 0.3739 val MAE (standardised mean) 0.3931 (best 0.3893 at 12000) T 2.777 5.7 min
+  step 24000 loss 0.3737 val MAE (standardised mean) 0.3932 (best 0.3893 at 12000) T 2.783 6.5 min
+  step 27000 loss 0.3838 val MAE (standardised mean) 0.3909 (best 0.3893 at 12000) T 2.711 7.4 min
+  step 30000 loss 0.3853 val MAE (standardised mean) 0.3900 (best 0.3893 at 12000) T 2.688 8.2 min
+  stop at step 30000 (patience)
+VAL dlinear H=24: {"Temperature": 2.6711, "Dewpoint": 2.4895, "Wind direction": 66.7774, "Wind speed": 1.4529, "Sea-level pressure": 3.156}
+TEST dlinear H=24 (all stations, every hourly window of 2023): MAE {"Temperature": 2.6591, "Dewpoint": 2.4379, "Wind direction": 66.6365, "Wind speed": 1.439, "Sea-level pressure": 3.1073}; MSE {"Temperature": 13.3357, "Dewpoint": 12.1465, "Wind direction": 8257.4034, "Wind speed": 4.3523, "Sea-level pressure": 21.6876}; 1,182,816,192 points
+W5K-RUN {"model": "dlinear", "H": 24, "seed": 600, "tag": "w5k_dlinear_h24", "stations": 5672, "protocol": "WEATHER-5K: L=48, train 2014-2021, val 2022, test 2023, all hourly windows", "params": 2352, "val_best": 0.3892519474029541, "best_step": 12000, "minutes_train": 8.2, "val": {"MAE": {"Temperature": 2.6711, "Dewpoint": 2.4895, "Wind direction": 66.7774, "Wind speed": 1.4529, "Sea-level pressure": 3.156}, "MSE": {"Temperature": 13.66, "Dewpoint": 12.727, "Wind direction": 8296.429, "Wind speed": 4.4685, "Sea-level pressure": 22.3573}, "MAE_overall": 15.309377982240239, "MSE_overall": 1669.9283802739842, "points": 49312368, "windows_per_station": 1449}, "test": {"MAE": {"Temperature": 2.6591, "Dewpoint": 2.4379, "Wind direction": 66.6365, "Wind speed": 1.439, "Sea-level pressure": 3.1073}, "MSE": {"Temperature": 13.3357, "Dewpoint": 12.1465, "Wind direction": 8257.4034, "Wind speed": 4.3523, "Sea-level pressure": 21.6876}, "MAE_overall": 15.25594028037717, "MSE_overall": 1661.7850717610368, "points": 1182816192, "windows_per_station": 8689}, "minutes_total": 20.0}

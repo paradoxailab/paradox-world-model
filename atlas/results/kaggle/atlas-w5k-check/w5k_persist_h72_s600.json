@@ -1,0 +1,49 @@
+{
+  "model": "persist",
+  "H": 72,
+  "seed": 600,
+  "tag": "w5k_persist_h72",
+  "stations": 5672,
+  "protocol": "WEATHER-5K: L=48, train 2014-2021, val 2022, test 2023, all hourly windows",
+  "val": {
+    "MAE": {
+      "Temperature": 4.3898,
+      "Dewpoint": 3.3108,
+      "Wind direction": 90.0781,
+      "Wind speed": 2.0505,
+      "Sea-level pressure": 4.8789
+    },
+    "MSE": {
+      "Temperature": 36.4264,
+      "Dewpoint": 24.6353,
+      "Wind direction": 15223.1417,
+      "Wind speed": 8.8856,
+      "Sea-level pressure": 53.1077
+    },
+    "MAE_overall": 20.94162104794672,
+    "MSE_overall": 3069.2393494089465,
+    "points": 147120336,
+    "windows_per_station": 1441
+  },
+  "test": {
+    "MAE": {
+      "Temperature": 4.3895,
+      "Dewpoint": 3.2491,
+      "Wind direction": 90.2159,
+      "Wind speed": 2.0325,
+      "Sea-level pressure": 4.8369
+    },
+    "MSE": {
+      "Temperature": 35.9236,
+      "Dewpoint": 23.4769,
+      "Wind direction": 15246.6128,
+      "Wind speed": 8.6716,
+      "Sea-level pressure": 52.1617
+    },
+    "MAE_overall": 20.94476838757608,
+    "MSE_overall": 3073.369302937459,
+    "points": 3528846144,
+    "windows_per_station": 8641
+  },
+  "minutes_total": 9.4
+}

@@ -1,0 +1,83 @@
+T1 Uttar Pradesh pre B=0: 0 windows, MAE 23.26 / 24.12 (TimesFM 2.5 22.78 / 24.32), r = 1.021 / 0.992; 1-seed ensemble vs TimesFM 2.5: S TIE +2.1%, U TIE -0.8%
+T1 Uttar Pradesh pre B=0.5: 109 windows, MAE 23.23 / 24.14 (TimesFM 2.5 22.78 / 24.32), r = 1.020 / 0.993; 2-seed ensemble vs TimesFM 2.5: S TIE +2.0%, U TIE -0.7%
+T1 Uttar Pradesh pre B=1: 229 windows, MAE 23.24 / 24.12 (TimesFM 2.5 22.78 / 24.32), r = 1.020 / 0.992; 2-seed ensemble vs TimesFM 2.5: S TIE +2.0%, U TIE -0.8%
+T1 Uttar Pradesh pre B=2: 469 windows, MAE 22.38 / 23.69 (TimesFM 2.5 22.78 / 24.32), r = 0.983 / 0.974; 2-seed ensemble vs TimesFM 2.5: S TIE -1.7%, U WIN -2.6%
+T1 Uttar Pradesh pre B=4: 949 windows, MAE 22.07 / 23.67 (TimesFM 2.5 22.78 / 24.32), r = 0.969 / 0.974; 2-seed ensemble vs TimesFM 2.5: S WIN -3.1%, U WIN -2.6%
+T1 Uttar Pradesh pre B=8: 1909 windows, MAE 21.77 / 23.25 (TimesFM 2.5 22.78 / 24.32), r = 0.956 / 0.956; 2-seed ensemble vs TimesFM 2.5: S WIN -6.0%, U WIN -5.8%
+T1 Uttar Pradesh pre B=16: 3829 windows, MAE 21.73 / 23.37 (TimesFM 2.5 22.78 / 24.32), r = 0.954 / 0.961; 2-seed ensemble vs TimesFM 2.5: S WIN -6.4%, U WIN -5.4%
+T1 Uttar Pradesh pre B=all: 12954 windows, MAE 21.36 / 22.98 (TimesFM 2.5 22.78 / 24.32), r = 0.938 / 0.945; 2-seed ensemble vs TimesFM 2.5: S WIN -7.5%, U WIN -6.6%
+T1 Uttar Pradesh scratch B=0.5: 109 windows, MAE 35.40 / 36.53 (TimesFM 2.5 22.78 / 24.32), r = 1.554 / 1.502; 2-seed ensemble vs TimesFM 2.5: S LOSS +46.2%, U LOSS +42.7%
+T1 Uttar Pradesh scratch B=1: 229 windows, MAE 36.38 / 36.92 (TimesFM 2.5 22.78 / 24.32), r = 1.597 / 1.518; 2-seed ensemble vs TimesFM 2.5: S LOSS +48.8%, U LOSS +43.1%
+T1 Uttar Pradesh scratch B=2: 469 windows, MAE 30.27 / 32.16 (TimesFM 2.5 22.78 / 24.32), r = 1.329 / 1.323; 2-seed ensemble vs TimesFM 2.5: S LOSS +27.5%, U LOSS +27.5%
+T1 Uttar Pradesh scratch B=4: 949 windows, MAE 30.03 / 31.57 (TimesFM 2.5 22.78 / 24.32), r = 1.319 / 1.298; 2-seed ensemble vs TimesFM 2.5: S LOSS +26.8%, U LOSS +25.3%
+T1 Uttar Pradesh scratch B=8: 1909 windows, MAE 24.94 / 26.15 (TimesFM 2.5 22.78 / 24.32), r = 1.095 / 1.075; 2-seed ensemble vs TimesFM 2.5: S LOSS +5.6%, U LOSS +4.1%
+T1 Uttar Pradesh scratch B=16: 3829 windows, MAE 23.97 / 25.12 (TimesFM 2.5 22.78 / 24.32), r = 1.052 / 1.033; 2-seed ensemble vs TimesFM 2.5: S TIE +1.6%, U TIE +0.6%
+T1 Uttar Pradesh scratch B=all: 12954 windows, MAE 22.86 / 24.33 (TimesFM 2.5 22.78 / 24.32), r = 1.004 / 1.001; 2-seed ensemble vs TimesFM 2.5: S WIN -3.0%, U WIN -3.1%
+T1 Haryana pre B=0: 0 windows, MAE 26.11 / 28.79 (TimesFM 2.5 25.72 / 23.20), r = 1.015 / 1.241; 1-seed ensemble vs TimesFM 2.5: S TIE +1.5%, U LOSS +24.1%
+T1 Haryana pre B=0.5: 109 windows, MAE 26.09 / 28.84 (TimesFM 2.5 25.72 / 23.20), r = 1.014 / 1.243; 2-seed ensemble vs TimesFM 2.5: S TIE +1.4%, U LOSS +24.3%
+T1 Haryana pre B=1: 229 windows, MAE 26.12 / 28.74 (TimesFM 2.5 25.72 / 23.20), r = 1.015 / 1.238; 2-seed ensemble vs TimesFM 2.5: S TIE +1.5%, U LOSS +23.8%
+T1 Haryana pre B=2: 469 windows, MAE 25.94 / 27.54 (TimesFM 2.5 25.72 / 23.20), r = 1.008 / 1.187; 2-seed ensemble vs TimesFM 2.5: S TIE +0.8%, U LOSS +18.7%
+T1 Haryana pre B=4: 949 windows, MAE 25.85 / 26.66 (TimesFM 2.5 25.72 / 23.20), r = 1.005 / 1.149; 2-seed ensemble vs TimesFM 2.5: S TIE +0.5%, U LOSS +14.9%
+T1 Haryana pre B=8: 1909 windows, MAE 25.32 / 24.99 (TimesFM 2.5 25.72 / 23.20), r = 0.985 / 1.077; 2-seed ensemble vs TimesFM 2.5: S TIE -1.5%, U LOSS +7.7%
+T1 Haryana pre B=16: 3829 windows, MAE 25.23 / 23.23 (TimesFM 2.5 25.72 / 23.20), r = 0.981 / 1.001; 2-seed ensemble vs TimesFM 2.5: S WIN -3.9%, U TIE -1.5%
+T1 Haryana pre B=all: 10481 windows, MAE 24.90 / 22.71 (TimesFM 2.5 25.72 / 23.20), r = 0.968 / 0.979; 2-seed ensemble vs TimesFM 2.5: S WIN -4.4%, U WIN -3.0%
+T1 Haryana scratch B=0.5: 109 windows, MAE 34.66 / 30.67 (TimesFM 2.5 25.72 / 23.20), r = 1.347 / 1.322; 2-seed ensemble vs TimesFM 2.5: S LOSS +34.7%, U LOSS +32.2%
+T1 Haryana scratch B=1: 229 windows, MAE 39.79 / 99.35 (TimesFM 2.5 25.72 / 23.20), r = 1.547 / 4.282; 2-seed ensemble vs TimesFM 2.5: S LOSS +43.4%, U LOSS +304.8%
+T1 Haryana scratch B=2: 469 windows, MAE 36.07 / 34.11 (TimesFM 2.5 25.72 / 23.20), r = 1.402 / 1.470; 2-seed ensemble vs TimesFM 2.5: S LOSS +33.5%, U LOSS +33.6%
+T1 Haryana scratch B=4: 949 windows, MAE 33.56 / 35.12 (TimesFM 2.5 25.72 / 23.20), r = 1.305 / 1.514; 2-seed ensemble vs TimesFM 2.5: S LOSS +23.8%, U LOSS +22.7%
+T1 Haryana scratch B=8: 1909 windows, MAE 29.41 / 28.53 (TimesFM 2.5 25.72 / 23.20), r = 1.143 / 1.230; 2-seed ensemble vs TimesFM 2.5: S LOSS +9.9%, U LOSS +12.0%
+T1 Haryana scratch B=16: 3829 windows, MAE 29.22 / 26.11 (TimesFM 2.5 25.72 / 23.20), r = 1.136 / 1.125; 2-seed ensemble vs TimesFM 2.5: S LOSS +9.2%, U LOSS +8.2%
+T1 Haryana scratch B=all: 10481 windows, MAE 27.10 / 24.71 (TimesFM 2.5 25.72 / 23.20), r = 1.054 / 1.065; 2-seed ensemble vs TimesFM 2.5: S LOSS +2.0%, U TIE +2.2%
+T1 Maharashtra pre B=0: 0 windows, MAE 20.44 / 26.79 (TimesFM 2.5 19.45 / 22.25), r = 1.051 / 1.204; 1-seed ensemble vs TimesFM 2.5: S LOSS +5.1%, U LOSS +20.4%
+T1 Maharashtra pre B=0.5: 109 windows, MAE 20.38 / 26.52 (TimesFM 2.5 19.45 / 22.25), r = 1.048 / 1.192; 2-seed ensemble vs TimesFM 2.5: S LOSS +4.8%, U LOSS +19.2%
+T1 Maharashtra pre B=1: 229 windows, MAE 20.37 / 26.34 (TimesFM 2.5 19.45 / 22.25), r = 1.048 / 1.184; 2-seed ensemble vs TimesFM 2.5: S LOSS +4.8%, U LOSS +18.4%
+T1 Maharashtra pre B=2: 469 windows, MAE 20.48 / 26.27 (TimesFM 2.5 19.45 / 22.25), r = 1.053 / 1.181; 2-seed ensemble vs TimesFM 2.5: S LOSS +5.3%, U LOSS +18.1%
+T1 Maharashtra pre B=4: 949 windows, MAE 20.23 / 25.09 (TimesFM 2.5 19.45 / 22.25), r = 1.040 / 1.128; 2-seed ensemble vs TimesFM 2.5: S LOSS +4.0%, U LOSS +12.8%
+T1 Maharashtra pre B=8: 1909 windows, MAE 20.22 / 25.00 (TimesFM 2.5 19.45 / 22.25), r = 1.040 / 1.124; 2-seed ensemble vs TimesFM 2.5: S LOSS +4.0%, U LOSS +12.4%
+T1 Maharashtra pre B=16: 3829 windows, MAE 20.28 / 25.00 (TimesFM 2.5 19.45 / 22.25), r = 1.043 / 1.124; 2-seed ensemble vs TimesFM 2.5: S LOSS +4.3%, U LOSS +12.4%
+T1 Maharashtra pre B=all: 9199 windows, MAE 19.74 / 27.62 (TimesFM 2.5 19.45 / 22.25), r = 1.015 / 1.242; 2-seed ensemble vs TimesFM 2.5: S TIE +0.4%, U LOSS +21.4%
+T1 Maharashtra scratch B=0.5: 109 windows, MAE 27.52 / 33.02 (TimesFM 2.5 19.45 / 22.25), r = 1.415 / 1.484; 2-seed ensemble vs TimesFM 2.5: S LOSS +41.5%, U LOSS +48.4%
+T1 Maharashtra scratch B=1: 229 windows, MAE 27.52 / 33.02 (TimesFM 2.5 19.45 / 22.25), r = 1.415 / 1.484; 2-seed ensemble vs TimesFM 2.5: S LOSS +41.5%, U LOSS +48.4%
+T1 Maharashtra scratch B=2: 469 windows, MAE 29.88 / 62.87 (TimesFM 2.5 19.45 / 22.25), r = 1.536 / 2.826; 2-seed ensemble vs TimesFM 2.5: S LOSS +43.5%, U LOSS +168.3%
+T1 Maharashtra scratch B=4: 949 windows, MAE 26.89 / 45.03 (TimesFM 2.5 19.45 / 22.25), r = 1.383 / 2.024; 2-seed ensemble vs TimesFM 2.5: S LOSS +32.7%, U LOSS +96.4%
+T1 Maharashtra scratch B=8: 1909 windows, MAE 24.82 / 36.33 (TimesFM 2.5 19.45 / 22.25), r = 1.276 / 1.633; 2-seed ensemble vs TimesFM 2.5: S LOSS +22.4%, U LOSS +44.1%
+T1 Maharashtra scratch B=16: 3829 windows, MAE 23.68 / 35.67 (TimesFM 2.5 19.45 / 22.25), r = 1.218 / 1.603; 2-seed ensemble vs TimesFM 2.5: S LOSS +17.5%, U LOSS +53.2%
+T1 Maharashtra scratch B=all: 9199 windows, MAE 22.85 / 36.17 (TimesFM 2.5 19.45 / 22.25), r = 1.175 / 1.626; 2-seed ensemble vs TimesFM 2.5: S LOSS +11.7%, U LOSS +54.0%
+T1 Karnataka pre B=0: 0 windows, MAE 9.41 / 9.51 (TimesFM 2.5 8.98 / 9.43), r = 1.048 / 1.009; 1-seed ensemble vs TimesFM 2.5: S LOSS +4.8%, U TIE +0.9%
+T1 Karnataka pre B=0.5: 109 windows, MAE 9.42 / 9.51 (TimesFM 2.5 8.98 / 9.43), r = 1.049 / 1.008; 2-seed ensemble vs TimesFM 2.5: S LOSS +4.9%, U TIE +0.8%
+T1 Karnataka pre B=1: 229 windows, MAE 9.43 / 9.54 (TimesFM 2.5 8.98 / 9.43), r = 1.051 / 1.011; 2-seed ensemble vs TimesFM 2.5: S LOSS +5.1%, U TIE +1.1%
+T1 Karnataka pre B=2: 469 windows, MAE 9.94 / 10.55 (TimesFM 2.5 8.98 / 9.43), r = 1.107 / 1.118; 2-seed ensemble vs TimesFM 2.5: S LOSS +6.5%, U LOSS +7.1%
+T1 Karnataka pre B=4: 949 windows, MAE 9.62 / 10.42 (TimesFM 2.5 8.98 / 9.43), r = 1.071 / 1.105; 2-seed ensemble vs TimesFM 2.5: S LOSS +6.7%, U LOSS +10.2%
+T1 Karnataka pre B=8: 1909 windows, MAE 9.04 / 9.55 (TimesFM 2.5 8.98 / 9.43), r = 1.007 / 1.012; 2-seed ensemble vs TimesFM 2.5: S TIE +0.1%, U TIE +0.7%
+T1 Karnataka pre B=16: 3829 windows, MAE 9.05 / 9.64 (TimesFM 2.5 8.98 / 9.43), r = 1.008 / 1.023; 2-seed ensemble vs TimesFM 2.5: S TIE -0.1%, U TIE +1.4%
+T1 Karnataka pre B=all: 11733 windows, MAE 8.94 / 9.50 (TimesFM 2.5 8.98 / 9.43), r = 0.996 / 1.007; 2-seed ensemble vs TimesFM 2.5: S TIE -1.2%, U TIE -0.1%
+T1 Karnataka scratch B=0.5: 109 windows, MAE 13.24 / 14.77 (TimesFM 2.5 8.98 / 9.43), r = 1.475 / 1.566; 2-seed ensemble vs TimesFM 2.5: S LOSS +41.3%, U LOSS +50.6%
+T1 Karnataka scratch B=1: 229 windows, MAE 13.27 / 16.09 (TimesFM 2.5 8.98 / 9.43), r = 1.478 / 1.706; 2-seed ensemble vs TimesFM 2.5: S LOSS +38.5%, U LOSS +59.3%
+T1 Karnataka scratch B=2: 469 windows, MAE 12.74 / 14.44 (TimesFM 2.5 8.98 / 9.43), r = 1.419 / 1.531; 2-seed ensemble vs TimesFM 2.5: S LOSS +36.3%, U LOSS +47.7%
+T1 Karnataka scratch B=4: 949 windows, MAE 11.69 / 13.66 (TimesFM 2.5 8.98 / 9.43), r = 1.302 / 1.448; 2-seed ensemble vs TimesFM 2.5: S LOSS +26.9%, U LOSS +41.5%
+T1 Karnataka scratch B=8: 1909 windows, MAE 10.68 / 11.89 (TimesFM 2.5 8.98 / 9.43), r = 1.190 / 1.260; 2-seed ensemble vs TimesFM 2.5: S LOSS +15.6%, U LOSS +22.9%
+T1 Karnataka scratch B=16: 3829 windows, MAE 10.44 / 12.00 (TimesFM 2.5 8.98 / 9.43), r = 1.162 / 1.272; 2-seed ensemble vs TimesFM 2.5: S LOSS +11.8%, U LOSS +22.4%
+T1 Karnataka scratch B=all: 11733 windows, MAE 9.82 / 10.84 (TimesFM 2.5 8.98 / 9.43), r = 1.093 / 1.149; 2-seed ensemble vs TimesFM 2.5: S LOSS +6.2%, U LOSS +12.0%
+T1-NSTAR {"Uttar Pradesh": {"pre": "2", "scratch": null}, "Haryana": {"pre": "8", "scratch": null}, "Maharashtra": {"pre": null, "scratch": null}, "Karnataka": {"pre": "all", "scratch": null}}
+T1-SCRATCH-LAW {"c": {"Haryana": 0.011513437386972336, "Karnataka": 0.04132243503175247, "Maharashtra": 0.08722590773050261, "Uttar Pradesh": 0.0010000000000667869}, "a": 2.177969341797258, "alpha": 0.08002325963913479, "rms_log": 0.05497633761234105, "n": 28}
+T1-TRANSFER-LAW {"k": 10443.940953824093, "gamma": 0.09354662285035825, "points": 28, "infinite": 0}
+T1-RULE {"support": ["Uttar Pradesh", "Haryana", "Karnataka"], "scored": ["Uttar Pradesh", "Haryana", "Maharashtra", "Karnataka"], "rule": "CONFIRMED"}
+# ICML T1: the transfer threshold function (generated)
+
+r = calibrated test MAE / TimesFM 2.5's, trained stations (unseen in brackets); mean over seeds.
+
+| Network | arm | 0 mo | 0.5 mo | 1 mo | 2 mo | 4 mo | 8 mo | 16 mo | all | n* |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Uttar Pradesh | pre | 1.021 (0.992) | 1.020 (0.993) | 1.020 (0.992) | 0.983 (0.974) | 0.969 (0.974) | 0.956 (0.956) | 0.954 (0.961) | 0.938 (0.945) | 2 |
+| Uttar Pradesh | scratch | – | 1.554 (1.502) | 1.597 (1.518) | 1.329 (1.323) | 1.319 (1.298) | 1.095 (1.075) | 1.052 (1.033) | 1.004 (1.001) | not reached |
+| Haryana | pre | 1.015 (1.241) | 1.014 (1.243) | 1.015 (1.238) | 1.008 (1.187) | 1.005 (1.149) | 0.985 (1.077) | 0.981 (1.001) | 0.968 (0.979) | 8 |
+| Haryana | scratch | – | 1.347 (1.322) | 1.547 (4.282) | 1.402 (1.470) | 1.305 (1.514) | 1.143 (1.230) | 1.136 (1.125) | 1.054 (1.065) | not reached |
+| Maharashtra | pre | 1.051 (1.204) | 1.048 (1.192) | 1.048 (1.184) | 1.053 (1.181) | 1.040 (1.128) | 1.040 (1.124) | 1.043 (1.124) | 1.015 (1.242) | not reached |
+| Maharashtra | scratch | – | 1.415 (1.484) | 1.415 (1.484) | 1.536 (2.826) | 1.383 (2.024) | 1.276 (1.633) | 1.218 (1.603) | 1.175 (1.626) | not reached |
+| Karnataka | pre | 1.048 (1.009) | 1.049 (1.008) | 1.051 (1.011) | 1.107 (1.118) | 1.071 (1.105) | 1.007 (1.012) | 1.008 (1.023) | 0.996 (1.007) | all |
+| Karnataka | scratch | – | 1.475 (1.566) | 1.478 (1.706) | 1.419 (1.531) | 1.302 (1.448) | 1.190 (1.260) | 1.162 (1.272) | 1.093 (1.149) | not reached |
+
+Scratch law: r = c_X + 2.18 n^-0.080 (misfit x1.057); c[Haryana] = 0.012, c[Karnataka] = 0.041, c[Maharashtra] = 0.087, c[Uttar Pradesh] = 0.001
+Transfer law: D_T = 1.04e+04 n^0.094 (28 points; 0 pre-trained runs below every scratch floor)
+
+Rule: confirmed if pre-training lowers n* (the smallest budget at TimesFM 2.5's level on trained stations) on at least 3 of the 4 networks; a network where neither arm reaches it does not count as support. Support: ['Uttar Pradesh', 'Haryana', 'Karnataka']. Result: CONFIRMED

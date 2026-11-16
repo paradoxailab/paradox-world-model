@@ -1,0 +1,20 @@
+downloading 6.44 GB (application/x-zip-compressed)
+  1.1 GB, 22 MB/s
+  2.1 GB, 23 MB/s
+  3.2 GB, 21 MB/s
+  4.3 GB, 21 MB/s
+  5.4 GB, 21 MB/s
+downloaded 6.44 GB in 5.0 min
+zip: 5675 members, 5672 station files; meta ['WEATHER-5K/meta_info.json'], percentiles ['WEATHER-5K/percentile.json']
+  500/5672 stations, 0.8 min
+  1000/5672 stations, 1.7 min
+  1500/5672 stations, 2.6 min
+  2000/5672 stations, 3.5 min
+  2500/5672 stations, 4.3 min
+  3000/5672 stations, 5.1 min
+  3500/5672 stations, 5.9 min
+  4000/5672 stations, 6.7 min
+  4500/5672 stations, 7.5 min
+  5000/5672 stations, 8.3 min
+  5500/5672 stations, 9.2 min
+W5K-DATA {"stations": 5672, "hours": 87648, "vars": ["TMP", "DEW", "WND_ANGLE", "WND_RATE", "SLP"], "missing_by_var": {"TMP": 0.0, "DEW": 0.0, "WND_ANGLE": 0.0, "WND_RATE": 0.0, "SLP": 0.0}, "stations_with_coords": 5672, "percentiles_shape": [5672, 5, 8], "percentiles_found": 5672, "missing_by_year": {}, "minutes": 9.9, "means": [12.569999694824219, 6.769999980926514, 187.6999969482422, 3.240000009536743, 1015.0900268554688]}

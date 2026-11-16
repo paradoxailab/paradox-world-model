@@ -1,0 +1,35 @@
+W5K: 5672 stations, 87648 hours, missing share by split {"train": 0.0, "val": 0.0, "test": 0.0}; neighbourhood median radius 238 km; device cuda
+atlas: 968,672 parameters, width 196
+training data: 730 days x 5672 stations (0.25 of 2014-2021)
+  step 2000 loss 0.1465 val MAE (standardised mean) 0.3364 (best 0.3364 at 2000) T 2.105 1.6 min
+  step 4000 loss 0.1386 val MAE (standardised mean) 0.3253 (best 0.3253 at 4000) T 1.932 3.1 min
+  step 6000 loss 0.1330 val MAE (standardised mean) 0.3235 (best 0.3235 at 6000) T 1.925 4.7 min
+  step 8000 loss 0.1292 val MAE (standardised mean) 0.3200 (best 0.3200 at 8000) T 1.879 6.3 min
+  step 10000 loss 0.1321 val MAE (standardised mean) 0.3153 (best 0.3153 at 10000) T 1.819 7.8 min
+  step 12000 loss 0.1278 val MAE (standardised mean) 0.3131 (best 0.3131 at 12000) T 1.783 9.3 min
+  step 14000 loss 0.1260 val MAE (standardised mean) 0.3109 (best 0.3109 at 14000) T 1.798 10.8 min
+  step 16000 loss 0.1263 val MAE (standardised mean) 0.3104 (best 0.3104 at 16000) T 1.803 12.4 min
+  step 18000 loss 0.1248 val MAE (standardised mean) 0.3078 (best 0.3078 at 18000) T 1.766 13.9 min
+  step 20000 loss 0.1264 val MAE (standardised mean) 0.3064 (best 0.3064 at 20000) T 1.708 15.4 min
+  step 22000 loss 0.1249 val MAE (standardised mean) 0.3051 (best 0.3051 at 22000) T 1.734 16.9 min
+  step 24000 loss 0.1204 val MAE (standardised mean) 0.3040 (best 0.3040 at 24000) T 1.702 18.4 min
+  step 26000 loss 0.1228 val MAE (standardised mean) 0.3032 (best 0.3032 at 26000) T 1.672 20.0 min
+  step 28000 loss 0.1179 val MAE (standardised mean) 0.3018 (best 0.3018 at 28000) T 1.659 21.5 min
+  step 30000 loss 0.1184 val MAE (standardised mean) 0.3022 (best 0.3018 at 28000) T 1.661 23.0 min
+  step 32000 loss 0.1211 val MAE (standardised mean) 0.3017 (best 0.3017 at 32000) T 1.711 24.5 min
+  step 34000 loss 0.1208 val MAE (standardised mean) 0.3001 (best 0.3001 at 34000) T 1.638 26.0 min
+  step 36000 loss 0.1192 val MAE (standardised mean) 0.2985 (best 0.2985 at 36000) T 1.640 27.5 min
+  step 38000 loss 0.1197 val MAE (standardised mean) 0.2989 (best 0.2985 at 36000) T 1.631 29.0 min
+  step 40000 loss 0.1154 val MAE (standardised mean) 0.2983 (best 0.2983 at 40000) T 1.619 30.5 min
+  step 42000 loss 0.1175 val MAE (standardised mean) 0.2984 (best 0.2983 at 40000) T 1.607 32.0 min
+  step 44000 loss 0.1189 val MAE (standardised mean) 0.2962 (best 0.2962 at 44000) T 1.609 33.5 min
+  step 46000 loss 0.1187 val MAE (standardised mean) 0.2965 (best 0.2962 at 44000) T 1.599 35.0 min
+  step 48000 loss 0.1187 val MAE (standardised mean) 0.2967 (best 0.2962 at 44000) T 1.597 36.5 min
+  step 50000 loss 0.1152 val MAE (standardised mean) 0.2960 (best 0.2960 at 50000) T 1.594 38.0 min
+  step 52000 loss 0.1194 val MAE (standardised mean) 0.2957 (best 0.2957 at 52000) T 1.585 39.5 min
+  step 54000 loss 0.1156 val MAE (standardised mean) 0.2956 (best 0.2956 at 54000) T 1.588 41.1 min
+  step 56000 loss 0.1168 val MAE (standardised mean) 0.2951 (best 0.2951 at 56000) T 1.578 42.7 min
+  step 58000 loss 0.1147 val MAE (standardised mean) 0.2953 (best 0.2951 at 56000) T 1.580 44.2 min
+  step 60000 loss 0.1143 val MAE (standardised mean) 0.2952 (best 0.2951 at 56000) T 1.580 45.7 min
+VAL atlas H=24: {"Temperature": 1.5847, "Dewpoint": 1.6263, "Wind direction": 56.9332, "Wind speed": 1.2513, "Sea-level pressure": 1.7281}
+W5K-RUN {"model": "atlas", "H": 24, "seed": 600, "tag": "w5k_atlas_1m_h24_f025", "stations": 5672, "k": 16, "steps": 60000, "protocol": "WEATHER-5K: L=48, train 2014-2021, val 2022, test 2023, all hourly windows", "params": 968672, "frac": 0.25, "train_days": 730, "train_station_days": 4140560, "val_best": 0.29513809084892273, "best_step": 56000, "minutes_train": 45.7, "val": {"MAE": {"Temperature": 1.5847, "Dewpoint": 1.6263, "Wind direction": 56.9332, "Wind speed": 1.2513, "Sea-level pressure": 1.7281}, "MSE": {"Temperature": 5.8422, "Dewpoint": 6.5221, "Wind direction": 7205.2278, "Wind speed": 3.5916, "Sea-level pressure": 8.3964}, "MAE_overall": 12.624730606404203, "MSE_overall": 1445.9160086325621, "points": 49312368, "windows_per_station": 1449}, "minutes_total": 47.9}

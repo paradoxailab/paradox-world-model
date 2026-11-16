@@ -2090,6 +2090,42 @@ MAE win. Compute: CPU, as I1 (the GPU slots hold W1 seeds 401 and 402).
 luck: every W1 seed is 4.2–4.6% below Atlas-India seed 400's 9.104. (Their logs print single-model test errors; no
 choice used them. T-A scores the three-seed ensemble once.)
 
+### T-A results: with perfect weather, one 1M model beats the fusion (Kaggle run atlas-wa-score, version 1, 2026-11-16, CPU)
+
+**Every number in this section uses the weather that happened (ERA5) as the forecast-hour forcing: an upper bound,
+not an achievable forecast.** All-India test (fourth use of the period), 14 networks, 263 stations, each entry
+calibrated on its network's validation windows. The run first reproduced the recorded Atlas-India (20.99 / 20.86),
+TimesFM 2.5 (22.35 / 21.93) and Atlas-F (20.75 / 20.44) numbers exactly.
+
+| Entry | trained MAE | never-trained MAE |
+|---|---|---|
+| **W1** (1M + weather, 3 seeds, no foundation model) | **19.86** | **19.92** |
+| Atlas-F2 (W1 + TimesFM 2.5, frozen Atlas-F rule) | **19.66** | **19.52** |
+| Atlas-F (Atlas-India + TimesFM 2.5) | 20.75 | 20.44 |
+| Atlas-India | 20.99 | 20.86 |
+| TimesFM 2.5 (200M, zero-shot) | 22.35 | 21.93 |
+
+Paired Diebold–Mariano, day-block bootstrap (relative MAE difference, trained / never-trained):
+* W1 vs Atlas-India: −5.38% (p = 1×10⁻²⁷) / −4.53% (p = 5×10⁻²²): **beats**.
+* W1 vs TimesFM 2.5: −11.12% (p = 9×10⁻⁴⁷) / −9.15% (p = 7×10⁻²⁶): **beats**.
+* W1 vs Atlas-F: −4.27% (p = 6×10⁻¹⁶) / −2.53% (p = 2×10⁻⁶): **beats**.
+* Atlas-F2 vs Atlas-F: −5.23% (p = 1×10⁻²⁸) / −4.47% (p = 3×10⁻²³): **beats**.
+
+**Criteria (with perfect weather):** B1 **pass** (W1 beats Atlas-India); B2 **fail**: W1 alone still loses to TimesFM
+2.5 in two of 28 network-tracks, Maharashtra never-trained (24.26 vs 22.25) and Kerala trained (8.66 vs 7.96), though
+it beats it pooled on both tracks and in the other 26; B3 **pass** (W1 alone beats Atlas-F on both tracks); B4 **pass**
+(Atlas-F2 beats Atlas-F). Atlas-F2 has lower MAE than TimesFM 2.5 in all 28 network-tracks (smallest margins
+Maharashtra never-trained 21.92 vs 22.25, Kerala trained 7.89 vs 7.96). Predictions: B1 pass (70%; right), B2 pass
+(40%; it failed, as the lower probability leaned), B3 pass (55%; right).
+
+**Reading.** By the definition written before the ladder ("a breakthrough means B2 or B3"), B3 is met, **with perfect
+weather**: a single 1M-parameter model with no foundation model inside beats the fused system that needed TimesFM
+2.5. The gain is largest where the winter inversion dominates (Delhi 37.34 → 34.39 trained, −7.9%; Uttar Pradesh
+−6.7%; Bihar −5.2%). The failure mode found by the confirmation test is smaller but still there (Maharashtra
+never-trained 24.92 → 24.26, still above TimesFM 2.5's 22.25). Fusion weights move toward Atlas once it has weather
+(Maharashtra 0.44–0.48 → 0.49–0.63; Gujarat 0.37–0.46 → 0.41–0.59). What this does not show: that the gain survives
+real forecasts. That is T-B (Delhi winter 2024–25, real ECMWF day-before forecasts), running now.
+
 ## Atlas v3: the data × size threshold function (rules and predictions written 2026-11-16, before any of these runs)
 
 **Why.** Every size test so far (simulators, Delhi, the all-India ladder, and the ladder again with weather) gave the

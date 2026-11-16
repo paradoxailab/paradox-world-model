@@ -6,6 +6,8 @@ __pycache__/
 !**/data/raw/.gitkeep
 !**/data/raw/SYNTHETIC_IMD_rain_test.npz
 **/models/
+# released Atlas weights (2026-11-17, at Aditya Kumar's request; SHA-256 in atlas/models/SHA256SUMS)
+!atlas/models/
 **/submissions/
 # LaTeX build files
 paper/*.aux

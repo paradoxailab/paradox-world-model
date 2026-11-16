@@ -39,14 +39,27 @@ within 2.8% (check C2).
 
 ## Weights
 
-Weight files are stored in `models/` once copied from the training runs (Kaggle outputs). Each file holds
-`{"sd": state_dict, "cfg": config}`; load it with:
+The trained weights are in `models/` (released 2026-11-17), copied byte-for-byte from the Kaggle runs. The SHA-256
+of each file is in `models/SHA256SUMS`:
+
+| File | Model | SHA-256 |
+|---|---|---|
+| `w5k_atlas_1m_h24_s600.pt` | Atlas-5K v1 (WB1 entry) | `a21bd99a4c4c7b0a9013772153c608d4c627e3df064660a63e71ecd5a36e1181` |
+| `w5k_atlas_1m_h24_v2a_s600.pt` | Atlas-5K v2a | `fe8bec3eb1145b6c1b94a9370c01dc669cd92cdf08a5c6e31773ff03693088cd` |
+| `atlas_w1_s400.pt` | Atlas W1, seed 400 | `0b96038d1255832a1654816465e0b6369c9c966e332c1fb1259a119d903bbd0b` |
+| `atlas_w1_s401.pt` | Atlas W1, seed 401 | `2b56a0100da53576d2d37228044ed032cee4fdf4e531b5220d9bc0b033ff1add` |
+| `atlas_w1_s402.pt` | Atlas W1, seed 402 | `d6efc4292361242969810a27950721fb8f0f93d10f34f013d0c521492b6cd800` |
+
+Atlas-5K files hold `{"sd", "cfg"}`. W1 files hold `{"cfg", "E", "F", "networks"}`: `E` is the early-stopped model
+that the reported W1 numbers use (as a three-seed ensemble). Load them with:
 
 ```python
 import torch
 from atlas.model import Atlas
 ck = torch.load("models/w5k_atlas_1m_h24_s600.pt", map_location="cpu")
 model = Atlas(**ck["cfg"]); model.load_state_dict(ck["sd"]); model.eval()
+ck = torch.load("models/atlas_w1_s400.pt", map_location="cpu")
+w1 = Atlas(**ck["cfg"]); w1.load_state_dict(ck["E"]); w1.eval()
 ```
 
 Inputs must be scaled with the benchmark's fixed mean and standard deviation (`delhi/run_atlas_5k.py`, MEAN/STD), and

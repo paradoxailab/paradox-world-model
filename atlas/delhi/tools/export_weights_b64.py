@@ -8,7 +8,7 @@ import argparse, base64, glob, hashlib, json, os
 ap = argparse.ArgumentParser()
 ap.add_argument("--names", nargs="+", required=True)
 ap.add_argument("--out", default="/kaggle/working/out")
-ap.add_argument("--chunk", type=int, default=200_000)
+ap.add_argument("--chunk", type=int, default=100_000)              # Kaggle text previews stop at 102,400 bytes
 a = ap.parse_args()
 os.makedirs(a.out, exist_ok=True)
 man = {}

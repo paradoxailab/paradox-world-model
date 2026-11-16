@@ -1,1 +1,1 @@
-inventory
+release --plan tools/series_plan.json

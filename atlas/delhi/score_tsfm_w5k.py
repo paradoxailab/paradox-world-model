@@ -23,9 +23,9 @@ import run_atlas_5k as R                                   # data loading, neigh
 DEV = R.DEV
 
 
-def windows(year, H, origin_every, N, stations_every):
-    a, e = R.YEARS[year]
-    starts = np.arange(a + R.L, e - H + 1)                          # forecast start hours wholly inside the year
+def windows(bounds, H, origin_every, N, stations_every, min_hist):
+    a, e = bounds
+    starts = np.arange(a + min_hist, e - H + 1)                     # forecast start hours wholly inside the period
     starts = starts[(starts % 24) == 0][::max(1, origin_every // 24)]
     S = np.arange(0, N, stations_every)
     return S, starts
@@ -48,7 +48,15 @@ def ffill(c):
     return torch.nan_to_num(c)
 
 
-def score_atlas(path, Z, lat, lon, elev, S, starts, H, k=32, bs=2048):
+def truth(Zt, s, t0, L, H):
+    """Observed values for the H hours after the start and 'any observation in the L hours before', from Zt."""
+    tt = t0[:, None] + torch.arange(L + H, device=t0.device)[None]
+    w = Zt[s, tt].float()                                                     # [B, L+H, 5]
+    return w[:, L:], torch.isfinite(w[:, :L]).any(1)
+
+
+def score_atlas(path, Z, lat, lon, elev, S, starts, H, k=32, bs=2048, Zt=None):
+    Zt = Z if Zt is None else Zt
     from atlas.grow import load_any
     model = load_any(path, DEV).to(DEV).eval()
     nb = R.neighbours(lat, lon, k); geo = R.geometry(lat, lon, nb); st = R.static_feats(lat, lon, elev)
@@ -62,14 +70,16 @@ def score_atlas(path, Z, lat, lon, elev, S, starts, H, k=32, bs=2048):
                 t0 = t0s[j:j + bs]; b = bt(torch.full_like(t0, s), t0)
                 with torch.autocast(DEV, dtype=torch.float16, enabled=(DEV == "cuda")):
                     p = R.predict_center(model, "atlas", b).float()
-                err = ((p - b["y"][:, 0]) * sd).abs() * b["my"][:, 0]                # [B, H, 5]
-                hist = b["mc"][:, 0].sum(1) > 0                                       # [B, 5] any history
-                sae[i, j:j + bs] = (err.sum(1) * hist).cpu().numpy(); cnt[i, j:j + bs] = (b["my"][:, 0].sum(1) * hist).cpu().numpy()
+                y, hist = truth(Zt, s, t0, R.L, H)                                    # truth [B, H, 5], [B, 5]
+                my = torch.isfinite(y)
+                err = torch.where(my, ((p - torch.nan_to_num(y)) * sd).abs(), torch.zeros_like(p))
+                sae[i, j:j + bs] = (err.sum(1) * hist).cpu().numpy(); cnt[i, j:j + bs] = (my.sum(1) * hist).cpu().numpy()
     return sae, cnt, dict(name=os.path.basename(path), params=model.n_params(), neighbours=k)
 
 
-def score_opponent(key, Z, S, starts, H, ctx, chunk_st=8, log=print):
+def score_opponent(key, Z, S, starts, H, ctx, chunk_st=8, log=print, Zt=None):
     import opponents as O
+    Zt = Z if Zt is None else Zt
     fc = None
     sae = np.zeros((len(S), len(starts), 5), np.float32); cnt = np.zeros_like(sae, dtype=np.uint8)
     st = torch.as_tensor(starts, device=DEV)
@@ -88,9 +98,10 @@ def score_opponent(key, Z, S, starts, H, ctx, chunk_st=8, log=print):
         ss = torch.as_tensor(S[i:i + chunk_st], device=DEV)
         tt = st[None, :, None] + torch.arange(-ctx, H, device=DEV)[None, None]          # [1, O, ctx+H]
         tt = tt.clamp(min=0)
-        w = own_units(Z[ss[:, None, None], tt].float())                                   # [s, O, ctx+H, 5]
-        hist = torch.isfinite(w[:, :, ctx - R.L:ctx]).any(2)                              # [s, O, 5]
-        y = w[:, :, ctx:]                                                                 # truth [s, O, H, 5]
+        w = own_units(Z[ss[:, None, None], tt].float())                                   # inputs [s, O, ctx+H, 5]
+        wt = Zt[ss[:, None, None], tt].float()                                            # observed (standardised)
+        hist = torch.isfinite(wt[:, :, ctx - R.L:ctx]).any(2)                             # [s, O, 5]
+        y = own_units(wt[:, :, ctx:])                                                     # truth [s, O, H, 5]
         c = w[:, :, :ctx].permute(0, 1, 3, 2).reshape(-1, ctx)                            # [s*O*5, ctx]
         c = ffill(c)
         if key == "persist":
@@ -130,12 +141,25 @@ def table(sae, cnt):
 def main(a):
     out = os.path.join(R.OUT, "h2h"); os.makedirs(out, exist_ok=True)
     Z, lat, lon, elev, M = R.load(a.quick)
-    S, starts = windows(a.year, a.H, a.origin_every, Z.shape[0], a.stations_every)
+    Zt, start0 = Z, R.START
+    if a.year == "live":                                  # fresh NOAA observations after the benchmark (fetch_isd_live.py)
+        O = np.load(os.path.join(R.RAW, "W5K_OBS.npy"), mmap_mode="r")
+        off = M["offset"].astype(np.float32); mu = R.MEAN - off
+        Zt = torch.empty_like(Z)
+        for i in range(0, Z.shape[0], 256):
+            Zt[i:i + 256] = torch.from_numpy(((O[i:i + 256, :Z.shape[1]].astype(np.float32) - mu) / R.STD).astype(np.float16)).to(DEV)
+        start0 = np.datetime64(str(M["start"]))
+        bounds, min_hist = (0, Z.shape[1]), max(R.L, a.ctx)
+        print(f"live data: {start0} to {M['live_end']}", flush=True)
+    else:
+        bounds, min_hist = R.YEARS[a.year], R.L
+    S, starts = windows(bounds, a.H, a.origin_every, Z.shape[0], a.stations_every, min_hist)
     print(f"{a.year}: {len(S)} stations x {len(starts)} forecast starts x 5 variables, H={a.H}, opponent context {a.ctx} h", flush=True)
     fj = os.path.join(out, f"h2h_{a.year}.json")
     res = json.load(open(fj)) if os.path.exists(fj) else {}
     res["_windows"] = dict(year=a.year, stations=len(S), stations_every=a.stations_every, starts=len(starts),
-                           origin_every_h=a.origin_every, H=a.H, first_start=str(R.START + np.timedelta64(int(starts[0]), "h")))
+                           origin_every_h=a.origin_every, H=a.H, first_start=str(start0 + np.timedelta64(int(starts[0]), "h")),
+                           last_start=str(start0 + np.timedelta64(int(starts[-1]), "h")))
     jobs = [("atlas", x.split("=", 1)[0], x.split("=", 1)[1]) for x in a.atlas.split(",") if x] + \
            [("opp", k, None) for k in a.models.split(",") if k]
     for kind, name, path in jobs:
@@ -146,9 +170,9 @@ def main(a):
         t0 = time.time()
         if kind == "atlas":
             p = path if os.path.exists(path) else next(iter(glob.glob(f"/content/**/{os.path.basename(path)}", recursive=True)), path)
-            sae, cnt, meta = score_atlas(p, Z, lat, lon, elev, S, starts, a.H, a.k)
+            sae, cnt, meta = score_atlas(p, Z, lat, lon, elev, S, starts, a.H, a.k, Zt=Zt)
         else:
-            sae, cnt, meta = score_opponent(name, Z, S, starts, a.H, a.ctx)
+            sae, cnt, meta = score_opponent(name, Z, S, starts, a.H, a.ctx, Zt=Zt)
         np.savez_compressed(f, sae=sae, cnt=cnt, stations=S, starts=starts)
         res[name] = dict(table(sae, cnt), **meta, minutes_total=round((time.time() - t0) / 60, 1))
         print(f"{name}: {json.dumps(res[name]['MAE'])} E {res[name]['E']:.5f} ({res[name]['minutes_total']} min)", flush=True)
@@ -159,7 +183,7 @@ def main(a):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--year", default="val", choices=["val", "test"])
+    ap.add_argument("--year", default="val", choices=["val", "test", "live"])
     ap.add_argument("--H", type=int, default=24)
     ap.add_argument("--models", default="tfm25,tfm3,chronos2,chronos-bolt")
     ap.add_argument("--atlas", default="")

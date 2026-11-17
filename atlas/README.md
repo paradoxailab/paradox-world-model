@@ -2573,6 +2573,32 @@ and 20–23% worse than the 10M model. The comparison is a model trained on WEAT
 used zero-shot, which is how these foundation models are offered and evaluated; it does not say how they would do if
 fine-tuned. This is validation: the claim "fully beats" is reserved for the single 2023 test (Phase 5).
 
+### Phase 5: the 2023 test and a live test on fresh NOAA data, 2024 to now (rules and predictions written 2026-11-17 18:30 IST, before either run)
+
+Decided with Adi: score the head-to-head once on the 2023 test year, and also on the newest data available, which no
+model can have seen in training (the foundation models' training corpora may include data up to 2023; nothing of
+2024–2026 was used anywhere here).
+
+**5a: 2023 test.** Exactly as Phase 1a (amended windows): every 8th station (709), a forecast start at 00:00 UTC every
+second day of 2023 whose history lies inside the year, 24 h ahead; Atlas-5K 10M (#58) and v2c (#57) against TimesFM 2.5,
+TimesFM 3.0, Chronos-2 (uni- and multivariate), Chronos-Bolt, persistence; same paired tests.
+
+**5b: live test, 23 January 2024 to the latest hour NOAA has published.** `delhi/tools/fetch_isd_live.py` downloads the
+same 5,672 stations from NOAA NCEI's ISD-Lite (hourly, the observation nearest each hour; public). **Truth = what was
+observed only** (no filled hour is ever scored). **Inputs = the same series with gaps filled by carrying the last
+observation forward** (causal: no later value ever fills an earlier hour), for every model alike. Windows: every 8th
+station, a forecast start at 00:00 UTC every fourth day from the first day with 512 hours of history (23 January 2024)
+to the last day with 24 observed hours after it; 24 h ahead. Same models, same paired tests. The data are NOAA's, used
+to score and not redistributed. Note: ISD-Lite's hourly selection is not identical to WEATHER-5K's processing, which
+Atlas was trained on; this can only work against Atlas.
+
+**Claims.** For each period and opponent: "beats X on all five variables" only if all five differences are significant
+wins after Holm over the 30 (opponent x variable) pairs of that period (alpha 0.01). Anything less is reported as it is.
+
+**Predictions.** 5a: Atlas-5K 10M wins all 30 pairs (90%). 5b: it wins all 30 pairs (80%); its E on the live period is
+at least 3% higher than on the 2023 windows (55%), because of the processing difference and three more years of drift;
+v2c also wins all 30 on both periods (75%).
+
 **WB2 — GIFT-Eval** (Salesforce; the main leaderboard for time-series foundation models): its weather and air-quality
 datasets (e.g. KDD Cup 2018 air quality, Jena weather, temperature-rain), scored with its own code against the
 leaderboard's per-dataset results. Rules are written before it runs.

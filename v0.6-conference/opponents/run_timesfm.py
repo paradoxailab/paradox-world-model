@@ -80,6 +80,23 @@ class TFM3:
         return q[..., 0], q[..., 4], q[..., 8]
 
 
+class ChronosW:
+    """Amazon Chronos-2 / Chronos-Bolt, zero-shot, univariate per location (ParadoxBench-1.3). Same wrapper as the
+    WEATHER-5K head-to-head (atlas/delhi/pw/opponents.py). Licence: Apache-2.0."""
+    licence = "Apache-2.0"
+
+    def __init__(self, ctx, H, bs, key):
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(HERE)), "atlas", "delhi", "pw"))
+        import opponents as O
+        self.fc = O.make(key, ctx, H)
+        self.name, self.params, self.bs = self.fc.name, self.fc.params, max(bs, 1024)
+
+    def __call__(self, series):
+        c = np.stack(series).astype(np.float32)
+        q = np.concatenate([self.fc(c[i:i + self.bs]) for i in range(0, len(c), self.bs)])   # [B, H, 3]
+        return q[..., 0], q[..., 1], q[..., 2]
+
+
 class Stub:
     """TEST ONLY - lets the pipeline be checked without downloading weights. Never reported."""
     name, licence = "STUB (pipeline test, not a model)", "n/a"
@@ -105,6 +122,8 @@ def main(a):
         fc = Stub(a.ctx, ds.out_len, a.bs, a.mode)
     elif a.model == "tfm25":
         fc = TFM25(a.ctx, ds.out_len, a.bs)
+    elif a.model in ("chronos2", "chronos-bolt"):
+        fc = ChronosW(a.ctx, ds.out_len, a.bs, a.model)
     else:
         fc = TFM3(a.ctx, ds.out_len, a.bs, a.mode)
     print(f"{fc.name} on ParadoxBench-1 {a.task}: {len(idx)} windows x {ds.N} locations, context {a.ctx}", flush=True)
@@ -121,20 +140,21 @@ def main(a):
             arr[s:s + w] = np.asarray(v, np.float32).reshape(w, N, H).transpose(0, 2, 1)
         if (s // a.chunk) % 20 == 0:
             print(f"  {min(s + a.chunk, W)}/{W} windows ({(time.time()-t0)/60:.1f} min)", flush=True)
-    if a.model == "stub":
+    if a.model == "stub" and not os.environ.get("PB_PIPELINE_TEST"):
         print("stub run: pipeline OK, not recorded"); return
     q10, q90 = np.minimum(q10, q50), np.maximum(q90, q50)
-    sizes = {"tfm25": 200e6, "tfm3": None}
+    sizes = {"tfm25": 200e6, "tfm3": None, "chronos2": 120e6, "chronos-bolt": 205e6, "stub": 0}
+    who = "Amazon" if a.model.startswith("chronos") else "Google"
     record(a.task, "B", fc.name + f" (zero-shot, ctx {a.ctx})", q10, q50, q90,
-           {"type": "foundation (Google, zero-shot)", "params": sizes[a.model], "context_steps": a.ctx,
-            "trained_on": "Google pretraining corpus; no task data", "licence": fc.licence,
+           {"type": f"foundation ({who}, zero-shot)", "params": sizes[a.model], "context_steps": a.ctx,
+            "trained_on": f"{who} pretraining corpus; no task data", "licence": fc.licence,
             "minutes": (time.time() - t0) / 60}, ds)
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--task", required=True)
-    ap.add_argument("--model", default="tfm25", choices=["tfm25", "tfm3", "stub"])
+    ap.add_argument("--model", default="tfm25", choices=["tfm25", "tfm3", "chronos2", "chronos-bolt", "stub"])
     ap.add_argument("--mode", default="univariate", choices=["univariate", "multivariate"])
     ap.add_argument("--ctx", type=int, default=512)
     ap.add_argument("--chunk", type=int, default=32, help="windows per forward batch")

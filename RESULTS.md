@@ -144,6 +144,38 @@ Every test is in
 Full per-track tables: [`results/LEADERBOARD_1.1.md`](results/LEADERBOARD_1.1.md); every row as JSON:
 [`results/paradoxbench1.1_results.json`](results/paradoxbench1.1_results.json).
 
+## 5. ParadoxBench-1.3: traffic head-to-head with TimesFM and Chronos (rules and predictions written 2026-11-17 22:45 IST, before any run)
+
+**Why.** Atlas-5K beats TimesFM 2.5/3.0, Chronos-2 and Chronos-Bolt on WEATHER-5K (atlas/README.md, Phase 5). On
+traffic the record is mixed: PWM-Dyn v0.6 (0.3M) lost to TimesFM 3.0 on PEMS03 (14.34 vs 14.15), tied it on PEMS08
+(p = 0.064), and Chronos was never scored. This round tests every traffic network against all four models.
+
+**Tasks and windows.** ParadoxBench-1.1 Track B (open context), all six networks (PEMS08, PEMS04, PEMS03, PEMS07,
+METR-LA, PEMS-BAY), official test windows (`paradoxbench/spec.py`, unchanged).
+
+**Our models (<= 10M parameters, trained from scratch on each network's training split).** (a) The frozen v0.6 recipe
+(0.3M; no climatology, batch 32, peak LR 2e-3, 33.5k-step budget), three fresh seeds 100–102 (v0.6's own seeds are not
+all on disk). (b) The same recipe at width 320 with 8 layers: 7.9–8.1M parameters, three seeds, on PEMS03 and PEMS08
+(where TimesFM 3.0 led or tied) and on the other networks only if compute allows. **Selection, per network, before any
+test score:** the model with the lower mean validation MAE of its three seeds (`selection.json`); only that ensemble
+is scored on the test windows, once, with validation-fitted conformal calibration as before.
+
+**Opponents (zero-shot, 512 steps of context, official weights).** TimesFM 2.5 (200M), TimesFM 3.0 univariate and
+multivariate (evaluation only), Chronos-2 (120M) and Chronos-Bolt base (205M), univariate. Nothing is trained on their
+outputs.
+
+**Tests and claims.** Paired Diebold–Mariano test (Newey–West, one-day bandwidth) and day-block bootstrap (2,000) per
+network and opponent, as in v0.6; Holm's correction over all (network x opponent) pairs; a WIN needs Holm p < 0.05 and
+a 95% interval below 0. "Beats X on traffic" is claimed only with a WIN on all six networks.
+
+**Driver:** `v0.6-conference/tools/traffic_round.py` (resumable queue mirrored to Google Drive); notebook
+`atlas/notebooks/traffic_h2h_colab.ipynb`. Pipeline checked on PEMS08 with a stub opponent (not reported).
+
+**Predictions.** Our chosen model beats Chronos-2, Chronos-Bolt and TimesFM 2.5 on all six networks (70%). It beats
+TimesFM 3.0 (best of uni/multivariate counted separately) on at least four of six networks (65%), and on PEMS03 (40%).
+Validation chooses the 8M model on PEMS03 and PEMS08 (50%). WIN against all five opponent entries on all six networks
+(25%).
+
 ## 4. ParadoxBench-1.2: PWM-Dyn v0.7 under real operating conditions (Kaggle, 2026-11-04)
 
 v0.7 adds a fallback base (the last reading that actually arrived, else the sensor's own train-split time-of-week

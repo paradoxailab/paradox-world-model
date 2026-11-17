@@ -2599,6 +2599,37 @@ wins after Holm over the 30 (opponent x variable) pairs of that period (alpha 0.
 at least 3% higher than on the 2023 windows (55%), because of the processing difference and three more years of drift;
 v2c also wins all 30 on both periods (75%).
 
+### Phase 5a results: on the 2023 test Atlas-5K 10M beats TimesFM 2.5, TimesFM 3.0, Chronos-2 and Chronos-Bolt on all five variables (Google Colab, A100, 2026-11-17)
+
+Scored once, as pre-registered: 709 stations x 182 forecast starts (00:00 UTC every second day of 2023), 24 h ahead,
+the same windows for every model; opponents zero-shot with 512 hours of history.
+
+| Model (test 2023, MAE) | Temperature | Dew point | Wind direction | Wind speed | Pressure | E |
+|---|---|---|---|---|---|---|
+| **Atlas-5K 10M (9.64M)** | **1.4198** | **1.4748** | **54.51** | **1.1895** | **1.4721** | **0.27700** |
+| Atlas-5K v2c (0.97M) | 1.4620 | 1.5057 | 55.39 | 1.2056 | 1.5199 | 0.28216 |
+| TimesFM 3.0 (Google; evaluation only) | 1.8761 | 1.9598 | 63.06 | 1.3275 | 1.9652 | 0.33026 |
+| Chronos-2 multivariate (Amazon, 120M) | 1.8430 | 1.9196 | 62.79 | 1.3346 | 2.0667 | 0.33130 |
+| Chronos-2 (Amazon, 120M) | 1.8987 | 1.9653 | 63.39 | 1.3485 | 2.0272 | 0.33429 |
+| TimesFM 2.5 (Google, 200M) | 1.9676 | 1.9980 | 63.80 | 1.3365 | 2.0136 | 0.33549 |
+| Chronos-Bolt base (Amazon, 205M) | 1.8975 | 2.0158 | 64.40 | 1.3595 | 1.9900 | 0.33715 |
+| Persistence | 3.7376 | 2.2243 | 75.69 | 1.7237 | 2.7850 | 0.43610 |
+
+**Verdict under the Phase 5 rule: Atlas-5K 10M beats every opponent on all five variables** (30 of 30 paired
+differences significant wins after Holm; p = 0.003 for all, the floor of 10,000 bootstrap draws x 30 pairs). Margins:
+temperature −23.0% to −27.8%, dew point −23.2% to −26.8%, wind direction −13.2% to −15.4%, wind speed −10.4% to −12.5%,
+pressure −25.1% to −28.8%. Closest opponent, TimesFM 3.0: −24.3% [−25.6, −23.1], −24.8% [−26.0, −23.5], −13.6%
+[−14.4, −12.7], −10.4% [−11.1, −9.7], −25.1% [−26.3, −24.0]. **v2c (0.97M) also beats all six on all five variables**
+(30 of 30). Atlas's own test E on these windows (0.27700) is within 0.2% of its validation E (0.27643).
+
+**Predictions:** 5a, 10M wins all 30 (90%): **held**; v2c wins all 30 on 2023 (part of the 75% prediction): held so far
+(the live period is pending).
+
+**What this claim is and is not.** It is: on WEATHER-5K's 2023 test year, at 24 hours, on 709 stations worldwide, with
+paired tests, a 9.64M model trained on the benchmark's training years has significantly lower error than these
+foundation models used zero-shot (as they are released), on all five variables. It is not: a claim about other
+horizons, about fine-tuned versions of these models, or about other domains.
+
 **WB2 — GIFT-Eval** (Salesforce; the main leaderboard for time-series foundation models): its weather and air-quality
 datasets (e.g. KDD Cup 2018 air quality, Jena weather, temperature-rain), scored with its own code against the
 leaderboard's per-dataset results. Rules are written before it runs.

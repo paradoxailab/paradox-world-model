@@ -1,6 +1,6 @@
 """Fresh observations for the WEATHER-5K stations after the benchmark ends: 1 January 2024 to the latest hour NOAA has
 published, from NOAA NCEI's ISD-Lite (hourly, the observation nearest the top of each hour; public).
-https://www.ncei.noaa.gov/pub/data/noaa/isd-lite/<year>/<USAF>-<WBAN>-<year>.gz
+https://noaa-isd-pds.s3.amazonaws.com/isd-lite/data/<year>/<USAF>-<WBAN>-<year>.gz (NOAA Open Data on AWS)
 
 Writes, in the layout run_atlas_5k.load() reads (values minus the benchmark's offset, float16, stations in WEATHER-5K's
 order), to --out:
@@ -17,7 +17,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
 
-URL = "https://www.ncei.noaa.gov/pub/data/noaa/isd-lite/{y}/{u}-{w}-{y}.gz"
+URL = "https://noaa-isd-pds.s3.amazonaws.com/isd-lite/data/{y}/{u}-{w}-{y}.gz"   # NOAA's open-data copy (NCEI's old path now serves a web page)
 START = np.datetime64("2024-01-01T00")
 OFFSET = np.array([0.0, 0.0, 0.0, 0.0, 1000.0], np.float32)
 
@@ -40,10 +40,12 @@ def get(args):
         try:
             with urllib.request.urlopen(URL.format(y=y, u=u, w=w), timeout=60) as r:
                 b = r.read()
+            if b[:2] != b"\x1f\x8b":                           # not a gzip file: treat as missing, never parse a web page
+                return None
             open(f, "wb").write(b)
             return f
         except urllib.error.HTTPError as e:
-            if e.code == 404:
+            if e.code in (403, 404):
                 return None
             time.sleep(2 + 3 * k)
         except Exception:

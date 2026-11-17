@@ -2592,6 +2592,13 @@ to the last day with 24 observed hours after it; 24 h ahead. Same models, same p
 to score and not redistributed. Note: ISD-Lite's hourly selection is not identical to WEATHER-5K's processing, which
 Atlas was trained on; this can only work against Atlas.
 
+**Amendment to 5b (2026-11-17 20:30 IST, before any live score existed).** NCEI's old ISD-Lite path now returns a web
+page instead of data; the same ISD-Lite files are served from NOAA's open-data bucket on AWS (`noaa-isd-pds`,
+`isd-lite/data/<year>/`), which the fetcher now uses (and it rejects anything that is not a gzip file). In that bucket
+the newest ISD-Lite files are dated 30 August 2025 and there is no 2026 folder, so the live period runs from 23 January
+2024 to the last day that half of the reporting stations cover (about late August 2025). Extending it to November 2026
+needs NOAA's successor archive (GHCNh), which uses different station identifiers: a follow-up, not part of this test.
+
 **Claims.** For each period and opponent: "beats X on all five variables" only if all five differences are significant
 wins after Holm over the 30 (opponent x variable) pairs of that period (alpha 0.01). Anything less is reported as it is.
 

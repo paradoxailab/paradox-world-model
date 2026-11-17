@@ -2451,6 +2451,52 @@ wind direction and, by 0.4%, wind speed; pressure stays higher, 90%). If the 10M
 PhysicsFormer (75%) and its pressure MAE is still above PhysicsFormer's 1.43 (75%). Neither beats ECMWF-HRES under the
 four-variable rule (95%; its pressure MAE is 0.86).
 
+### Atlas-5K 10M results: adopted; on the 2023 test it beats PhysicsFormer on four of five variables (Google Colab, NVIDIA A100-SXM4-80GB, 2026-11-17)
+
+**Check G0: passed.** Step-0 validation of the grown model 0.2796, equal to v2c's best on the same 300 stations (0.2796).
+
+**Training** (80,000 steps, 103.4 min, 0.067 s/step). Validation on the 300 stations rose while the learning rate was
+high (0.2837 at step 2,000), went below v2c at step 36,000 (0.2790) and kept falling to **0.2741 at step 76,000** (best,
+kept); it ended by the schedule, not by patience.
+
+**Rule 10M-A: ADOPTED.** Final validation 2022 (every 4th station, every 6th hour): MAE 1.418 / 1.482 / 53.86 / 1.188 /
+1.484 (T / Td / WD / WS / SLP), **E 0.27592**, **−1.95%** against v2c's 0.28140 (bar: 0.2786). Every variable improves
+on v2c (−3.1%, −2.3%, −1.6%, −1.4%, −3.4%).
+
+**2023 test** (all 5,672 stations, every hourly window, 1,182,816,192 scored values per variable; each model scored once):
+
+| Model (parameters) | Temperature | Dew point | Wind direction | Wind speed | Pressure |
+|---|---|---|---|---|---|
+| **Atlas-5K 10M (9.64M)** | **1.429** | **1.486** | **53.93** | **1.183** | 1.477 |
+| Atlas-5K v2c (0.97M) | 1.474 | 1.520 | 54.84 | 1.202 | 1.533 |
+| Atlas-5K v1 (0.97M) | 1.553 | 1.596 | 56.46 | 1.228 | 1.664 |
+| PhysicsFormer (19.3M), published | 1.55 | 1.59 | 57.37 | 1.21 | **1.43** |
+| ECMWF-HRES (operational NWP), published | 1.76 | 1.85 | 63.8 | 1.48 | 0.86 |
+
+Test MSE, 10M: 5.023 / 5.782 / 6798.3 / 3.276 / 6.111; v2c: 5.233 / 5.930 / 6904.5 / 3.349 / 6.452. Validation and test
+agree to within 1% for both models.
+
+**Rule WB1 at 24 h (by number only; the published forecasts are not available for a paired test):**
+* **Atlas-5K 10M beats PhysicsFormer**: lower MAE on temperature (−7.8%), dew point (−6.6%), wind direction (−6.0%)
+  and wind speed (−2.2%); pressure +3.3%. With half PhysicsFormer's parameters.
+* **Atlas-5K v2c (1M) also beats PhysicsFormer** under the same rule (−4.9%, −4.4%, −4.4%, −0.7%; pressure +7.2%), with
+  a twentieth of its parameters.
+* Against ECMWF-HRES: both have lower MAE at the stations on temperature, dew point, wind speed and wind direction
+  (10M: −18.8%, −19.7%, −20.1%, −15.5%) but pressure is far higher (+72%): **neither beats ECMWF-HRES** under the
+  four-variable rule.
+* The 10M model is the **WB1 entry at 24 h** (lower validation E than v2c, as the rule says).
+
+**Predictions:** G0 passes (95%): held. 10M adopted (60%): held; E in 0.270–0.278 (60%): held (0.2759). v2c beats
+PhysicsFormer (60%): held, and its pressure stays higher (90%): held. 10M beats PhysicsFormer (75%): held; its pressure
+still above 1.43 (75%): held. Neither beats ECMWF-HRES (95%): held.
+
+**Reading.** On a data set this large, growing the trained 1M model to 10M paid (−1.95% on validation, −1.5% to −3.6% per
+variable on test), where the 10M models trained from scratch on the far smaller all-India set did not. Pressure is the
+remaining gap to both leaders: the 48-hour station history holds little of the large-scale pressure change that a
+global model represents; that is the next target. Compute: about 2.5 A100-hours in all (training 1.7 h, the final
+validation and the two test scorings the rest). Model file: `models/series/58_atlas-5k-10m_weather5k_adopted.pt` (with its
+dataset, metadata and results inside); run outputs in `results/colab/w5k_atlas_10m_h24_g1/`.
+
 **WB2 — GIFT-Eval** (Salesforce; the main leaderboard for time-series foundation models): its weather and air-quality
 datasets (e.g. KDD Cup 2018 air quality, Jena weather, temperature-rain), scored with its own code against the
 leaderboard's per-dataset results. Rules are written before it runs.

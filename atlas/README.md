@@ -2514,6 +2514,13 @@ station-block bootstrap (10,000) and Diebold-Mariano on daily mean differences; 
 alpha 0.01. On validation these are reported as targets and evidence only; a claim ("beats", "fully beats") is made only
 on the 2023 test in Phase 5.
 
+**Amendment (2026-11-17 15:25 IST, before any opponent had produced a score).** The first opponent (Chronos-Bolt) ran
+at about 90 minutes for the full window set, so the five opponents would need about 7–8 A100-hours (the plan budgeted
+about 2). Decided with Adi: Phase 1a uses **every 8th station (709) and a forecast start every second day (182 starts)**,
+about 645,000 forecasts per variable per model; everything else unchanged. The earlier, interrupted run (full window
+set) had scored only Atlas 10M (E 0.27751), v2c (0.28273) and persistence (0.43859); those numbers are kept here and
+the comparison uses the new window set for every model. Output: Drive `PWM-10M/small/h2h/`.
+
 **Phase 2: the threshold grid.** Atlas-5K from scratch, WB1-T recipe (the existing four 1M points), sizes 0.1M, 0.3M, 1M,
 3M, 10M x nested shares 1/64, 1/16, 1/4, all of the 2014–2021 training days; plus 1M at 1/32, 1/8, 1/2 and a second seed
 of 1M-all and 10M-all. Score: validation E. **Phase 3:** forms A (data only, per size), B (c + a N^-alpha + b P^-beta), C

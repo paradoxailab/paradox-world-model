@@ -2537,6 +2537,42 @@ variables (85%); the largest margin is on wind direction or dew point, the small
 multivariate beats Chronos-2 univariate on E (55%). Form B is verified (55%); at all data a 10M model from scratch beats
 1M from scratch (60%); the minimum size that beats TimesFM 2.5 at all data is <= 1M (70%).
 
+### Phase 1a results: on the 2022 validation windows Atlas-5K 10M beats every foundation model on all five variables (Google Colab, A100, 2026-11-17)
+
+Windows as amended: 709 stations (every 8th) x 182 forecast starts (00:00 UTC every second day of 2022), 24 h ahead;
+about 645,000 forecasts per variable per model; the same windows for every model. Opponents zero-shot with 512 hours of
+history, median scored; Atlas reads 48 hours. Times: Chronos-Bolt 4.6 min, Chronos-2 7.4, Chronos-2 multivariate 7.0,
+TimesFM 2.5 5.6, TimesFM 3.0 22.0. Outputs: Drive `PWM-10M/small/h2h/` (per-window errors, `h2h_val.json`,
+`paired_atlas10m_val.json`).
+
+| Model (validation 2022, MAE) | Temperature | Dew point | Wind direction | Wind speed | Pressure | E |
+|---|---|---|---|---|---|---|
+| **Atlas-5K 10M (9.64M)** | **1.4289** | **1.4897** | **53.93** | **1.1859** | **1.4946** | **0.27643** |
+| Atlas-5K v2c (0.97M) | 1.4727 | 1.5248 | 54.84 | 1.2040 | 1.5389 | 0.28184 |
+| TimesFM 3.0 (Google; evaluation only) | 1.9036 | 2.0180 | 62.73 | 1.3357 | 1.9825 | 0.33197 |
+| Chronos-2 multivariate (Amazon, 120M) | 1.8741 | 1.9753 | 62.31 | 1.3414 | 2.0867 | 0.33267 |
+| Chronos-2 (Amazon, 120M) | 1.9256 | 2.0247 | 63.00 | 1.3578 | 2.0429 | 0.33594 |
+| TimesFM 2.5 (Google, 200M) | 1.9959 | 2.0597 | 63.52 | 1.3466 | 2.0391 | 0.33770 |
+| Chronos-Bolt base (Amazon, 205M) | 1.9214 | 2.0738 | 64.10 | 1.3676 | 2.0114 | 0.33894 |
+| Persistence | 3.7628 | 2.2734 | 75.00 | 1.7307 | 2.8043 | 0.43686 |
+
+**Paired comparison, Atlas-5K 10M against each (station-block bootstrap 10,000, Diebold–Mariano, Holm over 30 pairs):**
+every one of the 30 (opponent x variable) differences is a significant win (Holm p = 0.003 for all, which is the floor
+set by 10,000 bootstrap draws x 30 pairs). Margins: temperature −23.8% to −28.4%, dew point −24.6% to −28.2%, wind
+direction −13.5% to −15.9%, wind speed −11.2% to −13.3%, pressure −24.6% to −28.4%. Against TimesFM 3.0, the closest on
+E: −24.9%, −26.2%, −14.0%, −11.2%, −24.6% (95% intervals all below −10%).
+
+**Predictions:** 10M lower than TimesFM 2.5, TimesFM 3.0 and Chronos-2 on all five (85%): **held**. Largest margin on
+wind direction or dew point and smallest on pressure (60%): **wrong** (the largest margins are on temperature, dew point
+and pressure; the smallest on wind speed). Chronos-2 multivariate better than univariate on E (55%): **held** (0.3327 vs
+0.3359).
+
+**Reading.** On these windows the gap is far larger than Atlas's margin over PhysicsFormer: zero-shot single-series
+foundation models, even with ten times Atlas's history and multivariate input, are 17–20% worse on E than the 1M v2c
+and 20–23% worse than the 10M model. The comparison is a model trained on WEATHER-5K's training years against models
+used zero-shot, which is how these foundation models are offered and evaluated; it does not say how they would do if
+fine-tuned. This is validation: the claim "fully beats" is reserved for the single 2023 test (Phase 5).
+
 **WB2 — GIFT-Eval** (Salesforce; the main leaderboard for time-series foundation models): its weather and air-quality
 datasets (e.g. KDD Cup 2018 air quality, Jena weather, temperature-rain), scored with its own code against the
 leaderboard's per-dataset results. Rules are written before it runs.

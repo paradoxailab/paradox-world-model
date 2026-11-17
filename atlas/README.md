@@ -2637,6 +2637,39 @@ paired tests, a 9.64M model trained on the benchmark's training years has signif
 foundation models used zero-shot (as they are released), on all five variables. It is not: a claim about other
 horizons, about fine-tuned versions of these models, or about other domains.
 
+### Phase 5b results: on fresh NOAA observations, 23 January 2024 to 21 August 2025, Atlas-5K 10M again beats every foundation model on all five variables (Google Colab, A100, 2026-11-17)
+
+Data: NOAA ISD-Lite from the open-data bucket, 1 January 2024 to 24 August 2025 22:00 UTC (the last hour half of the
+reporting stations cover); 11,303 station-year files; 5,670 of 5,672 stations reporting; observed share of hours:
+temperature 77.1%, dew point 76.6%, wind direction 74.8%, wind speed 76.8%, pressure 68.4%. Windows: 709 stations x 145
+forecast starts (00:00 UTC every fourth day, 23 January 2024 to 21 August 2025), 24 h ahead; only observed hours scored
+(1,914,220 per variable); inputs gap-filled causally for every model. No model, ours or theirs, can have trained on
+this period.
+
+| Model (live 2024–25, MAE) | Temperature | Dew point | Wind direction | Wind speed | Pressure | E |
+|---|---|---|---|---|---|---|
+| **Atlas-5K 10M (9.64M)** | **1.4480** | **1.4693** | **64.76** | **1.2103** | **1.6226** | **0.30275** |
+| Atlas-5K v2c (0.97M) | 1.4869 | 1.4978 | 65.40 | 1.2270 | 1.6550 | 0.30708 |
+| TimesFM 3.0 (Google; evaluation only) | 1.8821 | 1.9523 | 71.25 | 1.3526 | 2.0704 | 0.35083 |
+| Chronos-2 multivariate (Amazon, 120M) | 1.8484 | 1.9160 | 70.78 | 1.3672 | 2.1748 | 0.35216 |
+| Chronos-Bolt base (Amazon, 205M) | 1.8985 | 2.0069 | 71.70 | 1.3708 | 2.0918 | 0.35473 |
+| Chronos-2 (Amazon, 120M) | 1.9023 | 1.9592 | 71.84 | 1.3812 | 2.1315 | 0.35594 |
+| TimesFM 2.5 (Google, 200M) | 1.9753 | 1.9913 | 72.45 | 1.3651 | 2.1275 | 0.35751 |
+| Persistence | 3.8072 | 2.1783 | 87.11 | 1.7777 | 2.8416 | 0.46464 |
+
+**Verdict: Atlas-5K 10M beats every opponent on all five variables on the live period** (30 of 30 paired differences
+significant after Holm). Margins: temperature −21.7% to −26.7%, dew point −23.3% to −26.8%, wind direction −8.5% to
+−10.6%, wind speed −10.5% to −12.4%, pressure −21.6% to −25.4%. Closest, TimesFM 3.0: −23.1% [−24.4, −21.8], −24.7%
+[−26.0, −23.4], −9.1% [−10.2, −8.0], −10.5% [−11.3, −9.8], −21.6% [−22.8, −20.5]. **v2c also wins 30 of 30.**
+
+**Predictions:** live, 10M wins all 30 (80%): **held**. Atlas's E at least 3% higher than on 2023 (55%): **held**
+(0.30275 vs 0.27700, +9.3%; wind direction and pressure rise most, consistent with ISD-Lite's different hourly selection
+and calm-wind coding, and with drift). v2c wins all 30 on both periods (75%): **held**.
+
+**Reading.** Every model's error rises on the live period (opponents' E +6% to +7%, Atlas +9%), so Atlas's lead narrows
+slightly, from 16–18% to 14–15% on E, but every per-variable win stays significant. The claim now stands on three
+independent periods: 2022 validation, the 2023 test, and 19 months of fresh 2024–25 observations.
+
 **WB2 — GIFT-Eval** (Salesforce; the main leaderboard for time-series foundation models): its weather and air-quality
 datasets (e.g. KDD Cup 2018 air quality, Jena weather, temperature-rain), scored with its own code against the
 leaderboard's per-dataset results. Rules are written before it runs.

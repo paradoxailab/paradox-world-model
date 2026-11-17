@@ -2666,7 +2666,7 @@ significant after Holm). Margins: temperature −21.7% to −26.7%, dew point �
 (0.30275 vs 0.27700, +9.3%; wind direction and pressure rise most, consistent with ISD-Lite's different hourly selection
 and calm-wind coding, and with drift). v2c wins all 30 on both periods (75%): **held**.
 
-**Reading.** Every model's error rises on the live period (opponents' E +6% to +7%, Atlas +9%), so Atlas's lead narrows
+**Reading.** Every model's error rises on the live period (opponents' E +5% to +7%, Atlas +9%), so Atlas's lead narrows
 slightly, from 16–18% to 14–15% on E, but every per-variable win stays significant. The claim now stands on three
 independent periods: 2022 validation, the 2023 test, and 19 months of fresh 2024–25 observations.
 

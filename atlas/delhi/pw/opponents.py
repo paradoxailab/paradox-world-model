@@ -6,6 +6,11 @@ This file never imports Paradox model code, and nothing here is mixed into Parad
                                                 univariate, and multivariate (all sensors of the network together)
   Chronos-Bolt base (Amazon, 205M, Apache-2.0)  pip install chronos-forecasting
   Chronos-2 (Amazon, 120M, Apache-2.0)          pip install chronos-forecasting
+Added for the WEATHER-5K round of Atlas-5K 25M (atlas/README.md, "Atlas-5K 25M"), evaluation only, zero-shot:
+  Sundial base (Tsinghua THUML, 128M, Apache-2.0)  transformers==4.40.1 (remote code)
+  Time-MoE 200M (Apache-2.0)                       transformers==4.40.1 (remote code)
+  TTM r2 (IBM Research, Apache-2.0)                pip install granite-tsfm
+  TiRex (NX-AI, 35M, NXAI community licence)       pip install tirex-ts
 Each gets a 1,024-step (10.7-day) univariate history per sensor, longer than PWM-W's look-back (684 steps).
 Gaps are forward-filled (then back-filled at the start) because these models expect a contiguous series.
 """
@@ -89,7 +94,107 @@ class Chronos:
         return np.asarray(q.float().cpu()).reshape(len(c), self.H, 3)
 
 
+def _norm(c):
+    """Per-series standardisation on the context (inverted after forecasting); constant series get scale 1."""
+    x = torch.as_tensor(np.asarray(c, np.float32))
+    mu, sd = x.mean(1, keepdim=True), x.std(1, keepdim=True)
+    sd = torch.where(sd > 1e-6, sd, torch.ones_like(sd))
+    return (x - mu) / sd, mu, sd
+
+
+class Sundial:
+    """Sundial base (THUML, Tsinghua University, 128M, Apache-2.0); transformers==4.40.1 (its remote code).
+    Generative: 20 sample paths per series; the median of the samples is scored."""
+    name, licence, params = "Sundial base (Tsinghua THUML, 128M)", "Apache-2.0", 128e6
+
+    def __init__(self, ctx, H, samples=20):
+        from transformers import AutoModelForCausalLM
+        self.m = AutoModelForCausalLM.from_pretrained("thuml/sundial-base-128m", trust_remote_code=True).to(DEV).eval()
+        self.H, self.k = H, samples
+
+    @torch.no_grad()
+    def __call__(self, c):
+        x, mu, sd = _norm(c)
+        out = []
+        for i in range(0, len(x), 512):
+            s = self.m.generate(x[i:i + 512].to(DEV), max_new_tokens=self.H, num_samples=self.k)   # [n, k, H]
+            s = s.reshape(len(x[i:i + 512]), -1, s.shape[-1])[..., -self.H:].float()
+            out.append(torch.quantile(s, torch.tensor([0.1, 0.5, 0.9], device=s.device), dim=1).permute(1, 2, 0).cpu())
+        q = torch.cat(out) * sd[:, :, None] + mu[:, :, None]
+        return q.numpy()
+
+
+class TimeMoE:
+    """Time-MoE (Shi et al., ICLR 2025; Apache-2.0), 50M or 200M; transformers==4.40.1. Point forecast (autoregressive),
+    so the three 'quantiles' are the same value; only the median is scored."""
+    licence = "Apache-2.0"
+
+    def __init__(self, ctx, H, size="200M"):
+        from transformers import AutoModelForCausalLM
+        self.m = AutoModelForCausalLM.from_pretrained(f"Maple728/TimeMoE-{size}", trust_remote_code=True,
+                                                      torch_dtype=torch.float32).to(DEV).eval()
+        self.H, self.name, self.params = H, f"Time-MoE {size} (Shi et al.)", float(size[:-1]) * 1e6
+
+    @torch.no_grad()
+    def __call__(self, c):
+        x, mu, sd = _norm(c)
+        out = []
+        for i in range(0, len(x), 256):                       # 256 series at a time keeps the KV cache under ~10 GB
+            o = self.m.generate(x[i:i + 256].to(DEV), max_new_tokens=self.H)                    # [n, ctx + H]
+            out.append(o[:, -self.H:].float().cpu())
+        p = torch.cat(out) * sd + mu
+        return np.repeat(p.numpy()[..., None], 3, -1)
+
+
+class TTM:
+    """Tiny Time Mixers r2 (IBM Research, about 1-5M, Apache-2.0); pip install granite-tsfm. The published model for a
+    512-step context and the shortest horizon >= H is chosen by IBM's get_model; point forecast."""
+    licence = "Apache-2.0"
+
+    def __init__(self, ctx, H):
+        from tsfm_public.toolkit.get_model import get_model
+        self.m = get_model("ibm-granite/granite-timeseries-ttm-r2", context_length=ctx, prediction_length=H).to(DEV).eval()
+        self.H, self.ctx = H, ctx
+        self.params = float(sum(p.numel() for p in self.m.parameters()))
+        self.name = f"TTM r2 (IBM Research, {self.params / 1e6:.1f}M)"
+
+    @torch.no_grad()
+    def __call__(self, c):
+        x, mu, sd = _norm(c)
+        out = []
+        for i in range(0, len(x), 4096):
+            o = self.m(past_values=x[i:i + 4096, -self.ctx:, None].to(DEV)).prediction_outputs          # [n, >=H, 1]
+            out.append(o[:, :self.H, 0].float().cpu())
+        p = torch.cat(out) * sd + mu
+        return np.repeat(p.numpy()[..., None], 3, -1)
+
+
+class TiRex:
+    """TiRex (NX-AI, 35M, NXAI community licence: evaluation only); pip install tirex-ts. Quantiles 0.1..0.9."""
+    name, licence, params = "TiRex (NX-AI, 35M)", "NXAI community licence (evaluation only)", 35e6
+
+    def __init__(self, ctx, H, repo="NX-AI/TiRex"):
+        from tirex import load_model
+        self.m = load_model(repo, device=DEV)
+        self.H = H
+
+    @torch.no_grad()
+    def __call__(self, c):
+        x, mu, sd = _norm(c)
+        q, _ = self.m.forecast(context=x, prediction_length=self.H, batch_size=1024)          # [n, H, 9]
+        q = torch.as_tensor(q).float().cpu()[..., [0, 4, 8]]
+        return (q * sd[:, :, None] + mu[:, :, None]).numpy()
+
+
 def make(key, ctx, H):
+    if key == "sundial":
+        return Sundial(ctx, H)
+    if key in ("timemoe50", "timemoe200"):
+        return TimeMoE(ctx, H, "50M" if key == "timemoe50" else "200M")
+    if key == "ttm":
+        return TTM(ctx, H)
+    if key == "tirex":
+        return TiRex(ctx, H)
     if key == "tfm25":
         return TFM25(ctx, H)
     if key == "tfm3":

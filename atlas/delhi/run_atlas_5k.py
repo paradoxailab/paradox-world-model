@@ -202,8 +202,9 @@ def main(a):
             model = load_any(f)
             res.update(init=os.path.basename(f), init_params=model.n_params())
             if a.grow:
-                gf, ge, gd = (int(x) for x in a.grow.split(","))
-                model = grow(model, f=gf, enc_depth=ge, dyn_depth=gd, noise=a.grow_noise, seed=a.seed)
+                g = [int(x) for x in a.grow.split(",")]
+                gf, ge, gd = g[:3]
+                model = grow(model, f=gf, enc_depth=ge, dyn_depth=gd, noise=a.grow_noise, seed=a.seed, mlp=g[3] if len(g) > 3 else None)
                 res["grown"] = model.cfg["grown_from"]
             model = model.to(DEV)
             log(f"init from {f}: {res['init_params']:,} parameters" + (f", grown by {a.grow} (width x, encoder, dynamics blocks)" if a.grow else ""))
@@ -214,7 +215,7 @@ def main(a):
             model = DLinear(a.H).to(DEV)
         P = sum(p.numel() for p in model.parameters())
         res["params"] = P
-        assert P <= 10_000_000 or a.model != "atlas", f"{P:,} parameters is over the 10M cap"
+        assert P <= a.max_params or a.model != "atlas", f"{P:,} parameters is over the {a.max_params:,} cap"
         log(f"{a.model}: {P:,} parameters" + (f", width {model.cfg['d']}" if a.model == "atlas" else ""))
         opt = torch.optim.AdamW(model.parameters(), lr=a.lr, weight_decay=a.wd)
         sched = torch.optim.lr_scheduler.OneCycleLR(opt, a.lr, total_steps=a.steps, pct_start=a.warmup)
@@ -303,7 +304,8 @@ def main(a):
     if a.test_if_below is not None:                       # the rule decides, mechanically, whether the test year is used
         res["adopted"] = res["val_E"] <= a.test_if_below
         log(f"RULE: E {res['val_E']:.5f} {'<=' if res['adopted'] else '>'} {a.test_if_below} -> "
-            + ("ADOPTED, scored once on the 2023 test year" if res["adopted"] else "NOT adopted, the test year is not used"))
+            + ("ADOPTED, scored once on the 2023 test year" if res["adopted"] else
+               ("NOT adopted, the test year is not used" if a.no_test else "NOT adopted; scored once on 2023 anyway, as pre-registered")))
     if not a.no_test or res.get("adopted"):
         r = evaluate(model, a.model, bt, N, "test")
         res["test"] = r
@@ -334,8 +336,9 @@ if __name__ == "__main__":
     ap.add_argument("--quick", action="store_true")
     ap.add_argument("--eval", default="", help="checkpoint to score once (validation and the 2023 test); no training")
     ap.add_argument("--init", default="", help="start from this trained checkpoint (training-script or models/series file)")
-    ap.add_argument("--grow", default="", help="f,enc_depth,dyn_depth: width x f, blocks appended (function kept at start)")
+    ap.add_argument("--grow", default="", help="f,enc_depth,dyn_depth[,mlp]: width x f, blocks appended, hidden width mlp x d (function kept at start)")
     ap.add_argument("--grow-noise", type=float, default=0.05)
+    ap.add_argument("--max-params", type=int, default=10_000_000, help="parameter cap (25M run: 25000000, README)")
     ap.add_argument("--wd", type=float, default=1e-4)
     ap.add_argument("--warmup", type=float, default=0.03, help="share of steps spent raising the learning rate")
     ap.add_argument("--test-if-below", type=float, default=None, help="score the test year only if validation E <= this")

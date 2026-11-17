@@ -72,11 +72,11 @@ def main(a):
         r["verdict"] = ("WIN" if r["diff_pct"] < 0 else "LOSS") if p < a.alpha else "TIE"
     for k in res:
         wins = sum(r["verdict"] == "WIN" for r in res[k])
-        print(f"\n{a.ours} vs {k} ({a.year}): {wins}/5 significant wins" + ("  -> FULLY BEATS" if wins == 5 else ""))
+        print(f"\n{a.ours} vs {k} ({a.year}; Holm over {len(allrows)} pairs): {wins}/5 significant wins" + ("  -> FULLY BEATS" if wins == 5 else ""))
         for r in res[k]:
             print(f"  {r['variable']:<19} ours {r['ours']:>8} theirs {r['theirs']:>8}  {r['diff_pct']:+6.2f}% "
                   f"[{r['ci95_pct'][0]:+.2f}, {r['ci95_pct'][1]:+.2f}]  p_holm {r['p_holm']:.2g}  {r['verdict']}")
-    json.dump(res, open(os.path.join(d, f"paired_{a.ours}_{a.year}.json"), "w"), indent=1)
+    json.dump(res, open(os.path.join(d, f"paired_{a.ours}_{a.year}{a.suffix}.json"), "w"), indent=1)
 
 
 if __name__ == "__main__":
@@ -84,4 +84,5 @@ if __name__ == "__main__":
     ap.add_argument("--year", default="val"); ap.add_argument("--ours", default="atlas10m")
     ap.add_argument("--vs", default="tfm25,tfm3,chronos2,chronos-bolt")
     ap.add_argument("--B", type=int, default=10000); ap.add_argument("--alpha", type=float, default=0.01)
+    ap.add_argument("--suffix", default="", help="added to the output name (a new comparison family keeps earlier files)")
     main(ap.parse_args())

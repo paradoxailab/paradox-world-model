@@ -11,6 +11,7 @@ order), to --out:
 The data are NOAA's; they are used here to score forecasts and are not redistributed.
 
   python fetch_isd_live.py --meta /content/raw/W5K_META.npz --out /content/live --years 2024,2025,2026
+  python fetch_isd_live.py ... --end 2025-08-24T23     # the exact Phase 5b period (1 Jan 2024 to 24 Aug 2025 22:00 UTC)
 """
 import argparse, gzip, io, json, os, time, urllib.request
 from concurrent.futures import ThreadPoolExecutor
@@ -98,6 +99,8 @@ def main(a):
     active = rep.any(1)
     share = rep[active].mean(0)
     end = int(np.max(np.nonzero(share >= 0.5)[0])) + 1
+    if a.end:                                                  # a fixed end (exclusive), to rebuild an earlier live period
+        end = min(end, int((np.datetime64(a.end) - START) / np.timedelta64(1, "h")))
     obs = obs[:, :end]
     # causal fill for inputs: carry the last observation forward
     x = obs.copy()
@@ -121,4 +124,5 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--meta", required=True); ap.add_argument("--out", default="/content/live")
     ap.add_argument("--years", default="2024,2025,2026"); ap.add_argument("--workers", type=int, default=32)
+    ap.add_argument("--end", default="", help="exclusive end hour, e.g. 2025-08-24T23 (the Phase 5b period)")
     main(ap.parse_args())

@@ -23,9 +23,9 @@ MAX_PARAMS = 10_000_000
 
 
 class Block(nn.Module):
-    def __init__(self, d):
+    def __init__(self, d, r=2):
         super().__init__()
-        self.n = nn.LayerNorm(d); self.a = nn.Linear(d, 2 * d); self.b = nn.Linear(2 * d, d)
+        self.n = nn.LayerNorm(d); self.a = nn.Linear(d, r * d); self.b = nn.Linear(r * d, d)
 
     def forward(self, x):
         return x + self.b(F.gelu(self.a(self.n(x))))
@@ -72,7 +72,7 @@ class GeoAttention(nn.Module):
 class Atlas(nn.Module):
     def __init__(self, d=64, L=16, H=16, C=1, U=1, enc_depth=2, dyn_depth=2, lat_steps=4, heads=4,
                  spatial=False, geo_dim=3, lo=None, hi=None, conserve=False, dt=1.0, sysid=False, K=1, lags=2, gate=False, fill="rec",
-                 static=0, id_ch=None, phys_dec=False, nbr_mask=False, sp_gate=False, drop=0.0):
+                 static=0, id_ch=None, phys_dec=False, nbr_mask=False, sp_gate=False, drop=0.0, mlp=2):
         super().__init__()
         assert H % lat_steps == 0
         self.cfg = dict(d=d, L=L, H=H, C=C, U=U, enc_depth=enc_depth, dyn_depth=dyn_depth, lat_steps=lat_steps,
@@ -87,16 +87,18 @@ class Atlas(nn.Module):
         if drop:                                              # Atlas v2: dropout on the state (only when on)
             self.cfg["drop"] = float(drop)
         self.drop = float(drop)
+        if mlp != 2:                                          # Atlas-5K 25M: hidden width of each block = mlp x d (only
+            self.cfg["mlp"] = int(mlp)                        # added when not 2, so earlier checkpoints keep their cfg)
         self.L, self.H, self.C, self.U, self.S, self.k = L, H, C, U, lat_steps, H // lat_steps
         self.lo, self.hi, self.conserve, self.dt = lo, hi, conserve, dt
         if isinstance(lo, (list, tuple)):                     # one lower bound per variable (-inf = none)
             self.register_buffer("lo_t", torch.tensor(lo, dtype=torch.float32)[:, None], persistent=False)
         self.inp = nn.Linear(L * (2 * C + U) + static, d)     # static: extra per-node inputs (e.g. daily means)
-        self.enc = nn.ModuleList([Block(d) for _ in range(enc_depth)])
+        self.enc = nn.ModuleList([Block(d, mlp) for _ in range(enc_depth)])
         self.rec = nn.Linear(d, L * C)
         self.sp = GeoAttention(d, heads, geo_dim, nbr_mask=nbr_mask, gate=sp_gate) if spatial else None
         self.uemb = nn.Linear(self.k * U, d)
-        self.dyn = nn.ModuleList([Block(d) for _ in range(dyn_depth)])
+        self.dyn = nn.ModuleList([Block(d, mlp) for _ in range(dyn_depth)])
         self.phys_dec = phys_dec
         # Atlas-P: per hour and variable the decoder gives the equilibrium offset, the relaxation rate and two spreads;
         # the median is then stepped hour by hour: x[t+1] = x[t] + k (x* - x) + kappa (neighbour mean - x)

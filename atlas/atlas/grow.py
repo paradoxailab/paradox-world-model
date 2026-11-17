@@ -9,9 +9,13 @@ times ([z, z, ...]); LayerNorm of a tiled vector equals the tiled LayerNorm, so 
   * attention: q, k, v are tiled per head (new head j = old head j mod h); the geometry bias is tiled per head; the
     scale 1/sqrt(head size) does not change.
 Depth: new encoder and dynamics blocks are appended with the output layer at zero, so each starts as the identity.
+Hidden width (README, "Atlas-5K 25M"): each block's hidden layer goes from r*d to mlp*d units. The old units keep their
+weights; the new ones get a fresh random input layer and a ZERO output layer, so they add nothing at the start (exact)
+and learn from the first step (their output weights get gradients at once, their input weights right after).
 
   from atlas.grow import grow
-  big = grow(small_model, f=2, enc_depth=7, dyn_depth=7, noise=0.05, seed=0)
+  big = grow(small_model, f=2, enc_depth=7, dyn_depth=7, noise=0.05, seed=0)           # 1M -> 10M
+  big = grow(model_10m, f=1, enc_depth=8, dyn_depth=7, mlp=5, seed=0)                 # 10M -> 24M
 """
 import torch
 
@@ -37,13 +41,17 @@ def _tile_in(w, f, noise, gen):
 
 
 @torch.no_grad()
-def grow(small, f=2, enc_depth=None, dyn_depth=None, noise=0.05, seed=0):
-    cfg = dict(small.cfg)
+def grow(small, f=2, enc_depth=None, dyn_depth=None, noise=0.05, seed=0, mlp=None):
+    cfg = {k: v for k, v in small.cfg.items() if k != "grown_from"}
     assert not cfg.get("sysid") and not cfg.get("phys_dec") and not cfg.get("sp_gate"), "grow() covers the plain Atlas only"
     d, h = cfg["d"], cfg["heads"]
     e0, y0 = cfg["enc_depth"], cfg["dyn_depth"]
-    cfg.update(d=f * d, heads=f * h, enc_depth=enc_depth or e0, dyn_depth=dyn_depth or y0)
+    r0 = cfg.get("mlp", 2)
+    r1 = mlp or r0
+    assert r1 >= r0
+    cfg.update(d=f * d, heads=f * h, enc_depth=enc_depth or e0, dyn_depth=dyn_depth or y0, mlp=r1)
     assert cfg["enc_depth"] >= e0 and cfg["dyn_depth"] >= y0
+    torch.manual_seed(seed)                                         # the new units' random input layers
     big = Atlas(**cfg)
     gen = torch.Generator().manual_seed(seed)
     s, b = small.state_dict(), big.state_dict()
@@ -59,8 +67,14 @@ def grow(small, f=2, enc_depth=None, dyn_depth=None, noise=0.05, seed=0):
 
     def block(p):
         new[p + ".n.weight"], new[p + ".n.bias"] = _tile_out(s[p + ".n.weight"], f), _tile_out(s[p + ".n.bias"], f)
-        lin(p + ".a", out_tile=True, in_tile=True)                 # stream -> hidden (2d -> 2fd)
+        lin(p + ".a", out_tile=True, in_tile=True)                 # stream -> hidden (r d -> r f d)
         lin(p + ".b", out_tile=True, in_tile=True)                 # hidden -> stream
+        if r1 > r0:                                                # extra hidden units: random in, zero out
+            n0 = new[p + ".a.weight"].shape[0]
+            wa, ba = b[p + ".a.weight"].clone(), b[p + ".a.bias"].clone()
+            wa[:n0], ba[:n0] = new[p + ".a.weight"], new[p + ".a.bias"]
+            wb = torch.zeros_like(b[p + ".b.weight"]); wb[:, :n0] = new[p + ".b.weight"]
+            new[p + ".a.weight"], new[p + ".a.bias"], new[p + ".b.weight"] = wa, ba, wb
 
     lin("inp", out_tile=True)
     for i in range(e0):
@@ -84,7 +98,9 @@ def grow(small, f=2, enc_depth=None, dyn_depth=None, noise=0.05, seed=0):
     for k in new:
         assert new[k].shape == b[k].shape, (k, new[k].shape, b[k].shape)
     big.load_state_dict(new)
-    big.cfg["grown_from"] = dict(d=d, heads=h, enc_depth=e0, dyn_depth=y0, f=f, noise=noise, seed=seed)
+    big.cfg["grown_from"] = dict(d=d, heads=h, enc_depth=e0, dyn_depth=y0, mlp=r0, f=f, mlp_to=r1, noise=noise, seed=seed)
+    if "grown_from" in small.cfg:                                  # keep the history (1M -> 10M -> ...)
+        big.cfg["grown_from"]["before"] = small.cfg["grown_from"]
     return big
 
 

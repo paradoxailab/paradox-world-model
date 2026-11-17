@@ -2670,6 +2670,86 @@ and calm-wind coding, and with drift). v2c wins all 30 on both periods (75%): **
 slightly, from 16–18% to 14–15% on E, but every per-variable win stays significant. The claim now stands on three
 independent periods: 2022 validation, the 2023 test, and 19 months of fresh 2024–25 observations.
 
+### Atlas-5K 25M: the 10M model grown again, and a wider field of opponents (rules and predictions written 2026-11-17 23:30 IST, before any of these runs)
+
+**Decision (Adi, 2026-11-17).** Grow the adopted 10M model to about 25M parameters and test it against TimesFM, Chronos
+and other foundation models, including Chinese ones. **The 10M cap is lifted for this one model, to 25M**
+(`run_atlas_5k.py --max-params 25000000`). This is Adi's decision, not one the threshold fit made. The earlier note
+said a larger model would follow only if the fit predicted it pays; the fit at 24 h has two measured sizes, so it cannot
+yet say. The 10M entry stays published whatever happens here.
+
+**What this round can and cannot claim.** Atlas is a station weather model: it forecasts five variables at a station
+from its own and its 31 nearest neighbours' last 48 hours. The benchmark it can enter is WEATHER-5K (validation 2022,
+test 2023) and the live NOAA period built in Phase 5b. "Every benchmark" is not in reach of this model: GIFT-Eval,
+the traffic sets and WeatherBench 2 need other models (the traffic round is ParadoxBench-1.3, separate; GIFT-Eval and
+WeatherBench 2 are not attempted, see WB2/WB3). No Indian time-series foundation model with open weights was found; the
+Indian forecasts already compared are IITM WRF-Chem and IMD SILAM, on Delhi air quality (above).
+
+**Model** (`atlas/grow.py`, `run_atlas_5k.py --init <10M> --grow 1,8,7,5`). The adopted 10M
+(`w5k_atlas_10m_h24_g1_s600.pt`, 9,639,780 parameters, width 392, 8 heads, 7 encoder and 7 dynamics blocks, hidden layer
+2 x 392 per block) grown to **24,103,796 parameters**:
+* the hidden layer of every block goes from 784 to 1,960 units (5 x 392). The old units keep their weights. The new ones
+  get a random input layer and a zero output layer, so they add nothing at the start and learn from the first step.
+* one encoder block is appended with its output layer at zero (8 encoder, 7 dynamics).
+* width, heads and the spatial attention are unchanged.
+
+The grown model computes the 10M model's forecasts: the largest difference on random inputs is 1.8e-5, against outputs
+of about 2.5, from summation order only. Why hidden width rather than width again: doubling the width would give about
+38M parameters. Width can only be grown exactly by whole multiples, because LayerNorm must see a tiled vector.
+
+**Training.** As the 10M run except for two changes: peak learning rate **2e-4** (10M: 3e-4) and the parameter cap. The
+choice of 2e-4 is a guess written down now: in the 10M run, validation rose for the first ~34,000 steps at 3e-4 before
+falling below its start, and a lower peak should lose less of the starting point. Everything else is the same:
+* 80,000 steps, batch 256, 32 stations per neighbourhood, all 2014–2021 training days, seed 600.
+* pinball loss plus the masked-input reconstruction term; AdamW, 3% warm-up then one-cycle decay, weight decay 1e-4.
+* validation every 2,000 steps on the same 300 stations, patience 8, best checkpoint kept.
+* resumable from Drive.
+
+Compute: Google Colab, ParadoxAI Lab's Google AI Pro plan. The GPU is recorded with the result.
+
+**Check G0 (growth).** The step-0 validation equals the 10M's best on the same 300 stations (0.2741) within 0.5%;
+otherwise the run is stopped and not counted.
+
+**Rule 25M-A (validation only).** E as for every Atlas-5K entry: the standardised mean of the five variables' MAE on the
+2022 validation year, every 4th station, every 6th hour. The 25M is **adopted** as the WB1 entry at 24 h if E ≤
+**0.27316**, 1% below the 10M's 0.27592; otherwise the 10M stays the entry. The 25M is scored on the 2023 test once
+**whether or not it is adopted** (written now, so the test cannot steer anything): on all stations and every hour for
+WB1, and on the head-to-head windows. The entry is chosen by validation only.
+
+**Head-to-head, widened (Phase 6).** Windows exactly as Phase 1a/5:
+* 709 stations (every 8th), 24 h ahead, 512 h of history for the opponents and 48 h for Atlas, median scored.
+* 2023 test: a start every 2nd day.
+* Live: a start every 4th day, 23 Jan 2024 to 21 Aug 2025, on the Phase 5b data rebuilt with
+  `fetch_isd_live.py --end 2025-08-24T23`.
+
+*Data check:* the 10M re-scored on the rebuilt live data must give exactly the per-window counts and errors saved in
+Phase 5b. If not, the old live files are set aside and every earlier model is re-scored on the rebuilt data before any
+new comparison.
+
+*Opponents added*, all zero-shot and evaluation only, scored on the 2023 test and the live period (their 2022 validation
+is not needed: no choice depends on it):
+* Sundial base (Tsinghua University THUML, 128M; median of 20 sample paths).
+* Time-MoE 200M (the largest public Time-MoE).
+* TTM r2 (IBM Research; IBM's own selector picks the 512-hour-context model).
+* TiRex (NX-AI, 35M; licence: evaluation only).
+
+These join persistence, Chronos-Bolt, Chronos-2 (univariate and multivariate), TimesFM 2.5 and TimesFM 3.0, whose
+saved per-window errors are reused unchanged. An opponent that fails to load in its documented setup is reported as not
+scored; it is not tuned.
+
+*Paired tests:* as before (station-block bootstrap 10,000 plus Diebold–Mariano, Holm over the family, alpha 0.01), now
+over 10 opponents x 5 variables = 50 pairs per model per period (files `paired_*_r25.json`). The Phase 5 results (30
+pairs) stand as published. The 25M is also compared directly with the 10M on validation, test and live (`_vs10m`).
+
+**Claim.** "Atlas beats model X on WEATHER-5K at 24 h" is made for a period only if all five variables are significant
+wins after Holm. Anything less is reported as it is.
+
+**Predictions.** G0 passes (90%). The 25M is adopted (35%: going from 1M to 10M gained 1.95%, and 2.5x more parameters
+should gain less, probably under the 1% bar). Its validation E is between 0.268 and 0.276 (70%). On both the test and
+live periods it beats all ten opponents on all five variables, 50 of 50 (80%). No new opponent's test E is below 0.31
+(80%); the best new one is TiRex or Sundial (60%). The 25M's paired difference against the 10M is significant on at
+least three of five variables on the test windows (50%).
+
 **WB2 — GIFT-Eval** (Salesforce; the main leaderboard for time-series foundation models): its weather and air-quality
 datasets (e.g. KDD Cup 2018 air quality, Jena weather, temperature-rain), scored with its own code against the
 leaderboard's per-dataset results. Rules are written before it runs.

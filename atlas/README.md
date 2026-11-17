@@ -2497,6 +2497,39 @@ global model represents; that is the next target. Compute: about 2.5 A100-hours 
 validation and the two test scorings the rest). Model file: `models/series/58_atlas-5k-10m_weather5k_adopted.pt` (with its
 dataset, metadata and results inside); run outputs in `results/colab/w5k_atlas_10m_h24_g1/`.
 
+### Head-to-head on WEATHER-5K and the minimum threshold function (rules and predictions written 2026-11-17 14:45 IST, before any of these runs)
+
+Plan: "PWM Minimum Threshold Function & Head-to-Head Plan" (Claude Doc). Goal: (1) score TimesFM and Chronos on exactly
+the windows Atlas is scored on, with paired tests; (2) fit and verify the minimum threshold function E(N, P) of Atlas on
+WEATHER-5K and invert it into the least data and the fewest parameters that beat each opponent.
+
+**Phase 1a: opponents on the 2022 validation year (targets; the test year is not touched).** `delhi/score_tsfm_w5k.py`.
+Windows: every 4th station (1,418), forecast starts at 00:00 UTC every day of 2022 whose 48-hour history lies inside the
+year (363 starts), 24 h ahead, five variables. A window-variable counts when the truth hour is observed and the station
+has at least one observation of that variable in the 48 h before the start. Models: Atlas-5K 10M (#58) and v2c (#57);
+TimesFM 2.5 (200M), TimesFM 3.0 (evaluation only), Chronos-2 (120M) univariate and multivariate (five variables together),
+Chronos-Bolt base; persistence as a reference. Opponents get 512 hours of their own history (Atlas reads 48), gaps
+forward-filled, median forecast scored. Nothing is trained on their outputs. Paired comparison `delhi/paired_w5k.py`:
+station-block bootstrap (10,000) and Diebold-Mariano on daily mean differences; Holm over all (opponent, variable) pairs;
+alpha 0.01. On validation these are reported as targets and evidence only; a claim ("beats", "fully beats") is made only
+on the 2023 test in Phase 5.
+
+**Phase 2: the threshold grid.** Atlas-5K from scratch, WB1-T recipe (the existing four 1M points), sizes 0.1M, 0.3M, 1M,
+3M, 10M x nested shares 1/64, 1/16, 1/4, all of the 2014–2021 training days; plus 1M at 1/32, 1/8, 1/2 and a second seed
+of 1M-all and 10M-all. Score: validation E. **Phase 3:** forms A (data only, per size), B (c + a N^-alpha + b P^-beta), C
+(interacting) fitted on the 12 cells with N <= 1/4 and P <= 3M; held out: the all-data column and the 10M row (8 cells).
+A form is **verified** if on the held-out cells its median absolute error is <= 3% and its largest <= 6%, and it beats the
+nearest-cell baseline; a miss within twice the seed-to-seed spread counts as within noise. The verified form with the
+lowest held-out error is the MTF; it is inverted for E* = 0.97 x each opponent's validation E. If no form passes, that is
+reported and no extrapolated claim is made. **Phase 4:** a 37.7M model (the 10M grown again) is trained only if the MTF
+predicts >= 1% gain at all data with the lower end of its 80% interval still a gain; adopted if validation E <= 0.2732
+and inside the MTF's 80% interval (the 10M cap is lifted in writing first).
+
+**Predictions.** Atlas-5K 10M has lower validation MAE than TimesFM 2.5, TimesFM 3.0 and Chronos-2 (each) on all five
+variables (85%); the largest margin is on wind direction or dew point, the smallest on pressure (60%); Chronos-2
+multivariate beats Chronos-2 univariate on E (55%). Form B is verified (55%); at all data a 10M model from scratch beats
+1M from scratch (60%); the minimum size that beats TimesFM 2.5 at all data is <= 1M (70%).
+
 **WB2 — GIFT-Eval** (Salesforce; the main leaderboard for time-series foundation models): its weather and air-quality
 datasets (e.g. KDD Cup 2018 air quality, Jena weather, temperature-rain), scored with its own code against the
 leaderboard's per-dataset results. Rules are written before it runs.

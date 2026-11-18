@@ -153,7 +153,8 @@ the validation pass ran twice and the two passes differ in the fifth decimal (se
 ## Models
 
 All released weights are in [`models/series/`](models/series) (56 files, 508.6 MB, SHA-256 in `SHA256SUMS`, index in
-`SERIES.json`). Each file holds the weights, the configuration, the dataset name and every result for that model.
+`SERIES.json`).
+The same 56 models are on **Hugging Face** at [huggingface.co/paradoxailab](https://huggingface.co/paradoxailab), one repository per model with its model card, oldest first in the index [paradoxailab/paradox-world-model-series](https://huggingface.co/paradoxailab/paradox-world-model-series); every uploaded file's SHA-256 was checked against `SHA256SUMS` after upload. Each file holds the weights, the configuration, the dataset name and every result for that model.
 The Atlas-5K line:
 
 | # | File | Params | Size | 2023 test E (h2h) | Status |

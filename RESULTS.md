@@ -1,5 +1,7 @@
 # Results
 
+> **Newest results (2026-11-19): Atlas-5K 10M and 25M on WEATHER-5K** (head-to-head with nine foundation-model configurations on the 2023 test and fresh 2024–25 NOAA data) are in the main [README](README.md#latest-atlas-5k-10m-and-25m-on-weather-5k-2026-11-19) and [`atlas/README.md`](atlas/README.md). This page covers PWM-Dyn and ParadoxBench.
+
 Every number below was produced by the code in this repository on real public data, scored by one
 shared evaluation function on identical held-out test windows. Nothing is estimated.
 

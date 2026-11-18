@@ -1,0 +1,22 @@
+\begin{table}[h]
+\centering\scriptsize
+\setlength{\tabcolsep}{4pt}
+\caption{Opponents as run. All are zero-shot with 512 hourly context values per station and variable, the median (or point) forecast is scored, and no opponent was fine-tuned. Minutes: wall-clock on one A100 for the 2023 test windows. Licences as stated by each model's publisher at the time of the run.}
+\label{tab:opp}
+\begin{tabular}{lllrrl}
+\toprule
+Model & Publisher & Params & Context & Minutes & Licence\\
+\midrule
+TimesFM 3.0 & Google & n/a & 512 & 22.1 & non-commercial research (eval. only)\\
+Chronos-2 multivariate & Amazon & 120M & 512 & 7.0 & Apache-2.0\\
+TiRex & NX-AI & 35M & 512 & 14.4 & NXAI community (eval. only)\\
+Chronos-2 & Amazon & 120M & 512 & 7.5 & Apache-2.0\\
+TimesFM 2.5 & Google & 200M & 512 & 5.8 & Apache-2.0\\
+Sundial base & Tsinghua THUML & 128M & 512 & 22.5 & Apache-2.0\\
+Chronos-Bolt base & Amazon & 205M & 512 & 5.0 & Apache-2.0\\
+Time-MoE & Shi et al. & 200M & 512 & 160.2 & Apache-2.0\\
+TTM r2 & IBM Research & 0.8M & 512 & 0.2 & Apache-2.0\\
+Persistence & -- & 0 & 512 & 0.0 & --\\
+\bottomrule
+\end{tabular}
+\end{table}

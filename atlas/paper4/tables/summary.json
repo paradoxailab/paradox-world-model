@@ -1,0 +1,68 @@
+{
+ "wins": {
+  "('atlas25m', 'test')": 50,
+  "('atlas25m', 'live')": 50,
+  "('atlas10m', 'test')": 50,
+  "('atlas10m', 'live')": 50
+ },
+ "pmax": {
+  "('atlas25m', 'test')": 0.005,
+  "('atlas25m', 'live')": 0.005,
+  "('atlas10m', 'test')": 0.005,
+  "('atlas10m', 'live')": 0.005
+ },
+ "rng": {
+  "('atlas25m', 'test')": [
+   11.02,
+   48.16
+  ],
+  "('atlas25m', 'live')": [
+   9.05,
+   43.09
+  ],
+  "('atlas10m', 'test')": [
+   10.21,
+   47.92
+  ],
+  "('atlas10m', 'live')": [
+   8.51,
+   43.15
+  ]
+ },
+ "best_fm": {
+  "test": "tfm3",
+  "live": "tfm3"
+ },
+ "E": {
+  "test": {
+   "atlas25m": 0.2742,
+   "atlas10m": 0.277,
+   "v2c": 0.2822,
+   "tfm3": 0.3303,
+   "chronos2mv": 0.3313,
+   "tirex": 0.3326,
+   "chronos2": 0.3343,
+   "tfm25": 0.3355,
+   "sundial": 0.336,
+   "chronos-bolt": 0.3372,
+   "timemoe200": 0.3408,
+   "ttm": 0.3647,
+   "persist": 0.4361
+  },
+  "live": {
+   "atlas25m": 0.3007,
+   "atlas10m": 0.3028,
+   "v2c": 0.3071,
+   "tfm3": 0.3508,
+   "chronos2mv": 0.3522,
+   "chronos-bolt": 0.3547,
+   "tirex": 0.3558,
+   "chronos2": 0.3559,
+   "sundial": 0.3572,
+   "tfm25": 0.3575,
+   "timemoe200": 0.3665,
+   "ttm": 0.3829,
+   "persist": 0.4646
+  }
+ }
+}

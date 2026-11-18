@@ -2769,7 +2769,7 @@ As in the 10M run, validation first rose above the starting point while the lear
 against 3e-4. It went back below the start at step 38,000 (10M: 36,000) and was flat over the last 10,000 steps.
 
 **Rule 25M-A: ADOPTED, by a narrow margin.** Final validation 2022 (every 4th station, every 6th hour): MAE 1.388 /
-1.464 / 53.28 / 1.177 / 1.478 (T / Td / WD / WS / SLP), **E 0.27308** against the bar of **0.27316**. That is **−1.03%**
+1.464 / 53.28 / 1.177 / 1.478 (T / Td / WD / WS / SLP), **E 0.27307** against the bar of **0.27316**. (Correction, 2026-11-19: this line first said 0.27308. The validation pass ran twice, because the first session died before the test: the first pass logged 0.27308, the rerun 0.27307 (wind direction 53.2820 against 53.2819, GPU summation order). The result file holds 0.27307; the verdict is the same.) That is **−1.03%**
 against the 10M's 0.27592. Every variable improves on the 10M: −2.1%, −1.2%, −1.1%, −0.9%, −0.4%. The margin over the
 bar is 0.00008, under 0.03% of E. A second seed could fall on either side of it. The rule was written before the run, so
 the 25M is adopted, but this is not a robust 1% gain. Only one seed was run.

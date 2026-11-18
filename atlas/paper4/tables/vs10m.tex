@@ -1,0 +1,18 @@
+\begin{table}[h]
+\centering\scriptsize
+\setlength{\tabcolsep}{3pt}
+\caption{Atlas-5K 24M against its parent 10M, paired on identical windows: MAE difference in \%, 95\% bootstrap interval, and Holm-adjusted $p$ (over the five variables). Validation: the adoption rule's 2022 stations.}
+\label{tab:vs10m}
+\begin{tabular}{lccccc}
+\toprule
+Period & Temp. & Dew pt. & Wind dir. & Wind spd. & Pressure\\
+\midrule
+2022 validation & $-2.12$ [-2.26, -1.98] & $-1.19$ [-1.29, -1.09] & $-1.10$ [-1.19, -1.02] & $-0.93$ [-1.01, -0.84] & $-0.42$ [-0.57, -0.28]\\
+ & $p=0.0005$ & $p=0.0005$ & $p=0.0005$ & $p=0.0005$ & $p=0.0016$\\[2pt]
+2023 test & $-2.06$ [-2.20, -1.93] & $-1.04$ [-1.16, -0.92] & $-1.07$ [-1.15, -0.98] & $-0.90$ [-0.99, -0.82] & $-0.45$ [-0.60, -0.31]\\
+ & $p=0.0005$ & $p=0.0005$ & $p=0.0005$ & $p=0.0005$ & $p=0.017$ (tie)\\[2pt]
+Live 2024--25 & $-1.86$ [-2.01, -1.70] & $-1.08$ [-1.20, -0.95] & $-0.59$ [-0.70, -0.48] & $-0.66$ [-0.75, -0.58] & $+0.10$ [-0.08, +0.28]\\
+ & $p=0.0005$ & $p=0.0005$ & $p=0.0005$ & $p=0.0005$ & $p=0.56$ (tie)\\[2pt]
+\bottomrule
+\end{tabular}
+\end{table}

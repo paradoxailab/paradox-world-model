@@ -140,5 +140,88 @@
   "context_hours": 512,
   "minutes": 22.1,
   "minutes_total": 22.1
+ },
+ "atlas25m": {
+  "MAE": {
+   "Temperature": 1.3905,
+   "Dewpoint": 1.4595,
+   "Wind direction": 53.9262,
+   "Wind speed": 1.1787,
+   "Sea-level pressure": 1.4655
+  },
+  "E": 0.27417312972235897,
+  "points": 3096912,
+  "name": "w5k_atlas_25m_h24_g2_s600.pt",
+  "params": 24103796,
+  "neighbours": 32,
+  "minutes_total": 0.2
+ },
+ "tirex": {
+  "MAE": {
+   "Temperature": 1.8998,
+   "Dewpoint": 1.9552,
+   "Wind direction": 64.3802,
+   "Wind speed": 1.3248,
+   "Sea-level pressure": 1.948
+  },
+  "E": 0.33261179233886784,
+  "points": 3096912,
+  "name": "TiRex (NX-AI, 35M)",
+  "licence": "NXAI community licence (evaluation only)",
+  "params": 35000000.0,
+  "context_hours": 512,
+  "minutes": 14.3,
+  "minutes_total": 14.4
+ },
+ "ttm": {
+  "MAE": {
+   "Temperature": 2.1748,
+   "Dewpoint": 2.1555,
+   "Wind direction": 65.79,
+   "Wind speed": 1.3586,
+   "Sea-level pressure": 2.8268
+  },
+  "E": 0.3646501382442149,
+  "points": 3096912,
+  "name": "TTM r2 (IBM Research, 0.8M)",
+  "licence": "Apache-2.0",
+  "params": 799756.0,
+  "context_hours": 512,
+  "minutes": 0.2,
+  "minutes_total": 0.2
+ },
+ "sundial": {
+  "MAE": {
+   "Temperature": 1.9234,
+   "Dewpoint": 2.0075,
+   "Wind direction": 64.0902,
+   "Wind speed": 1.338,
+   "Sea-level pressure": 2.0276
+  },
+  "E": 0.3359833276023436,
+  "points": 3096912,
+  "name": "Sundial base (Tsinghua THUML, 128M)",
+  "licence": "Apache-2.0",
+  "params": 128000000.0,
+  "context_hours": 512,
+  "minutes": 22.5,
+  "minutes_total": 22.5
+ },
+ "timemoe200": {
+  "MAE": {
+   "Temperature": 1.9547,
+   "Dewpoint": 2.0371,
+   "Wind direction": 65.4835,
+   "Wind speed": 1.3631,
+   "Sea-level pressure": 1.9892
+  },
+  "E": 0.3407973156374145,
+  "points": 3096912,
+  "name": "Time-MoE 200M (Shi et al.)",
+  "licence": "Apache-2.0",
+  "params": 200000000.0,
+  "context_hours": 512,
+  "minutes": 160.2,
+  "minutes_total": 160.2
  }
 }

@@ -221,5 +221,22 @@
   "context_hours": 512,
   "minutes": 17.9,
   "minutes_total": 17.9
+ },
+ "timemoe200": {
+  "MAE": {
+   "Temperature": 1.9927,
+   "Dewpoint": 2.0485,
+   "Wind direction": 75.2665,
+   "Wind speed": 1.3969,
+   "Sea-level pressure": 2.1147
+  },
+  "E": 0.3664761636019067,
+  "points": 1914220,
+  "name": "Time-MoE 200M (Shi et al.)",
+  "licence": "Apache-2.0",
+  "params": 200000000.0,
+  "context_hours": 512,
+  "minutes": 127.7,
+  "minutes_total": 127.7
  }
 }

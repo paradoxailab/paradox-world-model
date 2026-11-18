@@ -12,7 +12,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 3.541557135796908e-232,
    "points": 1914220,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -27,7 +27,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 5.017399107481891e-188,
    "points": 1900577,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -42,7 +42,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 0.0,
    "points": 1854976,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -57,7 +57,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 0.0,
    "points": 1907953,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -72,7 +72,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 4.287647777244226e-113,
    "points": 1702837,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   }
  ],
@@ -89,7 +89,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 6.997935219160961e-97,
    "points": 1914220,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -104,7 +104,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 1.289010698924193e-82,
    "points": 1900577,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -119,7 +119,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 2.273777708264809e-96,
    "points": 1854976,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -134,7 +134,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 2.3297346435834215e-80,
    "points": 1907953,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -149,7 +149,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 7.653612832949999e-77,
    "points": 1702837,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   }
  ],
@@ -166,7 +166,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 6.129250890992159e-108,
    "points": 1914220,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -181,7 +181,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 2.502522970566871e-75,
    "points": 1900577,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -196,7 +196,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 1.7407751407538534e-84,
    "points": 1854976,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -211,7 +211,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 2.1564238095776793e-95,
    "points": 1907953,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -226,7 +226,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 1.5613817669758784e-59,
    "points": 1702837,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   }
  ],
@@ -243,7 +243,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 1.2138462581349748e-115,
    "points": 1914220,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -258,7 +258,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 2.1713857540311773e-80,
    "points": 1900577,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -273,7 +273,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 7.613555434457023e-68,
    "points": 1854976,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -288,7 +288,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 1.5903303379494961e-96,
    "points": 1907953,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -303,7 +303,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 8.088053114045897e-61,
    "points": 1702837,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   }
  ],
@@ -320,7 +320,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 1.1238110857848869e-120,
    "points": 1914220,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -335,7 +335,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 7.659389902722152e-79,
    "points": 1900577,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -350,7 +350,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 1.7122214809577374e-119,
    "points": 1854976,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -365,7 +365,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 3.1643826679046343e-97,
    "points": 1907953,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -380,7 +380,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 1.5753576420857917e-73,
    "points": 1702837,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   }
  ],
@@ -397,7 +397,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 4.049046182099838e-100,
    "points": 1914220,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -412,7 +412,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 2.937798864065866e-74,
    "points": 1900577,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -427,7 +427,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 2.589605639841651e-83,
    "points": 1854976,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -442,7 +442,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 1.1768980699915781e-82,
    "points": 1907953,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -457,7 +457,84 @@
    "p_bootstrap": 0.0001,
    "p_dm": 1.5644922715224186e-59,
    "points": 1702837,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
+   "verdict": "WIN"
+  }
+ ],
+ "ttm": [
+  {
+   "variable": "Temperature",
+   "ours": 1.4212,
+   "theirs": 2.1758,
+   "diff_pct": -34.68,
+   "ci95_pct": [
+    -36.19,
+    -33.17
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 2.598413490287108e-115,
+   "points": 1914220,
+   "p_holm": 0.005,
+   "verdict": "WIN"
+  },
+  {
+   "variable": "Dewpoint",
+   "ours": 1.4534,
+   "theirs": 2.1205,
+   "diff_pct": -31.46,
+   "ci95_pct": [
+    -32.91,
+    -29.99
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 3.103245241713173e-63,
+   "points": 1900577,
+   "p_holm": 0.005,
+   "verdict": "WIN"
+  },
+  {
+   "variable": "Wind direction",
+   "ours": 64.3764,
+   "theirs": 74.2793,
+   "diff_pct": -13.33,
+   "ci95_pct": [
+    -14.25,
+    -12.39
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 2.4137977558945536e-236,
+   "points": 1854976,
+   "p_holm": 0.005,
+   "verdict": "WIN"
+  },
+  {
+   "variable": "Wind speed",
+   "ours": 1.2023,
+   "theirs": 1.3747,
+   "diff_pct": -12.54,
+   "ci95_pct": [
+    -13.27,
+    -11.81
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 4.0276189494356815e-115,
+   "points": 1907953,
+   "p_holm": 0.005,
+   "verdict": "WIN"
+  },
+  {
+   "variable": "Sea-level pressure",
+   "ours": 1.6242,
+   "theirs": 2.8541,
+   "diff_pct": -43.09,
+   "ci95_pct": [
+    -44.62,
+    -41.56
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 8.075326130429825e-82,
+   "points": 1702837,
+   "p_holm": 0.005,
    "verdict": "WIN"
   }
  ],
@@ -474,7 +551,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 4.53508756968388e-146,
    "points": 1914220,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -489,7 +566,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 1.8318911970692104e-75,
    "points": 1900577,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -504,7 +581,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 1.504568297933901e-136,
    "points": 1854976,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -519,7 +596,7 @@
    "p_bootstrap": 0.0001,
    "p_dm": 7.643591034540568e-92,
    "points": 1907953,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
    "verdict": "WIN"
   },
   {
@@ -534,7 +611,161 @@
    "p_bootstrap": 0.0001,
    "p_dm": 1.1711423650071894e-60,
    "points": 1702837,
-   "p_holm": 0.0035,
+   "p_holm": 0.005,
+   "verdict": "WIN"
+  }
+ ],
+ "sundial": [
+  {
+   "variable": "Temperature",
+   "ours": 1.4212,
+   "theirs": 1.9315,
+   "diff_pct": -26.42,
+   "ci95_pct": [
+    -27.74,
+    -25.1
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 2.2010927240253137e-95,
+   "points": 1914220,
+   "p_holm": 0.005,
+   "verdict": "WIN"
+  },
+  {
+   "variable": "Dewpoint",
+   "ours": 1.4534,
+   "theirs": 1.9979,
+   "diff_pct": -27.25,
+   "ci95_pct": [
+    -28.55,
+    -25.93
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 9.182698255783674e-79,
+   "points": 1900577,
+   "p_holm": 0.005,
+   "verdict": "WIN"
+  },
+  {
+   "variable": "Wind direction",
+   "ours": 64.3764,
+   "theirs": 72.7421,
+   "diff_pct": -11.5,
+   "ci95_pct": [
+    -12.43,
+    -10.55
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 8.947586307335048e-182,
+   "points": 1854976,
+   "p_holm": 0.005,
+   "verdict": "WIN"
+  },
+  {
+   "variable": "Wind speed",
+   "ours": 1.2023,
+   "theirs": 1.3629,
+   "diff_pct": -11.78,
+   "ci95_pct": [
+    -12.53,
+    -11.03
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 2.761594371713224e-95,
+   "points": 1907953,
+   "p_holm": 0.005,
+   "verdict": "WIN"
+  },
+  {
+   "variable": "Sea-level pressure",
+   "ours": 1.6242,
+   "theirs": 2.1196,
+   "diff_pct": -23.37,
+   "ci95_pct": [
+    -24.53,
+    -22.21
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 4.956980027303633e-71,
+   "points": 1702837,
+   "p_holm": 0.005,
+   "verdict": "WIN"
+  }
+ ],
+ "timemoe200": [
+  {
+   "variable": "Temperature",
+   "ours": 1.4212,
+   "theirs": 1.9927,
+   "diff_pct": -28.68,
+   "ci95_pct": [
+    -30.0,
+    -27.34
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 1.7414453910386515e-127,
+   "points": 1914220,
+   "p_holm": 0.005,
+   "verdict": "WIN"
+  },
+  {
+   "variable": "Dewpoint",
+   "ours": 1.4534,
+   "theirs": 2.0485,
+   "diff_pct": -29.05,
+   "ci95_pct": [
+    -30.37,
+    -27.69
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 2.0311289360867385e-78,
+   "points": 1900577,
+   "p_holm": 0.005,
+   "verdict": "WIN"
+  },
+  {
+   "variable": "Wind direction",
+   "ours": 64.3764,
+   "theirs": 75.2666,
+   "diff_pct": -14.47,
+   "ci95_pct": [
+    -15.28,
+    -13.64
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 0.0,
+   "points": 1854976,
+   "p_holm": 0.005,
+   "verdict": "WIN"
+  },
+  {
+   "variable": "Wind speed",
+   "ours": 1.2023,
+   "theirs": 1.3969,
+   "diff_pct": -13.93,
+   "ci95_pct": [
+    -14.61,
+    -13.24
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 8.282695649195398e-160,
+   "points": 1907953,
+   "p_holm": 0.005,
+   "verdict": "WIN"
+  },
+  {
+   "variable": "Sea-level pressure",
+   "ours": 1.6242,
+   "theirs": 2.1147,
+   "diff_pct": -23.2,
+   "ci95_pct": [
+    -24.3,
+    -22.11
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 1.4621284284468074e-66,
+   "points": 1702837,
+   "p_holm": 0.005,
    "verdict": "WIN"
   }
  ]

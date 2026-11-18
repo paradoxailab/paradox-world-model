@@ -33,23 +33,24 @@ ax.set_ylim(0.269, 0.285); ax.set_xlim(-2, 162)
 ax.legend(frameon=False, loc="lower left", fontsize=7.5)
 fig.tight_layout(); fig.savefig(os.path.join(HERE, "figures/curve.pdf")); plt.close(fig)
 
-# ---- 2. paired head-to-head: Atlas-5K 10M MAE relative to each foundation model, per variable, test 2023 and live
-OPP = [("tfm3", "TimesFM 3.0"), ("tfm25", "TimesFM 2.5"), ("chronos2mv", "Chronos-2 (multivar.)"),
-       ("chronos2", "Chronos-2"), ("chronos-bolt", "Chronos-Bolt")]
+# ---- 2. paired head-to-head: Atlas-5K 24M MAE relative to each foundation model, per variable, test 2023 and live
+OPP = [("tfm3", "TimesFM 3.0"), ("tfm25", "TimesFM 2.5"), ("chronos2mv", "Chronos-2 (multivar.)"), ("chronos2", "Chronos-2"),
+       ("chronos-bolt", "Chronos-Bolt"), ("tirex", "TiRex"), ("sundial", "Sundial"), ("timemoe200", "Time-MoE"), ("ttm", "TTM r2")]
 VARS = ["Temp.", "Dew pt.", "Wind dir.", "Wind spd.", "Pressure"]
-cols = ["#0B2E6B", "#1F5FBF", "#4F86D6", "#8DB0E6", "#C5D7F2"]
-fig, axs = plt.subplots(1, 2, figsize=(6.6, 2.9), sharey=True)
+cmap = plt.get_cmap("Blues")
+cols = [cmap(0.95 - 0.07 * k) for k in range(len(OPP))]
+fig, axs = plt.subplots(1, 2, figsize=(7.0, 3.0), sharey=True)
 for ax, yr, title in zip(axs, ["test", "live"], ["2023 test", "Live: Jan 2024 - Aug 2025 (NOAA ISD-Lite)"]):
-    P = json.load(open(os.path.join(HERE, f"data/paired_atlas10m_{yr}.json")))
-    w = 0.16
+    P = json.load(open(os.path.join(HERE, f"data/paired_atlas25m_{yr}_r25.json")))
+    w = 0.09
     for k, (key, lab) in enumerate(OPP):
         rows = P[key]
         assert all(r["verdict"] == "WIN" for r in rows)
-        ax.bar([i + (k - 2) * w for i in range(5)], [r["diff_pct"] for r in rows], w, color=cols[k], label=lab)
+        ax.bar([i + (k - 4) * w for i in range(5)], [r["diff_pct"] for r in rows], w, color=cols[k], label=lab)
     ax.axhline(0, color="black", lw=0.7); ax.set_xticks(range(5)); ax.set_xticklabels(VARS, fontsize=7.5)
-    ax.set_title(title, fontsize=8.5); ax.set_ylim(-31, 0)
-axs[0].set_ylabel("Atlas-5K 10M MAE vs. opponent (%)\n(every bar: significant win)")
+    ax.set_title(title, fontsize=8.5); ax.set_ylim(-50, 0)
+axs[0].set_ylabel("Atlas-5K 24M MAE vs. opponent (%)\n(every bar: significant win)")
 h, l = axs[0].get_legend_handles_labels()
-fig.legend(h, l, frameon=False, fontsize=7, loc="lower center", ncol=5)
-fig.tight_layout(rect=(0, 0.07, 1, 1)); fig.savefig(os.path.join(HERE, "figures/h2h.pdf")); plt.close(fig)
+fig.legend(h, l, frameon=False, fontsize=6.6, loc="lower center", ncol=5)
+fig.tight_layout(rect=(0, 0.1, 1, 1)); fig.savefig(os.path.join(HERE, "figures/h2h.pdf")); plt.close(fig)
 print("ok")

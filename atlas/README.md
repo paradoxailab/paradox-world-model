@@ -2780,6 +2780,95 @@ stay under 1% was **wrong**, if only just. Validation E between 0.268 and 0.276 
 **Not yet done:** the 2023 test and the widened head-to-head (Phase 6). The Colab session that ran the final evaluation
 was shut down during the 2023 test, before writing a result. The rerun skips training; its results go in part 2.
 
+### Atlas-5K 25M results, part 2: 2023 test and the widened head-to-head (Google Colab A100, 2026-11-18)
+
+**Rerun.** On the A100, the final evaluation was run again from the finished checkpoint. Validation reproduced E
+**0.27307**, so the model is again adopted. The 2023 test was then scored once.
+
+**2023 test, WB1** (all 5,672 stations, every hourly window, 1,182,816,192 scored values per variable). MAE for
+T / Td / WD / WS / SLP:
+
+| Model | T | Td | WD | WS | SLP |
+|---|---|---|---|---|---|
+| **Atlas-5K 25M** | **1.400** | **1.468** | **53.33** | **1.173** | 1.473 |
+| Atlas-5K 10M | 1.429 | 1.486 | 53.93 | 1.183 | 1.477 |
+| PhysicsFormer, published | 1.55 | 1.59 | 57.37 | 1.21 | **1.43** |
+
+Against the 10M model, every variable improves on test: −2.1%, −1.2%, −1.1%, −0.9%, −0.3%. Against PhysicsFormer:
+−9.7%, −7.7%, −7.0% and −3.1% on the first four variables, and +3.0% on pressure. That is still a win under WB1 (4 of
+5), but not on pressure. Validation and test agree within 1%.
+
+**Data check (live): passed.** The rebuilt NOAA data gave the 10M model exactly the Phase 5b per-window counts and
+errors (`LIVE DATA IDENTICAL TO PHASE 5b: True`; end 2025-08-24T22, 14,446 hours), so the pairing with earlier
+opponents is valid.
+
+**Amendment to the harness (recorded before the reruns, commit ab4726c).** In the first pass, three of the four new
+opponents failed for harness reasons; this was not a property of the models.
+* TTM r2 raised "Expecting freq_token": the model IBM's selector picks needs IBM's hourly frequency token.
+* Sundial and Time-MoE failed inside their own remote code (`DynamicCache.seen_tokens`). Their documented
+  `transformers==4.40.1` cannot be installed on Colab's Python 3.13, so they had run on a newer library.
+
+Fix, with no tuning:
+* TTM gets `get_model(..., freq="h")` and token 7 from IBM's mapping.
+* Sundial and Time-MoE run in a Python 3.11 environment with their documented library.
+* Windows, history, median and every other setting are unchanged.
+
+The pre-registered rule (a model that fails to load "in its documented setup" is not scored) did not apply: the
+documented setup had not been used. TiRex ran correctly the first time.
+
+**Head-to-head, 709 stations** (test: a start every 2nd day of 2023; live: a start every 4th day, 23 Jan 2024 to
+21 Aug 2025). Standardised error E and MAE (T / Td / WD / WS / SLP):
+
+| Model | test E | test MAE | live E | live MAE |
+|---|---|---|---|---|
+| **Atlas-5K 25M** | **0.2742** | 1.391 / 1.460 / 53.93 / 1.179 / 1.466 | **0.3007** | 1.421 / 1.453 / 64.38 / 1.202 / 1.624 |
+| Atlas-5K 10M | 0.2770 | 1.420 / 1.475 / 54.51 / 1.190 / 1.472 | 0.3028 | 1.448 / 1.469 / 64.76 / 1.210 / 1.623 |
+| Atlas-5K v2c (1M) | 0.2822 | 1.462 / 1.506 / 55.39 / 1.206 / 1.520 | 0.3071 | 1.487 / 1.498 / 65.40 / 1.227 / 1.655 |
+| TimesFM 3.0 | 0.3303 | 1.876 / 1.960 / 63.06 / 1.327 / 1.965 | 0.3508 | 1.882 / 1.952 / 71.25 / 1.353 / 2.070 |
+| Chronos-2 multivariate | 0.3313 | 1.843 / 1.920 / 62.79 / 1.335 / 2.067 | 0.3522 | 1.848 / 1.916 / 70.78 / 1.367 / 2.175 |
+| TiRex (35M) | 0.3326 | 1.900 / 1.955 / 64.38 / 1.325 / 1.948 | 0.3558 | 1.927 / 1.955 / 73.34 / 1.357 / 2.058 |
+| Chronos-2 (120M) | 0.3343 | 1.899 / 1.965 / 63.39 / 1.349 / 2.027 | 0.3559 | 1.902 / 1.959 / 71.84 / 1.381 / 2.131 |
+| TimesFM 2.5 (200M) | 0.3355 | 1.968 / 1.998 / 63.80 / 1.337 / 2.014 | 0.3575 | 1.975 / 1.991 / 72.45 / 1.365 / 2.127 |
+| Sundial base (128M) | 0.3360 | 1.923 / 2.007 / 64.09 / 1.338 / 2.028 | 0.3572 | 1.931 / 1.998 / 72.74 / 1.363 / 2.120 |
+| Chronos-Bolt (205M) | 0.3372 | 1.897 / 2.016 / 64.40 / 1.359 / 1.990 | 0.3547 | 1.899 / 2.007 / 71.70 / 1.371 / 2.092 |
+| Time-MoE 200M | 0.3408 | 1.955 / 2.037 / 65.48 / 1.363 / 1.989 | 0.3665 | 1.993 / 2.049 / 75.27 / 1.397 / 2.115 |
+| TTM r2 (0.8M) | 0.3647 | 2.175 / 2.155 / 65.79 / 1.359 / 2.827 | 0.3829 | 2.176 / 2.120 / 74.28 / 1.375 / 2.854 |
+| Persistence | 0.4361 | 3.738 / 2.224 / 75.69 / 1.724 / 2.785 | 0.4646 | 3.807 / 2.178 / 87.11 / 1.778 / 2.842 |
+
+**Paired tests** (station-block bootstrap 10,000 plus Diebold–Mariano, Holm over 50 pairs, α = 0.01; files
+`paired_atlas25m_{test,live}_r25.json`, `paired_atlas10m_{test,live}_r25.json`):
+* Both the 25M and the 10M model win **50 of 50** pairs on both the test and the live period. They significantly beat
+  all ten opponents on all five variables, and the largest Holm-adjusted p-value is 0.005.
+* Against the nine foundation models, the 25M's per-variable error is 11–48% lower on test and 9–43% lower on live.
+  The smallest margins are on wind speed and wind direction. Against TimesFM 3.0, the closest overall, the margins are
+  −25.9 / −25.5 / −14.5 / −11.2 / −25.4% on test and −24.5 / −25.6 / −9.6 / −11.1 / −21.6% on live.
+
+**25M against 10M, paired** (Holm over 5): test 4 of 5 wins; pressure is a tie, −0.45% with p 0.017. Live 4 of 5;
+pressure is a tie, +0.10% with p 0.56. Validation 5 of 5. The 25M is better than the 10M on temperature, humidity and
+wind. On pressure, the extra size has not helped.
+
+**Predictions (Phase 6).**
+* 25M beats all ten opponents on all five variables, 50 of 50, on both periods (80%): **held**.
+* No new opponent's test E below 0.31 (80%): **held**; the best is TiRex at 0.3326.
+* The best new opponent is TiRex or Sundial (60%): **held** (TiRex).
+* The 25M is significantly better than the 10M on at least three of five variables on test (50%): **held** (4 of 5).
+
+Overall, for the 25M run, 6 of 7 predictions held. The one that failed was the 35% forecast that it would not be
+adopted.
+
+**Reading.** On WEATHER-5K at 24 hours, a 24M-parameter task-trained world model, grown twice from 1M, beats every
+time-series foundation model we could run, from Google, Amazon, Tsinghua, IBM, NX-AI and Time-MoE. Those models range
+from 0.8M to 205M parameters. The result holds with paired tests on the test year and on 19 months of observations
+released after the benchmark. Two qualifications:
+* The opponents are general models run zero-shot.
+* Pressure is the variable where neither more size nor more training helps, and where PhysicsFormer and ECMWF-HRES
+  remain ahead.
+
+Cost of this round on Colab:
+* About 7.5 A100-hours of runtime in total (10:10 to 17:38 UTC). Time-MoE alone took 4.8 of them, because it forecasts
+  one hour at a time.
+* About 6 L4-hours for training.
+
 **WB2 — GIFT-Eval** (Salesforce; the main leaderboard for time-series foundation models): its weather and air-quality
 datasets (e.g. KDD Cup 2018 air quality, Jena weather, temperature-rain), scored with its own code against the
 leaderboard's per-dataset results. Rules are written before it runs.

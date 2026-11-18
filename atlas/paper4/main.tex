@@ -49,22 +49,23 @@
 \maketitle
 
 \begin{abstract}
-Time-series foundation models with 120--205M parameters are often used zero-shot for weather-station forecasting.
-We test whether a compact, task-trained world model that is \emph{grown} rather than restarted can beat them. Atlas-5K
-is a station-graph model. Each station reads its last 48 hours together with its 31 nearest neighbours; the model
-encodes them into a latent state and rolls the state forward with one shared transition and geometry-biased attention.
-We grow an adopted 0.97M-parameter Atlas twice with exact, function-preserving maps: to 9.64M (width doubled by tiling,
-new blocks as the identity), then to 24.1M (each block's hidden layer widened 2.5$\times$ with zero-output units, one
-block added). After each growth the model makes the same forecasts as its parent, and training continues from there.
-Every rule and prediction was committed to a public repository before the run it governs. On WEATHER-5K at 24 hours,
-we compare the 9.64M model with TimesFM~2.5, TimesFM~3.0, Chronos-2 (univariate and multivariate) and Chronos-Bolt on
-identical windows at 709 stations, using station-block bootstrap and Diebold--Mariano tests with Holm correction. It
-wins all 30 model--variable comparisons on the 2022 validation year, the 2023 test year and 19 months of fresh NOAA
-observations from January 2024 to August 2025, which no model could have trained on. Its per-variable error is 8.5--29\%
-lower. It also has lower 2023 test error than PhysicsFormer (19.3M), the benchmark's best published model, on four of
-five variables, but not on sea-level pressure. Growing again to 24.1M lowered validation error by 1.03\%, just past
-the pre-registered 1\% adoption bar, so gains from size are small at this scale. Its test and wider head-to-head results
-are \pending{24.1M test}.
+Time-series foundation models with up to 205M parameters are increasingly used zero-shot for weather-station
+forecasting. We test whether a compact, task-trained world model that is \emph{grown} rather than restarted can beat
+them. Atlas-5K is a station-graph model. Each station reads its last 48 hours together with its 31 nearest neighbours;
+the model encodes them into a latent state and rolls the state forward with one shared transition and geometry-biased
+attention. We grow an adopted 0.97M-parameter Atlas twice with exact, function-preserving maps: to 9.64M (width doubled
+by tiling, new blocks as the identity), then to 24.1M (each block's hidden layer widened 2.5$\times$ with zero-output
+units, one block added). After each growth the model makes the same forecasts as its parent, and training continues
+from there. Every rule and prediction was committed to a public repository before the run it governs. On WEATHER-5K at
+24 hours, we compare both grown models on identical windows at 709 stations with nine foundation-model configurations:
+TimesFM~2.5 and 3.0, Chronos-2 (univariate and multivariate), Chronos-Bolt, TiRex, Sundial, Time-MoE and TTM. We use
+station-block bootstrap and Diebold--Mariano tests with Holm correction. Both Atlas models win all 50 model--variable
+comparisons, including persistence, on the 2023 test year and on 19 months of fresh NOAA observations from January 2024
+to August 2025, which no model could have trained on. The 24.1M model's combined error is 17\% below the best
+foundation model, TimesFM~3.0, and its per-variable error is 9--48\% lower than every foundation model. On the full 2023
+test (all 5,672 stations, every hour) it has lower error than PhysicsFormer (19.3M), the benchmark's best published
+model, on four of five variables, but not on sea-level pressure. Growing from 10M to 24M bought only 1--2\% and nothing
+on pressure, so gains from size are small at this scale.
 \end{abstract}
 
 \section{Introduction}
@@ -88,10 +89,10 @@ size still buy at 10--25M parameters on 16.6M training station-days?
 \item Two exact growth maps for Atlas (Section~\ref{sec:grow}): width tiling with zero-sum perturbations
 (1M$\to$10M), and hidden-layer widening with zero-output units plus identity blocks (10M$\to$24M). At the start of
 training, the grown model makes its parent's forecasts to within $3\times10^{-5}$.
-\item A paired head-to-head against five TSFM variants over three periods, including fresh data released after
-WEATHER-5K (Section~\ref{sec:h2h}). The 9.64M model wins all 30 comparisons in each period.
+\item A paired head-to-head against nine TSFM configurations from six groups over two periods, one of them fresh data
+released after WEATHER-5K (Section~\ref{sec:h2h}). Both grown models win all 50 comparisons in each period.
 \item A pre-registered account of what size bought: $-1.95\%$ validation error for 10$\times$ the parameters, and
-$-1.03\%$ for 2.5$\times$ more. We report every prediction, including the one that failed.
+$-1.03\%$ for 2.5$\times$ more, with no gain on pressure. We report every prediction, including the two that failed.
 \end{itemize}
 
 \section{Related work}
@@ -233,8 +234,8 @@ from \citet{han2026weather5k}; the comparison with them is by number only.}
 \toprule
 Model & Params & Temp. & Dew pt. & Wind dir. & Wind spd. & Pressure\\
 \midrule
-Atlas-5K 24M (grown, ours) & 24.1M & \multicolumn{5}{c}{\pending{2023 test}}\\
-\textbf{Atlas-5K 10M (grown, ours)} & 9.64M & \textbf{1.429} & \textbf{1.486} & \textbf{53.93} & \textbf{1.183} & 1.477\\
+\textbf{Atlas-5K 24M (grown, ours)} & 24.1M & \textbf{1.400} & \textbf{1.468} & \textbf{53.33} & \textbf{1.173} & 1.473\\
+Atlas-5K 10M (grown, ours) & 9.64M & 1.429 & 1.486 & 53.93 & 1.183 & 1.477\\
 Atlas-5K v2c (ours) & 0.97M & 1.474 & 1.520 & 54.84 & 1.202 & 1.533\\
 \midrule
 PhysicsFormer, published & 19.3M & 1.55 & 1.59 & 57.37 & 1.21 & 1.43\\
@@ -243,42 +244,55 @@ ECMWF-HRES at stations, published & -- & 1.76 & 1.85 & 63.8 & 1.48 & \textbf{0.8
 \end{tabular}
 \end{table}
 
-\textbf{2023 test against published models} (Table~\ref{tab:test}). Compared with PhysicsFormer, the 10M model has
-lower error on temperature ($-7.8\%$), dew point ($-6.6\%$), wind direction ($-6.0\%$) and wind speed ($-2.2\%$), and
-higher error on pressure ($+3.3\%$), with half the parameters. Compared with ECMWF-HRES it is lower on four variables
-but much higher on pressure ($+72\%$). Validation and test agree within 1\%.
+\textbf{2023 test against published models} (Table~\ref{tab:test}). Compared with PhysicsFormer, the 24M model has
+lower error on temperature ($-9.7\%$), dew point ($-7.7\%$), wind direction ($-7.0\%$) and wind speed ($-3.1\%$), and
+higher error on pressure ($+3.0\%$); the 10M model has the same pattern ($-7.8\%$, $-6.6\%$, $-6.0\%$, $-2.2\%$;
+$+3.3\%$) with half PhysicsFormer's parameters. Compared with ECMWF-HRES, both are lower on four variables but much
+higher on pressure ($+71\%$ for the 24M). The 24M model improves on the 10M on every variable of the test year ($-2.1\%$,
+$-1.2\%$, $-1.1\%$, $-0.9\%$, $-0.3\%$). Validation and test agree within 1\%.
 
 \subsection{Head-to-head with TimesFM and Chronos}
 \label{sec:h2h}
 
 \begin{table}[t]
 \caption{Head-to-head windows (709 stations), standardised mean error $E$ (lower is better) and MAE per variable.
-Opponents are zero-shot with 512 h of history; Atlas uses 48 h. Every Atlas-5K 10M versus opponent pair is a
-significant win on all five variables in both periods (Holm over 30 pairs, $\alpha=0.01$).}
+Opponents are zero-shot with 512 h of history; Atlas uses 48 h. Both grown Atlas models win every one of the 50
+opponent--variable pairs in both periods (station-block bootstrap and Diebold--Mariano, Holm over 50 pairs,
+$\alpha=0.01$; largest adjusted $p=0.005$).}
 \label{tab:h2h}
-\centering\small
-\setlength{\tabcolsep}{4.5pt}
+\centering\footnotesize
+\setlength{\tabcolsep}{3.6pt}
 \begin{tabular}{llrrrrrr}
 \toprule
 Period & Model & $E$ & Temp. & Dew pt. & Wind dir. & Wind spd. & Pressure\\
 \midrule
-2023 test & \textbf{Atlas-5K 10M} (9.6M) & \textbf{0.2770} & \textbf{1.420} & \textbf{1.475} & \textbf{54.51} & \textbf{1.190} & \textbf{1.472}\\
- & Atlas-5K v2c (1M) & 0.2822 & 1.462 & 1.506 & 55.39 & 1.206 & 1.520\\
- & TimesFM 3.0 & 0.3303 & 1.876 & 1.960 & 63.06 & 1.327 & 1.965\\
- & Chronos-2, multivariate & 0.3313 & 1.843 & 1.920 & 62.79 & 1.335 & 2.067\\
- & Chronos-2 (120M) & 0.3343 & 1.899 & 1.965 & 63.39 & 1.349 & 2.027\\
- & TimesFM 2.5 (200M) & 0.3355 & 1.968 & 1.998 & 63.80 & 1.337 & 2.014\\
- & Chronos-Bolt (205M) & 0.3372 & 1.897 & 2.016 & 64.40 & 1.359 & 1.990\\
- & Persistence & 0.4361 & 3.738 & 2.224 & 75.69 & 1.724 & 2.785\\
+ 2023 test & \textbf{Atlas-5K 24M} (24.1M) & \textbf{0.2742} & \textbf{1.391} & \textbf{1.460} & \textbf{53.93} & \textbf{1.179} & \textbf{1.466}\\
+  & Atlas-5K 10M (9.6M) & 0.2770 & 1.420 & 1.475 & 54.51 & 1.190 & 1.472\\
+  & Atlas-5K v2c (1M) & 0.2822 & 1.462 & 1.506 & 55.39 & 1.206 & 1.520\\
+  & TimesFM 3.0 (Google) & 0.3303 & 1.876 & 1.960 & 63.06 & 1.327 & 1.965\\
+  & Chronos-2 multivar. (Amazon) & 0.3313 & 1.843 & 1.920 & 62.79 & 1.335 & 2.067\\
+  & TiRex (NX-AI, 35M) & 0.3326 & 1.900 & 1.955 & 64.38 & 1.325 & 1.948\\
+  & Chronos-2 (Amazon, 120M) & 0.3343 & 1.899 & 1.965 & 63.39 & 1.349 & 2.027\\
+  & TimesFM 2.5 (Google, 200M) & 0.3355 & 1.968 & 1.998 & 63.80 & 1.337 & 2.014\\
+  & Sundial (Tsinghua, 128M) & 0.3360 & 1.923 & 2.007 & 64.09 & 1.338 & 2.028\\
+  & Chronos-Bolt (Amazon, 205M) & 0.3372 & 1.897 & 2.016 & 64.40 & 1.359 & 1.990\\
+  & Time-MoE (200M) & 0.3408 & 1.955 & 2.037 & 65.48 & 1.363 & 1.989\\
+  & TTM r2 (IBM, 0.8M) & 0.3647 & 2.175 & 2.155 & 65.79 & 1.359 & 2.827\\
+  & Persistence & 0.4361 & 3.738 & 2.224 & 75.69 & 1.724 & 2.785\\
 \midrule
-Live 2024--25 & \textbf{Atlas-5K 10M} & \textbf{0.3028} & \textbf{1.448} & \textbf{1.469} & \textbf{64.76} & \textbf{1.210} & \textbf{1.623}\\
- & Atlas-5K v2c & 0.3071 & 1.487 & 1.498 & 65.40 & 1.227 & 1.655\\
- & TimesFM 3.0 & 0.3508 & 1.882 & 1.952 & 71.25 & 1.353 & 2.070\\
- & Chronos-2, multivariate & 0.3522 & 1.848 & 1.916 & 70.78 & 1.367 & 2.175\\
- & Chronos-Bolt & 0.3547 & 1.899 & 2.007 & 71.70 & 1.371 & 2.092\\
- & Chronos-2 & 0.3559 & 1.902 & 1.959 & 71.84 & 1.381 & 2.131\\
- & TimesFM 2.5 & 0.3575 & 1.975 & 1.991 & 72.45 & 1.365 & 2.127\\
- & Persistence & 0.4646 & 3.807 & 2.178 & 87.11 & 1.778 & 2.842\\
+ Live 2024--25 & \textbf{Atlas-5K 24M} (24.1M) & \textbf{0.3007} & \textbf{1.421} & \textbf{1.453} & \textbf{64.38} & \textbf{1.202} & \textbf{1.624}\\
+  & Atlas-5K 10M (9.6M) & 0.3028 & 1.448 & 1.469 & 64.76 & 1.210 & 1.623\\
+  & Atlas-5K v2c (1M) & 0.3071 & 1.487 & 1.498 & 65.40 & 1.227 & 1.655\\
+  & TimesFM 3.0 (Google) & 0.3508 & 1.882 & 1.952 & 71.25 & 1.353 & 2.070\\
+  & Chronos-2 multivar. (Amazon) & 0.3522 & 1.848 & 1.916 & 70.78 & 1.367 & 2.175\\
+  & TiRex (NX-AI, 35M) & 0.3558 & 1.927 & 1.955 & 73.34 & 1.357 & 2.058\\
+  & Chronos-2 (Amazon, 120M) & 0.3559 & 1.902 & 1.959 & 71.84 & 1.381 & 2.131\\
+  & TimesFM 2.5 (Google, 200M) & 0.3575 & 1.975 & 1.991 & 72.45 & 1.365 & 2.127\\
+  & Sundial (Tsinghua, 128M) & 0.3572 & 1.931 & 1.998 & 72.74 & 1.363 & 2.120\\
+  & Chronos-Bolt (Amazon, 205M) & 0.3547 & 1.899 & 2.007 & 71.70 & 1.371 & 2.092\\
+  & Time-MoE (200M) & 0.3665 & 1.993 & 2.049 & 75.27 & 1.397 & 2.115\\
+  & TTM r2 (IBM, 0.8M) & 0.3829 & 2.176 & 2.120 & 74.28 & 1.375 & 2.854\\
+  & Persistence & 0.4646 & 3.807 & 2.178 & 87.11 & 1.778 & 2.842\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -286,29 +300,37 @@ Live 2024--25 & \textbf{Atlas-5K 10M} & \textbf{0.3028} & \textbf{1.448} & \text
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/h2h.pdf}
-\caption{Paired difference in MAE, Atlas-5K 10M against each foundation model, per variable. Every bar is a significant
-win after Holm correction.}
+\caption{Paired difference in MAE, Atlas-5K 24M against each of the nine foundation-model configurations, per
+variable. Every bar is a significant win after Holm correction over 50 pairs. The 10M model's chart is almost the same.}
 \label{fig:h2h}
 \end{figure}
 
-Table~\ref{tab:h2h} and Figure~\ref{fig:h2h} give the results. On the 2023 test windows the 10M model's error is
-10.4--27.8\% lower per variable than every opponent. The smallest margin is on wind speed against TimesFM~3.0: $-10.4\%$ (95\% station-bootstrap interval $[-11.1, -9.7]$,
-Holm-adjusted $p=0.003$). Against the strongest opponent, TimesFM~3.0,
-the margins are $-24.3\%$, $-24.8\%$, $-13.6\%$, $-10.4\%$ and $-25.1\%$. On the live period, which starts after the
-benchmark ends and is scored on observations no model saw, every model's error rises (opponents' $E$ by 5--7\%, Atlas's
-by 9\%). Every win stays significant, with margins of 8.5--26.8\%. The 2022 validation windows give the same result,
-30 of 30. The 1M parent v2c also wins all 30 comparisons on both the test and live periods.
+Table~\ref{tab:h2h} and Figure~\ref{fig:h2h} give the results. Both grown models win all 50 pairs (ten opponents
+$\times$ five variables) on the 2023 test windows and on the live period; the largest Holm-adjusted $p$-value is
+0.005. Against the nine foundation-model configurations, the 24M model's per-variable error is 11--48\% lower on the
+test windows and 9--43\% lower on the live period. The smallest margins are on wind speed and wind direction. The
+closest opponent overall is TimesFM~3.0, against which the margins are $-25.9\%$, $-25.5\%$, $-14.5\%$, $-11.2\%$ and
+$-25.4\%$ on test; the smallest is on wind speed, $-11.2\%$. On the live period, which starts after the benchmark ends
+and is scored on observations no model saw, every model's error rises. Every win stays significant, and the ranking
+among the opponents barely changes. The 1M parent v2c is also ahead of every opponent on $E$.
 
-\textbf{24M model and wider field.} We have pre-registered a second family covering the 24M and 10M models against
-these five opponents plus Sundial \citep{liu2025sundial}, Time-MoE 200M \citep{shi2025timemoe}, TTM r2
-\citep{ekambaram2024ttm} and TiRex \citep{auer2025tirex}, with 50 pairs per model and period. Its results are
-\pending{Phase 6 head-to-head}.
+\textbf{24M against 10M.} Paired on the same windows, the 24M model is significantly better on four of five variables
+on the test windows and on the live period, and on all five in 2022. Pressure is a tie on test ($-0.45\%$, Holm
+$p=0.017$) and on live ($+0.10\%$, $p=0.56$). The extra parameters improved temperature, humidity and wind, but not
+pressure.
+
+\textbf{Harness amendment.} In the first pass, three opponents failed for harness reasons, not because of the models.
+TTM~r2 needs IBM's hourly frequency token. Sundial and Time-MoE need \texttt{transformers==4.40.1}, which could not be
+installed on the runtime's Python~3.13. We reran them in their documented setup (the frequency token; a Python~3.11
+environment) with no other change, recorded the change before the reruns, and report it here.
 
 \subsection{Predictions}
-For the 10M model, all eight pre-registered predictions about training and the test year held. In the head-to-head,
-we predicted the smallest margin would be on pressure; it was on wind speed, so that prediction failed. For the 24M model, G0 passing (90\%) and
-validation $E$ falling in 0.268--0.276 (70\%) held. Adoption, which we gave 35\% because we expected under 1\% gain from
-2.5$\times$ more parameters, occurred by a margin of 0.03\% of $E$. We count that prediction as failed.
+For the 10M model, all eight pre-registered predictions about training and the test year held; in its head-to-head, we
+predicted the smallest margin would be on pressure, and it was on wind speed. For the 24M model, six of seven held: G0
+(90\%); validation $E$ in 0.268--0.276 (70\%); 50 of 50 wins on both periods (80\%); no new opponent below $E=0.31$ on
+test (80\%; the best was TiRex at 0.333); the best new opponent being TiRex or Sundial (60\%); and a significant gain
+over the 10M on at least three of five variables (50\%; four). The one that failed: we gave adoption 35\%, expecting
+under 1\% gain from 2.5$\times$ more parameters, and it was adopted by a margin of 0.03\% of $E$.
 
 \section{Discussion and limitations}
 \label{sec:limits}
@@ -317,7 +339,7 @@ validation $E$ falling in 0.268--0.276 (70\%) held. Adoption, which we gave 35\%
 WEATHER-5K's training years and sees its 31 neighbours. The result shows that a small spatial world model beats general
 models \emph{on this problem}; it does not show that it is better in general.
 \item \textbf{Size pays little at this scale.} Ten times the parameters gave $-1.95\%$, and a further 2.5$\times$ gave
-$-1.03\%$. A size-by-data grid to fit the threshold function $E(N,P)$ is pre-registered but not yet run.
+$-1.03\%$, with no gain on pressure. A size-by-data grid to fit the threshold function $E(N,P)$ is pre-registered but not yet run.
 \item \textbf{Growth against restart} is not isolated, because we did not train 10M or 24M models from scratch on
 WEATHER-5K.
 \item \textbf{Pressure} remains the gap to PhysicsFormer and ECMWF-HRES. \textbf{Only 24 h} is reported; 72--168 h are

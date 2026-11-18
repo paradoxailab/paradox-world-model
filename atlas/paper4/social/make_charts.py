@@ -100,8 +100,8 @@ fig.savefig(os.path.join(HERE, "2_smaller_and_better.png"), dpi=100); plt.close(
 # 3. per variable: Atlas 24M vs the strongest foundation model, test and fresh data --------------------------------------
 VARS = ["Temperature", "Dewpoint", "Wind direction", "Wind speed", "Sea-level pressure"]
 LAB = ["Temperature", "Dew point", "Wind direction", "Wind speed", "Pressure"]
-PT = json.load(open(os.path.join(DATA, "paired_atlas25m_test_r25_partial.json")))["tfm3"]
-PL = json.load(open(os.path.join(DATA, "paired_atlas25m_live_r25_partial.json")))["tfm3"]
+PT = json.load(open(os.path.join(DATA, "paired_atlas25m_test_r25.json")))["tfm3"]
+PL = json.load(open(os.path.join(DATA, "paired_atlas25m_live_r25.json")))["tfm3"]
 assert all(r["verdict"] == "WIN" for r in PT + PL)
 fig = plt.figure(figsize=(16, 10), dpi=100)
 ax = fig.add_axes([0.08, 0.14, 0.86, 0.64]); style(ax)
@@ -135,7 +135,7 @@ for lab, k in zip(ax.get_yticklabels(), keys):
 ax.set_xlim(0.26, 0.40); ax.xaxis.grid(True, color=GRID, lw=0.8); ax.set_axisbelow(True)
 ax.set_xlabel("error E: ○ 2023 test   ● fresh observations Jan 2024 - Aug 2025 (NOAA, after the benchmark ends)", fontsize=12)
 frame(fig, "The ranking holds on data no model has seen",
-      "Every model gets worse on the newest observations; Atlas stays clearly ahead (Time-MoE's fresh-data run is still in progress)")
+      "Every model gets worse on the newest observations; Atlas stays clearly ahead of all ten opponents")
 fig.savefig(os.path.join(HERE, "4_fresh_data.png"), dpi=100); plt.close(fig)
 
 # 5. growth: 1M -> 9.6M -> 24M ------------------------------------------------------------------------------------------
@@ -160,10 +160,10 @@ fig.savefig(os.path.join(HERE, "5_growth.png"), dpi=100); plt.close(fig)
 fig = plt.figure(figsize=(10.8, 13.5), dpi=100)
 gain = 100 * (1 - T["atlas25m"]["E"] / T["tfm3"]["E"])
 fig.text(0.07, 0.92, "ParadoxAI Lab", fontsize=22, fontweight="bold", color=ATLAS)
-fig.text(0.07, 0.86, "A 24M-parameter world model beats\nGoogle's and Amazon's forecasting\nfoundation models on WEATHER-5K",
+fig.text(0.07, 0.86, "A 24M-parameter world model beats\nGoogle, Amazon, IBM and Tsinghua's\nforecasting foundation models",
          fontsize=34, fontweight="bold", color=INK, va="top", linespacing=1.15)
 stats = [(f"{gain:.0f}%", "lower error than TimesFM 3.0\non the 2023 test year"),
-         ("5 / 5", "weather variables won against TimesFM 2.5 & 3.0,\nChronos-2, Chronos-Bolt and TiRex, all significant"),
+         ("50 / 50", "comparisons won: 9 foundation models + persistence,\n5 variables each, all significant, in 2023 and 2024-25"),
          ("3", "periods: 2022, 2023 and fresh 2024-25\nobservations no model had seen"),
          ("5-21x", "smaller than TimesFM 2.5, Chronos-2,\nChronos-Bolt and Sundial (120-205M)")]
 for i, (big, small) in enumerate(stats):

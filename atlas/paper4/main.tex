@@ -1,0 +1,361 @@
+\documentclass{article}
+
+% ---------------------------------------------------------------------------------------------------------------
+% Atlas-5K growth paper (1M -> 10M -> 24M). Build: pdflatex main && bibtex main && pdflatex main && pdflatex main
+% Every number is copied from a run log or result file named in the text; rules are in atlas/README.md, committed to
+% GitHub before the runs they govern. \pending{} marks results whose run has not finished: none of them is a number.
+% ---------------------------------------------------------------------------------------------------------------
+\newif\ifpreprint
+\preprinttrue
+\ifpreprint
+  \usepackage[preprint]{neurips_2025}
+\else
+  \usepackage{neurips_2025}
+\fi
+\makeatletter
+\renewcommand{\@neuripsordinal}{41st}
+\renewcommand{\@neuripsyear}{2027}
+\makeatother
+
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts,amsmath,amssymb}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+\usepackage{enumitem}
+\setlist{leftmargin=1.3em,itemsep=1pt,topsep=2pt}
+\definecolor{atlasblue}{HTML}{1F5FBF}
+\hypersetup{colorlinks=true,linkcolor=atlasblue!75!black,citecolor=atlasblue!75!black,urlcolor=atlasblue!75!black}
+\newcommand{\pending}[1]{\textcolor{red!70!black}{[#1: run pending]}}
+
+\title{Grow, Don't Restart: Compact Station World Models, Grown from 1M to 24M Parameters, Beat TimesFM and Chronos on WEATHER-5K}
+
+\ifpreprint
+\author{%
+  Aditya Kumar \qquad Anupam Singh\\
+  ParadoxAI Lab\\
+  \texttt{contact.paradoxailab@gmail.com}
+}
+\else
+\author{Anonymous Author(s)\\Affiliation\\Address\\\texttt{email}}
+\fi
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Time-series foundation models with up to 205M parameters are increasingly used zero-shot for weather-station
+forecasting. We test whether a compact, task-trained world model that is \emph{grown} rather than restarted can beat
+them. Atlas-5K is a station-graph model. Each station reads its last 48 hours together with its 31 nearest neighbours;
+the model encodes them into a latent state and rolls the state forward with one shared transition and geometry-biased
+attention. We grow an adopted 0.97M-parameter Atlas twice with exact, function-preserving maps: to 9.64M (width doubled
+by tiling, new blocks as the identity), then to 24.1M (each block's hidden layer widened 2.5$\times$ with zero-output
+units, one block added). After each growth the model makes the same forecasts as its parent, and training continues
+from there. Every rule and prediction was committed to a public repository before the run it governs. On WEATHER-5K at
+24 hours, we compare both grown models on identical windows at 709 stations with nine foundation-model configurations:
+TimesFM~2.5 and 3.0, Chronos-2 (univariate and multivariate), Chronos-Bolt, TiRex, Sundial, Time-MoE and TTM. We use
+station-block bootstrap and Diebold--Mariano tests with Holm correction. Both Atlas models win all 50 model--variable
+comparisons, including persistence, on the 2023 test year and on 19 months of fresh NOAA observations from January 2024
+to August 2025, which no model could have trained on. The 24.1M model's combined error is 17\% below the best
+foundation model, TimesFM~3.0, and its per-variable error is 9--48\% lower than every foundation model. On the full 2023
+test (all 5,672 stations, every hour) it has lower error than PhysicsFormer (19.3M), the benchmark's best published
+model, on four of five variables, but not on sea-level pressure. Growing from 10M to 24M bought only 1--2\% and nothing
+on pressure, so gains from size are small at this scale.
+\end{abstract}
+
+\section{Introduction}
+
+Station forecasting means predicting the next hours of temperature, humidity, wind and pressure at the places where
+they are measured. Two families of models now compete for this job. Global numerical and AI weather models
+\citep{lam2023graphcast,bi2023pangu} forecast gridded fields that are then interpolated to stations. Time-series
+foundation models (TSFMs) such as TimesFM \citep{das2024timesfm,timesfm25,timesfm3} and Chronos
+\citep{ansari2024chronos,ansari2025chronos2,chronosbolt} forecast any series zero-shot from its own history. WEATHER-5K
+\citep{han2026weather5k} offers a common test bed: 5,672 stations from NOAA's Integrated Surface Database
+\citep{smith2011isd}, hourly from 2014 to 2023, a fixed split, and published scores up to the ECMWF-HRES forecast at the
+stations.
+
+We ask three questions. (i) Can a compact model, at most 10M parameters for the main entry and trained for this task,
+beat 120--205M-parameter TSFMs under paired statistical tests rather than by comparing reported numbers? (ii) When
+more capacity is wanted, should one restart training at the larger size or grow the trained model? (iii) How much does
+size still buy at 10--25M parameters on 16.6M training station-days?
+
+\paragraph{Contributions.}
+\begin{itemize}
+\item Two exact growth maps for Atlas (Section~\ref{sec:grow}): width tiling with zero-sum perturbations
+(1M$\to$10M), and hidden-layer widening with zero-output units plus identity blocks (10M$\to$24M). At the start of
+training, the grown model makes its parent's forecasts to within $3\times10^{-5}$.
+\item A paired head-to-head against nine TSFM configurations from six groups over two periods, one of them fresh data
+released after WEATHER-5K (Section~\ref{sec:h2h}). Both grown models win all 50 comparisons in each period.
+\item A pre-registered account of what size bought: $-1.95\%$ validation error for 10$\times$ the parameters, and
+$-1.03\%$ for 2.5$\times$ more, with no gain on pressure. We report every prediction, including the two that failed.
+\end{itemize}
+
+\section{Related work}
+
+\textbf{Station and time-series forecasting.} DLinear \citep{zeng2023dlinear}, PatchTST \citep{nie2023patchtst} and
+iTransformer \citep{liu2024itransformer} model each series without the stations' geometry. WEATHER-5K also reports
+physics-informed variants, of which PhysicsFormer is the strongest \citep{han2026weather5k}. Spatio-temporal graph
+models \citep{li2018dcrnn,wu2019graphwavenet,shao2022stid} share information between sensors through a graph, as Atlas
+does through attention biased by geometry.
+
+\textbf{Time-series foundation models.} TimesFM \citep{das2024timesfm}, Chronos \citep{ansari2024chronos}, Chronos-2
+\citep{ansari2025chronos2}, Moirai \citep{woo2024moirai}, Sundial \citep{liu2025sundial}, Time-MoE
+\citep{shi2025timemoe}, TTM \citep{ekambaram2024ttm} and TiRex \citep{auer2025tirex} are pretrained on large corpora and
+used zero-shot. GIFT-Eval \citep{aksu2024gifteval} ranks them across domains. We compare on one domain only, against
+models run under their documented settings.
+
+\textbf{Growing networks.} Function-preserving growth started with Net2Net \citep{chen2016net2net} and was extended to
+transformers \citep{gong2019stacking,chen2022bert2bert,wang2023ligo}. We use it to keep what a small model has learned
+while adding capacity. \textbf{Scaling} laws \citep{kaplan2020scaling,hoffmann2022chinchilla} describe when size pays;
+our results are two further points on that question for small spatial models.
+
+\section{Atlas-5K}
+\label{sec:model}
+
+\textbf{Inputs.} For station $s$ and forecast start $t$, the model reads its 32-station neighbourhood: itself and its
+31 nearest stations on the sphere. For each station it takes 48 hours of the five variables, standardised by the
+benchmark's scaler, together with a mask of observed values (missing values are not filled) and sine and cosine
+features of the hour of day and day of year for the 48 input and 24 output hours. The static inputs are latitude,
+longitude and elevation. The pair inputs are the east and north offsets and the distance between every two stations in
+the neighbourhood.
+
+\textbf{Model.} A linear map embeds each station's window into a $d$-dimensional state. Residual blocks (LayerNorm,
+linear $d\to rd$, GELU, linear $rd\to d$; $r=2$ unless stated) encode it, and attention among the 32 stations, with a
+per-head bias computed from the pair geometry, exchanges information. The latent dynamics apply \emph{one} shared
+transition six times, each step covering four forecast hours. At each step the step's time features are added, $n_d$
+residual blocks and the spatial attention update the state, and a linear decoder reads that step's hours. The median
+forecast is the last observed value plus the decoded correction. The 10\% and 90\% quantiles are the median minus and
+plus learned non-negative spreads, so they cannot cross. Training minimises the pinball loss \citep{koenker1978quantile}
+plus 0.2 times the error of reconstructing 15\% of the observed inputs, which are hidden at random. The median is the
+forecast that is scored.
+
+\textbf{The 1M parent (v2c).} $d=196$, 4 heads, two encoder and two dynamics blocks: 968,672 parameters. It was trained
+on all 2014--2021 days (16.6M station-days) and reached validation $E=0.28140$ (defined in
+Section~\ref{sec:protocol}).
+
+\section{Growing Atlas twice}
+\label{sec:grow}
+
+\textbf{1M$\to$10M: width.} Every stream vector is tiled, $z'=[z,z]$. LayerNorm \citep{ba2016layernorm} computes its
+statistics over the vector, so $\mathrm{LN}(z')=[\mathrm{LN}(z),\mathrm{LN}(z)]$ when its gain and bias are tiled too.
+Layers that write the stream have their output rows tiled. Layers that read it have their input columns tiled and
+divided by two, plus a perturbation that sums to zero over the two copies: copy $i$ gets $W/2+\varepsilon_i$ with
+$\varepsilon_1+\varepsilon_2=0$. The output is exactly unchanged, but the copies receive different gradients, so they
+can specialise; with Net2Net's plain duplication they would stay identical. Attention heads are tiled per head, so the
+head size and scale are unchanged. New encoder and dynamics blocks are appended with their output layer at zero, so each
+starts as the identity. Result: $d=392$, 8 heads, 7+7 blocks, \textbf{9,639,780} parameters.
+
+\textbf{10M$\to$24M: hidden width and depth.} Widening the stream again by tiling would give about 38M parameters.
+Non-integer tiling would change the LayerNorm statistics, so width cannot be grown exactly by a factor other than a
+whole number. Instead, we widen each block's hidden layer from $2d$ to $5d$ units (784$\to$1,960). The old units keep
+their weights. Each new unit gets a fresh random input row and a \emph{zero} output column, so it adds nothing at the
+start. Its output weights receive a gradient at once, and its input weights do as soon as those become non-zero. We
+also append one encoder block as the identity. Result: 8+7 blocks, \textbf{24,103,796} parameters. On random inputs
+the grown model's outputs differ from its parent's by at most $1.8\times10^{-5}$ (outputs of about 2.5), which is
+floating-point summation order only.
+
+\textbf{Continued training.} AdamW \citep{loshchilov2019adamw}, 3\% warm-up then one-cycle decay
+\citep{smith2019onecycle}, 80,000 steps, batches of 256 neighbourhoods, weight decay $10^{-4}$, validation every 2,000
+steps on 300 fixed stations, best checkpoint kept. Peak learning rate: $3\times10^{-4}$ for the 10M model and
+$2\times10^{-4}$ for the 24M, a choice written down before the run. The 10M model trained on one A100 in 103 minutes.
+The 24M model trained on an A100 for 8,000 steps, then on an L4 for the remaining 72,000 (0.22\,s/step) after a resume
+from its checkpoint.
+
+\section{Protocol}
+\label{sec:protocol}
+
+\textbf{Benchmark.} WEATHER-5K's protocol, unchanged \citep{han2026weather5k}: 48 input hours; train 2014--2021,
+validate 2022, test 2023; MAE per variable over lead hours 1--24. Our pipeline reproduces the published DLinear scores
+within 3\%.
+
+\textbf{Pre-registration.} Before each run, the rules and numeric predictions were committed to the public repository
+(\texttt{atlas/README.md}) \citep{nosek2018prereg}.
+\begin{enumerate}
+\item \emph{G0}: the grown model's step-0 validation equals its parent's on the same 300 stations within 0.5\%.
+\item \emph{Adoption}: $E$ is the mean over the five variables of validation MAE divided by the benchmark's scale,
+computed on every 4th station and every 6th hour of 2022. A grown model is adopted only if $E$ is at least 1\% below
+its parent's. The 10M model was scored on 2023 only if adopted, which the code enforced. The 24M model is scored on 2023
+once whether or not it is adopted.
+\item \emph{Head-to-head}: 709 stations (every 8th), forecast starts every 2nd day in 2022 and 2023 and every 4th day
+in the live period. The opponents get 512 hours of history; Atlas uses its 48. All models are scored on identical
+windows by the median forecast. For each (opponent, variable) pair we run a station-block bootstrap
+\citep{kunsch1989bootstrap} with 10,000 resamples and a Diebold--Mariano test \citep{diebold1995dm} on daily loss
+differences with Newey--West variance \citep{newey1987hac}. The p-value used is the larger of the two, Holm-corrected
+\citep{holm1979} over all pairs reported together, at $\alpha=0.01$. ``Beats'' means a significant win on all five
+variables.
+\item \emph{Live data}: NOAA ISD-Lite observations at the WEATHER-5K stations from 1 January 2024 to 24 August 2025.
+Truth is the observed hours only. Model inputs are carried forward causally, so no future value is ever used.
+\end{enumerate}
+
+\section{Results}
+\label{sec:results}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.84\linewidth]{figures/curve.pdf}
+\caption{Validation error on the 300 checking stations through both growths. Each growth starts at its parent's error
+(G0). The error then rises while the learning rate is high and falls below the start at step 36,000 (10M) and 38,000
+(24M).}
+\label{fig:curve}
+\end{figure}
+
+\textbf{Growth and adoption.} G0 passed both times (0.2796 against 0.2796 for 1M$\to$10M; 0.2741 against 0.2741 for
+10M$\to$24M). Figure~\ref{fig:curve} shows the validation curves. Table~\ref{tab:val} gives the final validation
+scores.
+\begin{table}[h]
+\caption{2022 validation (adoption rule's stations), MAE per variable and $E$. Each model is compared with its parent.}
+\label{tab:val}
+\centering\small
+\begin{tabular}{lrrrrrrrr}
+\toprule
+Model & Params & Temp. & Dew pt. & Wind dir. & Wind spd. & Pressure & $E$ & vs.\ parent\\
+\midrule
+v2c (1M) & 0.97M & 1.463 & 1.517 & 54.74 & 1.205 & 1.537 & 0.28140 & --\\
+10M (grown) & 9.64M & 1.418 & 1.482 & 53.86 & 1.188 & 1.484 & 0.27592 & $-1.95\%$\\
+24M (grown) & 24.1M & \textbf{1.388} & \textbf{1.464} & \textbf{53.28} & \textbf{1.177} & \textbf{1.478} & \textbf{0.27308} & $-1.03\%$\\
+\bottomrule
+\end{tabular}
+\end{table}
+Both grown models were adopted. The 24M model's margin over its bar (0.27316) is 0.00008, so its 1\% gain is not robust
+to seed variation. Only one seed was run.
+
+\begin{table}[t]
+\caption{WEATHER-5K 2023 test, 24 h, MAE (\textdegree C, \textdegree C, degrees, m/s, hPa). Atlas rows: all 5,672
+stations, every hourly window ($1.18\times10^9$ scored values per variable), each model scored once. Published rows
+from \citet{han2026weather5k}; the comparison with them is by number only.}
+\label{tab:test}
+\centering\small
+\begin{tabular}{lrrrrrr}
+\toprule
+Model & Params & Temp. & Dew pt. & Wind dir. & Wind spd. & Pressure\\
+\midrule
+\textbf{Atlas-5K 24M (grown, ours)} & 24.1M & \textbf{1.400} & \textbf{1.468} & \textbf{53.33} & \textbf{1.173} & 1.473\\
+Atlas-5K 10M (grown, ours) & 9.64M & 1.429 & 1.486 & 53.93 & 1.183 & 1.477\\
+Atlas-5K v2c (ours) & 0.97M & 1.474 & 1.520 & 54.84 & 1.202 & 1.533\\
+\midrule
+PhysicsFormer, published & 19.3M & 1.55 & 1.59 & 57.37 & 1.21 & 1.43\\
+ECMWF-HRES at stations, published & -- & 1.76 & 1.85 & 63.8 & 1.48 & \textbf{0.86}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{2023 test against published models} (Table~\ref{tab:test}). Compared with PhysicsFormer, the 24M model has
+lower error on temperature ($-9.7\%$), dew point ($-7.7\%$), wind direction ($-7.0\%$) and wind speed ($-3.1\%$), and
+higher error on pressure ($+3.0\%$); the 10M model has the same pattern ($-7.8\%$, $-6.6\%$, $-6.0\%$, $-2.2\%$;
+$+3.3\%$) with half PhysicsFormer's parameters. Compared with ECMWF-HRES, both are lower on four variables but much
+higher on pressure ($+71\%$ for the 24M). The 24M model improves on the 10M on every variable of the test year ($-2.1\%$,
+$-1.2\%$, $-1.1\%$, $-0.9\%$, $-0.3\%$). Validation and test agree within 1\%.
+
+\subsection{Head-to-head with TimesFM and Chronos}
+\label{sec:h2h}
+
+\begin{table}[t]
+\caption{Head-to-head windows (709 stations), standardised mean error $E$ (lower is better) and MAE per variable.
+Opponents are zero-shot with 512 h of history; Atlas uses 48 h. Both grown Atlas models win every one of the 50
+opponent--variable pairs in both periods (station-block bootstrap and Diebold--Mariano, Holm over 50 pairs,
+$\alpha=0.01$; largest adjusted $p=0.005$).}
+\label{tab:h2h}
+\centering\footnotesize
+\setlength{\tabcolsep}{3.6pt}
+\begin{tabular}{llrrrrrr}
+\toprule
+Period & Model & $E$ & Temp. & Dew pt. & Wind dir. & Wind spd. & Pressure\\
+\midrule
+ 2023 test & \textbf{Atlas-5K 24M} (24.1M) & \textbf{0.2742} & \textbf{1.391} & \textbf{1.460} & \textbf{53.93} & \textbf{1.179} & \textbf{1.466}\\
+  & Atlas-5K 10M (9.6M) & 0.2770 & 1.420 & 1.475 & 54.51 & 1.190 & 1.472\\
+  & Atlas-5K v2c (1M) & 0.2822 & 1.462 & 1.506 & 55.39 & 1.206 & 1.520\\
+  & TimesFM 3.0 (Google) & 0.3303 & 1.876 & 1.960 & 63.06 & 1.327 & 1.965\\
+  & Chronos-2 multivar. (Amazon) & 0.3313 & 1.843 & 1.920 & 62.79 & 1.335 & 2.067\\
+  & TiRex (NX-AI, 35M) & 0.3326 & 1.900 & 1.955 & 64.38 & 1.325 & 1.948\\
+  & Chronos-2 (Amazon, 120M) & 0.3343 & 1.899 & 1.965 & 63.39 & 1.349 & 2.027\\
+  & TimesFM 2.5 (Google, 200M) & 0.3355 & 1.968 & 1.998 & 63.80 & 1.337 & 2.014\\
+  & Sundial (Tsinghua, 128M) & 0.3360 & 1.923 & 2.007 & 64.09 & 1.338 & 2.028\\
+  & Chronos-Bolt (Amazon, 205M) & 0.3372 & 1.897 & 2.016 & 64.40 & 1.359 & 1.990\\
+  & Time-MoE (200M) & 0.3408 & 1.955 & 2.037 & 65.48 & 1.363 & 1.989\\
+  & TTM r2 (IBM, 0.8M) & 0.3647 & 2.175 & 2.155 & 65.79 & 1.359 & 2.827\\
+  & Persistence & 0.4361 & 3.738 & 2.224 & 75.69 & 1.724 & 2.785\\
+\midrule
+ Live 2024--25 & \textbf{Atlas-5K 24M} (24.1M) & \textbf{0.3007} & \textbf{1.421} & \textbf{1.453} & \textbf{64.38} & \textbf{1.202} & \textbf{1.624}\\
+  & Atlas-5K 10M (9.6M) & 0.3028 & 1.448 & 1.469 & 64.76 & 1.210 & 1.623\\
+  & Atlas-5K v2c (1M) & 0.3071 & 1.487 & 1.498 & 65.40 & 1.227 & 1.655\\
+  & TimesFM 3.0 (Google) & 0.3508 & 1.882 & 1.952 & 71.25 & 1.353 & 2.070\\
+  & Chronos-2 multivar. (Amazon) & 0.3522 & 1.848 & 1.916 & 70.78 & 1.367 & 2.175\\
+  & TiRex (NX-AI, 35M) & 0.3558 & 1.927 & 1.955 & 73.34 & 1.357 & 2.058\\
+  & Chronos-2 (Amazon, 120M) & 0.3559 & 1.902 & 1.959 & 71.84 & 1.381 & 2.131\\
+  & TimesFM 2.5 (Google, 200M) & 0.3575 & 1.975 & 1.991 & 72.45 & 1.365 & 2.127\\
+  & Sundial (Tsinghua, 128M) & 0.3572 & 1.931 & 1.998 & 72.74 & 1.363 & 2.120\\
+  & Chronos-Bolt (Amazon, 205M) & 0.3547 & 1.899 & 2.007 & 71.70 & 1.371 & 2.092\\
+  & Time-MoE (200M) & 0.3665 & 1.993 & 2.049 & 75.27 & 1.397 & 2.115\\
+  & TTM r2 (IBM, 0.8M) & 0.3829 & 2.176 & 2.120 & 74.28 & 1.375 & 2.854\\
+  & Persistence & 0.4646 & 3.807 & 2.178 & 87.11 & 1.778 & 2.842\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/h2h.pdf}
+\caption{Paired difference in MAE, Atlas-5K 24M against each of the nine foundation-model configurations, per
+variable. Every bar is a significant win after Holm correction over 50 pairs. The 10M model's chart is almost the same.}
+\label{fig:h2h}
+\end{figure}
+
+Table~\ref{tab:h2h} and Figure~\ref{fig:h2h} give the results. Both grown models win all 50 pairs (ten opponents
+$\times$ five variables) on the 2023 test windows and on the live period; the largest Holm-adjusted $p$-value is
+0.005. Against the nine foundation-model configurations, the 24M model's per-variable error is 11--48\% lower on the
+test windows and 9--43\% lower on the live period. The smallest margins are on wind speed and wind direction. The
+closest opponent overall is TimesFM~3.0, against which the margins are $-25.9\%$, $-25.5\%$, $-14.5\%$, $-11.2\%$ and
+$-25.4\%$ on test; the smallest is on wind speed, $-11.2\%$. On the live period, which starts after the benchmark ends
+and is scored on observations no model saw, every model's error rises. Every win stays significant, and the ranking
+among the opponents barely changes. The 1M parent v2c is also ahead of every opponent on $E$.
+
+\textbf{24M against 10M.} Paired on the same windows, the 24M model is significantly better on four of five variables
+on the test windows and on the live period, and on all five in 2022. Pressure is a tie on test ($-0.45\%$, Holm
+$p=0.017$) and on live ($+0.10\%$, $p=0.56$). The extra parameters improved temperature, humidity and wind, but not
+pressure.
+
+\textbf{Harness amendment.} In the first pass, three opponents failed for harness reasons, not because of the models.
+TTM~r2 needs IBM's hourly frequency token. Sundial and Time-MoE need \texttt{transformers==4.40.1}, which could not be
+installed on the runtime's Python~3.13. We reran them in their documented setup (the frequency token; a Python~3.11
+environment) with no other change, recorded the change before the reruns, and report it here.
+
+\subsection{Predictions}
+For the 10M model, all eight pre-registered predictions about training and the test year held; in its head-to-head, we
+predicted the smallest margin would be on pressure, and it was on wind speed. For the 24M model, six of seven held: G0
+(90\%); validation $E$ in 0.268--0.276 (70\%); 50 of 50 wins on both periods (80\%); no new opponent below $E=0.31$ on
+test (80\%; the best was TiRex at 0.333); the best new opponent being TiRex or Sundial (60\%); and a significant gain
+over the 10M on at least three of five variables (50\%; four). The one that failed: we gave adoption 35\%, expecting
+under 1\% gain from 2.5$\times$ more parameters, and it was adopted by a margin of 0.03\% of $E$.
+
+\section{Discussion and limitations}
+\label{sec:limits}
+\begin{itemize}
+\item \textbf{Task-trained against zero-shot.} The opponents are general models run zero-shot. Atlas is trained on
+WEATHER-5K's training years and sees its 31 neighbours. The result shows that a small spatial world model beats general
+models \emph{on this problem}; it does not show that it is better in general.
+\item \textbf{Size pays little at this scale.} Ten times the parameters gave $-1.95\%$, and a further 2.5$\times$ gave
+$-1.03\%$, with no gain on pressure. A size-by-data grid to fit the threshold function $E(N,P)$ is pre-registered but not yet run.
+\item \textbf{Growth against restart} is not isolated, because we did not train 10M or 24M models from scratch on
+WEATHER-5K.
+\item \textbf{Pressure} remains the gap to PhysicsFormer and ECMWF-HRES. \textbf{Only 24 h} is reported; 72--168 h are
+next. \textbf{One seed} per grown model.
+\item \textbf{Licences.} TimesFM~3.0 and TiRex were used for evaluation only, under their licences.
+\end{itemize}
+
+\section{Reproducibility}
+Repository \url{https://github.com/paradoxailab/paradox-world-model}, branch \texttt{atlas-v0.1}. Model
+\texttt{atlas/atlas/model.py}; growth \texttt{atlas/atlas/grow.py}; training \texttt{atlas/delhi/run\_atlas\_5k.py};
+head-to-head \texttt{atlas/delhi/score\_tsfm\_w5k.py} and \texttt{paired\_w5k.py}; live data
+\texttt{atlas/delhi/tools/fetch\_isd\_live.py}; Colab notebooks in \texttt{atlas/notebooks/}. Rules, predictions and
+results are in \texttt{atlas/README.md}, committed before each run. The NOAA data are used for scoring and are not
+redistributed.
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\end{document}

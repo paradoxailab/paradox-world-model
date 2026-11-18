@@ -1,0 +1,71 @@
+W5K: 5672 stations, 87648 hours, missing share by split {"train": 0.0, "val": 0.0, "test": 0.0}; neighbourhood median radius 352 km; device cuda
+init from /content/drive/MyDrive/PWM-10M/out/w5k_atlas_10m_h24_g1_s600.pt: 9,639,780 parameters, grown by 1,8,7,5 (width x, encoder, dynamics blocks)
+atlas: 24,103,796 parameters, width 392
+training data: 2920 days x 5672 stations (1 of 2014-2021)
+W5K: 5672 stations, 87648 hours, missing share by split {"train": 0.0, "val": 0.0, "test": 0.0}; neighbourhood median radius 352 km; device cuda
+init from /content/drive/MyDrive/PWM-10M/out/w5k_atlas_10m_h24_g1_s600.pt: 9,639,780 parameters, grown by 1,8,7,5 (width x, encoder, dynamics blocks)
+atlas: 24,103,796 parameters, width 392
+training data: 2920 days x 5672 stations (1 of 2014-2021)
+  step 0 (as initialised) val MAE (standardised mean) 0.2741 T 1.413
+  step 2000 loss 0.1135 val MAE (standardised mean) 0.2771 (best 0.2771 at 2000) T 1.442 3.1 min, 0.075 s/step, about 2.0 h left at most
+  step 4000 loss 0.1122 val MAE (standardised mean) 0.2772 (best 0.2771 at 2000) T 1.437 6.2 min, 0.075 s/step, about 2.0 h left at most
+  step 6000 loss 0.1148 val MAE (standardised mean) 0.2765 (best 0.2765 at 6000) T 1.432 9.3 min, 0.075 s/step, about 1.9 h left at most
+  step 8000 loss 0.1122 val MAE (standardised mean) 0.2767 (best 0.2765 at 6000) T 1.443 12.4 min, 0.075 s/step, about 1.9 h left at most
+W5K: 5672 stations, 87648 hours, missing share by split {"train": 0.0, "val": 0.0, "test": 0.0}; neighbourhood median radius 352 km; device cuda
+init from /content/drive/MyDrive/PWM-10M/out/w5k_atlas_10m_h24_g1_s600.pt: 9,639,780 parameters, grown by 1,8,7,5 (width x, encoder, dynamics blocks)
+atlas: 24,103,796 parameters, width 392
+training data: 2920 days x 5672 stations (1 of 2014-2021)
+RESUME from /content/drive/MyDrive/PWM-10M/out/w5k_atlas_25m_h24_g2_s600_last.pt: step 8000, best 0.2765 at 6000
+W5K: 5672 stations, 87648 hours, missing share by split {"train": 0.0, "val": 0.0, "test": 0.0}; neighbourhood median radius 352 km; device cuda
+init from /content/drive/MyDrive/PWM-10M/out/w5k_atlas_10m_h24_g1_s600.pt: 9,639,780 parameters, grown by 1,8,7,5 (width x, encoder, dynamics blocks)
+atlas: 24,103,796 parameters, width 392
+training data: 2920 days x 5672 stations (1 of 2014-2021)
+RESUME from /content/drive/MyDrive/PWM-10M/out/w5k_atlas_25m_h24_g2_s600_last.pt: step 8000, best 0.2765 at 6000
+  step 10000 loss 0.1092 val MAE (standardised mean) 0.2773 (best 0.2765 at 6000) T 1.438 9.9 min, 0.220 s/step, about 5.8 h left at most
+  step 12000 loss 0.1100 val MAE (standardised mean) 0.2769 (best 0.2765 at 6000) T 1.437 19.7 min, 0.220 s/step, about 5.6 h left at most
+  step 14000 loss 0.1119 val MAE (standardised mean) 0.2779 (best 0.2765 at 6000) T 1.434 29.6 min, 0.220 s/step, about 5.4 h left at most
+  step 16000 loss 0.1101 val MAE (standardised mean) 0.2759 (best 0.2759 at 16000) T 1.423 39.6 min, 0.220 s/step, about 5.3 h left at most
+  step 18000 loss 0.1118 val MAE (standardised mean) 0.2771 (best 0.2759 at 16000) T 1.434 49.5 min, 0.220 s/step, about 5.1 h left at most
+  step 20000 loss 0.1096 val MAE (standardised mean) 0.2758 (best 0.2758 at 20000) T 1.425 59.4 min, 0.220 s/step, about 4.9 h left at most
+  step 22000 loss 0.1107 val MAE (standardised mean) 0.2754 (best 0.2754 at 22000) T 1.420 69.3 min, 0.220 s/step, about 4.8 h left at most
+  step 24000 loss 0.1085 val MAE (standardised mean) 0.2754 (best 0.2754 at 22000) T 1.424 79.1 min, 0.220 s/step, about 4.6 h left at most
+  step 26000 loss 0.1134 val MAE (standardised mean) 0.2766 (best 0.2754 at 22000) T 1.421 89.0 min, 0.220 s/step, about 4.5 h left at most
+  step 28000 loss 0.1100 val MAE (standardised mean) 0.2747 (best 0.2747 at 28000) T 1.420 98.9 min, 0.220 s/step, about 4.3 h left at most
+  step 30000 loss 0.1088 val MAE (standardised mean) 0.2753 (best 0.2747 at 28000) T 1.423 108.8 min, 0.220 s/step, about 4.1 h left at most
+  step 32000 loss 0.1100 val MAE (standardised mean) 0.2746 (best 0.2746 at 32000) T 1.411 118.7 min, 0.220 s/step, about 4.0 h left at most
+  step 34000 loss 0.1124 val MAE (standardised mean) 0.2745 (best 0.2745 at 34000) T 1.415 128.5 min, 0.220 s/step, about 3.8 h left at most
+  step 36000 loss 0.1126 val MAE (standardised mean) 0.2743 (best 0.2743 at 36000) T 1.407 138.4 min, 0.220 s/step, about 3.6 h left at most
+  step 38000 loss 0.1108 val MAE (standardised mean) 0.2739 (best 0.2739 at 38000) T 1.405 148.3 min, 0.220 s/step, about 3.5 h left at most
+  step 40000 loss 0.1064 val MAE (standardised mean) 0.2742 (best 0.2739 at 38000) T 1.406 158.2 min, 0.220 s/step, about 3.3 h left at most
+  step 42000 loss 0.1080 val MAE (standardised mean) 0.2738 (best 0.2738 at 42000) T 1.403 168.1 min, 0.220 s/step, about 3.1 h left at most
+  step 44000 loss 0.1102 val MAE (standardised mean) 0.2739 (best 0.2738 at 42000) T 1.400 177.9 min, 0.220 s/step, about 3.0 h left at most
+  step 46000 loss 0.1088 val MAE (standardised mean) 0.2736 (best 0.2736 at 46000) T 1.402 187.8 min, 0.220 s/step, about 2.8 h left at most
+  step 48000 loss 0.1081 val MAE (standardised mean) 0.2729 (best 0.2729 at 48000) T 1.399 197.7 min, 0.220 s/step, about 2.6 h left at most
+  step 50000 loss 0.1137 val MAE (standardised mean) 0.2724 (best 0.2724 at 50000) T 1.396 207.6 min, 0.220 s/step, about 2.5 h left at most
+  step 52000 loss 0.1097 val MAE (standardised mean) 0.2727 (best 0.2724 at 50000) T 1.397 217.5 min, 0.220 s/step, about 2.3 h left at most
+  step 54000 loss 0.1122 val MAE (standardised mean) 0.2719 (best 0.2719 at 54000) T 1.393 227.4 min, 0.220 s/step, about 2.1 h left at most
+  step 56000 loss 0.1093 val MAE (standardised mean) 0.2720 (best 0.2719 at 54000) T 1.395 237.2 min, 0.220 s/step, about 2.0 h left at most
+  step 58000 loss 0.1086 val MAE (standardised mean) 0.2717 (best 0.2717 at 58000) T 1.391 247.1 min, 0.220 s/step, about 1.8 h left at most
+  step 60000 loss 0.1081 val MAE (standardised mean) 0.2718 (best 0.2717 at 58000) T 1.389 257.0 min, 0.220 s/step, about 1.6 h left at most
+  step 62000 loss 0.1084 val MAE (standardised mean) 0.2717 (best 0.2717 at 62000) T 1.388 266.9 min, 0.220 s/step, about 1.5 h left at most
+  step 64000 loss 0.1075 val MAE (standardised mean) 0.2716 (best 0.2716 at 64000) T 1.385 276.8 min, 0.220 s/step, about 1.3 h left at most
+  step 66000 loss 0.1094 val MAE (standardised mean) 0.2713 (best 0.2713 at 66000) T 1.387 286.7 min, 0.220 s/step, about 1.2 h left at most
+  step 68000 loss 0.1085 val MAE (standardised mean) 0.2712 (best 0.2712 at 68000) T 1.387 296.6 min, 0.220 s/step, about 1.0 h left at most
+  step 70000 loss 0.1090 val MAE (standardised mean) 0.2715 (best 0.2712 at 68000) T 1.386 306.4 min, 0.220 s/step, about 0.8 h left at most
+  step 72000 loss 0.1089 val MAE (standardised mean) 0.2712 (best 0.2712 at 72000) T 1.383 316.3 min, 0.220 s/step, about 0.7 h left at most
+  step 74000 loss 0.1102 val MAE (standardised mean) 0.2714 (best 0.2712 at 72000) T 1.386 326.2 min, 0.220 s/step, about 0.5 h left at most
+  step 76000 loss 0.1072 val MAE (standardised mean) 0.2713 (best 0.2712 at 72000) T 1.384 336.1 min, 0.220 s/step, about 0.3 h left at most
+  step 78000 loss 0.1094 val MAE (standardised mean) 0.2712 (best 0.2712 at 72000) T 1.384 346.0 min, 0.220 s/step, about 0.2 h left at most
+  step 80000 loss 0.1073 val MAE (standardised mean) 0.2712 (best 0.2712 at 72000) T 1.383 355.8 min, 0.220 s/step, about 0.0 h left at most
+  stop at step 80000 (end of schedule)
+VAL atlas H=24: {"Temperature": 1.388, "Dewpoint": 1.4638, "Wind direction": 53.282, "Wind speed": 1.1774, "Sea-level pressure": 1.4775}; E 0.27308
+RULE: E 0.27308 <= 0.27316 -> ADOPTED, scored once on the 2023 test year
+W5K: 5672 stations, 87648 hours, missing share by split {"train": 0.0, "val": 0.0, "test": 0.0}; neighbourhood median radius 352 km; device cuda
+init from /content/drive/MyDrive/PWM-10M/out/w5k_atlas_10m_h24_g1_s600.pt: 9,639,780 parameters, grown by 1,8,7,5 (width x, encoder, dynamics blocks)
+atlas: 24,103,796 parameters, width 392
+training data: 2920 days x 5672 stations (1 of 2014-2021)
+RESUME from /content/drive/MyDrive/PWM-10M/out/w5k_atlas_25m_h24_g2_s600_last.pt: step 80000, best 0.2712 at 72000 (training already finished)
+VAL atlas H=24: {"Temperature": 1.388, "Dewpoint": 1.4638, "Wind direction": 53.2819, "Wind speed": 1.1774, "Sea-level pressure": 1.4775}; E 0.27307
+RULE: E 0.27307 <= 0.27316 -> ADOPTED, scored once on the 2023 test year
+TEST atlas H=24 (all stations, every hourly window of 2023): MAE {"Temperature": 1.3996, "Dewpoint": 1.4678, "Wind direction": 53.3277, "Wind speed": 1.1727, "Sea-level pressure": 1.4726}; MSE {"Temperature": 4.8993, "Dewpoint": 5.72, "Wind direction": 6762.9763, "Wind speed": 3.2459, "Sea-level pressure": 6.1269}; 1,182,816,192 points
+W5K-RUN {"model": "atlas", "H": 24, "seed": 600, "tag": "w5k_atlas_25m_h24_g2", "stations": 5672, "k": 32, "steps": 80000, "protocol": "WEATHER-5K: L=48, train 2014-2021, val 2022, test 2023, all hourly windows", "gpu": "NVIDIA A100-SXM4-40GB", "init": "w5k_atlas_10m_h24_g1_s600.pt", "init_params": 9639780, "grown": {"d": 392, "heads": 8, "enc_depth": 7, "dyn_depth": 7, "mlp": 2, "f": 1, "mlp_to": 5, "noise": 0.05, "seed": 600, "before": {"d": 196, "heads": 4, "enc_depth": 2, "dyn_depth": 2, "f": 2, "noise": 0.05, "seed": 600}}, "params": 24103796, "frac": 1.0, "train_days": 2920, "train_station_days": 16562240, "val_step0": 0.2740732431411743, "val_best": 0.27118971943855286, "best_step": 72000, "minutes_train": 0.1, "val": {"MAE": {"Temperature": 1.388, "Dewpoint": 1.4638, "Wind direction": 53.2819, "Wind speed": 1.1774, "Sea-level pressure": 1.4775}, "MSE": {"Temperature": 4.7863, "Dewpoint": 5.5131, "Wind direction": 6802.5712, "Wind speed": 3.2518, "Sea-level pressure": 6.2917}, "MAE_overall": 11.757724162188284, "MSE_overall": 1364.482832051803, "points": 49312368, "windows_per_station": 1449}, "val_E": 0.27307480573654175, "adopted": true, "test": {"MAE": {"Temperature": 1.3996, "Dewpoint": 1.4678, "Wind direction": 53.3277, "Wind speed": 1.1727, "Sea-level pressure": 1.4726}, "MSE": {"Temperature": 4.8993, "Dewpoint": 5.72, "Wind direction": 6762.9763, "Wind speed": 3.2459, "Sea-level pressure": 6.1269}, "MAE_overall": 11.768086866971617, "MSE_overall": 1356.5936715162486, "points": 1182816192, "windows_per_station": 8689}, "minutes_total": 68.6}

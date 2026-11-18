@@ -1,11 +1,13 @@
 # Atlas models — model card
 
-ParadoxAI Lab. Status as of 2026-11-17. Every number below is from a run whose log and rules are in `README.md`.
+ParadoxAI Lab. Status as of 2026-11-19. Every number below is from a run whose log and rules are in `README.md`.
 
 ## The models
 
 | Model | Parameters | Task | Inputs | Status |
 |---|---|---|---|---|
+| **Atlas-5K 25M** (series #59) | 24,103,796 | 5-variable station weather, next 24 h, WEATHER-5K | last 48 h at the station and its 31 nearest stations; location, elevation, time | **WB1 entry at 24 h**: grown from 10M; validation E 0.27307; 2023 test 1.400 / 1.468 / 53.33 / 1.173 / 1.473 |
+| Atlas-5K 10M (series #58) | 9,639,780 | as 25M | as 25M | adopted; grown from v2c; validation E 0.27592; 2023 test 1.429 / 1.486 / 53.93 / 1.183 / 1.477 |
 | **Atlas-5K v1** | 968,672 | 5-variable station weather, next 24 h, WEATHER-5K (5,672 stations worldwide) | last 48 h at the station and its 15 nearest stations; location, elevation, time | **WB1 entry at 24 h** (test 2023 scored once) |
 | Atlas-5K v2a | 968,672 | as v1, 150,000 training steps | as v1 | validation −1.44% vs v1; final choice vs v2c pending, then one test |
 | Atlas-5K v2c | 968,672 | as v2a, 32-station neighbourhoods | as v1, 31 neighbours | training |
@@ -36,6 +38,34 @@ within 2.8% (check C2).
   2.5 22.35 / 21.93 and Atlas-F 20.75 / 20.44; significant on both tracks.
 * Delhi winter 2024–25 with real day-before ECMWF forecasts: Atlas-W MAE 28.19 vs 31.27 for the no-weather Atlas
   (−9.9%, p = 0.0009). Published Day-1 numbers for IITM WRF-Chem are 58.75 and for IMD SILAM 71.68 (by number).
+
+## Atlas-5K 10M and 25M: use them
+
+Both are in `models/series/` with weights, configuration, dataset name and every result (validation, 2023 test,
+paired head-to-head) inside the file:
+
+```python
+import torch
+from atlas.model import Atlas            # repo folder atlas/ on the path
+ck = torch.load("models/series/59_atlas-5k-25m_weather5k_adopted.pt", map_location="cpu", weights_only=False)
+model = Atlas(**{k: v for k, v in ck["cfg"].items() if k != "grown_from"})
+model.load_state_dict(ck["weights"]); model.eval()
+print(ck["meta"]["result"]); print(ck["results"]["head_to_head"])
+# or: from atlas.grow import load_any; model = load_any("models/series/59_...pt")
+```
+
+The forward pass takes one 32-station neighbourhood per sample and returns `[batch, 32 stations, 24 hours, 5 variables,
+3 quantiles (10/50/90%)]`. The median is the forecast. Build inputs exactly as `atlas/delhi/run_atlas_5k.py` does:
+the benchmark's MEAN/STD scaling, `neighbours()` and `geometry()`.
+
+**Head-to-head** (709 stations, 24 h, 2023 test and fresh NOAA data Jan 2024 – Aug 2025; paired tests, Holm over
+50 pairs, α = 0.01): both models significantly beat TimesFM 2.5 and 3.0, Chronos-2 (uni- and multivariate),
+Chronos-Bolt, TiRex, Sundial, Time-MoE 200M, TTM r2 and persistence on all five variables in both periods. Standardised
+error E on 2023: 25M 0.2742, 10M 0.2770, best foundation model (TimesFM 3.0) 0.3303. Details: `atlas/README.md` and the
+paper `atlas/paper4/Atlas5K_growth_preprint.pdf`.
+
+**Known limits.** Sea-level pressure is worse than PhysicsFormer (1.473 vs 1.43) and ECMWF-HRES (0.86). Only the 24 h
+horizon is covered, and each grown model has one seed.
 
 ## Weights
 

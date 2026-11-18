@@ -1,0 +1,227 @@
+{
+ "_windows": {
+  "year": "test",
+  "stations": 709,
+  "stations_every": 8,
+  "starts": 182,
+  "origin_every_h": 48,
+  "H": 24,
+  "first_start": "2023-01-03T00",
+  "last_start": "2023-12-31T00"
+ },
+ "atlas10m": {
+  "MAE": {
+   "Temperature": 1.4198,
+   "Dewpoint": 1.4748,
+   "Wind direction": 54.5087,
+   "Wind speed": 1.1895,
+   "Sea-level pressure": 1.4721
+  },
+  "E": 0.2769956922214334,
+  "points": 3096912,
+  "name": "w5k_atlas_10m_h24_g1_s600.pt",
+  "params": 9639780,
+  "neighbours": 32,
+  "minutes_total": 0.3
+ },
+ "v2c": {
+  "MAE": {
+   "Temperature": 1.462,
+   "Dewpoint": 1.5057,
+   "Wind direction": 55.3874,
+   "Wind speed": 1.2056,
+   "Sea-level pressure": 1.5199
+  },
+  "E": 0.28216493192214764,
+  "points": 3096912,
+  "name": "57_atlas-5k_v2c_weather5k_adopted.pt",
+  "params": 968672,
+  "neighbours": 32,
+  "minutes_total": 0.2
+ },
+ "persist": {
+  "MAE": {
+   "Temperature": 3.7376,
+   "Dewpoint": 2.2243,
+   "Wind direction": 75.6863,
+   "Wind speed": 1.7237,
+   "Sea-level pressure": 2.785
+  },
+  "E": 0.43609869047626376,
+  "points": 3096912,
+  "name": "Persistence (last value)",
+  "licence": "-",
+  "params": 0,
+  "context_hours": 512,
+  "minutes": 0.0,
+  "minutes_total": 0.0
+ },
+ "chronos-bolt": {
+  "MAE": {
+   "Temperature": 1.8975,
+   "Dewpoint": 2.0158,
+   "Wind direction": 64.4033,
+   "Wind speed": 1.3595,
+   "Sea-level pressure": 1.99
+  },
+  "E": 0.3371509924234596,
+  "points": 3096912,
+  "name": "Chronos-Bolt base (Amazon, 205M)",
+  "licence": "Apache-2.0",
+  "params": 205000000.0,
+  "context_hours": 512,
+  "minutes": 5.0,
+  "minutes_total": 5.0
+ },
+ "chronos2": {
+  "MAE": {
+   "Temperature": 1.8987,
+   "Dewpoint": 1.9653,
+   "Wind direction": 63.3917,
+   "Wind speed": 1.3485,
+   "Sea-level pressure": 2.0272
+  },
+  "E": 0.3342883771819044,
+  "points": 3096912,
+  "name": "Chronos-2 (Amazon, 120M)",
+  "licence": "Apache-2.0",
+  "params": 120000000.0,
+  "context_hours": 512,
+  "minutes": 7.5,
+  "minutes_total": 7.5
+ },
+ "chronos2mv": {
+  "MAE": {
+   "Temperature": 1.843,
+   "Dewpoint": 1.9196,
+   "Wind direction": 62.7936,
+   "Wind speed": 1.3346,
+   "Sea-level pressure": 2.0667
+  },
+  "E": 0.33130045902671407,
+  "points": 3096912,
+  "name": "Chronos-2 multivariate (Amazon, 120M)",
+  "licence": "Apache-2.0",
+  "params": 120000000.0,
+  "context_hours": 512,
+  "minutes": 7.0,
+  "minutes_total": 7.0
+ },
+ "tfm25": {
+  "MAE": {
+   "Temperature": 1.9676,
+   "Dewpoint": 1.998,
+   "Wind direction": 63.7971,
+   "Wind speed": 1.3365,
+   "Sea-level pressure": 2.0136
+  },
+  "E": 0.33549424981200754,
+  "points": 3096912,
+  "name": "TimesFM 2.5 (Google, 200M)",
+  "licence": "Apache-2.0",
+  "params": 200000000.0,
+  "context_hours": 512,
+  "minutes": 5.8,
+  "minutes_total": 5.8
+ },
+ "tfm3": {
+  "MAE": {
+   "Temperature": 1.8761,
+   "Dewpoint": 1.9598,
+   "Wind direction": 63.0624,
+   "Wind speed": 1.3275,
+   "Sea-level pressure": 1.9652
+  },
+  "E": 0.330263974821718,
+  "points": 3096912,
+  "name": "TimesFM 3.0 (Google)",
+  "licence": "non-commercial research licence (evaluation only)",
+  "params": null,
+  "context_hours": 512,
+  "minutes": 22.1,
+  "minutes_total": 22.1
+ },
+ "atlas25m": {
+  "MAE": {
+   "Temperature": 1.3905,
+   "Dewpoint": 1.4595,
+   "Wind direction": 53.9262,
+   "Wind speed": 1.1787,
+   "Sea-level pressure": 1.4655
+  },
+  "E": 0.27417312972235897,
+  "points": 3096912,
+  "name": "w5k_atlas_25m_h24_g2_s600.pt",
+  "params": 24103796,
+  "neighbours": 32,
+  "minutes_total": 0.2
+ },
+ "tirex": {
+  "MAE": {
+   "Temperature": 1.8998,
+   "Dewpoint": 1.9552,
+   "Wind direction": 64.3802,
+   "Wind speed": 1.3248,
+   "Sea-level pressure": 1.948
+  },
+  "E": 0.33261179233886784,
+  "points": 3096912,
+  "name": "TiRex (NX-AI, 35M)",
+  "licence": "NXAI community licence (evaluation only)",
+  "params": 35000000.0,
+  "context_hours": 512,
+  "minutes": 14.3,
+  "minutes_total": 14.4
+ },
+ "ttm": {
+  "MAE": {
+   "Temperature": 2.1748,
+   "Dewpoint": 2.1555,
+   "Wind direction": 65.79,
+   "Wind speed": 1.3586,
+   "Sea-level pressure": 2.8268
+  },
+  "E": 0.3646501382442149,
+  "points": 3096912,
+  "name": "TTM r2 (IBM Research, 0.8M)",
+  "licence": "Apache-2.0",
+  "params": 799756.0,
+  "context_hours": 512,
+  "minutes": 0.2,
+  "minutes_total": 0.2
+ },
+ "sundial": {
+  "MAE": {
+   "Temperature": 1.9234,
+   "Dewpoint": 2.0075,
+   "Wind direction": 64.0902,
+   "Wind speed": 1.338,
+   "Sea-level pressure": 2.0276
+  },
+  "E": 0.3359833276023436,
+  "points": 3096912,
+  "name": "Sundial base (Tsinghua THUML, 128M)",
+  "licence": "Apache-2.0",
+  "params": 128000000.0,
+  "context_hours": 512,
+  "minutes": 22.5,
+  "minutes_total": 22.5
+ },
+ "timemoe200": {
+  "MAE": {
+   "Temperature": 1.9547,
+   "Dewpoint": 2.0371,
+   "Wind direction": 65.4835,
+   "Wind speed": 1.3631,
+   "Sea-level pressure": 1.9892
+  },
+  "E": 0.3407973156374145,
+  "points": 3096912,
+  "name": "Time-MoE 200M (Shi et al.)",
+  "licence": "Apache-2.0",
+  "params": 200000000.0,
+  "context_hours": 512,
+  "minutes": 160.2,
+  "minutes_total": 160.2
+ }
+}

@@ -132,7 +132,7 @@ open(os.path.join(T, "readme_tables.md"), "w").write("\n".join(md) + "\n")
 # ------------------------------------------------------------------ appendix LaTeX
 def tex_paired(m, p):
     n = "Atlas-5K 24M" if m == "atlas25m" else "Atlas-5K 10M"
-    L = [r"\begin{table}[h]", r"\centering\scriptsize", r"\setlength{\tabcolsep}{3pt}",
+    L = [r"\begin{table}[H]", r"\centering\scriptsize", r"\setlength{\tabcolsep}{2.4pt}",
          rf"\caption{{{n} against each opponent, {PER[p].replace('–', '--')}: paired MAE difference in \% with the 95\% "
          rf"station-block bootstrap interval. All {wins[(m, p)]} of 50 pairs are significant wins (largest Holm-adjusted "
          rf"$p={pmax[(m, p)]:.3g}$).}}", rf"\label{{tab:paired_{m}_{p}}}",
@@ -148,7 +148,7 @@ for m in ("atlas25m", "atlas10m"):
     for p in PER:
         open(os.path.join(T, f"paired_{m}_{p}.tex"), "w").write(tex_paired(m, p) + "\n")
 
-L = [r"\begin{table}[h]", r"\centering\scriptsize", r"\setlength{\tabcolsep}{3pt}",
+L = [r"\begin{table}[H]", r"\centering\scriptsize", r"\setlength{\tabcolsep}{3pt}",
      r"\caption{Atlas-5K 24M against its parent 10M, paired on identical windows: MAE difference in \%, 95\% bootstrap "
      r"interval, and Holm-adjusted $p$ (over the five variables). Validation: the adoption rule's 2022 stations.}",
      r"\label{tab:vs10m}", r"\begin{tabular}{l" + "c" * 5 + "}", r"\toprule", "Period & " + " & ".join(SHORT) + r"\\", r"\midrule"]
@@ -158,7 +158,7 @@ for p, lab in (("val", "2022 validation"), ("test", "2023 test"), ("live", "Live
 L += [r"\bottomrule", r"\end{tabular}", r"\end{table}"]
 open(os.path.join(T, "vs10m.tex"), "w").write("\n".join(L) + "\n")
 
-L = [r"\begin{table}[h]", r"\centering\scriptsize", r"\setlength{\tabcolsep}{4pt}",
+L = [r"\begin{table}[H]", r"\centering\scriptsize", r"\setlength{\tabcolsep}{4pt}",
      r"\caption{Opponents as run. All are zero-shot with 512 hourly context values per station and variable, the median "
      r"(or point) forecast is scored, and no opponent was fine-tuned. Minutes: wall-clock on one A100 for the 2023 test "
      r"windows. Licences as stated by each model's publisher at the time of the run.}", r"\label{tab:opp}",
@@ -211,12 +211,12 @@ if "--check" in sys.argv:
     blk = tex[tex.index(r"\label{tab:val}"):]; blk = blk[:blk.index(r"\end{tabular}")]
     for line in blk.split("\n"):
         cells = [c.strip() for c in line.rstrip("\\ ").split("&")]
-        if len(cells) != 9 or "v2c" in cells[0] or "Model" in cells[0]: continue
-        src = RUN["atlas25m"] if "24M" in cells[0] else RUN["atlas10m"]
+        if len(cells) != 9 or "Model" in cells[0]: continue
+        src = RUN["atlas25m"] if "24M" in cells[0] else RUN["atlas10m"] if "10M" in cells[0] else V2C
         for j, v in enumerate(VARS):
             if abs(num(cells[2 + j]) - src["val"]["MAE"][v]) > (5.1e-3 if j == 2 else 5.1e-4):
                 bad.append(("val", cells[0], v, cells[2 + j], src["val"]["MAE"][v]))
-        if abs(num(cells[7]) - src["val_E"]) > 5.1e-6: bad.append(("valE", cells[0], cells[7], src["val_E"]))
+        if abs(num(cells[7].split("$")[0]) - src["val_E"]) > 5.1e-6: bad.append(("valE", cells[0], cells[7], src["val_E"]))
         n += 1
     print(f"checked {n} table rows in main.tex;", "ALL MATCH" if not bad else f"{len(bad)} MISMATCHES")
     for b in bad: print("  ", b)

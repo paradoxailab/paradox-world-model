@@ -54,3 +54,32 @@ h, l = axs[0].get_legend_handles_labels()
 fig.legend(h, l, frameon=False, fontsize=6.6, loc="lower center", ncol=5)
 fig.tight_layout(rect=(0, 0.1, 1, 1)); fig.savefig(os.path.join(HERE, "figures/h2h.pdf")); plt.close(fig)
 print("ok")
+
+# ---- 3. parameters against error E on the 2023 head-to-head windows (TimesFM 3.0: size not published, so not placed;
+#         persistence has no parameters). Values from data/h2h_test.json.
+H = json.load(open(os.path.join(HERE, "data/h2h_test.json")))
+pts = [("atlas25m", "Atlas-5K 24M", 24103796), ("atlas10m", "Atlas-5K 10M", 9639780), ("v2c", "Atlas-5K 1M", 968672),
+       ("chronos2mv", "Chronos-2 mv.", 120e6), ("tirex", "TiRex", 35e6), ("chronos2", "Chronos-2", 120e6),
+       ("tfm25", "TimesFM 2.5", 200e6), ("sundial", "Sundial", 128e6), ("chronos-bolt", "Chronos-Bolt", 205e6),
+       ("timemoe200", "Time-MoE", 200e6), ("ttm", "TTM r2", 799756)]
+OFF = {"chronos2mv": (6, -7), "chronos2": (6, 3), "tfm25": (-52, 5), "sundial": (6, -1), "chronos-bolt": (6, 2),
+       "timemoe200": (-44, -2), "tirex": (6, -1), "ttm": (6, -3), "atlas25m": (6, -3), "atlas10m": (6, -3), "v2c": (6, -3)}
+fig, ax = plt.subplots(figsize=(5.6, 2.8))
+big = sorted([p for p in pts if p[2] >= 1e8], key=lambda p: H[p[0]]["E"])
+ys = [0.337 + 0.0082 * i for i in range(len(big))]
+for (k, lab, n), y in zip(big, ys):
+    ax.annotate(lab, (n, H[k]["E"]), xytext=(4.5e8, y), fontsize=6.8, color="#444444", va="center",
+                arrowprops=dict(arrowstyle="-", color="#bbbbbb", lw=0.5))
+for k, lab, n in pts:
+    ours = k in ("atlas25m", "atlas10m", "v2c")
+    ax.scatter(n, H[k]["E"], s=26 if ours else 18, color=DARK if ours else GREY, marker="o" if ours else "s", zorder=3)
+    if n < 1e8:
+        dx, dy = {"atlas25m": (0, -11), "atlas10m": (0, 6), "v2c": (0, 6), "tirex": (-8, 6), "ttm": (7, -3)}[k]
+        ax.annotate(lab, (n, H[k]["E"]), textcoords="offset points", xytext=(dx, dy), fontsize=6.8,
+                    ha="center" if k != "ttm" else "left", color=DARK if ours else "#444444")
+ax.axhline(H["tfm3"]["E"], color=BLUE, ls="--", lw=0.8)
+ax.text(6e5, H["tfm3"]["E"] - 0.0058, "TimesFM 3.0, E = %.3f (size not published)" % H["tfm3"]["E"], fontsize=6.8, color=BLUE)
+ax.set_xscale("log"); ax.set_xlabel("parameters"); ax.set_ylabel("E, 2023 head-to-head windows")
+ax.set_ylim(0.266, 0.382); ax.set_xlim(5e5, 2.5e9)
+fig.tight_layout(); fig.savefig(os.path.join(HERE, "figures/size.pdf")); plt.close(fig)
+print("ok size")

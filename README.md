@@ -17,16 +17,16 @@ at the start of training), to **9.64M** and then **24.1M** parameters ("10M" and
 * **Head-to-head on 709 stations, 24 h ahead:** both models win **all 50** opponent × variable comparisons against
   nine foundation-model configurations (TimesFM 2.5 and 3.0, Chronos-2 uni- and multivariate, Chronos-Bolt, TiRex,
   Sundial, Time-MoE 200M, TTM r2) and persistence, on the 2023 test year **and** on 19 months of fresh NOAA observations
-  (January 2024 – August 2025) that no model could have trained on. Largest Holm-adjusted p = 0.005.
+  (January 2024 – August 2025), after the benchmark ends, which Atlas never saw. The foundation models' training corpora are not fully documented; any overlap with these years or with 2023 would favour them, not Atlas. Largest Holm-adjusted p = 0.005.
 * **Margin:** the 25M's combined error E is **17.0% below** the best foundation model, TimesFM 3.0 (0.2742 vs 0.3303),
   with 5.0–8.5× fewer parameters than Chronos-2 (120M), Sundial (128M), TimesFM 2.5 (200M), Time-MoE (200M) and Chronos-Bolt (205M); the 10M has 12–21× fewer and is 16.1% below TimesFM 3.0.
 * **Full 2023 test** (all 5,672 stations, every hour): the 25M has lower error than **PhysicsFormer** (19.3M, the
   benchmark's best published model) on 4 of 5 variables, **not on sea-level pressure** (+3.0%), and lower error than the
   **ECMWF-HRES** forecast at stations on 4 of 5, **far worse on pressure** (+71%).
 * **What size bought:** 10× the parameters (1M → 10M) gave −1.95% validation error; another 2.5× (10M → 25M) gave
-  −1.03%, adopted by a margin of 0.00008 in E, with one seed, and no significant gain on pressure.
+  −1.03%, adopted by a margin of 0.00009 in E, with one seed, and no significant gain on pressure.
 
-Paper: [`atlas/paper4/Atlas5K_growth_preprint.pdf`](atlas/paper4/Atlas5K_growth_preprint.pdf) ·
+Paper (NeurIPS format, 16 pages with appendix, proofs, full paired tables, every prediction and the checklist): [`atlas/paper4/Atlas5K_growth_preprint.pdf`](atlas/paper4/Atlas5K_growth_preprint.pdf) ·
 rules, predictions and full record: [`atlas/README.md`](atlas/README.md) ·
 model card: [`atlas/MODELS.md`](atlas/MODELS.md) ·
 raw outputs: [`atlas/results/colab/atlas5k_grown/`](atlas/results/colab/atlas5k_grown) ·
@@ -121,6 +121,9 @@ zero-shot with 512 hours of history (Atlas uses 48) and scored by their median f
 * **One seed** per grown model; the 25M's adoption margin is within seed noise.
 * **Growth against restart** is not isolated: no 10M or 25M model was trained from scratch for comparison.
 * **24 hours only.** No rainfall, no extremes, no 3–7 day horizons yet.
+* **Data overlap is not excluded for the opponents.** Several foundation models were released in 2025 and their corpora may contain NOAA station data from 2023–25. That can only help them; Atlas was trained on 2014–2021 only.
+* **Live-data processing differs:** the live period uses NOAA ISD-Lite, whose hourly selection is not WEATHER-5K's; every model's error rises there (E: Atlas 25M +9.7%, 10M +9.3%; the nine foundation models +5.0% to +7.5%).
+* **Not compared:** Moirai, Toto, Lag-Llama, MOMENT, Birla AI Labs' Yug-1 and other models outside the ten listed.
 * **Published comparisons** (PhysicsFormer, ECMWF-HRES) are by number, not paired, and use the published protocol.
 * **Harness amendment:** TTM r2, Sundial and Time-MoE first failed for setup reasons; they were rerun in their
   documented setup (IBM's hourly frequency token; a Python 3.11 environment for `transformers==4.40.1`), recorded in

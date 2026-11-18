@@ -153,8 +153,9 @@ class TTM:
 
     def __init__(self, ctx, H):
         from tsfm_public.toolkit.get_model import get_model
-        self.m = get_model("ibm-granite/granite-timeseries-ttm-r2", context_length=ctx, prediction_length=H).to(DEV).eval()
+        self.m = get_model("ibm-granite/granite-timeseries-ttm-r2", context_length=ctx, prediction_length=H, freq="h").to(DEV).eval()
         self.H, self.ctx = H, ctx
+        self.freq = bool(getattr(self.m.config, "resolution_prefix_tuning", False))   # hourly token 7 (IBM's mapping)
         self.params = float(sum(p.numel() for p in self.m.parameters()))
         self.name = f"TTM r2 (IBM Research, {self.params / 1e6:.1f}M)"
 
@@ -163,7 +164,9 @@ class TTM:
         x, mu, sd = _norm(c)
         out = []
         for i in range(0, len(x), 4096):
-            o = self.m(past_values=x[i:i + 4096, -self.ctx:, None].to(DEV)).prediction_outputs          # [n, >=H, 1]
+            xb = x[i:i + 4096, -self.ctx:, None].to(DEV)
+            kw = dict(freq_token=torch.full((len(xb),), 7, dtype=torch.long, device=DEV)) if self.freq else {}
+            o = self.m(past_values=xb, **kw).prediction_outputs                                      # [n, >=H, 1]
             out.append(o[:, :self.H, 0].float().cpu())
         p = torch.cat(out) * sd + mu
         return np.repeat(p.numpy()[..., None], 3, -1)

@@ -1,0 +1,79 @@
+{
+ "atlas10m": [
+  {
+   "variable": "Temperature",
+   "ours": 1.4212,
+   "theirs": 1.448,
+   "diff_pct": -1.86,
+   "ci95_pct": [
+    -2.01,
+    -1.7
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 1.6081918701344894e-85,
+   "points": 1914220,
+   "p_holm": 0.0005,
+   "verdict": "WIN"
+  },
+  {
+   "variable": "Dewpoint",
+   "ours": 1.4534,
+   "theirs": 1.4693,
+   "diff_pct": -1.08,
+   "ci95_pct": [
+    -1.2,
+    -0.95
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 1.6591666375568286e-47,
+   "points": 1900577,
+   "p_holm": 0.0005,
+   "verdict": "WIN"
+  },
+  {
+   "variable": "Wind direction",
+   "ours": 64.3764,
+   "theirs": 64.7594,
+   "diff_pct": -0.59,
+   "ci95_pct": [
+    -0.7,
+    -0.48
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 3.7815263080972143e-22,
+   "points": 1854976,
+   "p_holm": 0.0005,
+   "verdict": "WIN"
+  },
+  {
+   "variable": "Wind speed",
+   "ours": 1.2023,
+   "theirs": 1.2103,
+   "diff_pct": -0.66,
+   "ci95_pct": [
+    -0.75,
+    -0.58
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 3.114907704363596e-97,
+   "points": 1907953,
+   "p_holm": 0.0005,
+   "verdict": "WIN"
+  },
+  {
+   "variable": "Sea-level pressure",
+   "ours": 1.6242,
+   "theirs": 1.6225,
+   "diff_pct": 0.1,
+   "ci95_pct": [
+    -0.08,
+    0.28
+   ],
+   "p_bootstrap": 0.27649999999999997,
+   "p_dm": 0.5637616653824012,
+   "points": 1702837,
+   "p_holm": 0.5637616653824012,
+   "verdict": "TIE"
+  }
+ ]
+}

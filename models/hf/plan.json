@@ -1,0 +1,511 @@
+{
+ "ns": "paradoxailab",
+ "index_repo": "paradoxailab/paradox-world-model-series",
+ "models": [
+  {
+   "series_no": 1,
+   "repo": "paradoxailab/pwm-dyn-v0.4-pems08",
+   "file": "01_pwm-dyn_v0.4_PEMS08.pt",
+   "sha256": "0b3cbb5a172a5bb0caef183e6e2760d3518d5ee7d9a28d834bfb6c03cbe12f18",
+   "bytes": 1299673,
+   "card": "models/hf/cards/pwm-dyn-v0.4-pems08/README.md",
+   "note": "#01 \u00b7 PWM-Dyn v0.4 \u00b7 318,148 params \u00b7 ParadoxBench-1 Track A test MAE 14.53 (3-seed ensemble; this file is seed 0)"
+  },
+  {
+   "series_no": 2,
+   "repo": "paradoxailab/pwm-dyn-v0.4-pems04",
+   "file": "02_pwm-dyn_v0.4_PEMS04.pt",
+   "sha256": "a75bd82ed5a59f06633973c53336856ebf8d28a746dd287f1c87c586279beedd",
+   "bytes": 1369177,
+   "card": "models/hf/cards/pwm-dyn-v0.4-pems04/README.md",
+   "note": "#02 \u00b7 PWM-Dyn v0.4 \u00b7 335,684 params \u00b7 ParadoxBench-1 Track A test MAE 19.21 (3-seed ensemble; this file is seed 0)"
+  },
+  {
+   "series_no": 3,
+   "repo": "paradoxailab/pwm-dyn-v0.4-imd_central_india",
+   "file": "03_pwm-dyn_v0.4_IMD_central_india.pt",
+   "sha256": "f6a2261154491564d50d45dd0ae3ff47cada42e1428e3ef19d0415666722e682",
+   "bytes": 1690122,
+   "card": "models/hf/cards/pwm-dyn-v0.4-imd_central_india/README.md",
+   "note": "#03 \u00b7 PWM-Dyn v0.4 \u00b7 415,989 params \u00b7 ParadoxBench-1 Track A test MAE 2.84 mm/day (3-seed ensemble; this file is seed 0)"
+  },
+  {
+   "series_no": 4,
+   "repo": "paradoxailab/pwm-dyn-v0.4-imd_west_coast",
+   "file": "04_pwm-dyn_v0.4_IMD_west_coast.pt",
+   "sha256": "2b41a78eb94943d5230b01b820a48b224aa22c89c9d72d714750d1d8a82d7355",
+   "bytes": 1434481,
+   "card": "models/hf/cards/pwm-dyn-v0.4-imd_west_coast/README.md",
+   "note": "#04 \u00b7 PWM-Dyn v0.4 \u00b7 352,117 params \u00b7 ParadoxBench-1 Track A test MAE 3.41 mm/day (3-seed ensemble; this file is seed 0)"
+  },
+  {
+   "series_no": 5,
+   "repo": "paradoxailab/pwm-dyn-v0.4.1-pems08",
+   "file": "05_pwm-dyn_v0.4.1_PEMS08.pt",
+   "sha256": "2cf59d4b2772cdd61fe86de1fde183f41015d4724cb42139cb5e7f6a02cc6350",
+   "bytes": 1299775,
+   "card": "models/hf/cards/pwm-dyn-v0.4.1-pems08/README.md",
+   "note": "#05 \u00b7 PWM-Dyn v0.4.1 \u00b7 318,148 params \u00b7 ParadoxBench-1 Track A test MAE 14.50 (3-seed ensemble; this file is seed 0)"
+  },
+  {
+   "series_no": 6,
+   "repo": "paradoxailab/pwm-dyn-v0.4.1-pems04",
+   "file": "06_pwm-dyn_v0.4.1_PEMS04.pt",
+   "sha256": "5213ec3869a6548e20516474fd2b6b59b60f4024e33c27390c1e207b16a67586",
+   "bytes": 1369279,
+   "card": "models/hf/cards/pwm-dyn-v0.4.1-pems04/README.md",
+   "note": "#06 \u00b7 PWM-Dyn v0.4.1 \u00b7 335,684 params \u00b7 ParadoxBench-1 Track A test MAE 19.02 (3-seed ensemble; this file is seed 0)"
+  },
+  {
+   "series_no": 7,
+   "repo": "paradoxailab/pwm-dyn-v0.6-pems08",
+   "file": "07_pwm-dyn_v0.6_PEMS08.pt",
+   "sha256": "98684bdae49c68a6bc5a6755143932a8ebe39e9d85e28403435507d36a26a3f7",
+   "bytes": 1298817,
+   "card": "models/hf/cards/pwm-dyn-v0.6-pems08/README.md",
+   "note": "#07 \u00b7 PWM-Dyn v0.6 \u00b7 316,900 params \u00b7 ParadoxBench-1.1 Track A test MAE 14.12 (3-seed ensemble, fresh seeds 100-102; this file is seed 100)"
+  },
+  {
+   "series_no": 8,
+   "repo": "paradoxailab/pwm-dyn-v0.6-pems04",
+   "file": "08_pwm-dyn_v0.6_PEMS04.pt",
+   "sha256": "5fabdb3c302af258bf75ba2d6e2e71e4df1db7be62051ef7092aed65232b6222",
+   "bytes": 1368193,
+   "card": "models/hf/cards/pwm-dyn-v0.6-pems04/README.md",
+   "note": "#08 \u00b7 PWM-Dyn v0.6 \u00b7 334,436 params \u00b7 ParadoxBench-1.1 Track A test MAE 18.46 (3-seed ensemble, fresh seeds 100-102; this file is seed 100)"
+  },
+  {
+   "series_no": 9,
+   "repo": "paradoxailab/pwm-dyn-v0.6-pems03",
+   "file": "09_pwm-dyn_v0.6_PEMS03.pt",
+   "sha256": "304b77bb71efbb2dd61be93482edd7670d8a1f94145bde333b5e1a8c725058d1",
+   "bytes": 1391617,
+   "card": "models/hf/cards/pwm-dyn-v0.6-pems03/README.md",
+   "note": "#09 \u00b7 PWM-Dyn v0.6 \u00b7 340,964 params \u00b7 ParadoxBench-1.1 Track A test MAE 14.34 (3-seed ensemble, fresh seeds 100-102; this file is seed 100)"
+  },
+  {
+   "series_no": 10,
+   "repo": "paradoxailab/pwm-dyn-v0.6-pems07",
+   "file": "10_pwm-dyn_v0.6_PEMS07.pt",
+   "sha256": "ddf81b80ac53dbcd7b33392361684c1bd9467d7036c70b089d2d83212730e488",
+   "bytes": 1659009,
+   "card": "models/hf/cards/pwm-dyn-v0.6-pems07/README.md",
+   "note": "#10 \u00b7 PWM-Dyn v0.6 \u00b7 408,164 params \u00b7 ParadoxBench-1.1 Track A test MAE 19.56 (3-seed ensemble, fresh seeds 100-102; this file is seed 100)"
+  },
+  {
+   "series_no": 11,
+   "repo": "paradoxailab/pwm-dyn-v0.6-metr-la",
+   "file": "11_pwm-dyn_v0.6_METR-LA.pt",
+   "sha256": "5c65bb2986ef4e5e8da4d492bb2ed629f6d21d283e971c41e94f4a3997a9fe4f",
+   "bytes": 1314354,
+   "card": "models/hf/cards/pwm-dyn-v0.6-metr-la/README.md",
+   "note": "#11 \u00b7 PWM-Dyn v0.6 \u00b7 321,636 params \u00b7 ParadoxBench-1.1 Track A test MAE 2.92 (3-seed ensemble, fresh seeds 100-102; this file is seed 100)"
+  },
+  {
+   "series_no": 12,
+   "repo": "paradoxailab/pwm-dyn-v0.6-pems-bay",
+   "file": "12_pwm-dyn_v0.6_PEMS-BAY.pt",
+   "sha256": "0144afa3098a7206e8fe2679bf13a0d49d67a30e67562a84ca7d8bff81d54a48",
+   "bytes": 1374819,
+   "card": "models/hf/cards/pwm-dyn-v0.6-pems-bay/README.md",
+   "note": "#12 \u00b7 PWM-Dyn v0.6 \u00b7 336,740 params \u00b7 ParadoxBench-1.1 Track A test MAE 1.52 (3-seed ensemble, fresh seeds 100-102; this file is seed 100)"
+  },
+  {
+   "series_no": 13,
+   "repo": "paradoxailab/pwm-dyn-v0.7-pems08",
+   "file": "13_pwm-dyn_v0.7_PEMS08.pt",
+   "sha256": "7ceafd51412003f65bac49a8b56b48561f325a291421379b7c9333eba212fd3b",
+   "bytes": 1304641,
+   "card": "models/hf/cards/pwm-dyn-v0.7-pems08/README.md",
+   "note": "#13 \u00b7 PWM-Dyn v0.7 \u00b7 317,092 params \u00b7 ParadoxBench-1.2 test MAE clean 14.22, real outages (Track G) 18.09 (3-seed ensemble; this file is seed 200)"
+  },
+  {
+   "series_no": 14,
+   "repo": "paradoxailab/pwm-dyn-v0.7-pems04",
+   "file": "14_pwm-dyn_v0.7_PEMS04.pt",
+   "sha256": "a61c1911cd3063e6d40c041382e44e7e98adeafe0e14bbc15623f762e1a13be5",
+   "bytes": 1374337,
+   "card": "models/hf/cards/pwm-dyn-v0.7-pems04/README.md",
+   "note": "#14 \u00b7 PWM-Dyn v0.7 \u00b7 334,628 params \u00b7 ParadoxBench-1.2 test MAE clean 18.53, real outages (Track G) 21.05 (3-seed ensemble; this file is seed 200)"
+  },
+  {
+   "series_no": 15,
+   "repo": "paradoxailab/pwm-dyn-v0.7-pems03",
+   "file": "15_pwm-dyn_v0.7_PEMS03.pt",
+   "sha256": "154e52d707459ed42e2c5d4d84565a3210cf20be181e17df47c3922392a5c76c",
+   "bytes": 1399041,
+   "card": "models/hf/cards/pwm-dyn-v0.7-pems03/README.md",
+   "note": "#15 \u00b7 PWM-Dyn v0.7 \u00b7 341,156 params \u00b7 ParadoxBench-1.2 test MAE clean 14.60, real outages (Track G) 18.39 (3-seed ensemble; this file is seed 200)"
+  },
+  {
+   "series_no": 16,
+   "repo": "paradoxailab/pwm-dyn-v0.7-pems07",
+   "file": "16_pwm-dyn_v0.7_PEMS07.pt",
+   "sha256": "3f30210048de85defb9bf6027f815a9907f55c951761937da49fb0de7cc793a2",
+   "bytes": 1666241,
+   "card": "models/hf/cards/pwm-dyn-v0.7-pems07/README.md",
+   "note": "#16 \u00b7 PWM-Dyn v0.7 \u00b7 408,356 params \u00b7 ParadoxBench-1.2 test MAE clean 19.78, real outages (Track G) 25.01 (3-seed ensemble; this file is seed 200)"
+  },
+  {
+   "series_no": 17,
+   "repo": "paradoxailab/pwm-dyn-v0.7-metr-la",
+   "file": "17_pwm-dyn_v0.7_METR-LA.pt",
+   "sha256": "8ed6c5f522d9ed4de5b7983199d34c26e95b64bb920887833aeb9dafc7f73ce3",
+   "bytes": 1322226,
+   "card": "models/hf/cards/pwm-dyn-v0.7-metr-la/README.md",
+   "note": "#17 \u00b7 PWM-Dyn v0.7 \u00b7 321,828 params \u00b7 ParadoxBench-1.2 test MAE clean 2.918, real outages (Track G) 3.147 (3-seed ensemble; this file is seed 200)"
+  },
+  {
+   "series_no": 18,
+   "repo": "paradoxailab/pwm-dyn-v0.7-pems-bay",
+   "file": "18_pwm-dyn_v0.7_PEMS-BAY.pt",
+   "sha256": "9dfc4376769707ed8cd05dee6fe46e146456adedd5b75473a5158b56eb909337",
+   "bytes": 1382243,
+   "card": "models/hf/cards/pwm-dyn-v0.7-pems-bay/README.md",
+   "note": "#18 \u00b7 PWM-Dyn v0.7 \u00b7 336,932 params \u00b7 ParadoxBench-1.2 test MAE clean 1.533, real outages (Track G) 1.959 (3-seed ensemble; this file is seed 200)"
+  },
+  {
+   "series_no": 19,
+   "repo": "paradoxailab/pwm-w-delhi-v0.1",
+   "file": "19_pwm-w_delhi_v0.1_pm25.pt",
+   "sha256": "2191c741d7895eefa6b106e21daba3f4331101a629c419c1f937e5c7e6c37d4c",
+   "bytes": 3614547,
+   "card": "models/hf/cards/pwm-w-delhi-v0.1/README.md",
+   "note": "#19 \u00b7 PWM-W Delhi v0.1 \u00b7 884,204 params \u00b7 PM2.5 test MAE 32.63 (3 seeds); beats every simple baseline by 19-29%; loses to TimesFM 3.0 (29.95) and level with Chronos"
+  },
+  {
+   "series_no": 20,
+   "repo": "paradoxailab/pwm-w-delhi-v0.2",
+   "file": "20_pwm-w_delhi_v0.2_pm25_hybrid.pt",
+   "sha256": "704cda79819b85a029d5d6d2bc4592f58b8082bba02e98208e83372c2ff62f56",
+   "bytes": 4315138,
+   "card": "models/hf/cards/pwm-w-delhi-v0.2/README.md",
+   "note": "#20 \u00b7 PWM-W Delhi v0.2 \u00b7 1,060,076 params \u00b7 result in branch delhi-v0.2 README (not restated here)"
+  },
+  {
+   "series_no": 21,
+   "repo": "paradoxailab/pwm-w-weather-v0.3-cpcb",
+   "file": "21_pwm-w_weather_v0.3_cpcb.pt",
+   "sha256": "0cfb635faa43fb00f8b25ab75e1d11e79eabac1fce79a620249aa38d2d7c186d",
+   "bytes": 3868981,
+   "card": "models/hf/cards/pwm-w-weather-v0.3-cpcb/README.md",
+   "note": "#21 \u00b7 PWM-W Weather v0.3 (league run) \u00b7 932,348 params \u00b7 weather league against the global AI weather models; results in paper-weather (v0.3 section)"
+  },
+  {
+   "series_no": 22,
+   "repo": "paradoxailab/pwm-w-weather-v0.3-wmo",
+   "file": "22_pwm-w_weather_v0.3_wmo.pt",
+   "sha256": "76cce210f71e44d8ebcf20924664edc13b509d8d361a81ff3422c65403861f14",
+   "bytes": 3788253,
+   "card": "models/hf/cards/pwm-w-weather-v0.3-wmo/README.md",
+   "note": "#22 \u00b7 PWM-W Weather v0.3 (league run) \u00b7 932,348 params \u00b7 weather league against the global AI weather models; results in paper-weather (v0.3 section)"
+  },
+  {
+   "series_no": 23,
+   "repo": "paradoxailab/pwm-w-weather-v0.4-cpcb",
+   "file": "23_pwm-w_weather_v0.4_cpcb.pt",
+   "sha256": "3c05a7538662e4af7dd89400d2e8750420a35e041ab80d50f1c14f5dc2ac95f0",
+   "bytes": 9755643,
+   "card": "models/hf/cards/pwm-w-weather-v0.4-cpcb/README.md",
+   "note": "#23 \u00b7 PWM-W Weather v0.4 \u00b7 2,385,504 params \u00b7 CPCB: pure model beats IFS 0.25, IFS 9 km and GFS on all three variables; loses to Chronos-2 by 6.0-8.3%"
+  },
+  {
+   "series_no": 24,
+   "repo": "paradoxailab/pwm-w-weather-v0.4-wmo",
+   "file": "24_pwm-w_weather_v0.4_wmo.pt",
+   "sha256": "f3729e60839bd38a897be609104931ee199de7237e87deb8aee50508e16c0dc6",
+   "bytes": 3848989,
+   "card": "models/hf/cards/pwm-w-weather-v0.4-wmo/README.md",
+   "note": "#24 \u00b7 PWM-W Weather v0.4 \u00b7 932,348 params \u00b7 WMO league: see delhi-v0.4 README"
+  },
+  {
+   "series_no": 25,
+   "repo": "paradoxailab/pwm-w-weather-v0.5-metar",
+   "file": "25_pwm-w_weather_v0.5_metar.pt",
+   "sha256": "49e959062c20d6271e4415324392169ffa6880978b0b4c793881119cca9fe9ca",
+   "bytes": 3945293,
+   "card": "models/hf/cards/pwm-w-weather-v0.5-metar/README.md",
+   "note": "#25 \u00b7 PWM-W Weather v0.5 \u00b7 932,348 params \u00b7 see branch delhi-v0.5 README"
+  },
+  {
+   "series_no": 26,
+   "repo": "paradoxailab/pwm-w-weather-v0.6-cpcb",
+   "file": "26_pwm-w_weather_v0.6_cpcb.pt",
+   "sha256": "779d80e286802df695bcfecfa1667d6a642209a27ab5a5a1a063e034a647ffd0",
+   "bytes": 4127029,
+   "card": "models/hf/cards/pwm-w-weather-v0.6-cpcb/README.md",
+   "note": "#26 \u00b7 PWM-W Weather v0.6 \u00b7 932,348 params \u00b7 validation 0.4735 vs 0.4922 (about 5 sigma better); still trails Chronos-2 / TimesFM 3.0 by 4-7% on test"
+  },
+  {
+   "series_no": 28,
+   "repo": "paradoxailab/pwm-w-weather-v0.8-cpcb",
+   "file": "28_pwm-w_weather_v0.8_cpcb.pt",
+   "sha256": "6402a3fe50e2741468b27f5ab25b0bb82cdf5f4cdfc0e980c816be01e9ae1363",
+   "bytes": 4172677,
+   "card": "models/hf/cards/pwm-w-weather-v0.8-cpcb/README.md",
+   "note": "#28 \u00b7 PWM-W Weather v0.8 \u00b7 985,853 params \u00b7 validation 0.4678 (6.4 sigma better than P0); three losses to the foundation models became ties; wind still trails"
+  },
+  {
+   "series_no": 29,
+   "repo": "paradoxailab/pwm-x-cpcb",
+   "file": "29_pwm-x_v0.9_cpcb.pt",
+   "sha256": "06708fe9c526bc40622eb5c49cc1cc5ef23e4a461af4d4aa6ddfe00486ad20b1",
+   "bytes": 5589589,
+   "card": "models/hf/cards/pwm-x-cpcb/README.md",
+   "note": "#29 \u00b7 PWM-X (v0.9) \u00b7 1,260,997 params \u00b7 data-threshold study: about 24 months of local history to stop losing to TimesFM/Chronos, about 48 to beat them"
+  },
+  {
+   "series_no": 30,
+   "repo": "paradoxailab/pwm-w-live-v0.9",
+   "file": "30_pwm-w_live_v0.9.pt",
+   "sha256": "f6bf6c9598ab3ca31d0f24da3ebd582919e5c3e0c9639e34e49d8651a8e59956",
+   "bytes": 3995965,
+   "card": "models/hf/cards/pwm-w-live-v0.9/README.md",
+   "note": "#30 \u00b7 PWM-W v0.9 live \u00b7 985,853 params \u00b7 live track (see paper-weather v0.9)"
+  },
+  {
+   "series_no": 32,
+   "repo": "paradoxailab/pwm-w-v1.0-metar",
+   "file": "32_pwm-w_v1.0_metar.pt",
+   "sha256": "627d38dbfe4ef491782c622092a060fccc0d5be7f69a695d8015eeb60319c9f5",
+   "bytes": 5184207,
+   "card": "models/hf/cards/pwm-w-v1.0-metar/README.md",
+   "note": "#32 \u00b7 PWM-W v1.0 \u00b7 1,260,997 params \u00b7 no result recorded in the delhi-v1.0 README"
+  },
+  {
+   "series_no": 33,
+   "repo": "paradoxailab/pwm-w-v1.0-wmo",
+   "file": "33_pwm-w_v1.0_wmo.pt",
+   "sha256": "f9ac347d981a2d0658d5fcf923b527cd76b6a65267ec3d591e4ac2bf2b070b56",
+   "bytes": 5173083,
+   "card": "models/hf/cards/pwm-w-v1.0-wmo/README.md",
+   "note": "#33 \u00b7 PWM-W v1.0 \u00b7 1,260,997 params \u00b7 no result recorded in the delhi-v1.0 README"
+  },
+  {
+   "series_no": 35,
+   "repo": "paradoxailab/pwm-f-encoder-v2.0",
+   "file": "35_pwm-f_encoder_v2.0_10m.pt",
+   "sha256": "c5046eb48820d1da1a5f29e1f42b17b0f5a4145f19ab07ccd7de41d30a581431",
+   "bytes": 42332123,
+   "card": "models/hf/cards/pwm-f-encoder-v2.0/README.md",
+   "note": "#35 \u00b7 PWM-F encoder (India v2.0) \u00b7 10,538,577 params \u00b7 held-out MAE 0.862 \u00b0C, 4.80 %RH, 0.578 m/s; not adopted for CPCB (validation 0.4620 vs 0.4597)"
+  },
+  {
+   "series_no": 36,
+   "repo": "paradoxailab/pwm-f-encoder-v2.1",
+   "file": "36_pwm-f_encoder_v2.1_10m.pt",
+   "sha256": "06ddbb029b15936ca296bdf23b6f60d96f9e2b1ab7a245bec82de0b04f14f1b6",
+   "bytes": 42204635,
+   "card": "models/hf/cards/pwm-f-encoder-v2.1/README.md",
+   "note": "#36 \u00b7 PWM-F encoder (v2.1 run) \u00b7 10,538,577 params \u00b7 see branch india-v2.0"
+  },
+  {
+   "series_no": 37,
+   "repo": "paradoxailab/atlas-delhi-v1.0",
+   "file": "37_atlas_delhi_v1.0.pt",
+   "sha256": "309caeb33af0739d8f5c6bcf245b2fbf59fe53048a28e43cbe37698c99f9b721",
+   "bytes": 3994789,
+   "card": "models/hf/cards/atlas-delhi-v1.0/README.md",
+   "note": "#37 \u00b7 Atlas-Delhi v1.0 \u00b7 967,632 params \u00b7 test MAE 33.42 / 29.07 (trained / unseen stations, 3 seeds); loses to TimesFM 2.5 (30.83, +8.4%)"
+  },
+  {
+   "series_no": 38,
+   "repo": "paradoxailab/atlas-delhi-v1.1",
+   "file": "38_atlas_delhi_v1.1.pt",
+   "sha256": "15085632cf0b356f5e5fe44e6e269ad98a0f859ba16fc25b0c0a4603217e3867",
+   "bytes": 7783583,
+   "card": "models/hf/cards/atlas-delhi-v1.1/README.md",
+   "note": "#38 \u00b7 Atlas-Delhi v1.1 \u00b7 967,632 params \u00b7 validation 20.807 vs 22.127 for the 16-month model: adopted"
+  },
+  {
+   "series_no": 39,
+   "repo": "paradoxailab/atlas-delhi-v1.2",
+   "file": "39_atlas_delhi_v1.2.pt",
+   "sha256": "02bad59d9ade989b4b9157002648228ebe297fa1f903881e4fc47e588188837c",
+   "bytes": 3901541,
+   "card": "models/hf/cards/atlas-delhi-v1.2/README.md",
+   "note": "#39 \u00b7 Atlas-Delhi v1.2 \u00b7 967,632 params \u00b7 adopted on validation; not better than v1.1 on test (recorded honestly)"
+  },
+  {
+   "series_no": 40,
+   "repo": "paradoxailab/atlas-india-v1.0",
+   "file": "40_atlas_india_v1.0.pt",
+   "sha256": "d7f836dfd15d0778a291cb4707840873daf74fe4eafd0964de954fd4464661e7",
+   "bytes": 3995365,
+   "card": "models/hf/cards/atlas-india-v1.0/README.md",
+   "note": "#40 \u00b7 Atlas-India v1.0 \u00b7 967,632 params \u00b7 all-India test MAE 20.99 / 20.86 vs TimesFM 2.5 22.35 / 21.93"
+  },
+  {
+   "series_no": 41,
+   "repo": "paradoxailab/atlas-india-v1.3-pretrain",
+   "file": "41_atlas_india_v1.3_pretrain.pt",
+   "sha256": "2efe2059c8736d83a350a55b554beacbf2506d35d14ebb8bfa8ca38ec42804e1",
+   "bytes": 3903381,
+   "card": "models/hf/cards/atlas-india-v1.3-pretrain/README.md",
+   "note": "#41 \u00b7 Atlas v1.3 (pre-training on 13 networks) \u00b7 967,632 params \u00b7 pooled validation 8.507 on the 13 networks"
+  },
+  {
+   "series_no": 42,
+   "repo": "paradoxailab/atlas-delhi-v1.3",
+   "file": "42_atlas_delhi_v1.3.pt",
+   "sha256": "ad74f793f20e274d1469bf432af77c1ad6336c21197b6a1829a484c1af582dca",
+   "bytes": 7830751,
+   "card": "models/hf/cards/atlas-delhi-v1.3/README.md",
+   "note": "#42 \u00b7 Atlas-Delhi v1.3 \u00b7 967,632 params \u00b7 adopted; League v2.0 MAE 28.91 / 25.56, beats Moirai 2.0 (30.50) by 5.2%"
+  },
+  {
+   "series_no": 43,
+   "repo": "paradoxailab/atlas-w-v0",
+   "file": "43_atlas-w_v0_14k.pt",
+   "sha256": "28c313770f06d349b633b12c0ee5cfc9c33d2b7ec5f614e50a774f56d33bf63b",
+   "bytes": 144107,
+   "card": "models/hf/cards/atlas-w-v0/README.md",
+   "note": "#43 \u00b7 Atlas-W v0 (air core) \u00b7 14,043 params \u00b7 14,043 parameters; 6-13% lower error than Atlas at every amount of data"
+  },
+  {
+   "series_no": 44,
+   "repo": "paradoxailab/atlas-w-v1-pretrain",
+   "file": "44_atlas-w_v1_pretrain.pt",
+   "sha256": "55d7be51fef1f7fe496363664b44c5e823812ff2e93ac3cd9e45d82635b57fd9",
+   "bytes": 86701,
+   "card": "models/hf/cards/atlas-w-v1-pretrain/README.md",
+   "note": "#44 \u00b7 Atlas-W v1 (pre-training) \u00b7 14,043 params \u00b7 pooled validation 8.83-8.86"
+  },
+  {
+   "series_no": 45,
+   "repo": "paradoxailab/atlas-w-v1-delhi",
+   "file": "45_atlas-w_v1_delhi.pt",
+   "sha256": "fc0522481c4cf26a06c5b5724434eacbeb3ac0391dea8aca7fdc7aa1be364724",
+   "bytes": 149267,
+   "card": "models/hf/cards/atlas-w-v1-delhi/README.md",
+   "note": "#45 \u00b7 Atlas-W v1 (Delhi) \u00b7 14,043 params \u00b7 see League v2.0 (Atlas-W day 2 results)"
+  },
+  {
+   "series_no": 46,
+   "repo": "paradoxailab/atlas-delhi-i1",
+   "file": "46_atlas_delhi_i1.pt",
+   "sha256": "fdbe1ecc6972646ea084813823d502347fcbd57dd067555d31bc5b8adcec389c",
+   "bytes": 7781419,
+   "card": "models/hf/cards/atlas-delhi-i1/README.md",
+   "note": "#46 \u00b7 Atlas-Delhi I1 (operational comparison) \u00b7 967,632 params \u00b7 Delhi winter 2024-25 MAE 31.27 (stage C, 3 seeds); IITM WRF-Chem 58.75 / IMD SILAM 71.68 published (by number)"
+  },
+  {
+   "series_no": 47,
+   "repo": "paradoxailab/atlas-v1.4n",
+   "file": "47_atlas_v1.4n.pt",
+   "sha256": "c523d31b68b7b1c29e53fcd2a9a1c98cca8fd0d0acc3212378d7191eaa8783b9",
+   "bytes": 3905333,
+   "card": "models/hf/cards/atlas-v1.4n/README.md",
+   "note": "#47 \u00b7 Atlas v1.4n (neighbours only) \u00b7 967,632 params \u00b7 validation 9.106 vs 9.104: not adopted"
+  },
+  {
+   "series_no": 48,
+   "repo": "paradoxailab/atlas-p",
+   "file": "48_atlas-p_physics_decoder.pt",
+   "sha256": "c1ade5219e722a8cdf188fa94693da681ee816ca970b71430c107a81cbeb8a86",
+   "bytes": 3949717,
+   "card": "models/hf/cards/atlas-p/README.md",
+   "note": "#48 \u00b7 Atlas-P (physics decoder) \u00b7 978,507 params \u00b7 validation 9.227 vs 9.104: not adopted"
+  },
+  {
+   "series_no": 49,
+   "repo": "paradoxailab/atlas-scale-3m",
+   "file": "49_atlas_scale_3m.pt",
+   "sha256": "cf583e3dc05de3ef045498d57d19803ce937a452b51e361ddb9284407ae00530",
+   "bytes": 11827269,
+   "card": "models/hf/cards/atlas-scale-3m/README.md",
+   "note": "#49 \u00b7 Atlas S2 (3M parameters) \u00b7 2,950,392 params \u00b7 validation 9.139 (+0.38% vs 1M): not adopted"
+  },
+  {
+   "series_no": 50,
+   "repo": "paradoxailab/atlas-scale-10m",
+   "file": "50_atlas_scale_10m.pt",
+   "sha256": "56a9696cd915f5c408d5770f73dbbf48d673c785c641b1c5d6e1be3d992642c5",
+   "bytes": 39825269,
+   "card": "models/hf/cards/atlas-scale-10m/README.md",
+   "note": "#50 \u00b7 Atlas S3 (10M parameters) \u00b7 9,949,792 params \u00b7 validation 9.222 (+1.30% vs 1M): not adopted"
+  },
+  {
+   "series_no": 51,
+   "repo": "paradoxailab/atlas-w1",
+   "file": "51_atlas_w1_weather.pt",
+   "sha256": "5502f8073ba770617d49fdbb5a572642572a01ea5ad31191d5f305eff9732167",
+   "bytes": 4020709,
+   "card": "models/hf/cards/atlas-w1/README.md",
+   "note": "#51 \u00b7 Atlas W1 (1M + weather) \u00b7 985,216 params \u00b7 validation 8.684 (-4.61%): adopted; all-India test 19.86 / 19.92 with ERA5 weather (upper bound) vs TimesFM 2.5 22.35 / 21.93"
+  },
+  {
+   "series_no": 52,
+   "repo": "paradoxailab/atlas-w10",
+   "file": "52_atlas_w10_weather_10m.pt",
+   "sha256": "febbbcf0c2b7e68f4abe4822019cd059cb7e9b6786bed11552447eac593bc760",
+   "bytes": 39678933,
+   "card": "models/hf/cards/atlas-w10/README.md",
+   "note": "#52 \u00b7 Atlas W10 (10M + weather) \u00b7 9,909,792 params \u00b7 validation 8.773 (+1.02% vs W1): not adopted"
+  },
+  {
+   "series_no": 53,
+   "repo": "paradoxailab/atlas-w10r",
+   "file": "53_atlas_w10r_weather_10m_reg.pt",
+   "sha256": "01bf5b86e535c9e6961e73a9efce5a98a67de18a5cd47eb0b2460d4d8dbffcc6",
+   "bytes": 39679365,
+   "card": "models/hf/cards/atlas-w10r/README.md",
+   "note": "#53 \u00b7 Atlas W10r (10M + weather, regularised) \u00b7 9,909,792 params \u00b7 validation 8.825 (+1.62% vs W1): not adopted"
+  },
+  {
+   "series_no": 54,
+   "repo": "paradoxailab/atlas-w-delhi-tb",
+   "file": "54_atlas-w_delhi_real_forecasts.pt",
+   "sha256": "d7c915088665a2f2e11955b20b66a25889e1a7e647c0c34629a5c9786108a92a",
+   "bytes": 7929111,
+   "card": "models/hf/cards/atlas-w-delhi-tb/README.md",
+   "note": "#54 \u00b7 Atlas-W Delhi (T-B, real forecasts) \u00b7 985,216 params \u00b7 Delhi winter 2024-25 MAE 28.19 vs 31.27 for the no-weather Atlas (-9.85%, p = 0.0009; stage B, 3 seeds)"
+  },
+  {
+   "series_no": 55,
+   "repo": "paradoxailab/atlas-5k-v1",
+   "file": "55_atlas-5k_v1_weather5k.pt",
+   "sha256": "6d6ce30b6edff83c1e8b2b90153e1935c68208897f0f162941591fade74dcfbc",
+   "bytes": 3942805,
+   "card": "models/hf/cards/atlas-5k-v1/README.md",
+   "note": "#55 \u00b7 Atlas-5K v1 \u00b7 968,672 params \u00b7 WEATHER-5K test 2023 MAE: T 1.553, Td 1.596, WS 1.228, WD 56.46, SLP 1.664; level with PhysicsFormer (19.3M) on T/Td; beats neither under the pre-registered rules"
+  },
+  {
+   "series_no": 56,
+   "repo": "paradoxailab/atlas-5k-v2a",
+   "file": "56_atlas-5k_v2a_weather5k.pt",
+   "sha256": "8851dd4672c2a89aa3c6c1ea1251c3b99024e902b3ceca8985e0d1c12fe0ac0b",
+   "bytes": 3905285,
+   "card": "models/hf/cards/atlas-5k-v2a/README.md",
+   "note": "#56 \u00b7 Atlas-5K v2a \u00b7 968,672 params \u00b7 validation E 0.28869 vs 0.29292 (-1.44%); not yet tested"
+  },
+  {
+   "series_no": 57,
+   "repo": "paradoxailab/atlas-5k-v2c",
+   "file": "57_atlas-5k_v2c_weather5k_adopted.pt",
+   "sha256": "c47c268e6e88022d02927b97da739059b9b983a56d75ce409eba7b1c0ee4fc0b",
+   "bytes": 3906309,
+   "card": "models/hf/cards/atlas-5k-v2c/README.md",
+   "note": "#57 \u00b7 Atlas-5K v2c (adopted) \u00b7 968,672 params \u00b7 validation E 0.28140 (-3.93% vs v1); 2023 test MAE T 1.474 / Td 1.520 / WD 54.84 / WS 1.202 / SLP 1.533: lower than PhysicsFormer on 4 of 5; grown into #58 and #59"
+  },
+  {
+   "series_no": 58,
+   "repo": "paradoxailab/atlas-5k-10m",
+   "file": "58_atlas-5k-10m_weather5k_adopted.pt",
+   "sha256": "c7670f71bbb09acacf07a3aa713084b010274fe756b794755db30e29cd005439",
+   "bytes": 38671723,
+   "card": "models/hf/cards/atlas-5k-10m/README.md",
+   "note": "#58 \u00b7 Atlas-5K 10M (adopted) \u00b7 9,639,780 params \u00b7 validation E 0.27592 (-1.95% vs v2c; adopted by rule 10M-A); 2023 test MAE T 1.429 / Td 1.486 / WD 53.93 / WS 1.183 / SLP 1.477: lower than PhysicsFormer (19.3M) on 4 of 5; does not beat ECMWF-HRES (pressure); head-to-head (709 stations, 2023 test and live 2024-25): significant wins on all five variables against 20 of 20 opponent-periods (TimesFM 2.5/3.0, Chronos-2, Chronos-Bolt, TiRex, Sundial, Time-MoE, TTM, persistence)"
+  },
+  {
+   "series_no": 59,
+   "repo": "paradoxailab/atlas-5k-25m",
+   "file": "59_atlas-5k-25m_weather5k_adopted.pt",
+   "sha256": "29e157f18c2b01355d952e88b237ef2fedc78b72abaf5259d3085007e2b94aa0",
+   "bytes": 96529467,
+   "card": "models/hf/cards/atlas-5k-25m/README.md",
+   "note": "#59 \u00b7 Atlas-5K 25M (adopted) \u00b7 24,103,796 params \u00b7 validation E 0.27307 (-1.03% vs 10M (#58); adopted by rule 25M-A); 2023 test MAE T 1.400 / Td 1.468 / WD 53.33 / WS 1.173 / SLP 1.473: lower than PhysicsFormer (19.3M) on 4 of 5; does not beat ECMWF-HRES (pressure); head-to-head (709 stations, 2023 test and live 2024-25): significant wins on all five variables against 20 of 20 opponent-periods (TimesFM 2.5/3.0, Chronos-2, Chronos-Bolt, TiRex, Sundial, Time-MoE, TTM, persistence)"
+  }
+ ],
+ "index_card": "models/hf/cards/paradox-world-model-series/README.md"
+}

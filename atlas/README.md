@@ -2750,6 +2750,36 @@ live periods it beats all ten opponents on all five variables, 50 of 50 (80%). N
 (80%); the best new one is TiRex or Sundial (60%). The 25M's paired difference against the 10M is significant on at
 least three of five variables on the test windows (50%).
 
+### Atlas-5K 25M results, part 1: training and validation (Google Colab, 2026-11-17/18)
+
+**Run.** Steps 0 to 8,000 ran on an A100 at 0.075 s/step. The session was then stopped by mistake (I deleted that
+runtime while it was running) and resumed from the step-8,000 checkpoint. Steps 8,000 to 80,000 ran on an L4 at
+0.220 s/step (5.9 h). The resume reloads model, optimiser, schedule and scaler, so it continues the same run. The
+schedule ended the run, not patience.
+
+**Check G0: passed.** Step-0 validation 0.2741 on the 300 stations is exactly the 10M's best on the same stations.
+
+**Curve** (300-station validation, standardised mean MAE):
+
+| Step | 2k | 6k | 16k | 22k | 28k | 36k | 42k | 50k | 58k | 66k | 72k (best) | 80k |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| E (300 st.) | 0.2771 | 0.2765 | 0.2759 | 0.2754 | 0.2747 | 0.2743 | 0.2738 | 0.2724 | 0.2717 | 0.2713 | **0.2712** | 0.2712 |
+
+As in the 10M run, validation first rose above the starting point while the learning rate was high, at 2e-4 this time
+against 3e-4. It went back below the start at step 38,000 (10M: 36,000) and was flat over the last 10,000 steps.
+
+**Rule 25M-A: ADOPTED, by a narrow margin.** Final validation 2022 (every 4th station, every 6th hour): MAE 1.388 /
+1.464 / 53.28 / 1.177 / 1.478 (T / Td / WD / WS / SLP), **E 0.27308** against the bar of **0.27316**. That is **−1.03%**
+against the 10M's 0.27592. Every variable improves on the 10M: −2.1%, −1.2%, −1.1%, −0.9%, −0.4%. The margin over the
+bar is 0.00008, under 0.03% of E. A second seed could fall on either side of it. The rule was written before the run, so
+the 25M is adopted, but this is not a robust 1% gain. Only one seed was run.
+
+**Predictions so far.** G0 passes (90%): **held**. The 25M is adopted (35%): it was, so the forecast that the gain would
+stay under 1% was **wrong**, if only just. Validation E between 0.268 and 0.276 (70%): **held**.
+
+**Not yet done:** the 2023 test and the widened head-to-head (Phase 6). The Colab session that ran the final evaluation
+was shut down during the 2023 test, before writing a result. The rerun skips training; its results go in part 2.
+
 **WB2 — GIFT-Eval** (Salesforce; the main leaderboard for time-series foundation models): its weather and air-quality
 datasets (e.g. KDD Cup 2018 air quality, Jena weather, temperature-rain), scored with its own code against the
 leaderboard's per-dataset results. Rules are written before it runs.

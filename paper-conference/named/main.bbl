@@ -244,16 +244,19 @@
 \showeprint[arxiv]{1905.03222}
 
 
-\bibitem[Shao et~al\mbox{.}(2024)]%
+\bibitem[Shao et~al\mbox{.}(2025)]%
         {shao2024basicts}
 \bibfield{author}{\bibinfo{person}{Zezhi Shao}, \bibinfo{person}{Fei Wang},
   \bibinfo{person}{Yongjun Xu}, {et~al\mbox{.}}}
-  \bibinfo{year}{2024}\natexlab{}.
+  \bibinfo{year}{2025}\natexlab{}.
 \newblock \showarticletitle{Exploring Progress in Multivariate Time Series
   Forecasting: Comprehensive Benchmarking and Heterogeneity Analysis}.
 \newblock \bibinfo{journal}{\emph{IEEE Transactions on Knowledge and Data
-  Engineering}} (\bibinfo{year}{2024}).
+  Engineering}} (\bibinfo{year}{2025}).
 \newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1109/TKDE.2024.3484454}
+\showDOI{\tempurl}
 
 
 \bibitem[Shao et~al\mbox{.}(2022)]%

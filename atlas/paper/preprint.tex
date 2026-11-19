@@ -52,7 +52,7 @@
 \author{%
   Aditya Kumar \qquad Anupam Singh\\
   ParadoxAI Lab\\
-  \texttt{contact.paradoxailab@gmail.com}
+  \texttt{info@paradoxailab.com}
 }
 \else
 \author{Anonymous Author(s)\\Affiliation\\Address\\\texttt{email}}
@@ -330,18 +330,19 @@ tracks.}
 Entry & Params & \trk{s} MAE & \trk{u} MAE & RMSE & QL & Cov$_{80}$ & Atlas v1.3 against it (\trk{s} / \trk{u}) \\
 \midrule
 \textbf{Atlas v1.3} (ours) & 0.97M & \textbf{28.91} & \textbf{25.56} & \textbf{52.82} & \textbf{9.55} & 79 & -- \\
-Atlas, other cities only, no Delhi data & 0.97M & 29.98 & 26.11 & -- & 9.92 & 80 & -- \\
+Atlas, other cities only, no Delhi data & 0.97M & 29.98 & 26.11 & -- & --$^{\dagger}$ & 80 & -- \\
 Moirai 2.0 R small & 11M & 30.50 & 26.84 & 54.99 & 10.10 & 79 & beats ($-5.2\%$ / $-4.8\%$) \\
 TiRex & 35M & 30.73 & 27.09 & 55.34 & 10.10 & 79 & beats ($-5.9\%$ / $-5.7\%$) \\
 TimesFM 2.5 & 200M & 30.83 & 27.10 & 55.52 & 10.15 & 78 & beats ($-6.2\%$ / $-5.7\%$) \\
 Chronos-2 & 120M & 31.17 & 27.41 & 55.81 & 10.23 & 79 & beats ($-7.3\%$ / $-6.8\%$) \\
 Chronos-Bolt & 205M & 31.35 & 27.94 & 56.00 & 10.26 & 79 & beats ($-7.8\%$ / $-8.5\%$) \\
-Atlas-W v1 (ours) & 14K & 31.44 & 27.48 & 55.99 & 10.35 & 80 & beats ($-8.0\%$ / $-7.0\%$) \\
+Atlas-W v1 (ours) & 14K & 31.44 & 27.48 & --$^{\dagger}$ & 10.35 & --$^{\dagger}$ & beats ($-8.0\%$ / $-7.0\%$) \\
 Granite TTM r2 & 0.8M & 31.63 & 27.79 & 55.12 & 12.14 & 69 & beats ($-8.6\%$ / $-8.0\%$) \\
 CAMS + 30-day bias correction & -- & 41.03 & 38.32 & 65.54 & 14.35 & 76 & beats ($-29.0\%$ / $-32.5\%$) \\
 CAMS, archived forecast & -- & 62.86 & 53.53 & 97.71 & 22.66 & 70 & beats ($-53.7\%$ / $-51.7\%$) \\
 \bottomrule
 \end{tabular}}
+\\[2pt]{\footnotesize $^{\dagger}$Atlas-W v1 was scored in a separate run whose output file was not saved; its MAE and QL are taken from the record written at the time, and its RMSE and coverage are not reported. For the model without Delhi data, the record keeps MAE and coverage only.}
 \end{table}
 
 \begin{figure}[t]
@@ -769,7 +770,7 @@ Chronos-Bolt and Granite TTM are Apache-2.0; Moirai~2.0 (CC-BY-NC-4.0), TiRex (N
 \item \textbf{Limitations.} \textbf{[Yes]} \S\ref{sec:conclusion}: one country, one target, winter-dominated tests, Delhi test reuse and its partly failed confirmation, zero-shot opponents, unscored opponents, no world-model claim.
 \item \textbf{Theory assumptions and proofs.} \textbf{[NA]} No theoretical results.
 \item \textbf{Experimental result reproducibility.} \textbf{[Yes]} Data sources, cleaning, splits, architecture, settings and protocol are in \S\ref{sec:data}--\ref{sec:models} and Appendices~\ref{app:data}--\ref{app:hparams}.
-\item \textbf{Open access to data and code.} \textbf{[Yes]} All data are public; code, rules and notebooks are in a public repository (anonymised for review).
+\item \textbf{Open access to data and code.} \textbf{[Yes]} All data are public; code, rules and notebooks are in a public repository (\ifpreprint\url{https://github.com/paradoxailab/paradox-world-model}\else anonymised for review\fi).
 \item \textbf{Experimental setting/details.} \textbf{[Yes]} Appendix~\ref{app:hparams}; selection only on validation by fixed rules.
 \item \textbf{Experiment statistical significance.} \textbf{[Yes]} Diebold--Mariano tests with a day-block bootstrap on both tracks for every comparison; seed ranges reported.
 \item \textbf{Experiments compute resources.} \textbf{[Yes]} Appendix, ``Compute and reproducibility''.

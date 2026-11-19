@@ -56,7 +56,7 @@
 \author{%
   Aditya Kumar \qquad Anupam Singh\\
   ParadoxAI Lab\\
-  \texttt{contact.paradoxailab@gmail.com}
+  \texttt{info@paradoxailab.com}
 }
 \else
 \author{Anonymous Author(s)\\Affiliation\\Address\\\texttt{email}}
@@ -677,15 +677,16 @@ build-up of pollution; same-hour-yesterday is worst at night, when concentration
 \toprule
 Forecast & RMSE & MAE & Bias & $r$ \\
 \midrule
-Atlas, seed 320 alone & 60.26 & 34.85 & $-21.83$ & 0.836 \\
-Atlas, seed 321 alone & 53.90 & 31.92 & $-0.34$ & 0.843 \\
-Atlas, seed 322 alone & 53.96 & 31.58 & $-3.82$ & 0.844 \\
+Atlas, seed 320 alone & 60.26 & 34.85 & $-21.83$ & --$^{\dagger}$ \\
+Atlas, seed 321 alone & 53.90 & 31.92 & $-0.34$ & --$^{\dagger}$ \\
+Atlas, seed 322 alone & 53.96 & 31.58 & $-3.82$ & --$^{\dagger}$ \\
 Atlas, three seeds (reported) & 54.24 & 31.27 & $-8.66$ & 0.85 \\
 \midrule
 Atlas, daily mean (151 days) & 39.18 & 24.21 & $-8.66$ & 0.897 \\
 Same hour yesterday, daily mean & 52.55 & 35.48 & $+0.33$ & 0.812 \\
 \bottomrule
 \end{tabular}
+\\[2pt]{\footnotesize $^{\dagger}$Per-seed correlations were not saved with the run outputs and are not reported.}
 \end{table}
 
 The stage used (C, the short final adaptation on the most recent months) was chosen on validation (mean validation MAE
@@ -736,7 +737,7 @@ Kerala & 8.51\,/\,12.32 & 7.96\,/\,12.36 & \textbf{7.93}\,/\,\textbf{12.02} \\
   Appendix~\ref{app:atlas} give data rules, model, training and scoring; the repository holds the code and the notebook
   that produced every number.}
 \item \textbf{Open access to data and code.} \ans{Yes}{All data are public (CPCB exports); code and rules are in a
-  public repository (link withheld for review).}
+  public repository (\ifpreprint\url{https://github.com/paradoxailab/paradox-world-model}\else link withheld for review\fi).}
 \item \textbf{Experimental setting/details.} \ans{Yes}{Splits, tracks, calibration, weight rule and hyperparameters
   are in \S\ref{sec:setup}--\ref{sec:method} and Appendix~\ref{app:atlas}.}
 \item \textbf{Experiment statistical significance.} \ans{Yes}{Every comparison uses a Diebold--Mariano test with a

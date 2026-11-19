@@ -5,9 +5,11 @@ the job in progress (training itself also resumes mid-run). Test windows are rea
 training has finished.
 
   python atlas/m100/pipeline.py --store /content/drive/MyDrive/PWM-100M --w10 /content/drive/MyDrive/PWM-10M --stage all
-Stages: data, train, weather, aq, traffic, hybrid (comma-separated), or all.
+Stages: data, train, opponents, weather, aq, traffic, hybrid (comma-separated), or all.
+Two GPUs at once: run "data,train,weather,aq,traffic,hybrid" on one account and "data,opponents" on another;
+both use the same Drive store (different jobs, different files).
 """
-import argparse, glob, json, os, shutil, subprocess, sys, time
+import argparse, glob, json, os, shutil, subprocess, sys, threading, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ATLAS = os.path.dirname(HERE); REPO = os.path.dirname(ATLAS)
@@ -50,29 +52,68 @@ class Store:
                 shutil.copytree(src, os.path.join(self.p, "v06", d), dirs_exist_ok=True)
 
 
-def sh(cmd, log, cwd=None, env=None):
+def sh(cmd, log, cwd=None, env=None, lock=None):
     print("+", " ".join(cmd), flush=True)
     e = dict(os.environ, **(env or {}))
-    with open(log, "a") as f:
-        p = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=e)
-        for line in p.stdout:
-            if "Warning" in line or "warn(" in line:
-                continue
-            print(line, end="", flush=True); f.write(line)
-        return p.wait()
+    alive = [True]
+
+    def beat():                                                       # heartbeat: the other GPU sees this job is alive
+        while alive[0]:
+            try:
+                open(lock, "w").write(str(time.time()))
+            except OSError:
+                pass
+            time.sleep(60)
+    if lock:
+        threading.Thread(target=beat, daemon=True).start()
+    try:
+        with open(log, "a") as f:
+            p = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=e)
+            for line in p.stdout:
+                if "Warning" in line or "warn(" in line:
+                    continue
+                print(line, end="", flush=True); f.write(line)
+            return p.wait()
+    finally:
+        alive[0] = False
 
 
 def job(st, name, cmd, cwd=None, env=None, after=None):
     if st.done(name):
         print(f"[skip] {name} (done)", flush=True); return True
+    lock = os.path.join(st.p, "done", name + ".running")
+    if os.path.exists(lock) and time.time() - os.path.getmtime(lock) < 20 * 60:
+        print(f"[skip] {name} (running on the other GPU)", flush=True); return False
+    open(lock, "w").write(str(time.time()))
     t0 = time.time()
-    rc = sh(cmd, os.path.join(st.p, "logs", f"{name}.txt"), cwd, env)
+    try:
+        rc = sh(cmd, os.path.join(st.p, "logs", f"{name}.txt"), cwd, env, lock)
+    finally:
+        if os.path.exists(lock):
+            os.remove(lock)
     if after:
         after()
     if rc != 0:
         print(f"[FAIL] {name} rc={rc}", flush=True); return False
     st.mark(name, f"{(time.time() - t0) / 60:.1f} min"); print(f"[done] {name} in {(time.time() - t0) / 60:.1f} min", flush=True)
     return True
+
+
+def traffic_jobs():
+    return ([f"t_opp_{t}_{m}_{mode}" for t in TRAFFIC for m, mode in TFM_OPP] +
+            [f"t_spec_{t}_{m}" for t in TRAFFIC for m in ("stid", "gwnet", "staeformer")] + ["t_pwmdyn"])
+
+
+def traffic_opponents(st):
+    for t in TRAFFIC:
+        for m, mode in TFM_OPP:
+            job(st, f"t_opp_{t}_{m}_{mode}", [PY, "opponents/run_timesfm.py", "--task", t, "--model", m, "--mode", mode,
+                                              "--ctx", "512", "--chunk", str(CHUNK[t])], cwd=V06, after=st.save_v06)
+        for m in ("stid", "gwnet", "staeformer"):
+            job(st, f"t_spec_{t}_{m}", [PY, "opponents/run_specialists.py", "--task", t, "--model", m, "--ext",
+                                        os.path.join(V06, "ext"), "--minutes", str(MINUTES[m][SIZE[t]])], cwd=V06, after=st.save_v06)
+    job(st, "t_pwmdyn", [PY, "tools/traffic_round.py", "--store", os.path.join(st.p, "pwmdyn"), "--stage", "train,score"],
+        cwd=V06, after=st.save_v06)
 
 
 def main(a):
@@ -100,8 +141,14 @@ def main(a):
             out = subprocess.run([PY, "-c", code], capture_output=True, text=True).stdout
             p = [l.split(" ", 1)[1] for l in out.splitlines() if l.startswith("KAGGLE")]
             assert p, "the Kaggle download failed: " + out[-400:]
-            assert job(st, "data_india", [PY, "tools/build_india_long.py"], cwd=DELHI, env=dict(env, LONG_SEARCH=p[0]))
-            shutil.copy(os.path.join(RAW, "INDIA_LONG.npz"), india)
+            if job(st, "data_india", [PY, "tools/build_india_long.py"], cwd=DELHI, env=dict(env, LONG_SEARCH=p[0])) \
+                    and os.path.exists(os.path.join(RAW, "INDIA_LONG.npz")):
+                shutil.copy(os.path.join(RAW, "INDIA_LONG.npz"), india)
+            for _ in range(240):                                      # the other GPU may be building it: wait for it
+                if os.path.exists(india):
+                    break
+                time.sleep(30)
+            assert os.path.exists(india), "INDIA_LONG.npz was not built"
         if not os.path.exists(os.path.join(RAW, "INDIA_LONG.npz")):
             shutil.copy(india, RAW)
         assert job(st, "data_traffic", [PY, "tools/fetch_all.py", "--opponents"], cwd=V06) or True
@@ -132,22 +179,24 @@ def main(a):
             job(st, f"w_paired_{yr}_vs25m", [PY, "paired_w5k.py", "--year", yr, "--ours", TAG, "--vs", "atlas25m", "--suffix", "_m100vs25m"],
                 cwd=DELHI, env=e2)
 
-    if on("aq") and trained():
+    if on("opponents") or (on("aq") and trained()):              # opponents need no Atlas-100M: can run on a 2nd GPU
         job(st, "aq_opp", [PY, "-u", "india_opponents.py", "--keys", AQ_OPP], cwd=DELHI, env=env)
+    if on("opponents") or (on("traffic") and trained()):
+        traffic_opponents(st)
+    if on("opponents") or (on("hybrid") and trained()):
+        NWP = os.path.join(st.p, "nwp")
+        if not os.path.exists(os.path.join(NWP, "NWP_W5K.npz")):
+            sh([PY, "-u", os.path.join(HERE, "hybrid.py"), "fetch", "--raw", LIVE, "--out", NWP], os.path.join(st.p, "logs", "h_fetch.txt"))
+
+    if on("aq") and trained():
         v1 = os.path.join(REPO, "models", "series", "40_atlas_india_v1.0.pt")   # paper 3's released weights
         job(st, "aq_score", [PY, "-u", os.path.join(HERE, "score_aq.py"), "--view", view("aq"), "--india-v1", v1,
                              "--opp-dir", OUT, "--out", OUT], env=env)
 
     if on("traffic") and trained():
-        for t in TRAFFIC:
-            for m, mode in TFM_OPP:
-                job(st, f"t_opp_{t}_{m}_{mode}", [PY, "opponents/run_timesfm.py", "--task", t, "--model", m, "--mode", mode,
-                                                  "--ctx", "512", "--chunk", str(CHUNK[t])], cwd=V06, after=st.save_v06)
-            for m in ("stid", "gwnet", "staeformer"):
-                job(st, f"t_spec_{t}_{m}", [PY, "opponents/run_specialists.py", "--task", t, "--model", m, "--ext",
-                                            os.path.join(V06, "ext"), "--minutes", str(MINUTES[m][SIZE[t]])], cwd=V06, after=st.save_v06)
-        job(st, "t_pwmdyn", [PY, "tools/traffic_round.py", "--store", os.path.join(st.p, "pwmdyn"), "--stage", "train,score"],
-            cwd=V06, after=st.save_v06)
+        if not all(st.done(j) for j in traffic_jobs()):
+            print("TRAFFIC: opponents not finished yet (stage 'opponents' or this stage will run them).", flush=True)
+            traffic_opponents(st)
         st.restore_v06()
         for f in glob.glob(os.path.join(st.p, "pwmdyn", "submissions", "*.npz")):     # PWM-Dyn v0.6r (paper 1's recipe)
             shutil.copy(f, os.path.join(V06, "submissions"))
@@ -156,8 +205,6 @@ def main(a):
 
     if on("hybrid") and trained():
         NWP = os.path.join(st.p, "nwp")
-        if not os.path.exists(os.path.join(NWP, "NWP_W5K.npz")):
-            sh([PY, "-u", os.path.join(HERE, "hybrid.py"), "fetch", "--raw", LIVE, "--out", NWP], os.path.join(st.p, "logs", "h_fetch.txt"))
         if os.path.exists(os.path.join(NWP, "NWP_W5K.npz")):
             job(st, "h_train", [PY, "-u", os.path.join(HERE, "hybrid.py"), "train", "--raw", LIVE, "--nwp", os.path.join(NWP, "NWP_W5K.npz"),
                                 "--view", view("weather"), "--out", OUT])

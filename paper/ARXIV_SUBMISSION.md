@@ -1,3 +1,5 @@
+> **Superseded (2026-11-19):** post the PWM-Dyn v0.6 paper instead; see [`arxiv/README.md`](../arxiv/README.md), paper #4.
+
 # arXiv submission metadata
 
 **Title:** PWM-Dyn and ParadoxBench: A Provenance-Audited Physical Dynamics Model, Benchmarked Against Zero-Shot Foundation Models on US Traffic and Indian Rainfall

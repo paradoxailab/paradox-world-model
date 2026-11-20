@@ -193,3 +193,10 @@ weights may cost weather a little; traffic against tuned specialists and pressur
    names, 0.27307, is the 24.1M model's validation E on **all** 5,672 stations (`run_atlas_5k.py --eval`). P2 is scored
    on that same full protocol (`atlas100m_eval_s600.json`), and the head-to-head validation windows, where both models
    are scored on identical windows, are reported next to it.
+4. **2026-11-20, traffic: a second GPU (Kaggle) for ten zero-shot jobs.** Colab gave an L4 instead of an A100, so
+   traffic would take about a day. The ten Track B foundation-model jobs for PEMS-BAY and METR-LA run on Kaggle
+   (`atlas/m100/kaggle_traffic.py`, notebook `atlas_100m_kaggle_traffic.ipynb`) with the same script, context and
+   chunk sizes, and are copied into the pipeline's store under the same job names (`kaggle_bridge.py`). Zero-shot
+   models have no training and no time budget, so the GPU cannot change their accuracy; the trained specialists, whose
+   budgets are in minutes, all stay on Colab. Traffic is scored only after every job is in. Kaggle's GPU, package
+   versions and minutes per job are kept in `logs/kaggle_manifest.json`.

@@ -200,3 +200,7 @@ weights may cost weather a little; traffic against tuned specialists and pressur
    models have no training and no time budget, so the GPU cannot change their accuracy; the trained specialists, whose
    budgets are in minutes, all stay on Colab. Traffic is scored only after every job is in. Kaggle's GPU, package
    versions and minutes per job are kept in `logs/kaggle_manifest.json`.
+   **Withdrawn the same day, before any Kaggle job ran:** the Kaggle account had no GPU hours left that week, so all
+   traffic jobs run on Colab as first planned. The two helper scripts stay in the repository, unused.
+5. **2026-11-20, air quality: Time-MoE ran out of GPU memory on its re-run** because it shared the L4 with a TimesFM 3.0
+   traffic job. Sundial's re-run finished. Time-MoE is started again, unchanged, once no TimesFM 3.0 job is on the GPU.

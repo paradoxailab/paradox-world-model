@@ -5,7 +5,9 @@ ParadoxAI Lab · Aditya Kumar, Anupam Singh · 2026-11-21
 This file reports every finished comparison of the pre-registered Atlas-100M study (`PREREG.md`, committed before the
 first GPU run) as it came out: wins, ties and losses. **Traffic and the hybrid stage are still running and are marked
 pending; nothing below is a projection.** Raw outputs are in `results/` (copied unchanged from the run's Drive store);
-deviations from the plan are listed in `PREREG.md` (1–5, each dated, with the reason).
+deviations from the plan are listed in `PREREG.md` (1–5, each dated, with the reason). Weights:
+[huggingface.co/paradoxailab/atlas-100m](https://huggingface.co/paradoxailab/atlas-100m) (SHA-256 in `results/SHA256SUMS`,
+verified against Hugging Face after upload).
 
 **Verdict rule (section 6 of PREREG):** WIN = lower error, Holm-adjusted p < 0.01 and a 95% interval of the difference
 that excludes 0; LOSS = the mirror image; anything else TIE. Percentages are Atlas-100M's error relative to the

@@ -1,0 +1,546 @@
+{
+ "entries": {
+  "Atlas-100M": {
+   "MAE_S": 21.580757834741508,
+   "MAE_U": 21.307680681115055,
+   "per_network_S": {
+    "Uttar Pradesh": 21.378170013427734,
+    "Delhi": 38.7310905456543,
+    "Haryana": 24.858901977539062,
+    "Maharashtra": 20.329965591430664,
+    "Karnataka": 9.039382934570312,
+    "other states": 15.396463394165039,
+    "Madhya Pradesh": 16.433019638061523,
+    "West Bengal": 15.138594627380371,
+    "Bihar": 28.798450469970703,
+    "Rajasthan": 19.364294052124023,
+    "Gujarat": 18.68400001525879,
+    "Tamil Nadu": 12.994041442871094,
+    "Punjab": 17.712026596069336,
+    "Kerala": 8.91008186340332
+   }
+  },
+  "Atlas-India v1.0 (paper 3)": {
+   "MAE_S": 21.46587987113354,
+   "MAE_U": 21.314596229742204,
+   "per_network_S": {
+    "Uttar Pradesh": 21.343870162963867,
+    "Delhi": 38.3355712890625,
+    "Haryana": 24.82645606994629,
+    "Maharashtra": 20.17898941040039,
+    "Karnataka": 9.024031639099121,
+    "other states": 15.448921203613281,
+    "Madhya Pradesh": 16.50687599182129,
+    "West Bengal": 15.002918243408203,
+    "Bihar": 28.234989166259766,
+    "Rajasthan": 19.284038543701172,
+    "Gujarat": 18.813234329223633,
+    "Tamil Nadu": 12.967438697814941,
+    "Punjab": 17.558563232421875,
+    "Kerala": 8.904706954956055
+   }
+  },
+  "last observed value": {
+   "MAE_S": 32.009449987986024,
+   "MAE_U": 31.126777546823636,
+   "per_network_S": {
+    "Uttar Pradesh": 33.39985656738281,
+    "Delhi": 59.62607955932617,
+    "Haryana": 34.76017761230469,
+    "Maharashtra": 27.826126098632812,
+    "Karnataka": 11.659760475158691,
+    "other states": 22.36958885192871,
+    "Madhya Pradesh": 26.9228515625,
+    "West Bengal": 22.869213104248047,
+    "Bihar": 43.96187210083008,
+    "Rajasthan": 29.401681900024414,
+    "Gujarat": 27.83426856994629,
+    "Tamil Nadu": 17.247817993164062,
+    "Punjab": 24.297517776489258,
+    "Kerala": 10.906235694885254
+   }
+  },
+  "same hour yesterday": {
+   "MAE_S": 29.861676431186705,
+   "MAE_U": 29.301038896519287,
+   "per_network_S": {
+    "Uttar Pradesh": 30.154205322265625,
+    "Delhi": 54.74496078491211,
+    "Haryana": 35.81313705444336,
+    "Maharashtra": 26.379680633544922,
+    "Karnataka": 12.491435050964355,
+    "other states": 20.006277084350586,
+    "Madhya Pradesh": 21.795066833496094,
+    "West Bengal": 21.408409118652344,
+    "Bihar": 39.71193313598633,
+    "Rajasthan": 26.70945930480957,
+    "Gujarat": 23.661352157592773,
+    "Tamil Nadu": 17.373287200927734,
+    "Punjab": 23.864559173583984,
+    "Kerala": 12.442535400390625
+   }
+  },
+  "Chronos-Bolt base (Amazon, 205M) zero-shot": {
+   "MAE_S": 22.609099934530423,
+   "MAE_U": 22.301838170886185,
+   "per_network_S": {
+    "Uttar Pradesh": 23.15170669555664,
+    "Delhi": 42.43229675292969,
+    "Haryana": 26.3367919921875,
+    "Maharashtra": 19.421693801879883,
+    "Karnataka": 8.999711036682129,
+    "other states": 15.078007698059082,
+    "Madhya Pradesh": 17.09014892578125,
+    "West Bengal": 15.866850852966309,
+    "Bihar": 29.65267562866211,
+    "Rajasthan": 19.86360740661621,
+    "Gujarat": 18.227680206298828,
+    "Tamil Nadu": 13.51589584350586,
+    "Punjab": 18.913101196289062,
+    "Kerala": 8.103726387023926
+   }
+  },
+  "Chronos-2 (Amazon, 120M) zero-shot": {
+   "MAE_S": 22.299616491859275,
+   "MAE_U": 22.028133246453073,
+   "per_network_S": {
+    "Uttar Pradesh": 22.9625301361084,
+    "Delhi": 42.00275421142578,
+    "Haryana": 25.665271759033203,
+    "Maharashtra": 19.101646423339844,
+    "Karnataka": 8.830801010131836,
+    "other states": 14.918741226196289,
+    "Madhya Pradesh": 16.890302658081055,
+    "West Bengal": 15.706493377685547,
+    "Bihar": 29.239585876464844,
+    "Rajasthan": 19.76704978942871,
+    "Gujarat": 17.96567726135254,
+    "Tamil Nadu": 13.377324104309082,
+    "Punjab": 18.13726043701172,
+    "Kerala": 8.031695365905762
+   }
+  },
+  "TimesFM 2.5 (Google, 200M) zero-shot": {
+   "MAE_S": 22.350337177553488,
+   "MAE_U": 21.92609628621638,
+   "per_network_S": {
+    "Uttar Pradesh": 22.779232025146484,
+    "Delhi": 41.868614196777344,
+    "Haryana": 25.722740173339844,
+    "Maharashtra": 19.44780158996582,
+    "Karnataka": 8.978865623474121,
+    "other states": 15.19034194946289,
+    "Madhya Pradesh": 17.0688533782959,
+    "West Bengal": 15.79137134552002,
+    "Bihar": 29.35382652282715,
+    "Rajasthan": 19.671955108642578,
+    "Gujarat": 18.196537017822266,
+    "Tamil Nadu": 13.38764476776123,
+    "Punjab": 18.19791603088379,
+    "Kerala": 7.958841800689697
+   }
+  },
+  "TimesFM 3.0 (Google) zero-shot": {
+   "MAE_S": 22.000915458910832,
+   "MAE_U": 21.627491920282353,
+   "per_network_S": {
+    "Uttar Pradesh": 22.412172317504883,
+    "Delhi": 41.2214469909668,
+    "Haryana": 25.378023147583008,
+    "Maharashtra": 19.025239944458008,
+    "Karnataka": 8.821085929870605,
+    "other states": 14.832779884338379,
+    "Madhya Pradesh": 16.875732421875,
+    "West Bengal": 15.52291202545166,
+    "Bihar": 28.95167350769043,
+    "Rajasthan": 19.43461036682129,
+    "Gujarat": 17.881345748901367,
+    "Tamil Nadu": 13.406760215759277,
+    "Punjab": 17.945920944213867,
+    "Kerala": 7.907891750335693
+   }
+  },
+  "TimesFM 3.0 multivariate (Google) zero-shot": {
+   "MAE_S": 21.411699657795115,
+   "MAE_U": 20.945064328018237,
+   "per_network_S": {
+    "Uttar Pradesh": 21.693071365356445,
+    "Delhi": 39.985294342041016,
+    "Haryana": 24.542203903198242,
+    "Maharashtra": 18.715673446655273,
+    "Karnataka": 8.56335163116455,
+    "other states": 14.534463882446289,
+    "Madhya Pradesh": 16.46878433227539,
+    "West Bengal": 15.166510581970215,
+    "Bihar": 28.478954315185547,
+    "Rajasthan": 19.074260711669922,
+    "Gujarat": 17.552738189697266,
+    "Tamil Nadu": 12.863080024719238,
+    "Punjab": 17.488252639770508,
+    "Kerala": 7.836051940917969
+   }
+  },
+  "TiRex (NX-AI, 35M) zero-shot": {
+   "MAE_S": 22.16300103245096,
+   "MAE_U": 21.735190259724654,
+   "per_network_S": {
+    "Uttar Pradesh": 22.63563346862793,
+    "Delhi": 41.49505615234375,
+    "Haryana": 25.547590255737305,
+    "Maharashtra": 19.379030227661133,
+    "Karnataka": 8.878767967224121,
+    "other states": 14.972420692443848,
+    "Madhya Pradesh": 16.902795791625977,
+    "West Bengal": 15.48186206817627,
+    "Bihar": 29.33481216430664,
+    "Rajasthan": 19.532001495361328,
+    "Gujarat": 17.984792709350586,
+    "Tamil Nadu": 13.166954040527344,
+    "Punjab": 17.879619598388672,
+    "Kerala": 7.923959732055664
+   }
+  },
+  "TTM r2 (IBM Research, 0.8M) zero-shot": {
+   "MAE_S": 23.194273040172362,
+   "MAE_U": 22.719420779766196,
+   "per_network_S": {
+    "Uttar Pradesh": 23.70697784423828,
+    "Delhi": 43.51411437988281,
+    "Haryana": 26.633529663085938,
+    "Maharashtra": 20.011295318603516,
+    "Karnataka": 9.748101234436035,
+    "other states": 15.54571533203125,
+    "Madhya Pradesh": 17.803688049316406,
+    "West Bengal": 16.26085662841797,
+    "Bihar": 30.27779769897461,
+    "Rajasthan": 20.08534049987793,
+    "Gujarat": 18.767974853515625,
+    "Tamil Nadu": 14.073099136352539,
+    "Punjab": 18.858970642089844,
+    "Kerala": 8.503098487854004
+   }
+  }
+ },
+ "tests": [
+  {
+   "ours": 21.581,
+   "theirs": 21.466,
+   "diff_pct": 0.54,
+   "ci95_pct": [
+    0.25,
+    0.82
+   ],
+   "p_bootstrap": 0.00030000000000000003,
+   "p_dm": 0.08832339554682482,
+   "points": 3372636,
+   "track": "S",
+   "opponent": "Atlas-India v1.0 (paper 3)",
+   "p_holm": 0.46695166245810926,
+   "verdict": "TIE"
+  },
+  {
+   "ours": 21.581,
+   "theirs": 32.009,
+   "diff_pct": -32.58,
+   "ci95_pct": [
+    -35.65,
+    -29.44
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 2.2156639984203538e-55,
+   "points": 3372636,
+   "track": "S",
+   "opponent": "last observed value",
+   "p_holm": 0.002,
+   "verdict": "WIN"
+  },
+  {
+   "ours": 21.581,
+   "theirs": 29.862,
+   "diff_pct": -27.73,
+   "ci95_pct": [
+    -30.04,
+    -25.41
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 2.525052567074413e-54,
+   "points": 3372636,
+   "track": "S",
+   "opponent": "same hour yesterday",
+   "p_holm": 0.002,
+   "verdict": "WIN"
+  },
+  {
+   "ours": 21.581,
+   "theirs": 22.609,
+   "diff_pct": -4.55,
+   "ci95_pct": [
+    -5.64,
+    -3.46
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 3.4114522369624355e-10,
+   "points": 3372636,
+   "track": "S",
+   "opponent": "Chronos-Bolt base (Amazon, 205M) zero-shot",
+   "p_holm": 0.002,
+   "verdict": "WIN"
+  },
+  {
+   "ours": 21.581,
+   "theirs": 22.3,
+   "diff_pct": -3.22,
+   "ci95_pct": [
+    -4.28,
+    -2.16
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 1.3549542112783157e-07,
+   "points": 3372636,
+   "track": "S",
+   "opponent": "Chronos-2 (Amazon, 120M) zero-shot",
+   "p_holm": 0.002,
+   "verdict": "WIN"
+  },
+  {
+   "ours": 21.581,
+   "theirs": 22.35,
+   "diff_pct": -3.44,
+   "ci95_pct": [
+    -4.38,
+    -2.49
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 4.191454706634968e-05,
+   "points": 3372636,
+   "track": "S",
+   "opponent": "TimesFM 2.5 (Google, 200M) zero-shot",
+   "p_holm": 0.002,
+   "verdict": "WIN"
+  },
+  {
+   "ours": 21.581,
+   "theirs": 22.001,
+   "diff_pct": -1.91,
+   "ci95_pct": [
+    -2.8,
+    -0.98
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 0.004764810500998322,
+   "points": 3372636,
+   "track": "S",
+   "opponent": "TimesFM 3.0 (Google) zero-shot",
+   "p_holm": 0.0428832945089849,
+   "verdict": "TIE"
+  },
+  {
+   "ours": 21.581,
+   "theirs": 21.412,
+   "diff_pct": 0.79,
+   "ci95_pct": [
+    0.01,
+    1.59
+   ],
+   "p_bootstrap": 0.0459,
+   "p_dm": 0.31082948711289415,
+   "points": 3372636,
+   "track": "S",
+   "opponent": "TimesFM 3.0 multivariate (Google) zero-shot",
+   "p_holm": 0.6321,
+   "verdict": "TIE"
+  },
+  {
+   "ours": 21.581,
+   "theirs": 22.163,
+   "diff_pct": -2.63,
+   "ci95_pct": [
+    -3.55,
+    -1.7
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 3.559113958449047e-05,
+   "points": 3372636,
+   "track": "S",
+   "opponent": "TiRex (NX-AI, 35M) zero-shot",
+   "p_holm": 0.002,
+   "verdict": "WIN"
+  },
+  {
+   "ours": 21.581,
+   "theirs": 23.194,
+   "diff_pct": -6.96,
+   "ci95_pct": [
+    -8.12,
+    -5.79
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 1.2757141303661512e-19,
+   "points": 3372636,
+   "track": "S",
+   "opponent": "TTM r2 (IBM Research, 0.8M) zero-shot",
+   "p_holm": 0.002,
+   "verdict": "WIN"
+  },
+  {
+   "ours": 21.308,
+   "theirs": 21.315,
+   "diff_pct": -0.03,
+   "ci95_pct": [
+    -1.03,
+    0.72
+   ],
+   "p_bootstrap": 0.9939,
+   "p_dm": 0.9014517431155533,
+   "points": 824521,
+   "track": "U",
+   "opponent": "Atlas-India v1.0 (paper 3)",
+   "p_holm": 0.9939,
+   "verdict": "TIE"
+  },
+  {
+   "ours": 21.308,
+   "theirs": 31.127,
+   "diff_pct": -31.55,
+   "ci95_pct": [
+    -37.19,
+    -26.12
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 8.067573781914556e-48,
+   "points": 824521,
+   "track": "U",
+   "opponent": "last observed value",
+   "p_holm": 0.002,
+   "verdict": "WIN"
+  },
+  {
+   "ours": 21.308,
+   "theirs": 29.301,
+   "diff_pct": -27.28,
+   "ci95_pct": [
+    -32.16,
+    -22.61
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 2.450061740968199e-46,
+   "points": 824521,
+   "track": "U",
+   "opponent": "same hour yesterday",
+   "p_holm": 0.002,
+   "verdict": "WIN"
+  },
+  {
+   "ours": 21.308,
+   "theirs": 22.302,
+   "diff_pct": -4.46,
+   "ci95_pct": [
+    -7.01,
+    -1.71
+   ],
+   "p_bootstrap": 0.0024999999999999996,
+   "p_dm": 4.676942032454641e-06,
+   "points": 824521,
+   "track": "U",
+   "opponent": "Chronos-Bolt base (Amazon, 205M) zero-shot",
+   "p_holm": 0.024999999999999994,
+   "verdict": "TIE"
+  },
+  {
+   "ours": 21.308,
+   "theirs": 22.028,
+   "diff_pct": -3.27,
+   "ci95_pct": [
+    -5.81,
+    -0.44
+   ],
+   "p_bootstrap": 0.0253,
+   "p_dm": 9.39338066629193e-05,
+   "points": 824521,
+   "track": "U",
+   "opponent": "Chronos-2 (Amazon, 120M) zero-shot",
+   "p_holm": 0.2024,
+   "verdict": "TIE"
+  },
+  {
+   "ours": 21.308,
+   "theirs": 21.926,
+   "diff_pct": -2.82,
+   "ci95_pct": [
+    -5.15,
+    -0.2
+   ],
+   "p_bootstrap": 0.0385,
+   "p_dm": 0.009031149133295733,
+   "points": 824521,
+   "track": "U",
+   "opponent": "TimesFM 2.5 (Google, 200M) zero-shot",
+   "p_holm": 0.2695,
+   "verdict": "TIE"
+  },
+  {
+   "ours": 21.308,
+   "theirs": 21.627,
+   "diff_pct": -1.48,
+   "ci95_pct": [
+    -3.58,
+    0.89
+   ],
+   "p_bootstrap": 0.2107,
+   "p_dm": 0.0916011307453967,
+   "points": 824521,
+   "track": "U",
+   "opponent": "TimesFM 3.0 (Google) zero-shot",
+   "p_holm": 0.6321,
+   "verdict": "TIE"
+  },
+  {
+   "ours": 21.308,
+   "theirs": 20.945,
+   "diff_pct": 1.73,
+   "ci95_pct": [
+    -0.07,
+    4.09
+   ],
+   "p_bootstrap": 0.0649,
+   "p_dm": 0.07782527707635155,
+   "points": 824521,
+   "track": "U",
+   "opponent": "TimesFM 3.0 multivariate (Google) zero-shot",
+   "p_holm": 0.46695166245810926,
+   "verdict": "TIE"
+  },
+  {
+   "ours": 21.308,
+   "theirs": 21.735,
+   "diff_pct": -1.97,
+   "ci95_pct": [
+    -4.23,
+    0.59
+   ],
+   "p_bootstrap": 0.1319,
+   "p_dm": 0.028027298714796953,
+   "points": 824521,
+   "track": "U",
+   "opponent": "TiRex (NX-AI, 35M) zero-shot",
+   "p_holm": 0.5276,
+   "verdict": "TIE"
+  },
+  {
+   "ours": 21.308,
+   "theirs": 22.719,
+   "diff_pct": -6.21,
+   "ci95_pct": [
+    -8.95,
+    -3.3
+   ],
+   "p_bootstrap": 0.00030000000000000003,
+   "p_dm": 3.4009857191622415e-13,
+   "points": 824521,
+   "track": "U",
+   "opponent": "TTM r2 (IBM Research, 0.8M) zero-shot",
+   "p_holm": 0.0033000000000000004,
+   "verdict": "WIN"
+  }
+ ]
+}

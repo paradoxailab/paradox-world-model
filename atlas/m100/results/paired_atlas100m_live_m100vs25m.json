@@ -1,0 +1,79 @@
+{
+ "atlas25m": [
+  {
+   "variable": "Temperature",
+   "ours": 1.4204,
+   "theirs": 1.4212,
+   "diff_pct": -0.06,
+   "ci95_pct": [
+    -0.22,
+    0.1
+   ],
+   "p_bootstrap": 0.49429999999999996,
+   "p_dm": 0.6270512165118243,
+   "points": 1914220,
+   "p_holm": 1.0,
+   "verdict": "TIE"
+  },
+  {
+   "variable": "Dewpoint",
+   "ours": 1.4527,
+   "theirs": 1.4534,
+   "diff_pct": -0.05,
+   "ci95_pct": [
+    -0.22,
+    0.13
+   ],
+   "p_bootstrap": 0.5807,
+   "p_dm": 0.5465886771912623,
+   "points": 1900577,
+   "p_holm": 1.0,
+   "verdict": "TIE"
+  },
+  {
+   "variable": "Wind direction",
+   "ours": 64.3314,
+   "theirs": 64.3764,
+   "diff_pct": -0.07,
+   "ci95_pct": [
+    -0.17,
+    0.02
+   ],
+   "p_bootstrap": 0.1513,
+   "p_dm": 0.23919076089779434,
+   "points": 1854976,
+   "p_holm": 0.9567630435911774,
+   "verdict": "TIE"
+  },
+  {
+   "variable": "Wind speed",
+   "ours": 1.2017,
+   "theirs": 1.2023,
+   "diff_pct": -0.05,
+   "ci95_pct": [
+    -0.13,
+    0.03
+   ],
+   "p_bootstrap": 0.22549999999999998,
+   "p_dm": 0.39770551022688494,
+   "points": 1907953,
+   "p_holm": 1.0,
+   "verdict": "TIE"
+  },
+  {
+   "variable": "Sea-level pressure",
+   "ours": 1.6402,
+   "theirs": 1.6242,
+   "diff_pct": 0.99,
+   "ci95_pct": [
+    0.78,
+    1.19
+   ],
+   "p_bootstrap": 0.0001,
+   "p_dm": 1.990493946400675e-05,
+   "points": 1702837,
+   "p_holm": 0.0005,
+   "verdict": "LOSS"
+  }
+ ]
+}

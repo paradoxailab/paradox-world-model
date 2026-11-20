@@ -1,0 +1,46 @@
+{
+ "params": {
+  "core (shared)": 94755808,
+  "weather adapter": 779932,
+  "aq adapter": 2983932,
+  "traffic adapter": 80322,
+  "total": 98599994
+ },
+ "best_step": 100000,
+ "best_val": {
+  "weather": 0.2708297073841095,
+  "aq": 9.150905384685776,
+  "traffic": 0.7210111021995544
+ },
+ "best_S": 0.5804870384013713,
+ "steps_run": 100000,
+ "minutes_total": 317.6,
+ "gpu": "NVIDIA A100-SXM4-80GB",
+ "probs": {
+  "weather": 0.5,
+  "aq": 0.25,
+  "traffic": 0.25
+ },
+ "args": {
+  "init": "/content/pwm/models/series/59_atlas-5k-25m_weather5k_adopted.pt",
+  "out": "/content/drive/MyDrive/PWM-100M/out",
+  "tag": "atlas100m",
+  "domains": "weather,aq,traffic",
+  "probs": "0.5,0.25,0.25",
+  "traffic": "",
+  "steps": 100000,
+  "every": 2500,
+  "patience": 8,
+  "lr": 0.00015,
+  "lr_new": 0.001,
+  "wd": 0.0001,
+  "warmup": 0.03,
+  "bs_weather": 256,
+  "k": 32,
+  "grow_noise": 0.05,
+  "seed": 700,
+  "cap": 600.0,
+  "check_24m": 1,
+  "quick": false
+ }
+}

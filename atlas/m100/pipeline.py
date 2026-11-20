@@ -22,6 +22,8 @@ MINUTES = {"stid": {"small": 6, "mid": 8, "large": 12}, "gwnet": {"small": 30, "
 TFM_OPP = [("chronos-bolt", "univariate"), ("chronos2", "univariate"), ("tfm25", "univariate"),
            ("tfm3", "univariate"), ("tfm3", "multivariate")]
 AQ_OPP = "chronos-bolt,chronos2,tfm25,tfm3,tfm3mv,ttm,tirex,sundial,timemoe200"
+AQ_OPP_OLD_TF = "sundial,timemoe200"          # their remote code needs transformers==4.40.1 (PREREG deviation 1)
+TF440 = "/content/tf440"
 CHUNK = {"PEMS07": 8, "PEMS-BAY": 16, "PEMS03": 16, "METR-LA": 32, "PEMS04": 32, "PEMS08": 64}
 W5K_OPP = ["persist", "chronos-bolt", "chronos2", "chronos2mv", "tfm25", "tfm3", "ttm", "tirex", "sundial", "timemoe200"]
 TAG = "atlas100m"
@@ -181,6 +183,13 @@ def main(a):
 
     if on("opponents") or (on("aq") and trained()):              # opponents need no Atlas-100M: can run on a 2nd GPU
         job(st, "aq_opp", [PY, "-u", "india_opponents.py", "--keys", AQ_OPP], cwd=DELHI, env=env)
+        if not os.path.exists(os.path.join(TF440, "transformers")):    # transformers 4.40.1 beside the current one
+            subprocess.run([PY, "-m", "pip", "install", "-q", "--no-deps", "--target", TF440, "transformers==4.40.1"])
+            t = os.path.join(TF440, "transformers", "dependency_versions_table.py")   # tokenizers / hub: unused here
+            txt = open(t).read().replace(",<0.20", "").replace(",<1.0", "")
+            open(t, "w").write(txt)
+        job(st, "aq_opp_tf440", [PY, "-u", "india_opponents.py", "--keys", AQ_OPP_OLD_TF], cwd=DELHI,
+            env=dict(env, PYTHONPATH=TF440))
     if on("opponents") or (on("traffic") and trained()):
         traffic_opponents(st)
     if on("opponents") or (on("hybrid") and trained()):
@@ -190,7 +199,10 @@ def main(a):
 
     if on("aq") and trained():
         v1 = os.path.join(REPO, "models", "series", "40_atlas_india_v1.0.pt")   # paper 3's released weights
-        job(st, "aq_score", [PY, "-u", os.path.join(HERE, "score_aq.py"), "--view", view("aq"), "--india-v1", v1,
+        first = os.path.join(OUT, f"{TAG}_aq_results.json"); keep = os.path.join(OUT, f"{TAG}_aq_results_first7.json")
+        if st.done("aq_score") and os.path.exists(first) and not os.path.exists(keep):
+            shutil.copy(first, keep)                                  # the first (seven-opponent) score, kept as it was
+        job(st, "aq_score_full", [PY, "-u", os.path.join(HERE, "score_aq.py"), "--view", view("aq"), "--india-v1", v1,
                              "--opp-dir", OUT, "--out", OUT], env=env)
 
     if on("traffic") and trained():

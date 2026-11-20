@@ -179,4 +179,17 @@ weights may cost weather a little; traffic against tuned specialists and pressur
 
 ## Deviations
 
-(none yet)
+1. **2026-11-20, air quality: two opponents failed on the first pass and are re-run.** Sundial and Time-MoE 200M
+   crashed in `india_opponents.py` (`'DynamicCache' object has no attribute 'seen_tokens'`): Colab's current
+   `transformers` is newer than the 4.40.1 their remote code needs (`atlas/delhi/pw/opponents.py` names that version).
+   The other seven ran. `aq_score` then scored the seven, and that first score is kept unchanged as
+   `atlas100m_aq_results_first7.json`. The two are re-run with `transformers==4.40.1` in a separate package directory
+   (nothing else changes: same windows, context, code), and `aq_score` is re-run once over the full pre-registered
+   family of nine. If either still fails, it is reported as not run.
+2. **2026-11-20, traffic: STAEformer did not start on the first networks.** Its official code imports `torchinfo`,
+   which the notebook did not install (`ModuleNotFoundError`). The job failed before training, so no result exists to
+   discard; `torchinfo` is installed and the job is retried by the pipeline's own retry pass with the same budget.
+3. **2026-11-20, note on P2.** Section 5(c) describes the validation comparison as "every 4th station"; the number it
+   names, 0.27307, is the 24.1M model's validation E on **all** 5,672 stations (`run_atlas_5k.py --eval`). P2 is scored
+   on that same full protocol (`atlas100m_eval_s600.json`), and the head-to-head validation windows, where both models
+   are scored on identical windows, are reported next to it.

@@ -204,3 +204,6 @@ weights may cost weather a little; traffic against tuned specialists and pressur
    traffic jobs run on Colab as first planned. The two helper scripts stay in the repository, unused.
 5. **2026-11-20, air quality: Time-MoE ran out of GPU memory on its re-run** because it shared the L4 with a TimesFM 3.0
    traffic job. Sundial's re-run finished. Time-MoE is started again, unchanged, once no TimesFM 3.0 job is on the GPU.
+   That second try also ran out of memory (a traffic specialist was training). Time-MoE therefore waits until the
+   whole traffic stage has left the GPU (`atlas/m100/aq_finish.sh`): sharing the GPU would also slow the specialists,
+   whose budgets are in minutes. The full air-quality score follows it.

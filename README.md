@@ -7,7 +7,22 @@ data and scored against the strongest public forecasting models on identical win
 Every rule and prediction is committed here **before** the run it governs, and every number below is copied from a
 result file in this repository.
 
-## Latest: Atlas-5K 10M and 25M on WEATHER-5K (2026-11-19)
+## Latest: Atlas-100M, one model for weather, air quality and traffic (2026-11-21, interim)
+
+98.6M parameters, one set of weights with a shared core and small per-domain adapters, trained only on real station
+data. Pre-registered before the first GPU run (`atlas/m100/PREREG.md`); full report with every win, tie and loss in
+[`atlas/m100/RESULTS.md`](atlas/m100/RESULTS.md). Traffic and the hybrid comparison with ECMWF / GFS are still running.
+
+- **Weather:** WIN in all 100 paired comparisons with ten zero-shot foundation models (TimesFM 2.5 / 3.0, Chronos-2,
+  Chronos-Bolt, TiRex, Sundial, Time-MoE, TTM, persistence) on the 2023 test and the 2024–25 live period; e.g. against
+  TimesFM 3.0 on the 2023 test, temperature −25.9%, dew point −25.6%, pressure −25.1%. Full 2023 test: better than
+  the published PhysicsFormer on 4 of 5 variables, worse on sea-level pressure (1.474 vs 1.43); equal to our 24.1M model.
+- **Air quality (all-India PM2.5):** on trained stations WIN against 7 of 9 foundation models; TIE with TimesFM 3.0,
+  TimesFM 3.0 multivariate and our Atlas-India v1.0. On never-trained stations mostly TIEs.
+- These are task-trained results against zero-shot general models; see "What these results do and do not show" in the
+  report.
+
+## Atlas-5K 10M and 25M on WEATHER-5K (2026-11-19)
 
 Atlas-5K is a station-graph world model. Each station reads its last 48 hours together with its 31 nearest
 neighbours; the model encodes them into a latent state and rolls the state forward with one shared transition and

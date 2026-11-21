@@ -187,9 +187,49 @@ tracks; specialists and Atlas-100M carry identical verdicts on both and are list
 | T6 | Lower MAE than PWM-Dyn v0.6r on at least 3 of 6 networks | 0.15 | failed (0 of 6) |
 | T7 | Track B: WIN against every foundation model on at least 3 of 6 networks | 0.30 | failed (1 of 6: METR-LA) |
 
-Two further variants are running under addenda A and B of `PREREG_TRAFFIC.md`: Atlas-100M-T1d (one day of
-look-back, 6.36M traffic parameters, T8–T10) and Atlas-100M-TXL (20.45M traffic parameters, one day of look-back,
-T11–T14). They are reported here when scored.
+### Atlas-100M-T1d: one day of look-back (addendum A)
+
+Atlas-100M-T reading **288 steps (one day)** instead of 12; traffic-only parameters **6,358,742**, whole system
+104,878,414. Track B only. Trained 40,000 steps (135 minutes, A100), validation ratio 0.7210 → 0.6486 (Atlas-100M-T:
+0.6476). Check T0: 0.721092 at the start against 0.721011. One Holm family of 66 comparisons (every Track B
+submission, Atlas-100M and Atlas-100M-T included).
+
+| Opponent | PEMS08 | PEMS04 | PEMS03 | PEMS07 | METR-LA | PEMS-BAY | W/T/L |
+|---|---|---|---|---|---|---|---|
+| **Atlas-100M-T1d MAE** | **15.293** | **19.416** | **14.828** | **20.634** | **3.140** | **1.539** | |
+| Atlas-100M-T | 15.475 (-1.2%) TIE | 19.474 (-0.3%) TIE | 14.717 (+0.8%) TIE | 20.813 (-0.9%) TIE | 3.079 (+2.0%) TIE | 1.582 (-2.7%) WIN | 1/5/0 |
+| Atlas-100M (v1.0) | 17.170 (-10.9%) WIN | 21.688 (-10.5%) WIN | 16.181 (-8.4%) WIN | 23.261 (-11.3%) WIN | 3.310 (-5.1%) WIN | 1.699 (-9.5%) WIN | 6/0/0 |
+| Chronos-Bolt | 18.443 (-17.1%) WIN | 22.866 (-15.1%) WIN | 17.177 (-13.7%) WIN | 25.664 (-19.6%) WIN | 3.875 (-19.0%) WIN | 1.996 (-22.9%) WIN | 6/0/0 |
+| Chronos-2 | 17.148 (-10.8%) WIN | 21.524 (-9.8%) WIN | 15.913 (-6.8%) TIE | 23.566 (-12.4%) WIN | 3.674 (-14.5%) WIN | 1.829 (-15.9%) WIN | 5/1/0 |
+| TimesFM 2.5 | 15.038 (+1.7%) TIE | 19.702 (-1.4%) TIE | 14.609 (+1.5%) TIE | 20.894 (-1.2%) TIE | 3.491 (-10.1%) WIN | 1.692 (-9.1%) WIN | 2/4/0 |
+| TimesFM 3.0 | 14.629 (+4.5%) LOSS | 19.273 (+0.7%) TIE | 14.331 (+3.5%) TIE | 20.464 (+0.8%) TIE | 3.491 (-10.1%) WIN | 1.708 (-9.9%) WIN | 2/3/1 |
+| TimesFM 3.0 mv | 14.549 (+5.1%) LOSS | 19.135 (+1.5%) TIE | 14.148 (+4.8%) TIE | 20.270 (+1.8%) LOSS | 3.401 (-7.7%) WIN | 1.661 (-7.4%) WIN | 2/2/2 |
+| STID | 14.234 (+7.4%) LOSS | 18.484 (+5.0%) LOSS | 15.393 (-3.7%) TIE | 19.617 (+5.2%) LOSS | 3.124 (+0.5%) TIE | 1.562 (-1.5%) TIE | 0/3/3 |
+| Graph WaveNet | 14.674 (+4.2%) LOSS | 18.984 (+2.3%) TIE | 14.552 (+1.9%) TIE | 22.416 (-8.0%) WIN | 3.066 (+2.4%) TIE | 1.574 (-2.3%) WIN | 2/3/1 |
+| STAEformer | 13.500 (+13.3%) LOSS | 18.281 (+6.2%) LOSS | 15.218 (-2.6%) TIE | 21.506 (-4.1%) WIN | 2.970 (+5.7%) LOSS | 1.530 (+0.6%) TIE | 1/2/3 |
+| PWM-Dyn v0.6r | 14.336 (+6.7%) LOSS | 18.692 (+3.9%) LOSS | 14.299 (+3.7%) TIE | 19.929 (+3.5%) LOSS | 2.920 (+7.5%) LOSS | 1.524 (+1.0%) TIE | 0/2/4 |
+
+- A day of look-back changes little overall: T1d ties Atlas-100M-T on five networks and wins on PEMS-BAY.
+- Against the foundation models WIN 17, TIE 10, LOSS 3: more wins than Atlas-100M-T (Chronos-2 now loses on four
+  networks), but also three losses to TimesFM 3.0 on PEMS08 and PEMS07 that Atlas-100M-T did not have.
+- Against the specialists and PWM-Dyn WIN 3, TIE 10, LOSS 11; the first win over a specialist outside PEMS07 (Graph
+  WaveNet on PEMS-BAY). PWM-Dyn is still not beaten on any network (tied on PEMS03 and PEMS-BAY).
+
+| # | Prediction (addendum A) | Probability | Result |
+|---|---|---|---|
+| T8 | Best validation ratio below Atlas-100M-T's | 0.65 | failed (0.6486 vs 0.6476) |
+| T9 | Track B: WIN against every foundation model on at least 4 of 6 networks | 0.35 | failed (2 of 6: METR-LA, PEMS-BAY) |
+| T10 | Lower MAE than PWM-Dyn v0.6r on at least 3 of 6 networks | 0.25 | failed (0 of 6) |
+
+### Atlas-100M-TXL: 20.45M traffic parameters (addendum B), did not train
+
+LoRA rank 128 (alpha 128), 64-number sensor embeddings, one day of look-back: 20,454,934 traffic-only parameters,
+whole system 118,974,606 (L4 GPU). The validation ratio rose from 0.7210 to 0.868, 1.142 and 6.22 in the first 6,000
+steps, recovered to 0.732 and never went below the start; patience stopped it at step 12,000 and the kept checkpoint
+is the starting one, i.e. Atlas-100M's traffic view. Scored as registered it ties Atlas-100M on all six networks
+(`results/atlas100mtxl_traffic_results.json`). T11 (validation below T1d's), T12, T13 and T14 **failed**. Addendum C
+(committed before it ran) retries the same size with rank-stabilised LoRA scaling (alpha 64) as Atlas-100M-TXL2;
+reported here when scored.
 
 ## Hybrid against ECMWF IFS, AIFS, GFS and GraphCast (pending)
 

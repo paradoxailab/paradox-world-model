@@ -7,11 +7,11 @@ data and scored against the strongest public forecasting models on identical win
 Every rule and prediction is committed here **before** the run it governs, and every number below is copied from a
 result file in this repository.
 
-## Latest: Atlas-100M, one model for weather, air quality and traffic (2026-11-21, interim)
+## Latest: Atlas-100M, one model for weather, air quality and traffic (2026-11-21, v1.0)
 
 98.6M parameters, one set of weights with a shared core and small per-domain adapters, trained only on real station
 data. Pre-registered before the first GPU run (`atlas/m100/PREREG.md`); full report with every win, tie and loss in
-[`atlas/m100/RESULTS.md`](atlas/m100/RESULTS.md). Traffic and the hybrid comparison with ECMWF / GFS are still running.
+[`atlas/m100/RESULTS.md`](atlas/m100/RESULTS.md). Weights: [huggingface.co/paradoxailab/atlas-100m](https://huggingface.co/paradoxailab/atlas-100m). The hybrid comparison with ECMWF / GFS is still pending.
 
 - **Weather:** WIN in all 100 paired comparisons with ten zero-shot foundation models (TimesFM 2.5 / 3.0, Chronos-2,
   Chronos-Bolt, TiRex, Sundial, Time-MoE, TTM, persistence) on the 2023 test and the 2024–25 live period; e.g. against
@@ -19,6 +19,9 @@ data. Pre-registered before the first GPU run (`atlas/m100/PREREG.md`); full rep
   the published PhysicsFormer on 4 of 5 variables, worse on sea-level pressure (1.474 vs 1.43); equal to our 24.1M model.
 - **Air quality (all-India PM2.5):** on trained stations WIN against 7 of 9 foundation models; TIE with TimesFM 3.0,
   TimesFM 3.0 multivariate and our Atlas-India v1.0. On never-trained stations mostly TIEs.
+- **Traffic (six road networks): a clear loss.** LOSS in 22 of 24 comparisons with the trained specialists (STID,
+  Graph WaveNet, STAEformer) and our own PWM-Dyn; against zero-shot foundation models WIN 7, TIE 11, LOSS 12 (it loses
+  to TimesFM on the four PeMS networks). One shared model did not match single-domain models on traffic.
 - These are task-trained results against zero-shot general models; see "What these results do and do not show" in the
   report.
 

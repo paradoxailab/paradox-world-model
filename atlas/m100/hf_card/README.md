@@ -15,8 +15,8 @@ tags:
 
 # Atlas-100M: one compact world model for weather, air quality and traffic
 
-**ParadoxAI Lab** · Aditya Kumar, Anupam Singh · interim release 2026-11-21 (weather and air quality evaluated;
-traffic and the hybrid comparison with ECMWF / GFS still running).
+**ParadoxAI Lab** · Aditya Kumar, Anupam Singh · v1.0, 2026-11-21 (weather, air quality and traffic evaluated; the
+hybrid comparison with ECMWF / GFS is still pending).
 
 | | |
 |---|---|
@@ -41,13 +41,18 @@ wind direction −14.6%, wind speed −11.2%, pressure −25.1%.
 Sundial, TimesFM 2.5, Time-MoE, TiRex and TTM on trained stations; **TIE** with TimesFM 3.0, TimesFM 3.0 multivariate
 (+0.8%, slightly worse) and our Atlas-India v1.0. On never-trained stations WIN only against Time-MoE and TTM.
 
-**Traffic and hybrid:** pending; this card will be updated with the scored results.
+**Traffic (six road networks, next hour at 5-min steps): a clear loss.** LOSS in 22 of 24 comparisons against the
+trained specialists STID, Graph WaveNet, STAEformer and our own PWM-Dyn v0.6r (4–27% worse); against zero-shot
+foundation models WIN 7, TIE 11, LOSS 12 (loses to TimesFM 2.5 / 3.0 on the four PeMS networks). **Do not use the
+traffic view where a trained traffic model is available.**
+
+**Hybrid against ECMWF / GFS:** pending; this card will be updated.
 
 ## Limits (read before using)
 
 - Task-trained against zero-shot: the foundation models were not fine-tuned on these datasets; Atlas trained on the
   same stations' earlier years and sees each station's neighbours.
-- Weak on sea-level pressure and on stations it never trained on. One training seed.
+- Weak on traffic, on sea-level pressure and on stations it never trained on. One training seed.
 - Not a global gridded model and not compared with video / robotics world models.
 
 ## Files

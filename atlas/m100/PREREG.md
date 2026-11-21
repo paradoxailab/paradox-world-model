@@ -207,3 +207,7 @@ weights may cost weather a little; traffic against tuned specialists and pressur
    That second try also ran out of memory (a traffic specialist was training). Time-MoE therefore waits until the
    whole traffic stage has left the GPU (`atlas/m100/aq_finish.sh`): sharing the GPU would also slow the specialists,
    whose budgets are in minutes. The full air-quality score follows it.
+6. **2026-11-21, traffic: the first scoring ran before PWM-Dyn v0.6r had finished.** Two Colab sessions shared the
+   job queue; one ran `t_score` while the other was still training PWM-Dyn's three seeds, so the first score lacks the
+   PWM-Dyn comparison. It is kept unchanged as `atlas100m_traffic_results_without_pwmdyn.json`, and traffic is scored
+   once more with PWM-Dyn included (the full pre-registered family). Nothing else changes.

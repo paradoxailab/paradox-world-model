@@ -1,0 +1,164 @@
+  tbl[k] = np.nan_to_num(np.nanmedian(rows, 0))
+ParadoxBench PEMS08/A Atlas-100M: MAE 17.170 RMSE 27.007 COV80 80.2% IS80 82.26 QL 5.604
+ParadoxBench PEMS08/B Atlas-100M: MAE 17.170 RMSE 27.007 COV80 80.2% IS80 82.26 QL 5.604
+ParadoxBench PEMS04/A Atlas-100M: MAE 21.688 RMSE 34.066 COV80 80.3% IS80 101.39 QL 6.995
+ParadoxBench PEMS04/B Atlas-100M: MAE 21.688 RMSE 34.066 COV80 80.3% IS80 101.39 QL 6.995
+ParadoxBench PEMS03/A Atlas-100M: MAE 16.181 RMSE 25.632 COV80 80.1% IS80 75.44 QL 5.211
+ParadoxBench PEMS03/B Atlas-100M: MAE 16.181 RMSE 25.632 COV80 80.1% IS80 75.44 QL 5.211
+ParadoxBench PEMS07/A Atlas-100M: MAE 23.261 RMSE 36.638 COV80 80.0% IS80 110.21 QL 7.550
+ParadoxBench PEMS07/B Atlas-100M: MAE 23.261 RMSE 36.638 COV80 80.0% IS80 110.21 QL 7.550
+ParadoxBench METR-LA/A Atlas-100M: MAE 3.310 RMSE 6.544 COV80 79.8% IS80 16.15 QL 1.090
+ParadoxBench METR-LA/B Atlas-100M: MAE 3.310 RMSE 6.544 COV80 79.8% IS80 16.15 QL 1.090
+ParadoxBench PEMS-BAY/A Atlas-100M: MAE 1.699 RMSE 3.843 COV80 80.0% IS80 8.32 QL 0.560
+ParadoxBench PEMS-BAY/B Atlas-100M: MAE 1.699 RMSE 3.843 COV80 80.0% IS80 8.32 QL 0.560
+TEST PEMS08    A vs Graph_WaveNet_IJCAI_19_official_code             ours 17.170 theirs 14.674 +17.01% [+13.55, +20.65] p_holm 1.9e-14 LOSS
+TEST PEMS08    A vs STAEformer_CIKM_23_official_code                 ours 17.170 theirs 13.500 +27.18% [+23.03, +31.85] p_holm 7.6e-24 LOSS
+TEST PEMS08    A vs STID_CIKM_22_official_code                       ours 17.170 theirs 14.234 +20.62% [+17.26, +24.39] p_holm 2.9e-20 LOSS
+TEST PEMS08    B vs Chronos-2_Amazon_120M_zero-shot_ctx_512          ours 17.170 theirs 17.148 +0.13% [-8.36, +8.40] p_holm 1 TIE
+TEST PEMS08    B vs Chronos-Bolt_base_Amazon_205M_zero-shot_ctx_512  ours 17.170 theirs 18.443 -6.90% [-12.34, -1.72] p_holm 0.19 TIE
+TEST PEMS08    B vs Graph_WaveNet_IJCAI_19_official_code             ours 17.170 theirs 14.674 +17.01% [+13.55, +20.65] p_holm 1.9e-14 LOSS
+TEST PEMS08    B vs STAEformer_CIKM_23_official_code                 ours 17.170 theirs 13.500 +27.18% [+23.03, +31.85] p_holm 7.6e-24 LOSS
+TEST PEMS08    B vs STID_CIKM_22_official_code                       ours 17.170 theirs 14.234 +20.62% [+17.26, +24.39] p_holm 2.9e-20 LOSS
+TEST PEMS08    B vs TimesFM-2.5_Google_200M_zero-shot_ctx_512        ours 17.170 theirs 15.038 +14.18% [+8.46, +19.87] p_holm 2.7e-05 LOSS
+TEST PEMS08    B vs TimesFM-3.0_Google_multivariate_zero-shot_ctx_51 ours 17.170 theirs 14.549 +18.01% [+12.47, +23.61] p_holm 7.9e-09 LOSS
+TEST PEMS08    B vs TimesFM-3.0_Google_zero-shot_ctx_512             ours 17.170 theirs 14.629 +17.37% [+11.74, +23.15] p_holm 6.9e-08 LOSS
+TEST PEMS04    A vs Graph_WaveNet_IJCAI_19_official_code             ours 21.688 theirs 18.984 +14.24% [+10.83, +17.63] p_holm 1.3e-11 LOSS
+TEST PEMS04    A vs STAEformer_CIKM_23_official_code                 ours 21.688 theirs 18.281 +18.64% [+14.90, +22.47] p_holm 1.4e-15 LOSS
+TEST PEMS04    A vs STID_CIKM_22_official_code                       ours 21.688 theirs 18.484 +17.33% [+13.15, +21.46] p_holm 3.9e-12 LOSS
+TEST PEMS04    B vs Chronos-2_Amazon_120M_zero-shot_ctx_512          ours 21.688 theirs 21.524 +0.76% [-6.52, +7.83] p_holm 1 TIE
+TEST PEMS04    B vs Chronos-Bolt_base_Amazon_205M_zero-shot_ctx_512  ours 21.688 theirs 22.866 -5.15% [-10.23, -0.46] p_holm 0.53 TIE
+TEST PEMS04    B vs Graph_WaveNet_IJCAI_19_official_code             ours 21.688 theirs 18.984 +14.24% [+10.83, +17.63] p_holm 1.3e-11 LOSS
+TEST PEMS04    B vs STAEformer_CIKM_23_official_code                 ours 21.688 theirs 18.281 +18.64% [+14.90, +22.47] p_holm 1.4e-15 LOSS
+TEST PEMS04    B vs STID_CIKM_22_official_code                       ours 21.688 theirs 18.484 +17.33% [+13.15, +21.46] p_holm 3.9e-12 LOSS
+TEST PEMS04    B vs TimesFM-2.5_Google_200M_zero-shot_ctx_512        ours 21.688 theirs 19.702 +10.08% [+4.90, +15.48] p_holm 0.0026 LOSS
+TEST PEMS04    B vs TimesFM-3.0_Google_multivariate_zero-shot_ctx_51 ours 21.688 theirs 19.135 +13.34% [+8.48, +18.52] p_holm 4.1e-06 LOSS
+TEST PEMS04    B vs TimesFM-3.0_Google_zero-shot_ctx_512             ours 21.688 theirs 19.273 +12.53% [+7.56, +17.81] p_holm 3.1e-05 LOSS
+TEST PEMS03    A vs Graph_WaveNet_IJCAI_19_official_code             ours 16.181 theirs 14.552 +11.20% [+8.41, +14.08] p_holm 8.2e-14 LOSS
+TEST PEMS03    A vs STAEformer_CIKM_23_official_code                 ours 16.181 theirs 15.218 +6.33% [+0.82, +10.74] p_holm 0.13 TIE
+TEST PEMS03    A vs STID_CIKM_22_official_code                       ours 16.181 theirs 15.393 +5.12% [-3.17, +11.97] p_holm 1 TIE
+TEST PEMS03    B vs Chronos-2_Amazon_120M_zero-shot_ctx_512          ours 16.181 theirs 15.913 +1.69% [-4.41, +8.22] p_holm 1 TIE
+TEST PEMS03    B vs Chronos-Bolt_base_Amazon_205M_zero-shot_ctx_512  ours 16.181 theirs 17.177 -5.80% [-10.13, -1.02] p_holm 0.21 TIE
+TEST PEMS03    B vs Graph_WaveNet_IJCAI_19_official_code             ours 16.181 theirs 14.552 +11.20% [+8.41, +14.08] p_holm 8.2e-14 LOSS
+TEST PEMS03    B vs STAEformer_CIKM_23_official_code                 ours 16.181 theirs 15.218 +6.33% [+0.82, +10.74] p_holm 0.13 TIE
+TEST PEMS03    B vs STID_CIKM_22_official_code                       ours 16.181 theirs 15.393 +5.12% [-3.17, +11.97] p_holm 1 TIE
+TEST PEMS03    B vs TimesFM-2.5_Google_200M_zero-shot_ctx_512        ours 16.181 theirs 14.609 +10.76% [+7.53, +14.89] p_holm 2.3e-07 LOSS
+TEST PEMS03    B vs TimesFM-3.0_Google_multivariate_zero-shot_ctx_51 ours 16.181 theirs 14.148 +14.37% [+11.13, +18.34] p_holm 6e-14 LOSS
+TEST PEMS03    B vs TimesFM-3.0_Google_zero-shot_ctx_512             ours 16.181 theirs 14.331 +12.92% [+9.67, +17.03] p_holm 8.6e-11 LOSS
+TEST PEMS07    A vs Graph_WaveNet_IJCAI_19_official_code             ours 23.261 theirs 22.416 +3.77% [+3.31, +4.38] p_holm 6.4e-35 LOSS
+TEST PEMS07    A vs STAEformer_CIKM_23_official_code                 ours 23.261 theirs 21.506 +8.16% [+7.07, +9.52] p_holm 1.8e-30 LOSS
+TEST PEMS07    A vs STID_CIKM_22_official_code                       ours 23.261 theirs 19.617 +18.57% [+17.28, +20.41] p_holm 8.7e-91 LOSS
+TEST PEMS07    B vs Chronos-2_Amazon_120M_zero-shot_ctx_512          ours 23.261 theirs 23.566 -1.29% [-7.13, +4.54] p_holm 1 TIE
+TEST PEMS07    B vs Chronos-Bolt_base_Amazon_205M_zero-shot_ctx_512  ours 23.261 theirs 25.664 -9.36% [-13.34, -5.68] p_holm 0.00014 WIN
+TEST PEMS07    B vs Graph_WaveNet_IJCAI_19_official_code             ours 23.261 theirs 22.416 +3.77% [+3.31, +4.38] p_holm 6.4e-35 LOSS
+TEST PEMS07    B vs STAEformer_CIKM_23_official_code                 ours 23.261 theirs 21.506 +8.16% [+7.07, +9.52] p_holm 1.8e-30 LOSS
+TEST PEMS07    B vs STID_CIKM_22_official_code                       ours 23.261 theirs 19.617 +18.57% [+17.28, +20.41] p_holm 8.7e-91 LOSS
+TEST PEMS07    B vs TimesFM-2.5_Google_200M_zero-shot_ctx_512        ours 23.261 theirs 20.894 +11.33% [+8.13, +14.82] p_holm 6.2e-11 LOSS
+TEST PEMS07    B vs TimesFM-3.0_Google_multivariate_zero-shot_ctx_51 ours 23.261 theirs 20.270 +14.76% [+12.13, +17.90] p_holm 7.8e-24 LOSS
+TEST PEMS07    B vs TimesFM-3.0_Google_zero-shot_ctx_512             ours 23.261 theirs 20.464 +13.67% [+10.86, +16.91] p_holm 8.4e-19 LOSS
+TEST METR-LA   A vs Graph_WaveNet_IJCAI_19_official_code             ours 3.310 theirs 3.066 +7.97% [+6.69, +9.06] p_holm 1.2e-25 LOSS
+TEST METR-LA   A vs STAEformer_CIKM_23_official_code                 ours 3.310 theirs 2.970 +11.46% [+9.98, +12.38] p_holm 8.4e-44 LOSS
+TEST METR-LA   A vs STID_CIKM_22_official_code                       ours 3.310 theirs 3.124 +5.96% [+4.35, +7.16] p_holm 7e-15 LOSS
+TEST METR-LA   B vs Chronos-2_Amazon_120M_zero-shot_ctx_512          ours 3.310 theirs 3.674 -9.91% [-11.85, -7.74] p_holm 6e-14 WIN
+TEST METR-LA   B vs Chronos-Bolt_base_Amazon_205M_zero-shot_ctx_512  ours 3.310 theirs 3.875 -14.58% [-16.05, -12.75] p_holm 3.3e-33 WIN
+TEST METR-LA   B vs Graph_WaveNet_IJCAI_19_official_code             ours 3.310 theirs 3.066 +7.97% [+6.69, +9.06] p_holm 1.2e-25 LOSS
+TEST METR-LA   B vs STAEformer_CIKM_23_official_code                 ours 3.310 theirs 2.970 +11.46% [+9.98, +12.38] p_holm 8.4e-44 LOSS
+TEST METR-LA   B vs STID_CIKM_22_official_code                       ours 3.310 theirs 3.124 +5.96% [+4.35, +7.16] p_holm 7e-15 LOSS
+TEST METR-LA   B vs TimesFM-2.5_Google_200M_zero-shot_ctx_512        ours 3.310 theirs 3.491 -5.18% [-7.58, -2.51] p_holm 0.0036 WIN
+TEST METR-LA   B vs TimesFM-3.0_Google_multivariate_zero-shot_ctx_51 ours 3.310 theirs 3.401 -2.69% [-5.27, +0.02] p_holm 0.56 TIE
+TEST METR-LA   B vs TimesFM-3.0_Google_zero-shot_ctx_512             ours 3.310 theirs 3.491 -5.18% [-7.72, -2.49] p_holm 0.0045 WIN
+TEST PEMS-BAY  A vs Graph_WaveNet_IJCAI_19_official_code             ours 1.699 theirs 1.574 +7.95% [+6.95, +9.08] p_holm 1.6e-25 LOSS
+TEST PEMS-BAY  A vs STAEformer_CIKM_23_official_code                 ours 1.699 theirs 1.530 +11.11% [+9.89, +12.17] p_holm 3.2e-37 LOSS
+TEST PEMS-BAY  A vs STID_CIKM_22_official_code                       ours 1.699 theirs 1.562 +8.82% [+7.08, +10.27] p_holm 9.6e-18 LOSS
+TEST PEMS-BAY  B vs Chronos-2_Amazon_120M_zero-shot_ctx_512          ours 1.699 theirs 1.829 -7.10% [-10.38, -4.10] p_holm 0.0012 WIN
+TEST PEMS-BAY  B vs Chronos-Bolt_base_Amazon_205M_zero-shot_ctx_512  ours 1.699 theirs 1.996 -14.87% [-16.77, -12.87] p_holm 7.6e-19 WIN
+TEST PEMS-BAY  B vs Graph_WaveNet_IJCAI_19_official_code             ours 1.699 theirs 1.574 +7.95% [+6.95, +9.08] p_holm 1.6e-25 LOSS
+TEST PEMS-BAY  B vs STAEformer_CIKM_23_official_code                 ours 1.699 theirs 1.530 +11.11% [+9.89, +12.17] p_holm 3.2e-37 LOSS
+TEST PEMS-BAY  B vs STID_CIKM_22_official_code                       ours 1.699 theirs 1.562 +8.82% [+7.08, +10.27] p_holm 9.6e-18 LOSS
+TEST PEMS-BAY  B vs TimesFM-2.5_Google_200M_zero-shot_ctx_512        ours 1.699 theirs 1.692 +0.43% [-2.43, +3.32] p_holm 1 TIE
+TEST PEMS-BAY  B vs TimesFM-3.0_Google_multivariate_zero-shot_ctx_51 ours 1.699 theirs 1.661 +2.32% [-0.49, +5.49] p_holm 0.98 TIE
+TEST PEMS-BAY  B vs TimesFM-3.0_Google_zero-shot_ctx_512             ours 1.699 theirs 1.708 -0.49% [-3.52, +2.63] p_holm 1 TIE
+  tbl[k] = np.nan_to_num(np.nanmedian(rows, 0))
+ParadoxBench PEMS08/A Atlas-100M: MAE 17.170 RMSE 27.007 COV80 80.2% IS80 82.26 QL 5.604
+ParadoxBench PEMS08/B Atlas-100M: MAE 17.170 RMSE 27.007 COV80 80.2% IS80 82.26 QL 5.604
+ParadoxBench PEMS04/A Atlas-100M: MAE 21.688 RMSE 34.066 COV80 80.3% IS80 101.39 QL 6.995
+ParadoxBench PEMS04/B Atlas-100M: MAE 21.688 RMSE 34.066 COV80 80.3% IS80 101.39 QL 6.995
+ParadoxBench PEMS03/A Atlas-100M: MAE 16.181 RMSE 25.632 COV80 80.1% IS80 75.44 QL 5.211
+ParadoxBench PEMS03/B Atlas-100M: MAE 16.181 RMSE 25.632 COV80 80.1% IS80 75.44 QL 5.211
+ParadoxBench PEMS07/A Atlas-100M: MAE 23.261 RMSE 36.638 COV80 80.0% IS80 110.21 QL 7.550
+ParadoxBench PEMS07/B Atlas-100M: MAE 23.261 RMSE 36.638 COV80 80.0% IS80 110.21 QL 7.550
+ParadoxBench METR-LA/A Atlas-100M: MAE 3.310 RMSE 6.544 COV80 79.8% IS80 16.15 QL 1.090
+ParadoxBench METR-LA/B Atlas-100M: MAE 3.310 RMSE 6.544 COV80 79.8% IS80 16.15 QL 1.090
+ParadoxBench PEMS-BAY/A Atlas-100M: MAE 1.699 RMSE 3.843 COV80 80.0% IS80 8.32 QL 0.560
+ParadoxBench PEMS-BAY/B Atlas-100M: MAE 1.699 RMSE 3.843 COV80 80.0% IS80 8.32 QL 0.560
+TEST PEMS08    A vs Graph_WaveNet_IJCAI_19_official_code             ours 17.170 theirs 14.674 +17.01% [+13.55, +20.65] p_holm 2e-14 LOSS
+TEST PEMS08    A vs STAEformer_CIKM_23_official_code                 ours 17.170 theirs 13.500 +27.18% [+23.03, +31.85] p_holm 8.1e-24 LOSS
+TEST PEMS08    A vs STID_CIKM_22_official_code                       ours 17.170 theirs 14.234 +20.62% [+17.26, +24.39] p_holm 3.1e-20 LOSS
+TEST PEMS08    B vs Chronos-2_Amazon_120M_zero-shot_ctx_512          ours 17.170 theirs 17.148 +0.13% [-8.36, +8.40] p_holm 1 TIE
+TEST PEMS08    B vs Chronos-Bolt_base_Amazon_205M_zero-shot_ctx_512  ours 17.170 theirs 18.443 -6.90% [-12.34, -1.72] p_holm 0.19 TIE
+TEST PEMS08    B vs Graph_WaveNet_IJCAI_19_official_code             ours 17.170 theirs 14.674 +17.01% [+13.55, +20.65] p_holm 2e-14 LOSS
+TEST PEMS08    B vs PWM-Dyn_v0.6r_3-seed_CQR                         ours 17.170 theirs 14.336 +19.77% [+16.69, +23.37] p_holm 6.1e-20 LOSS
+TEST PEMS08    B vs STAEformer_CIKM_23_official_code                 ours 17.170 theirs 13.500 +27.18% [+23.03, +31.85] p_holm 8.1e-24 LOSS
+TEST PEMS08    B vs STID_CIKM_22_official_code                       ours 17.170 theirs 14.234 +20.62% [+17.26, +24.39] p_holm 3.1e-20 LOSS
+TEST PEMS08    B vs TimesFM-2.5_Google_200M_zero-shot_ctx_512        ours 17.170 theirs 15.038 +14.18% [+8.46, +19.87] p_holm 2.7e-05 LOSS
+TEST PEMS08    B vs TimesFM-3.0_Google_multivariate_zero-shot_ctx_51 ours 17.170 theirs 14.549 +18.01% [+12.47, +23.61] p_holm 7.9e-09 LOSS
+TEST PEMS08    B vs TimesFM-3.0_Google_zero-shot_ctx_512             ours 17.170 theirs 14.629 +17.37% [+11.74, +23.15] p_holm 6.9e-08 LOSS
+TEST PEMS04    A vs Graph_WaveNet_IJCAI_19_official_code             ours 21.688 theirs 18.984 +14.24% [+10.83, +17.63] p_holm 1.3e-11 LOSS
+TEST PEMS04    A vs STAEformer_CIKM_23_official_code                 ours 21.688 theirs 18.281 +18.64% [+14.90, +22.47] p_holm 1.4e-15 LOSS
+TEST PEMS04    A vs STID_CIKM_22_official_code                       ours 21.688 theirs 18.484 +17.33% [+13.15, +21.46] p_holm 4e-12 LOSS
+TEST PEMS04    B vs Chronos-2_Amazon_120M_zero-shot_ctx_512          ours 21.688 theirs 21.524 +0.76% [-6.52, +7.83] p_holm 1 TIE
+TEST PEMS04    B vs Chronos-Bolt_base_Amazon_205M_zero-shot_ctx_512  ours 21.688 theirs 22.866 -5.15% [-10.23, -0.46] p_holm 0.53 TIE
+TEST PEMS04    B vs Graph_WaveNet_IJCAI_19_official_code             ours 21.688 theirs 18.984 +14.24% [+10.83, +17.63] p_holm 1.3e-11 LOSS
+TEST PEMS04    B vs PWM-Dyn_v0.6r_3-seed_CQR                         ours 21.688 theirs 18.692 +16.03% [+12.99, +19.17] p_holm 3.2e-16 LOSS
+TEST PEMS04    B vs STAEformer_CIKM_23_official_code                 ours 21.688 theirs 18.281 +18.64% [+14.90, +22.47] p_holm 1.4e-15 LOSS
+TEST PEMS04    B vs STID_CIKM_22_official_code                       ours 21.688 theirs 18.484 +17.33% [+13.15, +21.46] p_holm 4e-12 LOSS
+TEST PEMS04    B vs TimesFM-2.5_Google_200M_zero-shot_ctx_512        ours 21.688 theirs 19.702 +10.08% [+4.90, +15.48] p_holm 0.0026 LOSS
+TEST PEMS04    B vs TimesFM-3.0_Google_multivariate_zero-shot_ctx_51 ours 21.688 theirs 19.135 +13.34% [+8.48, +18.52] p_holm 4.1e-06 LOSS
+TEST PEMS04    B vs TimesFM-3.0_Google_zero-shot_ctx_512             ours 21.688 theirs 19.273 +12.53% [+7.56, +17.81] p_holm 3.1e-05 LOSS
+TEST PEMS03    A vs Graph_WaveNet_IJCAI_19_official_code             ours 16.181 theirs 14.552 +11.20% [+8.41, +14.08] p_holm 8.4e-14 LOSS
+TEST PEMS03    A vs STAEformer_CIKM_23_official_code                 ours 16.181 theirs 15.218 +6.33% [+0.82, +10.74] p_holm 0.13 TIE
+TEST PEMS03    A vs STID_CIKM_22_official_code                       ours 16.181 theirs 15.393 +5.12% [-3.17, +11.97] p_holm 1 TIE
+TEST PEMS03    B vs Chronos-2_Amazon_120M_zero-shot_ctx_512          ours 16.181 theirs 15.913 +1.69% [-4.41, +8.22] p_holm 1 TIE
+TEST PEMS03    B vs Chronos-Bolt_base_Amazon_205M_zero-shot_ctx_512  ours 16.181 theirs 17.177 -5.80% [-10.13, -1.02] p_holm 0.21 TIE
+TEST PEMS03    B vs Graph_WaveNet_IJCAI_19_official_code             ours 16.181 theirs 14.552 +11.20% [+8.41, +14.08] p_holm 8.4e-14 LOSS
+TEST PEMS03    B vs PWM-Dyn_8M_3-seed_CQR                            ours 16.181 theirs 14.299 +13.17% [+9.16, +16.83] p_holm 6.4e-11 LOSS
+TEST PEMS03    B vs STAEformer_CIKM_23_official_code                 ours 16.181 theirs 15.218 +6.33% [+0.82, +10.74] p_holm 0.13 TIE
+TEST PEMS03    B vs STID_CIKM_22_official_code                       ours 16.181 theirs 15.393 +5.12% [-3.17, +11.97] p_holm 1 TIE
+TEST PEMS03    B vs TimesFM-2.5_Google_200M_zero-shot_ctx_512        ours 16.181 theirs 14.609 +10.76% [+7.53, +14.89] p_holm 2.3e-07 LOSS
+TEST PEMS03    B vs TimesFM-3.0_Google_multivariate_zero-shot_ctx_51 ours 16.181 theirs 14.148 +14.37% [+11.13, +18.34] p_holm 6.1e-14 LOSS
+TEST PEMS03    B vs TimesFM-3.0_Google_zero-shot_ctx_512             ours 16.181 theirs 14.331 +12.92% [+9.67, +17.03] p_holm 8.6e-11 LOSS
+TEST PEMS07    A vs Graph_WaveNet_IJCAI_19_official_code             ours 23.261 theirs 22.416 +3.77% [+3.31, +4.38] p_holm 6.9e-35 LOSS
+TEST PEMS07    A vs STAEformer_CIKM_23_official_code                 ours 23.261 theirs 21.506 +8.16% [+7.07, +9.52] p_holm 1.9e-30 LOSS
+TEST PEMS07    A vs STID_CIKM_22_official_code                       ours 23.261 theirs 19.617 +18.57% [+17.28, +20.41] p_holm 9.4e-91 LOSS
+TEST PEMS07    B vs Chronos-2_Amazon_120M_zero-shot_ctx_512          ours 23.261 theirs 23.566 -1.29% [-7.13, +4.54] p_holm 1 TIE
+TEST PEMS07    B vs Chronos-Bolt_base_Amazon_205M_zero-shot_ctx_512  ours 23.261 theirs 25.664 -9.36% [-13.34, -5.68] p_holm 0.00014 WIN
+TEST PEMS07    B vs Graph_WaveNet_IJCAI_19_official_code             ours 23.261 theirs 22.416 +3.77% [+3.31, +4.38] p_holm 6.9e-35 LOSS
+TEST PEMS07    B vs PWM-Dyn_v0.6r_3-seed_CQR                         ours 23.261 theirs 19.929 +16.72% [+15.68, +18.23] p_holm 1.3e-105 LOSS
+TEST PEMS07    B vs STAEformer_CIKM_23_official_code                 ours 23.261 theirs 21.506 +8.16% [+7.07, +9.52] p_holm 1.9e-30 LOSS
+TEST PEMS07    B vs STID_CIKM_22_official_code                       ours 23.261 theirs 19.617 +18.57% [+17.28, +20.41] p_holm 9.4e-91 LOSS
+TEST PEMS07    B vs TimesFM-2.5_Google_200M_zero-shot_ctx_512        ours 23.261 theirs 20.894 +11.33% [+8.13, +14.82] p_holm 6.4e-11 LOSS
+TEST PEMS07    B vs TimesFM-3.0_Google_multivariate_zero-shot_ctx_51 ours 23.261 theirs 20.270 +14.76% [+12.13, +17.90] p_holm 8.3e-24 LOSS
+TEST PEMS07    B vs TimesFM-3.0_Google_zero-shot_ctx_512             ours 23.261 theirs 20.464 +13.67% [+10.86, +16.91] p_holm 8.7e-19 LOSS
+TEST METR-LA   A vs Graph_WaveNet_IJCAI_19_official_code             ours 3.310 theirs 3.066 +7.97% [+6.69, +9.06] p_holm 1.3e-25 LOSS
+TEST METR-LA   A vs STAEformer_CIKM_23_official_code                 ours 3.310 theirs 2.970 +11.46% [+9.98, +12.38] p_holm 8.9e-44 LOSS
+TEST METR-LA   A vs STID_CIKM_22_official_code                       ours 3.310 theirs 3.124 +5.96% [+4.35, +7.16] p_holm 7.1e-15 LOSS
+TEST METR-LA   B vs Chronos-2_Amazon_120M_zero-shot_ctx_512          ours 3.310 theirs 3.674 -9.91% [-11.85, -7.74] p_holm 6.1e-14 WIN
+TEST METR-LA   B vs Chronos-Bolt_base_Amazon_205M_zero-shot_ctx_512  ours 3.310 theirs 3.875 -14.58% [-16.05, -12.75] p_holm 3.5e-33 WIN
+TEST METR-LA   B vs Graph_WaveNet_IJCAI_19_official_code             ours 3.310 theirs 3.066 +7.97% [+6.69, +9.06] p_holm 1.3e-25 LOSS
+TEST METR-LA   B vs PWM-Dyn_v0.6r_3-seed_CQR                         ours 3.310 theirs 2.920 +13.34% [+11.92, +14.32] p_holm 2.5e-54 LOSS
+TEST METR-LA   B vs STAEformer_CIKM_23_official_code                 ours 3.310 theirs 2.970 +11.46% [+9.98, +12.38] p_holm 8.9e-44 LOSS
+TEST METR-LA   B vs STID_CIKM_22_official_code                       ours 3.310 theirs 3.124 +5.96% [+4.35, +7.16] p_holm 7.1e-15 LOSS
+TEST METR-LA   B vs TimesFM-2.5_Google_200M_zero-shot_ctx_512        ours 3.310 theirs 3.491 -5.18% [-7.58, -2.51] p_holm 0.0036 WIN
+TEST METR-LA   B vs TimesFM-3.0_Google_multivariate_zero-shot_ctx_51 ours 3.310 theirs 3.401 -2.69% [-5.27, +0.02] p_holm 0.56 TIE
+TEST METR-LA   B vs TimesFM-3.0_Google_zero-shot_ctx_512             ours 3.310 theirs 3.491 -5.18% [-7.72, -2.49] p_holm 0.0045 WIN
+TEST PEMS-BAY  A vs Graph_WaveNet_IJCAI_19_official_code             ours 1.699 theirs 1.574 +7.95% [+6.95, +9.08] p_holm 1.7e-25 LOSS
+TEST PEMS-BAY  A vs STAEformer_CIKM_23_official_code                 ours 1.699 theirs 1.530 +11.11% [+9.89, +12.17] p_holm 3.4e-37 LOSS
+TEST PEMS-BAY  A vs STID_CIKM_22_official_code                       ours 1.699 theirs 1.562 +8.82% [+7.08, +10.27] p_holm 1e-17 LOSS
+TEST PEMS-BAY  B vs Chronos-2_Amazon_120M_zero-shot_ctx_512          ours 1.699 theirs 1.829 -7.10% [-10.38, -4.10] p_holm 0.0012 WIN
+TEST PEMS-BAY  B vs Chronos-Bolt_base_Amazon_205M_zero-shot_ctx_512  ours 1.699 theirs 1.996 -14.87% [-16.77, -12.87] p_holm 8e-19 WIN
+TEST PEMS-BAY  B vs Graph_WaveNet_IJCAI_19_official_code             ours 1.699 theirs 1.574 +7.95% [+6.95, +9.08] p_holm 1.7e-25 LOSS
+TEST PEMS-BAY  B vs PWM-Dyn_v0.6r_3-seed_CQR                         ours 1.699 theirs 1.524 +11.54% [+10.21, +12.74] p_holm 4.7e-33 LOSS
+TEST PEMS-BAY  B vs STAEformer_CIKM_23_official_code                 ours 1.699 theirs 1.530 +11.11% [+9.89, +12.17] p_holm 3.4e-37 LOSS
+TEST PEMS-BAY  B vs STID_CIKM_22_official_code                       ours 1.699 theirs 1.562 +8.82% [+7.08, +10.27] p_holm 1e-17 LOSS
+TEST PEMS-BAY  B vs TimesFM-2.5_Google_200M_zero-shot_ctx_512        ours 1.699 theirs 1.692 +0.43% [-2.43, +3.32] p_holm 1 TIE
+TEST PEMS-BAY  B vs TimesFM-3.0_Google_multivariate_zero-shot_ctx_51 ours 1.699 theirs 1.661 +2.32% [-0.49, +5.49] p_holm 0.98 TIE
+TEST PEMS-BAY  B vs TimesFM-3.0_Google_zero-shot_ctx_512             ours 1.699 theirs 1.708 -0.49% [-3.52, +2.63] p_holm 1 TIE

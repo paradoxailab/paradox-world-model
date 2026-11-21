@@ -1,17 +1,28 @@
-# Atlas-100M results: interim release (weather and air quality complete, traffic and hybrid pending)
+# Atlas-100M results: v1.0 (weather, air quality and traffic complete; hybrid pending)
 
 ParadoxAI Lab · Aditya Kumar, Anupam Singh · 2026-11-21
 
 This file reports every finished comparison of the pre-registered Atlas-100M study (`PREREG.md`, committed before the
-first GPU run) as it came out: wins, ties and losses. **Traffic and the hybrid stage are still running and are marked
-pending; nothing below is a projection.** Raw outputs are in `results/` (copied unchanged from the run's Drive store);
-deviations from the plan are listed in `PREREG.md` (1–5, each dated, with the reason). Weights:
+first GPU run) as it came out: wins, ties and losses. **The hybrid comparison with ECMWF / GFS is still waiting for its
+forecast archive and is marked pending; nothing below is a projection.** Raw outputs are in `results/` (copied unchanged from the run's Drive store);
+deviations from the plan are listed in `PREREG.md` (1–6, each dated, with the reason). Weights:
 [huggingface.co/paradoxailab/atlas-100m](https://huggingface.co/paradoxailab/atlas-100m) (SHA-256 in `results/SHA256SUMS`,
 verified against Hugging Face after upload).
 
 **Verdict rule (section 6 of PREREG):** WIN = lower error, Holm-adjusted p < 0.01 and a 95% interval of the difference
 that excludes 0; LOSS = the mirror image; anything else TIE. Percentages are Atlas-100M's error relative to the
 opponent's (negative = Atlas-100M better).
+
+## Summary
+
+| Domain | Against zero-shot foundation models | Against trained specialists / our single-domain models |
+|---|---|---|
+| Weather | **WIN 100 / 100** (10 models, 2023 and 2024–25) | better than PhysicsFormer on 4/5 (not pressure); equal to Atlas-5K 24.1M |
+| Air quality | WIN 7/9 on trained stations, 2/9 on never-trained (rest TIE) | TIE with Atlas-India v1.0 |
+| Traffic | WIN 7, TIE 11, LOSS 12 (5 models × 6 networks) | **LOSS** 22 / 24 against STID, Graph WaveNet, STAEformer, PWM-Dyn |
+| Hybrid vs ECMWF / GFS | pending | pending |
+
+Predictions: 4 of 13 scored so far held (P1, P2, P4, P6); 9 failed; P14–P17 pending.
 
 ## The model
 
@@ -93,15 +104,43 @@ context, paper 3's Atlas-India v1.0, and two baselines; one Holm family of 24 co
 Sundial and Time-MoE were re-run with the `transformers` version their code needs (deviations 1 and 5); the first,
 seven-opponent score is kept unchanged in `results/atlas100m_aq_results_first7.json`.
 
-## Traffic (pending)
+## Traffic (ParadoxBench-1.1: six road networks, next 12 steps of 5 min from the last 12, MAE)
 
-ParadoxBench-1.1, six networks, 12 → 12 steps. At this release 44 of 48 opponent and specialist jobs have finished
-(PEMS08, PEMS04, PEMS03, PEMS07 and METR-LA complete; PEMS-BAY running); PWM-Dyn v0.6r and the paired scoring follow.
-No traffic result is reported until the scoring has run.
+**Atlas-100M loses traffic.** Every forecast below is Atlas-100M's single traffic view (80K adapter parameters on the
+shared core, context 12 steps). Track A opponents are specialists trained on each network with their authors' code and
+paper 1's time budgets (here on Colab L4 / A100 GPUs, which gives them as many or more epochs than in paper 1), plus our
+own PWM-Dyn v0.6r (paper 1's recipe, three fresh seeds); Track B adds five zero-shot foundation models with 512 steps of
+context. One Holm family of 72 comparisons (Diebold–Mariano and day-block bootstrap).
+
+| Opponent | PEMS08 | PEMS04 | PEMS03 | PEMS07 | METR-LA | PEMS-BAY | W/T/L |
+|---|---|---|---|---|---|---|---|
+| **Atlas-100M MAE** | **17.170** | **21.688** | **16.181** | **23.261** | **3.310** | **1.699** | |
+| Chronos-Bolt | 18.443 (-6.9%) TIE | 22.866 (-5.2%) TIE | 17.177 (-5.8%) TIE | 25.664 (-9.4%) WIN | 3.875 (-14.6%) WIN | 1.996 (-14.9%) WIN | 3/3/0 |
+| Chronos-2 | 17.148 (+0.1%) TIE | 21.524 (+0.8%) TIE | 15.913 (+1.7%) TIE | 23.566 (-1.3%) TIE | 3.674 (-9.9%) WIN | 1.829 (-7.1%) WIN | 2/4/0 |
+| TimesFM 2.5 | 15.038 (+14.2%) LOSS | 19.702 (+10.1%) LOSS | 14.609 (+10.8%) LOSS | 20.894 (+11.3%) LOSS | 3.491 (-5.2%) WIN | 1.692 (+0.4%) TIE | 1/1/4 |
+| TimesFM 3.0 | 14.629 (+17.4%) LOSS | 19.273 (+12.5%) LOSS | 14.331 (+12.9%) LOSS | 20.464 (+13.7%) LOSS | 3.491 (-5.2%) WIN | 1.708 (-0.5%) TIE | 1/1/4 |
+| TimesFM 3.0 mv | 14.549 (+18.0%) LOSS | 19.135 (+13.3%) LOSS | 14.148 (+14.4%) LOSS | 20.270 (+14.8%) LOSS | 3.401 (-2.7%) TIE | 1.661 (+2.3%) TIE | 0/2/4 |
+| STID | 14.234 (+20.6%) LOSS | 18.484 (+17.3%) LOSS | 15.393 (+5.1%) TIE | 19.617 (+18.6%) LOSS | 3.124 (+6.0%) LOSS | 1.562 (+8.8%) LOSS | 0/1/5 |
+| Graph WaveNet | 14.674 (+17.0%) LOSS | 18.984 (+14.2%) LOSS | 14.552 (+11.2%) LOSS | 22.416 (+3.8%) LOSS | 3.066 (+8.0%) LOSS | 1.574 (+8.0%) LOSS | 0/0/6 |
+| STAEformer | 13.500 (+27.2%) LOSS | 18.281 (+18.6%) LOSS | 15.218 (+6.3%) TIE | 21.506 (+8.2%) LOSS | 2.970 (+11.5%) LOSS | 1.530 (+11.1%) LOSS | 0/1/5 |
+| PWM-Dyn v0.6r | 14.336 (+19.8%) LOSS | 18.692 (+16.0%) LOSS | 14.299 (+13.2%) LOSS | 19.929 (+16.7%) LOSS | 2.920 (+13.3%) LOSS | 1.524 (+11.5%) LOSS | 0/0/6 |
+
+Cells: opponent MAE (Atlas-100M's error relative to it) and the verdict. Specialists and PWM-Dyn are entered on both
+tracks with identical verdicts; they are listed once.
+
+- Against the trained specialists and PWM-Dyn: **LOSS in 22 of 24 comparisons**, TIE in 2 (STID and STAEformer on
+  PEMS03); Atlas-100M is 4–27% worse.
+- Against the zero-shot foundation models: WIN 7, TIE 11, LOSS 12. Five of the seven wins are against Chronos-Bolt
+  and Chronos-2; against TimesFM it wins only on METR-LA and loses to all three TimesFM configurations on the four
+  PeMS networks.
+- PWM-Dyn v0.6r, our own single-domain traffic model (paper 1), is better than Atlas-100M on every network (11–20%).
+- The first scoring ran before PWM-Dyn had finished (deviation 6) and is kept as
+  `results/atlas100m_traffic_results_without_pwmdyn.json`; adding PWM-Dyn changed no other verdict.
 
 ## Hybrid against ECMWF IFS, AIFS, GFS and GraphCast (pending)
 
-Waits for the Open-Meteo forecast archive (free daily limit; several days).
+Waits for the Open-Meteo forecast archive (free daily limit). On 2026-11-21 ECMWF IFS and AIFS were fully fetched,
+GFS up to 2024-12-29, GraphCast not yet; the fetch resumes each day and the stage runs once the archive is complete.
 
 ## Predictions (scored as written in PREREG section 7)
 
@@ -117,7 +156,9 @@ Waits for the Open-Meteo forecast archive (free daily limit; several days).
 | P8 | AQ Track S: WIN against every foundation model | 0.60 | FAILED (7/9; ties with TimesFM 3.0 and 3.0 multivariate) |
 | P9 | AQ Track U: WIN against every foundation model | 0.35 | FAILED (2/9) |
 | P10 | AQ Track S: WIN against Atlas-India v1.0 | 0.45 | FAILED (tie, 0.5% worse) |
-| P11–P13 | Traffic | | pending |
+| P11 | Traffic Track B: WIN against every foundation model on ≥ 5 of 6 networks | 0.60 | FAILED (0 of 6 networks) |
+| P12 | Traffic Track A: WIN against all three specialists on ≥ 4 of 6 networks | 0.25 | FAILED (0 of 6; 16 LOSS, 2 TIE) |
+| P13 | Traffic: lower MAE than PWM-Dyn v0.6r on ≥ 4 of 6 networks | 0.35 | FAILED (0 of 6) |
 | P14–P17 | Hybrid | | pending |
 
 ## What these results do and do not show
@@ -126,8 +167,12 @@ Waits for the Open-Meteo forecast archive (free daily limit; several days).
   Atlas-100M trained on these stations' earlier years and sees each station's neighbours. The weather and air-quality
   wins show that a compact model trained for the task beats general models used without training on it. They do not
   show a better general-purpose model.
-- **Where it is weak:** sea-level pressure (worse than PhysicsFormer, much worse than ECMWF-HRES), stations it never
-  trained on (mostly ties), and TimesFM 3.0 multivariate on air quality (tie, slightly worse).
+- **Where it is weak:** traffic (loses to every trained specialist, to PWM-Dyn and to TimesFM on most networks),
+  sea-level pressure (worse than PhysicsFormer, much worse than ECMWF-HRES), stations it never trained on (mostly
+  ties), and TimesFM 3.0 multivariate on air quality (tie, slightly worse).
+- **One set of weights for three systems did not pay off.** Weather stayed equal to the 24.1M single-domain model,
+  air quality equalled the single-domain Atlas-India v1.0, and traffic fell well short of the single-domain PWM-Dyn.
+  The shared core carried weather; the small traffic adapter with 12 steps of context was not enough.
 - **Scale did not help weather.** The 100M is equal to the 24.1M within 0.1% except pressure.
 - **One training seed** (700); seed variance is not measured.
 - Not compared: video or robotics world models, or global gridded weather models on their own grids. No claim of

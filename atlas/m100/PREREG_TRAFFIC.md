@@ -108,6 +108,36 @@ above applies, including check W, except:
 | T13 | Lower MAE than PWM-Dyn v0.6r on at least 3 of 6 networks | 0.30 |
 | T14 | Track B: WIN against all three specialists on at least 3 of 6 networks | 0.15 |
 
+## Addendum C: Atlas-100M-TXL2, the same 20.45M traffic share with stable LoRA scaling (written 2026-11-21, after TXL was scored and before any training of TXL2)
+
+**What happened to TXL.** Atlas-100M-TXL ran exactly as addendum B fixed it (L4 GPU). Its validation ratio rose from
+0.7210 to 0.868, 1.142 and 6.22 (training loss 2.22) in the first 6,000 steps, recovered to 0.732 by 12,000, and never
+went below the starting value; patience 6 stopped it at step 12,000, so the checkpoint kept is the starting one, which
+is Atlas-100M's traffic view. Scored as registered it ties Atlas-100M on all six networks
+(`results/atlas100mtxl_traffic_results.json`); T11–T14 failed. TXL stays reported as it came out.
+
+**Likely cause.** LoRA multiplies its update by alpha / r. Atlas-100M-T (rank 32, alpha 32) trained stably; at rank 128
+with alpha 128 each optimiser step moves the weights about twice as far (the update norm grows with the square root
+of the rank at a fixed alpha / r), which fits a blow-up in the first few thousand steps. Rank-stabilised LoRA scales
+by alpha / sqrt(r); keeping T's value of that (32 / sqrt(32)) at rank 128 gives **alpha = 64**.
+
+- **Atlas-100M-TXL2** = Atlas-100M-TXL with **alpha 64** instead of 128 and nothing else changed
+  (`traffic_plus.py --r 128 --alpha 64 --E 64 --ctx 288 --steps 60000 --cap 360 --name Atlas-100M-TXL2
+  --tag atlas100mTXL2`). Same parameters (20,454,934 traffic-only; whole system 118,974,606), same data, optimiser,
+  learning rates, schedule, budget, patience and seed; check T0 and check W apply unchanged.
+- Holm family: the same as TXL's (STID, Graph WaveNet, STAEformer, PWM-Dyn v0.6r, the five foundation models,
+  Atlas-100M); compared with Atlas-100M-T and T1d by MAE only. Track B only.
+- This is a second attempt at the same model size, chosen after seeing TXL fail. We report it as such: one extra
+  configuration was tried, and both TXL and TXL2 are published whatever TXL2 does.
+
+| # | Prediction | Probability |
+|---|---|---|
+| T15 | Training is stable: no validation ratio above 1.0 at any check | 0.80 |
+| T16 | Best validation ratio below Atlas-100M-T's 0.6476 | 0.50 |
+| T17 | Track B: no LOSS against any foundation model | 0.55 |
+| T18 | Lower MAE than PWM-Dyn v0.6r on at least 3 of 6 networks | 0.20 |
+| T19 | Track B: WIN against all three specialists on at least 3 of 6 networks | 0.10 |
+
 ## Deviations
 
 (none yet)

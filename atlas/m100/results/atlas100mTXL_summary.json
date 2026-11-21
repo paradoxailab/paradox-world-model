@@ -1,0 +1,39 @@
+{
+ "model": "Atlas-100M-TXL",
+ "base": "atlas100m_traffic_view.pt",
+ "val_atlas100m": 0.7209979891777039,
+ "val_start": 0.7210856080055237,
+ "best_val": 0.7209979891777039,
+ "best_step": 0,
+ "steps_run": 12000,
+ "minutes": 42.0,
+ "params": {
+  "trainable": 20454934,
+  "lora": 18665472,
+  "sensor_embeddings": 144000,
+  "adapter": 1645462,
+  "frozen_core": 94755808
+ },
+ "args": {
+  "cmd": "train",
+  "base": "/content/drive/MyDrive/PWM-100M/out/atlas100m_traffic_view.pt",
+  "out": "/content/drive/MyDrive/PWM-100M/traffic_plus",
+  "tag": "atlas100mTXL",
+  "r": 128,
+  "alpha": 128.0,
+  "E": 64,
+  "steps": 60000,
+  "every": 2000,
+  "patience": 6,
+  "lr": 0.0003,
+  "lr_new": 0.001,
+  "wd": 0.0001,
+  "warmup": 0.03,
+  "cap": 360.0,
+  "seed": 800,
+  "ctx": 288,
+  "name": "Atlas-100M-TXL",
+  "quick": false
+ },
+ "gpu": "NVIDIA L4"
+}

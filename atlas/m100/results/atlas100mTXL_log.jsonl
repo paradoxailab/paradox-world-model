@@ -1,0 +1,6 @@
+{"step": 2000, "val": 0.86798, "best": 0.721, "best_step": 0, "loss": 0.1033, "min": 7.6}
+{"step": 4000, "val": 1.14185, "best": 0.721, "best_step": 0, "loss": 0.1216, "min": 14.5}
+{"step": 6000, "val": 6.22249, "best": 0.721, "best_step": 0, "loss": 2.2237, "min": 21.3}
+{"step": 8000, "val": 0.74915, "best": 0.721, "best_step": 0, "loss": 0.0724, "min": 28.2}
+{"step": 10000, "val": 0.76849, "best": 0.721, "best_step": 0, "loss": 0.0684, "min": 35.1}
+{"step": 12000, "val": 0.732, "best": 0.721, "best_step": 0, "loss": 0.0996, "min": 42.0}

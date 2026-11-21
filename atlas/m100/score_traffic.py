@@ -8,6 +8,7 @@ submission on the same task and track, Holm-corrected over the whole family; a W
 interval that excludes 0 (stricter than ParadoxBench's 0.05).
 
   cd v0.6-conference && python ../atlas/m100/score_traffic.py --view $OUT/atlas100m_traffic_view.pt
+  Atlas-100M-T (PREREG_TRAFFIC.md):  ... score_traffic.py --plus $STORE/traffic_plus/atlas100mT_best.pt --name Atlas-100M-T
 """
 import argparse, glob, json, os, sys
 
@@ -32,8 +33,16 @@ def main(a):
     from pwm.calibration import fit_cqr, apply_cqr
     from paradoxbench.score import record, SUB
     from paradoxbench.significance import test_pair
-    view = load_any(a.view, Dm.DEV).to(Dm.DEV).eval()
+    global MODEL
+    MODEL = a.name
+    if a.plus:
+        from m100.traffic_plus import load_plus
+        view = load_plus(a.plus, Dm.DEV)
+    else:
+        view = load_any(a.view, Dm.DEV).to(Dm.DEV).eval()
     P = int(json.load(open(a.summary))["params"]["total"]) if a.summary and os.path.exists(a.summary) else None
+    if a.plus and P is not None:
+        P += view.counts()["lora"] + view.counts()["sensor_embeddings"] + (view.E * view.view.inp.weight.shape[0])
     tasks = a.tasks.split(",") if a.tasks else Dm.TRAFFIC
     res = {"model": MODEL, "params_total": P, "networks": {}}
     for task in tasks:
@@ -43,7 +52,9 @@ def main(a):
         delta = fit_cqr(n.ds, qv[..., 0], qv[..., 2], yv, n.ds.valid(yv))
         qt = n.predict(view, n.test_idx)                                  # the test windows, read once
         c10, c50, c90 = apply_cqr(n.ds, qt[..., 0], qt[..., 1], qt[..., 2], delta)
-        meta = {"type": "trained (one model for weather, air quality and traffic)", "params": P, "context_steps": n.L,
+        kind = ("trained (Atlas-100M with a larger traffic adapter: LoRA on the frozen shared core + sensor embeddings)"
+                if a.plus else "trained (one model for weather, air quality and traffic)")
+        meta = {"type": kind, "params": P, "context_steps": n.L,
                 "trained_on": "train splits of the six traffic networks + WEATHER-5K 2014-2021 + all-India PM2.5 train period"}
         out = {}
         for tr in ("A", "B"):
@@ -70,12 +81,15 @@ def main(a):
                   f"{r['verdict']}", flush=True)
     res["tests"] = rows
     os.makedirs(a.out, exist_ok=True)
-    json.dump(res, open(os.path.join(a.out, "atlas100m_traffic_results.json"), "w"), indent=1, default=float)
+    fn = "atlas100m_traffic_results.json" if MODEL == "Atlas-100M" else MODEL.lower().replace("-", "") + "_traffic_results.json"
+    json.dump(res, open(os.path.join(a.out, fn), "w"), indent=1, default=float)
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--view", required=True)
+    ap.add_argument("--view", default="")
+    ap.add_argument("--plus", default="")
+    ap.add_argument("--name", default="Atlas-100M")
     ap.add_argument("--summary", default="")
     ap.add_argument("--tasks", default="")
     ap.add_argument("--out", default=os.environ.get("ATLAS_OUT", "out"))

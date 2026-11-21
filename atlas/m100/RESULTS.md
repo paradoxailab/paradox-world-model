@@ -274,10 +274,83 @@ loss into no losses against the zero-shot foundation models and a much smaller g
 changing a byte of the weather or air-quality model. It did not make Atlas the best traffic model: STAEformer and our
 own single-domain PWM-Dyn are still ahead on some networks. Of 19 traffic predictions, 7 held (T1–T4, T15–T17).
 
-## Hybrid against ECMWF IFS, AIFS, GFS and GraphCast (pending)
+## Hybrid against ECMWF IFS, AIFS, GFS and GraphCast (interim; final scoring pending)
 
-Waits for the Open-Meteo forecast archive (free daily limit). On 2026-11-21 ECMWF IFS and AIFS were fully fetched,
-GFS up to 2024-12-29, GraphCast not yet; the fetch resumes each day and the stage runs once the archive is complete.
+The archive of IFS, AIFS and GFS was complete on 2026-11-21 (coverage of hours 0.93, 0.60, 0.97); GraphCast was
+wrongly reported missing and is being fetched (deviation 7). Both hybrids were trained: the registered one (section H)
+and Atlas-100M-H2 (addendum H2, the freshest published run). Check H0 held exactly for both (0.0). Validation error E
+(every station, 2024-11-01 – 12-31): pure Atlas-100M 0.3227, hybrid 0.2477, **H2 0.2380**.
+
+**Interim test, 2025-01-01 – 08-23, 178 stations, 940 forecast starts, 24 h ahead.** Not the final result: it lacks
+GraphCast, and its pairing inflated our error wherever an opponent's archive had gaps (deviation 8, found after this
+score was seen; fixed). The final scoring (full family, fixed pairing) replaces it; the interim files stay published in
+`results/interim_no_graphcast/`. MAE (own units; wind direction in degrees):
+
+| Forecast | Temperature | Dewpoint | Wind dir. | Wind speed | Sea-level pressure |
+|---|---|---|---|---|---|
+| Atlas-100M pure | 1.462 | 1.491 | 65.6 | 1.181 | 1.628 |
+| Atlas-100M hybrid | 1.308 | 1.281 | 55.6 | 1.022 | 0.925 |
+| **Atlas-100M-H2** | **1.270** | **1.247** | **55.0** | **1.007** | 0.808 |
+| ECMWF IFS raw / bias-corrected | 1.572 / 1.434 | 1.651 / 1.476 | 70.3 / 70.3 | 1.444 / 1.212 | 0.923 / **0.719** |
+| ECMWF AIFS raw / bias-corrected | 1.782 / 1.682 | 1.809 / 1.650 | 73.6 / 73.6 | 1.538 / 1.313 | 1.862 / 1.674 |
+| NOAA GFS raw / bias-corrected | 1.848 / 1.673 | 2.067 / 1.669 | 72.4 / 72.4 | 1.518 / 1.255 | 1.135 / 0.910 |
+
+Each system's MAE is on its own available hours; the paired tests use shared hours only. Interim verdicts for H2:
+WIN against IFS raw and bias-corrected and GFS raw and bias-corrected on temperature, dewpoint, wind direction and wind
+speed; against IFS on sea-level pressure TIE (raw) and **LOSS (bias-corrected, +12%)**; AIFS all TIE (the comparison the
+pairing error affected most). No prediction is scored on these interim numbers.
+
+## India: all 68 Indian WEATHER-5K stations (addendum I)
+
+**I1, pure Atlas-100M against the ten zero-shot foundation models.** Same code and settings as the global head-to-head,
+run fresh on the 68 stations. Cells: Atlas-100M's error relative to the opponent (negative = Atlas-100M better) and the
+verdict; one Holm family of 50 per period.
+
+*2023 test* (182 starts every 48 h; Atlas-100M MAE: temperature 1.173, dewpoint 1.311, wind direction 53.3, wind speed
+0.751, pressure 0.755):
+
+| Opponent | Temperature | Dewpoint | Wind direction | Wind speed | Sea-level pressure | W/T/L |
+|---|---|---|---|---|---|---|
+| Persistence | -72.7% WIN | -35.7% WIN | -27.2% WIN | -35.2% WIN | -45.0% WIN | 5/0/0 |
+| Chronos-Bolt | +1.4% TIE | +2.9% TIE | -4.0% WIN | +3.5% TIE | +1.8% TIE | 1/4/0 |
+| Chronos-2 | -0.6% TIE | +4.9% TIE | -2.2% TIE | +6.6% TIE | +1.5% TIE | 0/5/0 |
+| Chronos-2 multivariate | -0.1% TIE | +6.6% TIE | -2.4% TIE | +5.5% TIE | -0.7% TIE | 0/5/0 |
+| TimesFM 2.5 | -3.8% TIE | +4.4% TIE | -3.2% TIE | +5.8% TIE | -1.4% TIE | 0/5/0 |
+| TimesFM 3.0 | +1.6% TIE | +6.1% TIE | -1.6% TIE | +7.2% LOSS | +2.8% TIE | 0/4/1 |
+| TTM r2 | -12.8% WIN | -6.2% TIE | -6.6% WIN | +0.2% TIE | -21.4% WIN | 3/2/0 |
+| TiRex | +0.6% TIE | +7.1% TIE | -3.5% TIE | +7.1% LOSS | +4.8% TIE | 0/4/1 |
+| Sundial | -0.1% TIE | +3.7% TIE | -3.9% TIE | +5.1% TIE | +0.5% TIE | 0/5/0 |
+| Time-MoE 200M | +0.2% TIE | +3.1% TIE | -6.6% WIN | +2.3% TIE | +0.3% TIE | 1/4/0 |
+
+*2024-25 live period* (145 starts every 96 h, 2024-01-23 – 2025-08-21; Atlas-100M MAE: temperature 1.293, dewpoint
+1.278, wind direction 73.7, wind speed 0.845, pressure 0.900):
+
+| Opponent | Temperature | Dewpoint | Wind direction | Wind speed | Sea-level pressure | W/T/L |
+|---|---|---|---|---|---|---|
+| Persistence | -66.0% WIN | -20.9% WIN | -23.3% WIN | -29.9% WIN | -39.8% WIN | 5/0/0 |
+| Chronos-Bolt | +2.7% TIE | -3.5% TIE | +8.1% LOSS | +2.4% TIE | +2.1% TIE | 0/4/1 |
+| Chronos-2 | +4.4% TIE | -1.8% TIE | +9.4% LOSS | +3.9% TIE | +4.1% TIE | 0/4/1 |
+| Chronos-2 multivariate | +2.2% TIE | -1.9% TIE | +10.2% LOSS | +3.1% TIE | +1.6% TIE | 0/4/1 |
+| TimesFM 2.5 | +1.2% TIE | -3.9% TIE | +5.4% TIE | +2.0% TIE | +1.8% TIE | 0/5/0 |
+| TimesFM 3.0 | +5.4% LOSS | -1.8% TIE | +9.6% LOSS | +3.8% TIE | +2.1% TIE | 0/3/2 |
+| TTM r2 | -7.2% WIN | -8.6% WIN | +2.9% TIE | +0.6% TIE | -14.4% WIN | 3/2/0 |
+| TiRex | -1.3% TIE | -2.5% TIE | +6.4% TIE | +2.0% TIE | +4.8% TIE | 0/5/0 |
+| Sundial | +2.5% TIE | -3.4% TIE | +5.5% TIE | +2.5% TIE | +2.0% TIE | 0/5/0 |
+| Time-MoE 200M | -1.2% TIE | -6.0% WIN | -1.1% TIE | -2.1% TIE | -1.4% TIE | 1/4/0 |
+
+- **In India, Atlas-100M is level with the leading foundation models, not ahead of them:** over both periods WIN 19,
+  TIE 74, LOSS 7 of 100 (worldwide, on the 709 head-to-head stations, it won all 100). It clearly beats persistence
+  and TTM, ties TimesFM, Chronos, TiRex and Sundial on almost every variable, and loses seven comparisons, mostly wind
+  direction in the live period and wind speed in 2023.
+- We do not yet know why India differs from the global result; with 68 stations the intervals are wider, but the point
+  estimates themselves are near zero. Nothing here compares with the India Meteorological Department's forecasts.
+- **I2, the hybrids at the Indian stations,** waits for their archive (fetched after GraphCast under the free limit).
+
+| # | Prediction (addendum I) | Probability | Result |
+|---|---|---|---|
+| P23 | I1: WIN against all ten foundation models on temperature, 2023 test | 0.85 | **failed** (2 of 10: persistence, TTM) |
+| P24 | I1: at least 90 of the 100 comparisons are WIN | 0.55 | **failed** (19 of 100) |
+| P25–P27 | I2 (hybrids vs IFS at Indian stations) | | pending |
 
 ## Predictions (scored as written in PREREG section 7)
 

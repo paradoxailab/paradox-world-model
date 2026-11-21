@@ -51,6 +51,42 @@ class LoRA(nn.Module):
         return self.base.weight + self.s * self.B @ self.A
 
 
+def widen_context(view, ctx):
+    """The view with a longer context window (ctx > L steps) whose input weights for the older steps are ZERO, so the
+    forecasts start unchanged (Atlas-100M-T1d, PREREG_TRAFFIC.md addendum A). The last L steps keep their weights."""
+    cfg = {k: v for k, v in view.cfg.items() if k != "grown_from"}
+    L, C, U, S0 = cfg["L"], cfg["C"], cfg["U"], cfg.get("static", 0)
+    big = Atlas(**dict(cfg, L=ctx)).to(next(view.parameters()).device)
+    sd = view.state_dict(); new = big.state_dict()
+    for k in new:
+        if k not in ("inp.weight", "rec.weight", "rec.bias"):
+            new[k] = sd[k]
+    w0 = sd["inp.weight"]; w = torch.zeros_like(new["inp.weight"]); off = ctx - L
+    blocks_old = [(0, L * C, C), (L * C, 2 * L * C, C), (2 * L * C, 2 * L * C + L * U, U)]
+    blocks_new = [(0, ctx * C, C), (ctx * C, 2 * ctx * C, C), (2 * ctx * C, 2 * ctx * C + ctx * U, U)]
+    for (a0, b0, k), (a1, b1, _) in zip(blocks_old, blocks_new):      # step t of the old window = step off + t
+        w[:, a1 + off * k:b1] = w0[:, a0:b0]
+    w[:, 2 * ctx * C + ctx * U:] = w0[:, 2 * L * C + L * U:]           # static inputs
+    new["inp.weight"] = w
+    rw = torch.zeros_like(new["rec.weight"]); rb = torch.zeros_like(new["rec.bias"])
+    rw[off * C:] = sd["rec.weight"]; rb[off * C:] = sd["rec.bias"]     # reconstruction: a training aid only
+    new["rec.weight"], new["rec.bias"] = rw, rb
+    big.load_state_dict(new)
+    return big
+
+
+def set_context(dom, ctx):
+    """Traffic harness with a longer look-back: validation baseline (last reading within 12 steps) computed first, as
+    for Atlas-100M; training windows without a full look-back are dropped; validation and test windows are unchanged."""
+    if dom.persist is None:
+        dom.persist = dom._persist()
+    for n in dom.nets:
+        n.L = ctx
+        n.train_idx = n.train_idx[n.train_idx >= ctx]
+        n.bs_train = max(1, n.bs_train)
+    return dom
+
+
 def widen_static(view, extra):
     """The view with `extra` more static inputs whose input weights are ZERO: forecasts are unchanged."""
     cfg = {k: v for k, v in view.cfg.items() if k != "grown_from"}
@@ -67,10 +103,13 @@ def widen_static(view, extra):
 
 
 class TrafficPlus(nn.Module):
-    def __init__(self, view, r=32, alpha=32, E=32, seed=800):
+    def __init__(self, view, r=32, alpha=32, E=32, seed=800, ctx=None):
         super().__init__()
         g = torch.Generator().manual_seed(seed)
         self.r, self.alpha, self.E = r, alpha, E
+        if ctx and ctx != view.L:
+            view = widen_context(view, ctx)
+        self.ctx = view.L
         self.view = widen_static(view, E)
         for n, p in self.view.named_parameters():
             p.requires_grad_(n.startswith(ADAPTER))
@@ -93,7 +132,8 @@ class TrafficPlus(nn.Module):
                     if p.requires_grad and not n.endswith((".A", ".B"))), frozen_core=sum(p.numel() for p in self.parameters() if not p.requires_grad))
 
     def meta(self):
-        return dict(base_cfg={k: v for k, v in self.view.cfg.items() if k != "grown_from"}, r=self.r, alpha=self.alpha, E=self.E)
+        return dict(base_cfg={k: v for k, v in self.view.cfg.items() if k != "grown_from"}, r=self.r, alpha=self.alpha, E=self.E,
+                    ctx=self.ctx)
 
 
 def load_plus(path, dev="cpu"):
@@ -120,7 +160,10 @@ def train(a):
     base = load_any(a.base, DEV).to(DEV).eval()
     v0 = dom.val(base)
     print(f"Atlas-100M traffic view, validation ratio {v0:.5f}", flush=True)
-    model = TrafficPlus(base, r=a.r, alpha=a.alpha, E=a.E, seed=a.seed).to(DEV)
+    if a.ctx and a.ctx != base.L:
+        set_context(dom, a.ctx)
+        print(f"context: {a.ctx} steps (Track B only)", flush=True)
+    model = TrafficPlus(base, r=a.r, alpha=a.alpha, E=a.E, seed=a.seed, ctx=a.ctx).to(DEV)
     t0 = dom.val(model.eval())
     print(f"CHECK T0: Atlas-100M-T at start {t0:.5f} vs Atlas-100M {v0:.5f} (diff {abs(t0 - v0):.2e})", flush=True)
     assert abs(t0 - v0) < 2e-3, "T0 failed: the expanded model does not start as Atlas-100M"
@@ -162,7 +205,7 @@ def train(a):
             if bad >= a.patience or (time.time() - T0) / 60 > a.cap:
                 print(f"stop at step {step} ({'patience' if bad >= a.patience else 'time cap'})", flush=True)
                 break
-    summ = dict(model="Atlas-100M-T", base=os.path.basename(a.base), val_atlas100m=v0, val_start=t0, best_val=best[0],
+    summ = dict(model=a.name, base=os.path.basename(a.base), val_atlas100m=v0, val_start=t0, best_val=best[0],
                 best_step=best[1], steps_run=step, minutes=round((time.time() - T0) / 60, 1), params=model.counts(),
                 args=vars(a), gpu=torch.cuda.get_device_name(0) if DEV == "cuda" else "cpu")
     json.dump(summ, open(os.path.join(a.out, f"{a.tag}_summary.json"), "w"), indent=1)
@@ -187,6 +230,8 @@ if __name__ == "__main__":
     ap.add_argument("--warmup", type=float, default=0.03)
     ap.add_argument("--cap", type=float, default=240)
     ap.add_argument("--seed", type=int, default=800)
+    ap.add_argument("--ctx", type=int, default=0, help="look-back in steps; 0 = the view's own 12 (Atlas-100M-T)")
+    ap.add_argument("--name", default="Atlas-100M-T")
     ap.add_argument("--quick", action="store_true")
     a = ap.parse_args()
     train(a)

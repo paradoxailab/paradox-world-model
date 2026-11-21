@@ -41,12 +41,15 @@ def main(a):
     else:
         view = load_any(a.view, Dm.DEV).to(Dm.DEV).eval()
     P = int(json.load(open(a.summary))["params"]["total"]) if a.summary and os.path.exists(a.summary) else None
-    if a.plus and P is not None:
-        P += view.counts()["lora"] + view.counts()["sensor_embeddings"] + (view.E * view.view.inp.weight.shape[0])
+    if a.plus and P is not None:                                          # the old 80,322-parameter traffic adapter is
+        P += view.counts()["trainable"] - 80_322                          # replaced by everything traffic trains now
     tasks = a.tasks.split(",") if a.tasks else Dm.TRAFFIC
-    res = {"model": MODEL, "params_total": P, "networks": {}}
+    ctx = getattr(view, "ctx", 12)
+    tracks = ("A", "B") if ctx <= 12 else ("B",)                        # Track A allows 12 steps of look-back only
+    res = {"model": MODEL, "params_total": P, "context_steps": ctx, "networks": {}}
     for task in tasks:
         n = Dm.TrafficNet(task)
+        n.L = ctx
         qv = n.predict(view, n.val_idx)                                   # [W, H, N, 3]
         yv = n.ds.raw[n.val_idx[:, None] + np.arange(n.H)[None]]
         delta = fit_cqr(n.ds, qv[..., 0], qv[..., 2], yv, n.ds.valid(yv))
@@ -57,12 +60,12 @@ def main(a):
         meta = {"type": kind, "params": P, "context_steps": n.L,
                 "trained_on": "train splits of the six traffic networks + WEATHER-5K 2014-2021 + all-India PM2.5 train period"}
         out = {}
-        for tr in ("A", "B"):
+        for tr in tracks:
             out[tr] = record(task, tr, MODEL, c10, c50, c90, meta, n.ds)["metrics"]
         res["networks"][task] = out
     rows = []
     for task in tasks:
-        for tr in ("A", "B"):
+        for tr in tracks:
             ours = os.path.join(SUB, f"{task}__{tr}__{MODEL}.npz")
             for f in sorted(glob.glob(os.path.join(SUB, f"{task}__{tr}__*.npz"))):
                 if f == ours or "STUB" in f:

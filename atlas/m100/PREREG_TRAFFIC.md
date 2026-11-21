@@ -62,6 +62,28 @@ p_holm < 0.01 and a 95% interval excluding 0; LOSS the mirror image; otherwise T
 Our expectation: sensor identity and more capacity should give most of the specialists' advantage back, but a
 shared, frozen weather core with 12 steps of context is unlikely to beat models designed and trained for traffic.
 
+## Addendum A: Atlas-100M-T1d, one day of look-back (written 2026-11-21, before any training of either variant)
+
+Atlas-100M-T keeps the 12-step context of Track A. The likeliest remaining cause of the traffic loss is that context:
+traffic follows daily cycles, and the foundation models that beat Atlas-100M on the PeMS networks read 512 steps.
+A second variant tests this, under every rule above except the ones listed here.
+
+- **Atlas-100M-T1d** = Atlas-100M-T with a look-back of **288 steps (one day)** (`traffic_plus.py --ctx 288 --name
+  Atlas-100M-T1d --tag atlas100mT1d`). The input layer is widened; the weights for the 276 older steps start at zero, so
+  the model starts as Atlas-100M's traffic view (check T0 applies unchanged; CPU check: difference 2e-6). Traffic-only
+  trainable parameters: **6,358,742** (LoRA 4,666,368, sensor embeddings 72,000, adapter 1,620,374).
+- Training windows without a full day of look-back are dropped (the first 288 steps of each training split); the
+  validation baseline is computed exactly as before; validation and test windows are unchanged.
+- **Track B only**, because Track A limits look-back to 12 steps. It is tested against every Track B submission
+  (specialists, PWM-Dyn, the five foundation models, Atlas-100M and Atlas-100M-T) in its own Holm family.
+- Same optimiser, schedule, step and time limits, patience and seed as Atlas-100M-T.
+
+| # | Prediction | Probability |
+|---|---|---|
+| T8 | Best validation ratio below Atlas-100M-T's | 0.65 |
+| T9 | Track B: WIN against every foundation model on at least 4 of 6 networks | 0.35 |
+| T10 | Lower MAE than PWM-Dyn v0.6r on at least 3 of 6 networks | 0.25 |
+
 ## Deviations
 
 (none yet)

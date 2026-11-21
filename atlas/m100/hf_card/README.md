@@ -15,8 +15,10 @@ tags:
 
 # Atlas-100M: one compact world model for weather, air quality and traffic
 
-**ParadoxAI Lab** · Aditya Kumar, Anupam Singh · v1.0, 2026-11-21 (weather, air quality and traffic evaluated; the
-hybrid comparison with ECMWF / GFS is still pending).
+**ParadoxAI Lab** · Aditya Kumar, Anupam Singh · v1.1 (interim), 2026-11-22. v1.0 (weather, air quality, traffic)
+is final; v1.1 adds the traffic follow-ups, the India study and the hybrid with global forecasts (interim; GraphCast
+and the final scoring pending). One-page scoreboard:
+[`atlas/m100/STANDINGS.md`](https://github.com/paradoxailab/paradox-world-model/blob/main/atlas/m100/STANDINGS.md).
 
 | | |
 |---|---|
@@ -46,13 +48,26 @@ trained specialists STID, Graph WaveNet, STAEformer and our own PWM-Dyn v0.6r (4
 foundation models WIN 7, TIE 11, LOSS 12 (loses to TimesFM 2.5 / 3.0 on the four PeMS networks). **Do not use the
 traffic view where a trained traffic model is available.**
 
-**Hybrid against ECMWF / GFS:** pending; this card will be updated.
+**Traffic follow-ups** (separately pre-registered, core frozen, weather and air-quality weights byte-identical):
+the best, **Atlas-100M-TXL2** (20.45M traffic parameters, 118,974,606 in all), has **no loss** against the foundation
+models (WIN 18, TIE 12) and WIN 4, TIE 13, LOSS 7 against the specialists and PWM-Dyn (from 0 / 2 / 22). Still not the
+best traffic model: STAEformer and PWM-Dyn win on some networks.
+
+**Weather in India** (all 68 Indian stations, 2023 and 2024–25): **level** with the foundation models, not ahead —
+WIN 19, TIE 74, LOSS 7 of 100 (worldwide: 100 of 100).
+
+**Hybrid with global forecasts — interim** (178 stations, 2025, 24 h): the weather model reading ECMWF IFS, AIFS and
+NOAA GFS forecasts (H2: the freshest published run) is ahead of raw and bias-corrected IFS on temperature (−19% / −11%),
+dewpoint (−25% / −16%) and wind speed (−30% / −17%), ahead of GFS on every variable, and **loses to bias-corrected IFS
+on sea-level pressure (+12%)**. Interim: GraphCast is still being fetched and the final scoring uses a corrected pairing
+(PREREG deviations 7 and 8). This card will be updated with the final verdicts.
 
 ## Limits (read before using)
 
 - Task-trained against zero-shot: the foundation models were not fine-tuned on these datasets; Atlas trained on the
   same stations' earlier years and sees each station's neighbours.
-- Weak on traffic, on sea-level pressure and on stations it never trained on. One training seed.
+- Weak on sea-level pressure and on stations it never trained on; level (not ahead) in India. Traffic improved by the
+  follow-ups but still behind the best specialists. One training seed per model.
 - Not a global gridded model and not compared with video / robotics world models.
 
 ## Files
@@ -62,7 +77,9 @@ traffic view where a trained traffic model is available.**
 | `atlas100m_best.pt` | the full multi-domain model (shared core stored once); load with `m100.multi.MultiAtlas.load` |
 | `atlas100m_weather_view.pt` | weather-only view (95.5M), a plain Atlas; load with `atlas.grow.load_any` |
 | `atlas100m_aq_view.pt` | air-quality view |
-| `atlas100m_traffic_view.pt` | traffic view |
+| `atlas100m_traffic_view.pt` | traffic view (v1.0) |
+| `traffic/atlas100mT_best.pt`, `traffic/atlas100mT1d_best.pt`, `traffic/atlas100mTXL2_best.pt` | traffic follow-ups; load with `m100.traffic_plus.load_plus` |
+| `hybrid/hybrid_best.pt`, `hybrid/hybrid2_best.pt` | weather view + global-forecast inputs (registered hybrid; H2); load with `atlas.grow.load_any`, inputs built by `m100.hybrid.HybridData` |
 | `SHA256SUMS` | checksums, verified after upload |
 
 ```python

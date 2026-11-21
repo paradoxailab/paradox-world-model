@@ -9,6 +9,11 @@ result file in this repository.
 
 ## Latest: Atlas-100M, one model for weather, air quality and traffic (2026-11-21, v1.0)
 
+**Where we stand (2026-11-22): one-page scoreboard in [`atlas/m100/STANDINGS.md`](atlas/m100/STANDINGS.md)** — weather
+WIN 100/100 against ten foundation models worldwide; level with them in India (19/74/7); with ECMWF/GFS forecasts as
+input, ahead of raw and bias-corrected ECMWF IFS and NOAA GFS on temperature, dewpoint and wind at 178 stations
+(interim; loses to bias-corrected IFS on pressure; GraphCast pending); traffic TXL2 with no losses to foundation models.
+
 98.6M parameters, one set of weights with a shared core and small per-domain adapters, trained only on real station
 data. Pre-registered before the first GPU run (`atlas/m100/PREREG.md`); full report with every win, tie and loss in
 [`atlas/m100/RESULTS.md`](atlas/m100/RESULTS.md). Weights: [huggingface.co/paradoxailab/atlas-100m](https://huggingface.co/paradoxailab/atlas-100m). The hybrid comparison with ECMWF / GFS is still pending.

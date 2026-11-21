@@ -287,3 +287,14 @@ a different model, and no claim is made about them.
    The reported results are this full family (`*_gc.json`); the first score, without GraphCast, is kept as
    `atlas100m_hybrid_results.json` / `atlas100m_h2_results.json` and labelled interim. The Indian archive (addendum I)
    is fetched with the fixed lookup (`NWP_INDIA_GC.npz`).
+8. **2026-11-22, hybrid: the paired comparison inflated Atlas's error wherever an opponent's archive had gaps.** In
+   `hybrid.py score`, our errors were summed over all our forecast hours of a station-day while only the hours that the
+   opponent also covered were counted (a toy check with an opponent missing half the hours: our true MAE 1.0 is reported
+   as 2.0). This only matters for the archived systems, whose forecasts have gaps (AIFS covers 60% of hours); the WEATHER-5K
+   and India head-to-heads are unaffected (every model forecasts every window). **Found after the first, interim score had
+   been seen:** it showed every AIFS comparison as a TIE although the station-block bootstrap put H2 24–31% ahead with 95%
+   intervals far from zero, while the Diebold–Mariano test gave p ≈ 0.8. Fix: each pair is scored on exactly the hours
+   where the truth and both forecasts exist, then summed per station-day as before; the tests, Holm families and WIN rule
+   are unchanged. The fix can only lower our reported error, never the opponent's, so we state plainly that it was made
+   after seeing results. The interim files (`results/interim_no_graphcast/`, buggy pairing, no GraphCast) stay published
+   next to the final ones.

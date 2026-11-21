@@ -1,0 +1,18 @@
+H0 widening check: max |hybrid - pure| at start = 0.00e+00
+step 0 (= pure model) val E 0.32267
+step 1000 val E 0.26360 (best 0.26360) loss 0.0742
+step 2000 val E 0.24957 (best 0.24957) loss 0.0734
+step 3000 val E 0.24276 (best 0.24276) loss 0.0695
+step 4000 val E 0.23930 (best 0.23930) loss 0.0703
+step 5000 val E 0.24066 (best 0.23930) loss 0.0661
+step 6000 val E 0.23978 (best 0.23930) loss 0.0664
+step 7000 val E 0.23934 (best 0.23930) loss 0.0674
+step 8000 val E 0.23898 (best 0.23898) loss 0.0644
+step 9000 val E 0.23803 (best 0.23803) loss 0.0662
+step 10000 val E 0.23856 (best 0.23803) loss 0.0656
+step 11000 val E 0.23797 (best 0.23797) loss 0.0647
+step 12000 val E 0.23849 (best 0.23797) loss 0.0620
+step 13000 val E 0.23914 (best 0.23797) loss 0.0619
+step 14000 val E 0.23919 (best 0.23797) loss 0.0634
+step 15000 val E 0.23995 (best 0.23797) loss 0.0640
+step 16000 val E 0.23904 (best 0.23797) loss 0.0617

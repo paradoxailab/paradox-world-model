@@ -319,16 +319,21 @@ def score(a):
     nd = int(days.max()) + 1
     S = len(D.HS)
     out = {}
+    P = {}                                                                     # name -> forecasts [starts, S, 24, 5]
+    Y = np.stack([obs[s0:s0 + 24].transpose(1, 0, 2) for s0 in starts]).astype(np.float32)   # truth [starts, S, 24, 5]
 
     def acc(pred_fn, name):
         sae = np.zeros((S, nd, 5)); cnt = np.zeros((S, nd, 5))
+        Pn = np.full((len(starts), S, 24, 5), np.nan, np.float32)
         for j, s0 in enumerate(starts):
             p = pred_fn(j, s0)                                                 # [S, 24, 5] own units
+            Pn[j] = p
             y = obs[s0:s0 + 24]                                                # [24, S, 5]
             ok = np.isfinite(y).transpose(1, 0, 2) & np.isfinite(p)
             e = np.where(ok, np.abs(p - np.nan_to_num(y).transpose(1, 0, 2)), 0)
             sae[:, days[j]] += e.sum(1); cnt[:, days[j]] += ok.sum(1)
         out[name] = dict(sae=sae, cnt=cnt)
+        P[name] = Pn
         mae = sae.sum((0, 1)) / np.maximum(cnt.sum((0, 1)), 1)
         print(f"{name:<28} " + "  ".join(f"{x:.3f}" for x in mae), flush=True)
 
@@ -375,6 +380,19 @@ def score(a):
         acc(raw_fn, f"{sysname} raw")
         acc(bias_fn, f"{sysname} bias-corrected")
         acc(lambda j, s0, mi=mi: raw_fn(j, s0, mi, True), f"{sysname} day1 (freshest, not yet published)")
+    def joint(na, nb):
+        """PREREG deviation 8: both forecasts scored on exactly the same hours (truth observed and BOTH forecasts present),
+        then summed per station-day. Before, our errors were summed over all our hours while only the hours shared with
+        the opponent were counted, which inflated our error wherever an opponent's archive had gaps."""
+        sa = np.zeros((S, nd, 5)); sb = np.zeros((S, nd, 5)); c = np.zeros((S, nd, 5))
+        ok = np.isfinite(Y) & np.isfinite(P[na]) & np.isfinite(P[nb])          # [starts, S, 24, 5]
+        ea = np.where(ok, np.abs(P[na] - np.nan_to_num(Y)), 0).sum(2)          # [starts, S, 5]
+        eb = np.where(ok, np.abs(P[nb] - np.nan_to_num(Y)), 0).sum(2)
+        n = ok.sum(2)
+        for j in range(len(starts)):
+            sa[:, days[j]] += ea[j]; sb[:, days[j]] += eb[j]; c[:, days[j]] += n[j]
+        return dict(sae=sa, cnt=c), dict(sae=sb, cnt=c)
+
     def family(oursname, skip, fname):
         """One Holm family: `oursname` against every other forecast in `out` except those in `skip`."""
         rows = []
@@ -382,8 +400,7 @@ def score(a):
         for k, v in out.items():
             if k == oursname or k in skip:
                 continue
-            both = dict(sae=ours["sae"], cnt=np.minimum(ours["cnt"], v["cnt"]))
-            for r in PW.compare(dict(sae=ours["sae"], cnt=both["cnt"]), dict(sae=v["sae"], cnt=both["cnt"])):
+            for r in PW.compare(*joint(oursname, k)):
                 r.update(opponent=k); rows.append(r)
         p = np.array([max(1.0 if np.isnan(r["p_dm"]) else r["p_dm"], r["p_bootstrap"]) for r in rows])
         for r, ph in zip(rows, PW.holm(p)):

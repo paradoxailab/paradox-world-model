@@ -1,0 +1,120 @@
+Atlas-100M pure              1.462  1.491  65.644  1.181  1.628
+Atlas-100M hybrid            1.308  1.281  55.582  1.022  0.925
+Atlas-100M-H2                1.270  1.247  54.975  1.007  0.808
+IFS raw                      1.572  1.651  70.299  1.444  0.923
+  b1 = np.nanmean(Fall[mi, past, :, :, 0] - obs[past], 0)            # [S, 5]
+  b2 = np.nanmean(Fall[mi, past, :, :, 1] - obs[past], 0)
+IFS bias-corrected           1.434  1.476  70.299  1.212  0.719
+IFS day1 (freshest, not yet published) 1.545  1.618  69.794  1.434  0.878
+AIFS raw                     1.782  1.809  73.589  1.538  1.862
+AIFS bias-corrected          1.682  1.650  73.589  1.313  1.674
+AIFS day1 (freshest, not yet published) 1.763  1.785  73.283  1.533  1.824
+GFS raw                      1.848  2.067  72.426  1.518  1.135
+GFS bias-corrected           1.673  1.669  72.426  1.255  0.910
+GFS day1 (freshest, not yet published) 1.822  2.037  71.763  1.505  1.074
+GraphCast: no data
+TEST Atlas-100M hybrid vs Atlas-100M pure                    Temperature         1.308 vs 1.462 -10.54% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs Atlas-100M pure                    Dewpoint            1.281 vs 1.491 -14.10% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs Atlas-100M pure                    Wind direction      55.582 vs 65.644 -15.33% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs Atlas-100M pure                    Wind speed          1.022 vs 1.181 -13.51% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs Atlas-100M pure                    Sea-level pressure  0.925 vs 1.628 -43.21% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs IFS raw                            Temperature         1.308 vs 1.572 -16.79% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs IFS raw                            Dewpoint            1.281 vs 1.651 -22.42% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs IFS raw                            Wind direction      55.582 vs 70.299 -20.93% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs IFS raw                            Wind speed          1.022 vs 1.444 -29.26% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs IFS raw                            Sea-level pressure  0.925 vs 0.923 +0.18% p_holm 1 TIE
+TEST Atlas-100M hybrid vs IFS bias-corrected                 Temperature         1.308 vs 1.434 -8.79% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs IFS bias-corrected                 Dewpoint            1.281 vs 1.476 -13.21% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs IFS bias-corrected                 Wind direction      55.582 vs 70.299 -20.93% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs IFS bias-corrected                 Wind speed          1.022 vs 1.212 -15.72% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs IFS bias-corrected                 Sea-level pressure  0.925 vs 0.719 +28.54% p_holm 0.005 LOSS
+TEST Atlas-100M hybrid vs IFS day1 (freshest, not yet published) Temperature         1.308 vs 1.545 -15.34% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs IFS day1 (freshest, not yet published) Dewpoint            1.281 vs 1.618 -20.84% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs IFS day1 (freshest, not yet published) Wind direction      55.582 vs 69.794 -20.36% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs IFS day1 (freshest, not yet published) Wind speed          1.022 vs 1.434 -28.78% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs IFS day1 (freshest, not yet published) Sea-level pressure  0.925 vs 0.878 +5.26% p_holm 1 TIE
+TEST Atlas-100M hybrid vs AIFS raw                           Temperature         1.346 vs 1.782 -24.44% p_holm 1 TIE
+TEST Atlas-100M hybrid vs AIFS raw                           Dewpoint            1.406 vs 1.809 -22.27% p_holm 1 TIE
+TEST Atlas-100M hybrid vs AIFS raw                           Wind direction      56.296 vs 73.589 -23.50% p_holm 1 TIE
+TEST Atlas-100M hybrid vs AIFS raw                           Wind speed          1.083 vs 1.538 -29.57% p_holm 1 TIE
+TEST Atlas-100M hybrid vs AIFS raw                           Sea-level pressure  1.084 vs 1.862 -41.79% p_holm 1 TIE
+TEST Atlas-100M hybrid vs AIFS bias-corrected                Temperature         1.346 vs 1.682 -19.97% p_holm 1 TIE
+TEST Atlas-100M hybrid vs AIFS bias-corrected                Dewpoint            1.406 vs 1.650 -14.79% p_holm 1 TIE
+TEST Atlas-100M hybrid vs AIFS bias-corrected                Wind direction      56.296 vs 73.589 -23.50% p_holm 1 TIE
+TEST Atlas-100M hybrid vs AIFS bias-corrected                Wind speed          1.083 vs 1.313 -17.49% p_holm 1 TIE
+TEST Atlas-100M hybrid vs AIFS bias-corrected                Sea-level pressure  1.084 vs 1.674 -35.26% p_holm 1 TIE
+TEST Atlas-100M hybrid vs AIFS day1 (freshest, not yet published) Temperature         1.346 vs 1.763 -23.67% p_holm 1 TIE
+TEST Atlas-100M hybrid vs AIFS day1 (freshest, not yet published) Dewpoint            1.406 vs 1.785 -21.23% p_holm 1 TIE
+TEST Atlas-100M hybrid vs AIFS day1 (freshest, not yet published) Wind direction      56.296 vs 73.283 -23.18% p_holm 1 TIE
+TEST Atlas-100M hybrid vs AIFS day1 (freshest, not yet published) Wind speed          1.083 vs 1.533 -29.37% p_holm 1 TIE
+TEST Atlas-100M hybrid vs AIFS day1 (freshest, not yet published) Sea-level pressure  1.084 vs 1.824 -40.58% p_holm 1 TIE
+TEST Atlas-100M hybrid vs GFS raw                            Temperature         1.308 vs 1.848 -29.22% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs GFS raw                            Dewpoint            1.281 vs 2.067 -38.03% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs GFS raw                            Wind direction      55.582 vs 72.426 -23.26% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs GFS raw                            Wind speed          1.022 vs 1.518 -32.71% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs GFS raw                            Sea-level pressure  0.925 vs 1.135 -18.56% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs GFS bias-corrected                 Temperature         1.308 vs 1.673 -21.83% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs GFS bias-corrected                 Dewpoint            1.281 vs 1.669 -23.24% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs GFS bias-corrected                 Wind direction      55.582 vs 72.426 -23.26% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs GFS bias-corrected                 Wind speed          1.022 vs 1.255 -18.62% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs GFS bias-corrected                 Sea-level pressure  0.925 vs 0.910 +1.66% p_holm 1 TIE
+TEST Atlas-100M hybrid vs GFS day1 (freshest, not yet published) Temperature         1.308 vs 1.822 -28.22% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs GFS day1 (freshest, not yet published) Dewpoint            1.281 vs 2.037 -37.11% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs GFS day1 (freshest, not yet published) Wind direction      55.582 vs 71.763 -22.55% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs GFS day1 (freshest, not yet published) Wind speed          1.022 vs 1.505 -32.13% p_holm 0.005 WIN
+TEST Atlas-100M hybrid vs GFS day1 (freshest, not yet published) Sea-level pressure  0.925 vs 1.074 -13.91% p_holm 0.13 TIE
+TEST Atlas-100M-H2 vs Atlas-100M pure                    Temperature         1.270 vs 1.462 -13.10% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs Atlas-100M pure                    Dewpoint            1.247 vs 1.491 -16.37% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs Atlas-100M pure                    Wind direction      54.975 vs 65.644 -16.25% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs Atlas-100M pure                    Wind speed          1.007 vs 1.181 -14.71% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs Atlas-100M pure                    Sea-level pressure  0.808 vs 1.628 -50.35% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs Atlas-100M hybrid                  Temperature         1.270 vs 1.308 -2.86% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs Atlas-100M hybrid                  Dewpoint            1.247 vs 1.281 -2.64% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs Atlas-100M hybrid                  Wind direction      54.975 vs 55.582 -1.09% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs Atlas-100M hybrid                  Wind speed          1.007 vs 1.022 -1.39% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs Atlas-100M hybrid                  Sea-level pressure  0.808 vs 0.925 -12.57% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs IFS raw                            Temperature         1.270 vs 1.572 -19.17% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs IFS raw                            Dewpoint            1.247 vs 1.651 -24.47% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs IFS raw                            Wind direction      54.975 vs 70.299 -21.80% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs IFS raw                            Wind speed          1.007 vs 1.444 -30.24% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs IFS raw                            Sea-level pressure  0.808 vs 0.923 -12.42% p_holm 0.18 TIE
+TEST Atlas-100M-H2 vs IFS bias-corrected                 Temperature         1.270 vs 1.434 -11.40% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs IFS bias-corrected                 Dewpoint            1.247 vs 1.476 -15.50% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs IFS bias-corrected                 Wind direction      54.975 vs 70.299 -21.80% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs IFS bias-corrected                 Wind speed          1.007 vs 1.212 -16.89% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs IFS bias-corrected                 Sea-level pressure  0.808 vs 0.719 +12.38% p_holm 0.0095 LOSS
+TEST Atlas-100M-H2 vs IFS day1 (freshest, not yet published) Temperature         1.270 vs 1.545 -17.76% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs IFS day1 (freshest, not yet published) Dewpoint            1.247 vs 1.618 -22.93% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs IFS day1 (freshest, not yet published) Wind direction      54.975 vs 69.794 -21.23% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs IFS day1 (freshest, not yet published) Wind speed          1.007 vs 1.434 -29.76% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs IFS day1 (freshest, not yet published) Sea-level pressure  0.808 vs 0.878 -7.98% p_holm 1 TIE
+TEST Atlas-100M-H2 vs AIFS raw                           Temperature         1.260 vs 1.782 -29.28% p_holm 1 TIE
+TEST Atlas-100M-H2 vs AIFS raw                           Dewpoint            1.319 vs 1.809 -27.10% p_holm 1 TIE
+TEST Atlas-100M-H2 vs AIFS raw                           Wind direction      55.721 vs 73.589 -24.28% p_holm 1 TIE
+TEST Atlas-100M-H2 vs AIFS raw                           Wind speed          1.062 vs 1.538 -30.93% p_holm 1 TIE
+TEST Atlas-100M-H2 vs AIFS raw                           Sea-level pressure  0.905 vs 1.862 -51.38% p_holm 0.3 TIE
+TEST Atlas-100M-H2 vs AIFS bias-corrected                Temperature         1.260 vs 1.682 -25.09% p_holm 1 TIE
+TEST Atlas-100M-H2 vs AIFS bias-corrected                Dewpoint            1.319 vs 1.650 -20.08% p_holm 1 TIE
+TEST Atlas-100M-H2 vs AIFS bias-corrected                Wind direction      55.721 vs 73.589 -24.28% p_holm 1 TIE
+TEST Atlas-100M-H2 vs AIFS bias-corrected                Wind speed          1.062 vs 1.313 -19.08% p_holm 1 TIE
+TEST Atlas-100M-H2 vs AIFS bias-corrected                Sea-level pressure  0.905 vs 1.674 -45.92% p_holm 0.97 TIE
+TEST Atlas-100M-H2 vs AIFS day1 (freshest, not yet published) Temperature         1.260 vs 1.763 -28.55% p_holm 1 TIE
+TEST Atlas-100M-H2 vs AIFS day1 (freshest, not yet published) Dewpoint            1.319 vs 1.785 -26.12% p_holm 1 TIE
+TEST Atlas-100M-H2 vs AIFS day1 (freshest, not yet published) Wind direction      55.721 vs 73.283 -23.96% p_holm 1 TIE
+TEST Atlas-100M-H2 vs AIFS day1 (freshest, not yet published) Wind speed          1.062 vs 1.533 -30.72% p_holm 1 TIE
+TEST Atlas-100M-H2 vs AIFS day1 (freshest, not yet published) Sea-level pressure  0.905 vs 1.824 -50.36% p_holm 0.39 TIE
+TEST Atlas-100M-H2 vs GFS raw                            Temperature         1.270 vs 1.848 -31.24% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs GFS raw                            Dewpoint            1.247 vs 2.067 -39.67% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs GFS raw                            Wind direction      54.975 vs 72.426 -24.09% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs GFS raw                            Wind speed          1.007 vs 1.518 -33.64% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs GFS raw                            Sea-level pressure  0.808 vs 1.135 -28.80% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs GFS bias-corrected                 Temperature         1.270 vs 1.673 -24.07% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs GFS bias-corrected                 Dewpoint            1.247 vs 1.669 -25.26% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs GFS bias-corrected                 Wind direction      54.975 vs 72.426 -24.09% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs GFS bias-corrected                 Wind speed          1.007 vs 1.255 -19.74% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs GFS bias-corrected                 Sea-level pressure  0.808 vs 0.910 -11.13% p_holm 0.0095 WIN
+TEST Atlas-100M-H2 vs GFS day1 (freshest, not yet published) Temperature         1.270 vs 1.822 -30.27% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs GFS day1 (freshest, not yet published) Dewpoint            1.247 vs 2.037 -38.78% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs GFS day1 (freshest, not yet published) Wind direction      54.975 vs 71.763 -23.39% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs GFS day1 (freshest, not yet published) Wind speed          1.007 vs 1.505 -33.07% p_holm 0.0055 WIN
+TEST Atlas-100M-H2 vs GFS day1 (freshest, not yet published) Sea-level pressure  0.808 vs 1.074 -24.73% p_holm 0.0055 WIN

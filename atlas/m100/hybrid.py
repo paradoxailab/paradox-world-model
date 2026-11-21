@@ -77,13 +77,16 @@ def get(params, tries=12):
             time.sleep(min(120, 10 * (k + 1)))
 
 
-def resolve(cands, la, lo):
+def resolve(cands, la, lo, dates=("2024-06-01", "2024-12-01", "2025-07-01")):
+    """First model id with data on ANY of `dates` (PREREG deviation 7: GraphCast's archive has gaps, e.g. June 2024,
+    so a single test date wrongly reported it missing)."""
     for m in cands:
-        j = get(dict(latitude=la, longitude=lo, hourly="temperature_2m_previous_day1", models=m,
-                     start_date="2024-06-01", end_date="2024-06-03", timezone="GMT"))
-        j = j[0] if isinstance(j, list) else j
-        if not j.get("error") and any(v is not None for v in j.get("hourly", {}).get("temperature_2m_previous_day1", [])):
-            return m
+        for d in dates:
+            j = get(dict(latitude=la, longitude=lo, hourly="temperature_2m_previous_day1", models=m,
+                         start_date=d, end_date=d, timezone="GMT"))
+            j = j[0] if isinstance(j, list) else j
+            if not j.get("error") and any(v is not None for v in j.get("hourly", {}).get("temperature_2m_previous_day1", [])):
+                return m
     return None
 
 
@@ -97,8 +100,9 @@ def fetch(a):
     hv = [f"{v}_{o}" for o in OFFS for v in OM_VARS]
     F = np.full((len(SYSTEMS), T, len(HS), 5, 2), np.nan, np.float32)
     ids = {}
+    keep = json.loads(str(np.load(a.reuse_ids)["ids"])) if a.reuse_ids else {}   # deviation 7: same ids as the first archive
     for si, (sysname, cands) in enumerate(SYSTEMS.items()):
-        mid = resolve(cands, lat[HS[0]], lon[HS[0]])
+        mid = keep.get(sysname) or resolve(cands, lat[HS[0]], lon[HS[0]])
         ids[sysname] = mid
         print(f"{sysname}: {mid}", flush=True)
         if mid is None:
@@ -178,7 +182,7 @@ def fresh_mask(fresh_lat, L, H=24, device="cpu"):
 
 
 class HybridData:
-    def __init__(self, raw, nwp, k=32, fresh_lat=0):
+    def __init__(self, raw, nwp, k=32, fresh_lat=0, input_systems=None):
         self.Z, lat, lon, elev, M = R5.load(False)                          # live inputs (gaps carried forward)
         O = np.load(os.path.join(raw, "W5K_OBS.npy"), mmap_mode="r")
         off = M["offset"].astype(np.float32); mu = R5.MEAN - off
@@ -203,6 +207,13 @@ class HybridData:
             self.use1 = fresh_mask(fresh_lat, R5.L, 24, DEV)                  # [L+24]
             self.extra = self.Ms * 7                                          # + a "day1 run used" flag per system
         self.T = min(self.Z.shape[1], z["F"].shape[1])
+        if input_systems:                                                     # deviation 7: the hybrid reads only the
+            names = [str(x) for x in z["systems"]]                            # systems it was trained with; the others
+            for i, n in enumerate(names):                                     # are opponents only (inputs zero, flag 0)
+                if n not in input_systems:
+                    self.sysF[i] = 0
+                    if fresh_lat:
+                        self.sysF1[i] = 0
 
     def batch(self, si, t0):
         """si: index into HS [B]; t0 first input hour [B]. The centre station gets the systems' forecasts; neighbours a 0 flag."""
@@ -295,8 +306,9 @@ def train(a):
 # ================================================================================================= score
 def score(a):
     import paired_w5k as PW
-    D = HybridData(a.raw, a.nwp)
-    D2 = HybridData(a.raw, a.nwp, fresh_lat=a.fresh_latency) if a.hybrid2 else None
+    ins = a.input_systems.split(",") if a.input_systems else None
+    D = HybridData(a.raw, a.nwp, input_systems=ins)
+    D2 = HybridData(a.raw, a.nwp, fresh_lat=a.fresh_latency, input_systems=ins) if a.hybrid2 else None
     z = np.load(a.nwp); Fall = z["F"]                                         # [Ms, T, S, 5, 2] own units
     O = np.load(os.path.join(a.raw, "W5K_OBS.npy"), mmap_mode="r")
     M = np.load(os.path.join(a.raw, "W5K_META.npz")); off = M["offset"].astype(np.float32)
@@ -414,7 +426,10 @@ if __name__ == "__main__":
     ap.add_argument("--hybrid2", default="", help="score: the H2 checkpoint (scored in its own Holm family)")
     ap.add_argument("--stations-file", dest="stations_file", default="", help="fetch: JSON with an 'index' list (e.g. india_stations.json)")
     ap.add_argument("--nwp-name", dest="nwp_name", default="NWP_W5K.npz", help="fetch: archive file name")
+    ap.add_argument("--reuse-ids", dest="reuse_ids", default="", help="fetch: keep the model ids found for an earlier archive")
     ap.add_argument("--suffix", default="", help="score: added to the result file names (e.g. _india)")
+    ap.add_argument("--input-systems", dest="input_systems", default="",
+                    help="score: systems the hybrids read (others scored as opponents only), e.g. IFS,AIFS,GFS")
     a = ap.parse_args()
     os.environ["PW_RAW"] = a.raw
     R5.RAW = a.raw

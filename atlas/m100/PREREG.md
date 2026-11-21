@@ -276,3 +276,14 @@ a different model, and no claim is made about them.
    job queue; one ran `t_score` while the other was still training PWM-Dyn's three seeds, so the first score lacks the
    PWM-Dyn comparison. It is kept unchanged as `atlas100m_traffic_results_without_pwmdyn.json`, and traffic is scored
    once more with PWM-Dyn included (the full pre-registered family). Nothing else changes.
+7. **2026-11-22, hybrid: GraphCast was wrongly reported missing from the forecast archive.** `hybrid.py` checked each
+   system on a single date (1–3 June 2024), where Open-Meteo's GraphCast archive happens to have a gap; it therefore
+   fetched no GraphCast and wrote the archive with IFS, AIFS and GFS only (coverage 0.93, 0.60 and 0.97). A manual check
+   from Colab found GraphCast data on 1 Dec 2024 and 1 Jul 2025 (none on 1 Jun 2024 or 1 Mar 2025). Fix, decided before
+   any hybrid result was seen: the lookup now tries three dates; the other systems keep the model ids already used; the
+   archive is fetched again as `NWP_W5K_GC.npz` (only GraphCast needs new requests). The hybrids were trained on the
+   first archive, so they read IFS, AIFS and GFS only (`--input-systems IFS,AIFS,GFS`; GraphCast's inputs zero and
+   flagged absent, as in training); GraphCast enters as an opponent, scored on the windows where its forecast exists.
+   The reported results are this full family (`*_gc.json`); the first score, without GraphCast, is kept as
+   `atlas100m_hybrid_results.json` / `atlas100m_h2_results.json` and labelled interim. The Indian archive (addendum I)
+   is fetched with the fixed lookup (`NWP_INDIA_GC.npz`).

@@ -250,18 +250,34 @@ def main(a):
             job(st, "h_score", [PY, "-u", os.path.join(HERE, "hybrid.py"), "score", "--raw", LIVE, "--nwp", os.path.join(NWP, "NWP_W5K.npz"),
                                 "--hybrid", os.path.join(OUT, "hybrid_best.pt"), "--pure", view("weather"), "--out", OUT,
                                 "--hybrid2", os.path.join(OUT, "hybrid2_best.pt"), "--fresh-latency", "12"])
-            # addendum I: the same two hybrids at the 68 Indian stations (their own archive, fetched after the main one)
-            NI = os.path.join(NWP, "NWP_INDIA.npz")
-            if not os.path.exists(NI):
-                sh([PY, "-u", os.path.join(HERE, "hybrid.py"), "fetch", "--raw", LIVE, "--out", NWP, "--stations-file", INDIA,
-                    "--nwp-name", "NWP_INDIA.npz"], os.path.join(st.p, "logs", "h_fetch_india.txt"))
-            if os.path.exists(NI):
-                job(st, "h_score_india", [PY, "-u", os.path.join(HERE, "hybrid.py"), "score", "--raw", LIVE, "--nwp", NI,
-                                          "--hybrid", os.path.join(OUT, "hybrid_best.pt"), "--pure", view("weather"), "--out", OUT,
-                                          "--hybrid2", os.path.join(OUT, "hybrid2_best.pt"), "--fresh-latency", "12",
-                                          "--suffix", "_india"])
+            # deviation 7: GraphCast was wrongly reported missing (single test date). Re-fetch with the fixed lookup (the
+            # other systems come from the cache), score the full registered family; the hybrids read only IFS, AIFS and
+            # GFS, the systems they were trained with. The first score (without GraphCast) is kept as interim.
+            GC = os.path.join(NWP, "NWP_W5K_GC.npz")
+            if not os.path.exists(GC):
+                sh([PY, "-u", os.path.join(HERE, "hybrid.py"), "fetch", "--raw", LIVE, "--out", NWP, "--nwp-name", "NWP_W5K_GC.npz",
+                    "--reuse-ids", os.path.join(NWP, "NWP_W5K.npz")],
+                   os.path.join(st.p, "logs", "h_fetch_gc.txt"))
+            ins = ["--input-systems", "IFS,AIFS,GFS"]
+            if os.path.exists(GC):
+                job(st, "h_score_gc", [PY, "-u", os.path.join(HERE, "hybrid.py"), "score", "--raw", LIVE, "--nwp", GC,
+                                       "--hybrid", os.path.join(OUT, "hybrid_best.pt"), "--pure", view("weather"), "--out", OUT,
+                                       "--hybrid2", os.path.join(OUT, "hybrid2_best.pt"), "--fresh-latency", "12",
+                                       "--suffix", "_gc"] + ins)
+                # addendum I: the same two hybrids at the 68 Indian stations (their own archive, fetched after the main one)
+                NI = os.path.join(NWP, "NWP_INDIA_GC.npz")
+                if not os.path.exists(NI):
+                    sh([PY, "-u", os.path.join(HERE, "hybrid.py"), "fetch", "--raw", LIVE, "--out", NWP, "--stations-file", INDIA,
+                        "--nwp-name", "NWP_INDIA_GC.npz", "--reuse-ids", GC], os.path.join(st.p, "logs", "h_fetch_india.txt"))
+                if os.path.exists(NI):
+                    job(st, "h_score_india_gc", [PY, "-u", os.path.join(HERE, "hybrid.py"), "score", "--raw", LIVE, "--nwp", NI,
+                                                 "--hybrid", os.path.join(OUT, "hybrid_best.pt"), "--pure", view("weather"),
+                                                 "--out", OUT, "--hybrid2", os.path.join(OUT, "hybrid2_best.pt"),
+                                                 "--fresh-latency", "12", "--suffix", "_india"] + ins)
+                else:
+                    print("HYBRID INDIA: the Indian stations' archive is still being fetched (daily limit). Run again tomorrow.", flush=True)
             else:
-                print("HYBRID INDIA: the Indian stations' forecast archive is still being fetched. Run again tomorrow.", flush=True)
+                print("HYBRID: GraphCast archive still being fetched (daily limit). Run again tomorrow.", flush=True)
         else:
             print("HYBRID: the forecast archive is still being fetched (free daily limit). Run the hybrid stage again tomorrow.", flush=True)
     print("PIPELINE PASS FINISHED", flush=True)

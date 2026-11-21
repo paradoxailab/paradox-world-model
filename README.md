@@ -25,8 +25,10 @@ data. Pre-registered before the first GPU run (`atlas/m100/PREREG.md`); full rep
 - **Traffic follow-up, Atlas-100M-T** (separately pre-registered, `atlas/m100/PREREG_TRAFFIC.md`): the core frozen,
   weather and air-quality files byte-identical (SHA-256 checked), traffic given 4.84M parameters of its own (LoRA +
   sensor embeddings). 6–10% better than Atlas-100M on all six networks; against the foundation models WIN 14, TIE 16,
-  **LOSS 0**; against the specialists and PWM-Dyn still behind (WIN 2, TIE 8, LOSS 14). Two larger variants (one-day
-  look-back; 20.45M traffic parameters) are training.
+  **LOSS 0**; against the specialists and PWM-Dyn still behind (WIN 2, TIE 8, LOSS 14). The largest variant,
+  **Atlas-100M-TXL2** (20.45M traffic parameters, one day of look-back, 118,974,606 parameters in all): foundation
+  models WIN 18, TIE 12, **LOSS 0**; specialists and PWM-Dyn WIN 4, TIE 13, LOSS 7 (from 0 / 2 / 22). Still not ahead
+  of STAEformer or our single-domain PWM-Dyn everywhere. A first 20.45M attempt (TXL) diverged and is reported too.
 - These are task-trained results against zero-shot general models; see "What these results do and do not show" in the
   report.
 

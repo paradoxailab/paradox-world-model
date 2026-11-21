@@ -84,6 +84,30 @@ A second variant tests this, under every rule above except the ones listed here.
 | T9 | Track B: WIN against every foundation model on at least 4 of 6 networks | 0.35 |
 | T10 | Lower MAE than PWM-Dyn v0.6r on at least 3 of 6 networks | 0.25 |
 
+## Addendum B: Atlas-100M-TXL, a much larger traffic share (written 2026-11-21, before any training of TXL)
+
+Asked for more traffic capacity with weather and air quality still untouched, a third variant is added. Everything
+above applies, including check W, except:
+
+- **Atlas-100M-TXL** = Atlas-100M-T1d with LoRA **rank 128** (alpha 128) and **64-number** sensor embeddings
+  (`traffic_plus.py --r 128 --alpha 128 --E 64 --ctx 288 --steps 60000 --cap 360 --name Atlas-100M-TXL
+  --tag atlas100mTXL`). Traffic-only trainable parameters: **20,454,934** (LoRA 18,665,472, sensor embeddings
+  144,000, adapter 1,645,462). Whole system: **118,974,606** (Atlas-100M's 98,599,994 minus its 80,322-parameter
+  traffic adapter plus the 20,454,934 traffic parameters). The shared core is still frozen; CPU check T0: 2e-6.
+- Longer budget: at most 60,000 steps or 360 minutes (more parameters, so more steps); patience and validation every
+  2,000 steps unchanged.
+- It runs in a second Colab session at the same time as Atlas-100M-T and T1d, so its Holm family is fixed now as the
+  published Track B submissions (STID, Graph WaveNet, STAEformer, PWM-Dyn v0.6r, the five foundation models,
+  Atlas-100M), not Atlas-100M-T or T1d; TXL is compared with those two by MAE only.
+- Track B only (look-back 288 steps).
+
+| # | Prediction | Probability |
+|---|---|---|
+| T11 | Best validation ratio below Atlas-100M-T1d's | 0.55 |
+| T12 | Track B: WIN against every foundation model on at least 4 of 6 networks | 0.40 |
+| T13 | Lower MAE than PWM-Dyn v0.6r on at least 3 of 6 networks | 0.30 |
+| T14 | Track B: WIN against all three specialists on at least 3 of 6 networks | 0.15 |
+
 ## Deviations
 
 (none yet)

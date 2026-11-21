@@ -22,6 +22,11 @@ data. Pre-registered before the first GPU run (`atlas/m100/PREREG.md`); full rep
 - **Traffic (six road networks): a clear loss.** LOSS in 22 of 24 comparisons with the trained specialists (STID,
   Graph WaveNet, STAEformer) and our own PWM-Dyn; against zero-shot foundation models WIN 7, TIE 11, LOSS 12 (it loses
   to TimesFM on the four PeMS networks). One shared model did not match single-domain models on traffic.
+- **Traffic follow-up, Atlas-100M-T** (separately pre-registered, `atlas/m100/PREREG_TRAFFIC.md`): the core frozen,
+  weather and air-quality files byte-identical (SHA-256 checked), traffic given 4.84M parameters of its own (LoRA +
+  sensor embeddings). 6–10% better than Atlas-100M on all six networks; against the foundation models WIN 14, TIE 16,
+  **LOSS 0**; against the specialists and PWM-Dyn still behind (WIN 2, TIE 8, LOSS 14). Two larger variants (one-day
+  look-back; 20.45M traffic parameters) are training.
 - These are task-trained results against zero-shot general models; see "What these results do and do not show" in the
   report.
 

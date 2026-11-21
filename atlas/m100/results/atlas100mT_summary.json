@@ -1,0 +1,39 @@
+{
+ "model": "Atlas-100M-T",
+ "base": "atlas100m_traffic_view.pt",
+ "val_atlas100m": 0.7210111021995544,
+ "val_start": 0.7210109829902649,
+ "best_val": 0.6475750803947449,
+ "best_step": 40000,
+ "steps_run": 40000,
+ "minutes": 135.1,
+ "params": {
+  "trainable": 4843778,
+  "lora": 4666368,
+  "sensor_embeddings": 72000,
+  "adapter": 105410,
+  "frozen_core": 94755808
+ },
+ "args": {
+  "cmd": "train",
+  "base": "/content/drive/MyDrive/PWM-100M/out/atlas100m_traffic_view.pt",
+  "out": "/content/drive/MyDrive/PWM-100M/traffic_plus",
+  "tag": "atlas100mT",
+  "r": 32,
+  "alpha": 32,
+  "E": 32,
+  "steps": 40000,
+  "every": 2000,
+  "patience": 6,
+  "lr": 0.0003,
+  "lr_new": 0.001,
+  "wd": 0.0001,
+  "warmup": 0.03,
+  "cap": 240,
+  "seed": 800,
+  "ctx": 0,
+  "name": "Atlas-100M-T",
+  "quick": false
+ },
+ "gpu": "NVIDIA A100-SXM4-80GB"
+}

@@ -21,8 +21,10 @@ opponent's (negative = Atlas-100M better).
 | Air quality | WIN 7/9 on trained stations, 2/9 on never-trained (rest TIE) | TIE with Atlas-India v1.0 |
 | Traffic | WIN 7, TIE 11, LOSS 12 (5 models × 6 networks) | **LOSS** 22 / 24 against STID, Graph WaveNet, STAEformer, PWM-Dyn |
 | Hybrid vs ECMWF / GFS | pending | pending |
+| *Traffic, follow-up Atlas-100M-T (below)* | *WIN 14, TIE 16, LOSS 0* | *WIN 2, TIE 8, LOSS 14* |
 
-Predictions: 4 of 13 scored so far held (P1, P2, P4, P6); 9 failed; P14–P17 pending.
+Predictions: 4 of 13 scored so far held (P1, P2, P4, P6); 9 failed; P14–P17 pending. The rows above are Atlas-100M
+v1.0 and stay as published; Atlas-100M-T is a separate, separately pre-registered model (`PREREG_TRAFFIC.md`).
 
 ## The model
 
@@ -136,6 +138,58 @@ tracks with identical verdicts; they are listed once.
 - PWM-Dyn v0.6r, our own single-domain traffic model (paper 1), is better than Atlas-100M on every network (11–20%).
 - The first scoring ran before PWM-Dyn had finished (deviation 6) and is kept as
   `results/atlas100m_traffic_results_without_pwmdyn.json`; adding PWM-Dyn changed no other verdict.
+
+## Follow-up: Atlas-100M-T, a larger traffic share on the frozen core (`PREREG_TRAFFIC.md`)
+
+Pre-registered on 2026-11-21 after the traffic loss above, before any training. The shared core (94,755,808 weights)
+is frozen and the weather and air-quality files are not touched; traffic gets its own **4,843,778** trainable
+parameters (LoRA rank 32 on every linear layer of the core 4,666,368, a 32-number embedding per sensor 72,000, the
+traffic adapter 105,410). Whole system 103,363,450. Context stays at 12 steps (Track A protocol). Trained 40,000 steps
+(135 minutes, A100 80GB), validation ratio 0.7210 → **0.6476**; scored once on the official test windows against every
+ParadoxBench submission, Atlas-100M included, in one Holm family of 84 comparisons.
+
+- **Check T0:** at the start Atlas-100M-T scored 0.721011 against Atlas-100M's 0.721011 (same function).
+- **Check W:** after training and scoring, the SHA-256 of `atlas100m_best.pt`, `atlas100m_weather_view.pt` and
+  `atlas100m_aq_view.pt` equals `results/SHA256SUMS` (checked in the run and again by hand on 2026-11-21 14:10 UTC).
+  Weather and air-quality results are therefore unchanged.
+
+| Opponent | PEMS08 | PEMS04 | PEMS03 | PEMS07 | METR-LA | PEMS-BAY | W/T/L |
+|---|---|---|---|---|---|---|---|
+| **Atlas-100M-T MAE** | **15.475** | **19.474** | **14.717** | **20.813** | **3.079** | **1.582** | |
+| Atlas-100M (v1.0) | 17.170 (-9.9%) WIN | 21.688 (-10.2%) WIN | 16.181 (-9.0%) WIN | 23.261 (-10.5%) WIN | 3.310 (-7.0%) WIN | 1.699 (-6.9%) WIN | 6/0/0 |
+| Chronos-Bolt | 18.443 (-16.1%) WIN | 22.866 (-14.8%) WIN | 17.177 (-14.3%) WIN | 25.664 (-18.9%) WIN | 3.875 (-20.5%) WIN | 1.996 (-20.7%) WIN | 6/0/0 |
+| Chronos-2 | 17.148 (-9.8%) TIE | 21.524 (-9.5%) TIE | 15.913 (-7.5%) TIE | 23.566 (-11.7%) WIN | 3.674 (-16.2%) WIN | 1.829 (-13.5%) WIN | 3/3/0 |
+| TimesFM 2.5 | 15.038 (+2.9%) TIE | 19.702 (-1.2%) TIE | 14.609 (+0.7%) TIE | 20.894 (-0.4%) TIE | 3.491 (-11.8%) WIN | 1.692 (-6.5%) WIN | 2/4/0 |
+| TimesFM 3.0 | 14.629 (+5.8%) TIE | 19.273 (+1.0%) TIE | 14.331 (+2.7%) TIE | 20.464 (+1.7%) TIE | 3.491 (-11.8%) WIN | 1.708 (-7.4%) WIN | 2/4/0 |
+| TimesFM 3.0 mv | 14.549 (+6.4%) TIE | 19.135 (+1.8%) TIE | 14.148 (+4.0%) TIE | 20.270 (+2.7%) TIE | 3.401 (-9.5%) WIN | 1.661 (-4.7%) TIE | 1/5/0 |
+| STID | 14.234 (+8.7%) LOSS | 18.484 (+5.4%) LOSS | 15.393 (-4.4%) TIE | 19.617 (+6.1%) LOSS | 3.124 (-1.5%) TIE | 1.562 (+1.3%) TIE | 0/3/3 |
+| Graph WaveNet | 14.674 (+5.5%) LOSS | 18.984 (+2.6%) LOSS | 14.552 (+1.1%) TIE | 22.416 (-7.1%) WIN | 3.066 (+0.4%) TIE | 1.574 (+0.5%) TIE | 1/3/2 |
+| STAEformer | 13.500 (+14.6%) LOSS | 18.281 (+6.5%) LOSS | 15.218 (-3.3%) TIE | 21.506 (-3.2%) WIN | 2.970 (+3.7%) LOSS | 1.530 (+3.4%) LOSS | 1/1/4 |
+| PWM-Dyn v0.6r | 14.336 (+7.9%) LOSS | 18.692 (+4.2%) LOSS | 14.299 (+2.9%) TIE | 19.929 (+4.4%) LOSS | 2.920 (+5.4%) LOSS | 1.524 (+3.8%) LOSS | 0/1/5 |
+
+Cells as above (percentages are Atlas-100M-T's error relative to the opponent). The same forecast is entered on both
+tracks; specialists and Atlas-100M carry identical verdicts on both and are listed once.
+
+- **6–10% better than Atlas-100M on every network (WIN 6/6).** Weather and air quality did not change.
+- **No loss to any foundation model** (WIN 14, TIE 16, LOSS 0; Atlas-100M had 12 losses), although it reads 12 steps
+  and they read 512. On the four PeMS networks it ties all three TimesFM configurations instead of losing to them.
+- Against the trained specialists and PWM-Dyn it is closer but still behind: WIN 2 (Graph WaveNet and STAEformer on
+  PEMS07), TIE 8, LOSS 14 (Atlas-100M: 0 / 2 / 22). PWM-Dyn v0.6r is still better on five networks (4–8%), tied on PEMS03.
+- Raw output: `results/atlas100mt_traffic_results.json`, `atlas100mT_summary.json`, `atlas100mT_log.jsonl`.
+
+| # | Prediction (PREREG_TRAFFIC section 5) | Probability | Result |
+|---|---|---|---|
+| T1 | Check T0 holds | 0.99 | **held** (difference 1e-7) |
+| T2 | Check W holds | 0.99 | **held** |
+| T3 | Best validation ratio below 0.7210 | 0.90 | **held** (0.6476) |
+| T4 | WIN against Atlas-100M on at least 5 of 6 networks | 0.70 | **held** (6 of 6) |
+| T5 | Track A: WIN against all three specialists on at least 4 of 6 networks | 0.10 | failed (0 of 6) |
+| T6 | Lower MAE than PWM-Dyn v0.6r on at least 3 of 6 networks | 0.15 | failed (0 of 6) |
+| T7 | Track B: WIN against every foundation model on at least 3 of 6 networks | 0.30 | failed (1 of 6: METR-LA) |
+
+Two further variants are running under addenda A and B of `PREREG_TRAFFIC.md`: Atlas-100M-T1d (one day of
+look-back, 6.36M traffic parameters, T8–T10) and Atlas-100M-TXL (20.45M traffic parameters, one day of look-back,
+T11–T14). They are reported here when scored.
 
 ## Hybrid against ECMWF IFS, AIFS, GFS and GraphCast (pending)
 

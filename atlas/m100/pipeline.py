@@ -27,6 +27,16 @@ TF440 = "/content/tf440"
 CHUNK = {"PEMS07": 8, "PEMS-BAY": 16, "PEMS03": 16, "METR-LA": 32, "PEMS04": 32, "PEMS08": 64}
 W5K_OPP = ["persist", "chronos-bolt", "chronos2", "chronos2mv", "tfm25", "tfm3", "ttm", "tirex", "sundial", "timemoe200"]
 TAG = "atlas100m"
+INDIA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "india_stations.json")   # PREREG addendum I
+
+
+def tf440():
+    """transformers 4.40.1 beside the current one, for Sundial and Time-MoE (PREREG deviation 1)."""
+    if not os.path.exists(os.path.join(TF440, "transformers")):
+        subprocess.run([sys.executable, "-m", "pip", "install", "-q", "--no-deps", "--target", TF440, "transformers==4.40.1"])
+        t = os.path.join(TF440, "transformers", "dependency_versions_table.py")   # tokenizers / hub: unused here
+        txt = open(t).read().replace(",<0.20", "").replace(",<1.0", "")
+        open(t, "w").write(txt)
 
 
 class Store:
@@ -181,6 +191,19 @@ def main(a):
             job(st, f"w_paired_{yr}_vs25m", [PY, "paired_w5k.py", "--year", yr, "--ours", TAG, "--vs", "atlas25m", "--suffix", "_m100vs25m"],
                 cwd=DELHI, env=e2)
 
+    if on("india") and trained():                                 # PREREG addendum I: all 68 Indian WEATHER-5K stations
+        e3 = dict(env, ATLAS_OUT=OUT)
+        new_tf = ",".join(k for k in W5K_OPP if k not in AQ_OPP_OLD_TF.split(","))
+        for yr, every, extra in (("test", "48", {}), ("live", "96", dict(PW_RAW=LIVE))):
+            base = [PY, "-u", "score_tsfm_w5k.py", "--stations-file", INDIA, "--h2h-dir", "h2h_india", "--year", yr,
+                    "--origin-every", every]
+            job(st, f"i_h2h_{yr}", base + ["--atlas", f"{TAG}={view('weather')}", "--models", new_tf], cwd=DELHI,
+                env=dict(e3, **extra))
+            tf440()
+            job(st, f"i_h2h_{yr}_tf440", base + ["--models", AQ_OPP_OLD_TF], cwd=DELHI, env=dict(e3, PYTHONPATH=TF440, **extra))
+            job(st, f"i_paired_{yr}", [PY, "paired_w5k.py", "--h2h-dir", "h2h_india", "--year", yr, "--ours", TAG,
+                                       "--vs", ",".join(W5K_OPP), "--suffix", "_india"], cwd=DELHI, env=e3)
+
     if on("opponents") or (on("aq") and trained()):              # opponents need no Atlas-100M: can run on a 2nd GPU
         job(st, "aq_opp", [PY, "-u", "india_opponents.py", "--keys", AQ_OPP], cwd=DELHI, env=env)
         if not os.path.exists(os.path.join(TF440, "transformers")):    # transformers 4.40.1 beside the current one
@@ -227,6 +250,18 @@ def main(a):
             job(st, "h_score", [PY, "-u", os.path.join(HERE, "hybrid.py"), "score", "--raw", LIVE, "--nwp", os.path.join(NWP, "NWP_W5K.npz"),
                                 "--hybrid", os.path.join(OUT, "hybrid_best.pt"), "--pure", view("weather"), "--out", OUT,
                                 "--hybrid2", os.path.join(OUT, "hybrid2_best.pt"), "--fresh-latency", "12"])
+            # addendum I: the same two hybrids at the 68 Indian stations (their own archive, fetched after the main one)
+            NI = os.path.join(NWP, "NWP_INDIA.npz")
+            if not os.path.exists(NI):
+                sh([PY, "-u", os.path.join(HERE, "hybrid.py"), "fetch", "--raw", LIVE, "--out", NWP, "--stations-file", INDIA,
+                    "--nwp-name", "NWP_INDIA.npz"], os.path.join(st.p, "logs", "h_fetch_india.txt"))
+            if os.path.exists(NI):
+                job(st, "h_score_india", [PY, "-u", os.path.join(HERE, "hybrid.py"), "score", "--raw", LIVE, "--nwp", NI,
+                                          "--hybrid", os.path.join(OUT, "hybrid_best.pt"), "--pure", view("weather"), "--out", OUT,
+                                          "--hybrid2", os.path.join(OUT, "hybrid2_best.pt"), "--fresh-latency", "12",
+                                          "--suffix", "_india"])
+            else:
+                print("HYBRID INDIA: the Indian stations' forecast archive is still being fetched. Run again tomorrow.", flush=True)
         else:
             print("HYBRID: the forecast archive is still being fetched (free daily limit). Run the hybrid stage again tomorrow.", flush=True)
     print("PIPELINE PASS FINISHED", flush=True)

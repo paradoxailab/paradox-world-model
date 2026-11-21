@@ -91,7 +91,7 @@ def fetch(a):
     M = np.load(os.path.join(a.raw, "W5K_META.npz"))
     T = int((np.datetime64(str(M["live_end"])) - START) / np.timedelta64(1, "h")) + 1
     lat, lon = M["lat"].astype(float), M["lon"].astype(float)
-    HS = stations(len(lat))
+    HS = np.array(json.load(open(a.stations_file))["index"], dtype=np.int64) if a.stations_file else stations(len(lat))
     cache = os.path.join(a.out, "cache"); os.makedirs(cache, exist_ok=True)
     end = (START + np.timedelta64(T - 1, "h")).astype("datetime64[D]").astype(str)
     hv = [f"{v}_{o}" for o in OFFS for v in OM_VARS]
@@ -134,7 +134,7 @@ def fetch(a):
                             x = np.array([np.nan if z is None else z for z in jj["hourly"][f"{v}_{o}"]], np.float32)
                             F[si, ix[ok], k, vi, oi] = x[ok]
             print(f"  {sysname}: {c1} done", flush=True)
-    np.savez_compressed(os.path.join(a.out, "NWP_W5K.npz"), F=F, systems=np.array(list(SYSTEMS)), ids=np.array(json.dumps(ids)),
+    np.savez_compressed(os.path.join(a.out, a.nwp_name), F=F, systems=np.array(list(SYSTEMS)), ids=np.array(json.dumps(ids)),
                         stations=HS, vars=np.array(OM_VARS), offsets=np.array(OFFS), start=np.array(str(START)))
     cov = {s: float(np.isfinite(F[i]).mean()) for i, s in enumerate(SYSTEMS)}
     print("NWP " + json.dumps(dict(ids=ids, coverage=cov, hours=T, stations=len(HS))), flush=True)
@@ -386,7 +386,7 @@ def score(a):
                        last=str(START + np.timedelta64(int(starts[-1]), "h")), latency_h=LATENCY,
                        hybrid_input_latency_h=(a.fresh_latency if oursname == "Atlas-100M-H2" else None),
                        mae={k: (v["sae"].sum((0, 1)) / np.maximum(v["cnt"].sum((0, 1)), 1)).tolist() for k, v in out.items()}),
-                  open(os.path.join(a.out, fname), "w"), indent=1, default=float)
+                  open(os.path.join(a.out, fname.replace(".json", f"{a.suffix}.json")), "w"), indent=1, default=float)
 
     family("Atlas-100M hybrid", {"Atlas-100M-H2"}, "atlas100m_hybrid_results.json")    # the registered family (section H)
     if D2 is not None:
@@ -412,6 +412,9 @@ if __name__ == "__main__":
     ap.add_argument("--fresh-latency", dest="fresh_latency", type=int, default=0,
                     help="0 = registered inputs (day2 only); >0 = H2: freshest run published this many hours before the start")
     ap.add_argument("--hybrid2", default="", help="score: the H2 checkpoint (scored in its own Holm family)")
+    ap.add_argument("--stations-file", dest="stations_file", default="", help="fetch: JSON with an 'index' list (e.g. india_stations.json)")
+    ap.add_argument("--nwp-name", dest="nwp_name", default="NWP_W5K.npz", help="fetch: archive file name")
+    ap.add_argument("--suffix", default="", help="score: added to the result file names (e.g. _india)")
     a = ap.parse_args()
     os.environ["PW_RAW"] = a.raw
     R5.RAW = a.raw

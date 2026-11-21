@@ -59,7 +59,7 @@ def holm(ps):
 
 
 def main(a):
-    d = os.path.join(OUT, "h2h")
+    d = os.path.join(OUT, a.h2h_dir)
     load = lambda k: dict(np.load(os.path.join(d, f"{k}_{a.year}.npz")))
     ours = load(a.ours); res = {}
     allrows = []
@@ -85,4 +85,5 @@ if __name__ == "__main__":
     ap.add_argument("--vs", default="tfm25,tfm3,chronos2,chronos-bolt")
     ap.add_argument("--B", type=int, default=10000); ap.add_argument("--alpha", type=float, default=0.01)
     ap.add_argument("--suffix", default="", help="added to the output name (a new comparison family keeps earlier files)")
+    ap.add_argument("--h2h-dir", dest="h2h_dir", default="h2h")
     main(ap.parse_args())

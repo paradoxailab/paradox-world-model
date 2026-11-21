@@ -23,11 +23,13 @@ import run_atlas_5k as R                                   # data loading, neigh
 DEV = R.DEV
 
 
-def windows(bounds, H, origin_every, N, stations_every, min_hist):
+def windows(bounds, H, origin_every, N, stations_every, min_hist, stations_file=""):
     a, e = bounds
     starts = np.arange(a + min_hist, e - H + 1)                     # forecast start hours wholly inside the period
     starts = starts[(starts % 24) == 0][::max(1, origin_every // 24)]
     S = np.arange(0, N, stations_every)
+    if stations_file:                                               # an explicit station list (e.g. atlas/m100/india_stations.json)
+        S = np.array(json.load(open(stations_file))["index"], dtype=np.int64)
     return S, starts
 
 
@@ -139,7 +141,7 @@ def table(sae, cnt):
 
 
 def main(a):
-    out = os.path.join(R.OUT, "h2h"); os.makedirs(out, exist_ok=True)
+    out = os.path.join(R.OUT, a.h2h_dir); os.makedirs(out, exist_ok=True)
     Z, lat, lon, elev, M = R.load(a.quick)
     Zt, start0 = Z, R.START
     if a.year == "live":                                  # fresh NOAA observations after the benchmark (fetch_isd_live.py)
@@ -153,7 +155,7 @@ def main(a):
         print(f"live data: {start0} to {M['live_end']}", flush=True)
     else:
         bounds, min_hist = R.YEARS[a.year], R.L
-    S, starts = windows(bounds, a.H, a.origin_every, Z.shape[0], a.stations_every, min_hist)
+    S, starts = windows(bounds, a.H, a.origin_every, Z.shape[0], a.stations_every, min_hist, a.stations_file)
     print(f"{a.year}: {len(S)} stations x {len(starts)} forecast starts x 5 variables, H={a.H}, opponent context {a.ctx} h", flush=True)
     fj = os.path.join(out, f"h2h_{a.year}.json")
     res = json.load(open(fj)) if os.path.exists(fj) else {}
@@ -193,4 +195,6 @@ if __name__ == "__main__":
     ap.add_argument("--k", type=int, default=32, help="Atlas stations per neighbourhood (v2c and 10M: 32)")
     ap.add_argument("--redo", action="store_true")
     ap.add_argument("--quick", action="store_true")
+    ap.add_argument("--stations-file", dest="stations_file", default="", help="JSON with an 'index' list of stations (overrides --stations-every)")
+    ap.add_argument("--h2h-dir", dest="h2h_dir", default="h2h", help="output folder under ATLAS_OUT (a separate study keeps its own)")
     main(ap.parse_args())

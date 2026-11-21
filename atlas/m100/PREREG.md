@@ -211,6 +211,37 @@ standard way to beat raw global forecasts at stations; reading a stale run throw
 | P21 | H2: WIN against raw IFS on sea-level pressure | 0.15 |
 | P22 | H2: WIN against every system's day-1 run (not yet published, an advantaged reference) on temperature | 0.30 |
 
+## Addendum I: India (written 2026-11-22, before any India-only scoring)
+
+Asked how Atlas does in India, we add an India study. Only 9 of the 709 head-to-head stations and 2 of the 178 hybrid
+stations are Indian, too few to say anything about India, so the study uses **all 68 Indian WEATHER-5K stations**
+(`atlas/m100/india_stations.json`: ISD ids in WMO blocks 42 and 43 below 43400, i.e. India without Sri Lanka and the
+Maldives; listed by id, latitude and longitude). Atlas-100M was trained on WEATHER-5K, which contains these stations
+(2014–2022 training years); every test window below is after training.
+
+- **I1, Atlas-100M against the ten foundation models** (the same ten as the weather head-to-head: TimesFM 2.5, TimesFM
+  3.0, Chronos-2 uni- and multivariate, Chronos-Bolt, TiRex, Sundial, Time-MoE 200M, TTM r2, persistence), zero-shot
+  with 512 h of history, run fresh on these stations with the same code (`score_tsfm_w5k.py --stations-file …`):
+  2023 test (starts every 48 h) and the 2024-25 live period (every 96 h), 24 h ahead, five variables. Paired tests as
+  section 6, one Holm family per period (10 opponents × 5 variables).
+- **I2, the two hybrids against IFS, AIFS, GFS and GraphCast at the 68 Indian stations, 2025** (`NWP_INDIA.npz`,
+  fetched after the main archive under the same free daily limit). The hybrids are the ones trained on the 178 stations
+  of section H; 66 of the 68 Indian stations are not among them. Same scoring and families as section H and addendum H2.
+- **What may be claimed:** results for these 68 stations, 24 h ahead, in the stated periods. Nothing here is a
+  comparison with the India Meteorological Department's own forecasts, which are not in the archive.
+
+| # | Prediction | Probability |
+|---|---|---|
+| P23 | I1: WIN against all ten foundation models on temperature, 2023 test | 0.85 |
+| P24 | I1: at least 90 of the 100 comparisons (10 models × 5 variables × 2 periods) are WIN | 0.55 |
+| P25 | I2: H2 WIN against raw IFS on temperature at the Indian stations | 0.60 |
+| P26 | I2: H2 WIN against bias-corrected IFS on temperature at the Indian stations | 0.35 |
+| P27 | I2: pure Atlas-100M LOSES to raw IFS on temperature at the Indian stations | 0.60 |
+
+**Benchmarks this study does not enter.** WeatherBench 2 and similar global benchmarks score gridded fields (ERA5,
+0.25°–1.5°) over the whole globe; Atlas forecasts at stations from station data, so it cannot be scored there without
+a different model, and no claim is made about them.
+
 ## Deviations
 
 1. **2026-11-20, air quality: two opponents failed on the first pass and are re-run.** Sundial and Time-MoE 200M

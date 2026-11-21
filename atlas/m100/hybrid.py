@@ -169,8 +169,16 @@ def widen_forcing(view, extra):
     return big
 
 
+def fresh_mask(fresh_lat, L, H=24, device="cpu"):
+    """Atlas-100M-H2 (PREREG addendum H2): for input position p of the L+H window, True where the system's day1 run
+    (issued 24 h before that valid hour) was published by the forecast start under a publication delay of fresh_lat
+    hours: lead = p - L + 1 <= 24 - fresh_lat. Past hours (lead <= 0) always qualify."""
+    lead = torch.arange(L + H, device=device) - L + 1
+    return lead <= 24 - fresh_lat
+
+
 class HybridData:
-    def __init__(self, raw, nwp, k=32):
+    def __init__(self, raw, nwp, k=32, fresh_lat=0):
         self.Z, lat, lon, elev, M = R5.load(False)                          # live inputs (gaps carried forward)
         O = np.load(os.path.join(raw, "W5K_OBS.npy"), mmap_mode="r")
         off = M["offset"].astype(np.float32); mu = R5.MEAN - off
@@ -180,14 +188,21 @@ class HybridData:
         nb = R5.neighbours(lat, lon, k)
         self.bt = R5.Batcher(self.Z, nb, R5.geometry(lat, lon, nb), R5.static_feats(lat, lon, elev), 24)
         z = np.load(nwp)
-        F = z["F"][..., 1]                                                    # day2 only: [systems, T, S, 5]
         self.HS = z["stations"]
-        Fz = (F - R5.MEAN[None, None, None]) / R5.STD[None, None, None]       # the benchmark's scaler
-        ok = np.isfinite(Fz).all(-1, keepdims=True)
-        self.sysF = torch.from_numpy(np.concatenate([np.nan_to_num(Fz), ok], -1).astype(np.float16)).to(DEV)  # [Ms, T, S, 6]
-        self.Ms = F.shape[0]
+        self.fresh_lat = fresh_lat                                            # 0: registered hybrid (day2 only); >0: H2
+
+        def enc(F):
+            Fz = (F - R5.MEAN[None, None, None]) / R5.STD[None, None, None]   # the benchmark's scaler
+            ok = np.isfinite(Fz).all(-1, keepdims=True)
+            return torch.from_numpy(np.concatenate([np.nan_to_num(Fz), ok], -1).astype(np.float16)).to(DEV)  # [Ms, T, S, 6]
+        self.sysF = enc(z["F"][..., 1])                                       # day2: [systems, T, S, 5] -> 6 channels
+        self.Ms = z["F"].shape[0]
         self.extra = self.Ms * 6
-        self.T = min(self.Z.shape[1], F.shape[1])
+        if fresh_lat:
+            self.sysF1 = enc(z["F"][..., 0])                                  # day1
+            self.use1 = fresh_mask(fresh_lat, R5.L, 24, DEV)                  # [L+24]
+            self.extra = self.Ms * 7                                          # + a "day1 run used" flag per system
+        self.T = min(self.Z.shape[1], z["F"].shape[1])
 
     def batch(self, si, t0):
         """si: index into HS [B]; t0 first input hour [B]. The centre station gets the systems' forecasts; neighbours a 0 flag."""
@@ -195,7 +210,11 @@ class HybridData:
         b = self.bt(s, t0)
         tt = t0[:, None] + torch.arange(R5.L + 24, device=DEV)[None]
         x = self.sysF[:, tt, si[:, None]]                                     # [Ms, B, L+H, 6]
-        x = x.permute(1, 2, 0, 3).reshape(len(si), R5.L + 24, -1).float()     # [B, L+H, Ms*6]
+        if self.fresh_lat:
+            u = self.use1[None, None, :, None]
+            x = torch.where(u, self.sysF1[:, tt, si[:, None]], x)
+            x = torch.cat([x, u.expand(*x.shape[:3], 1).to(x.dtype)], -1)     # [Ms, B, L+H, 7]
+        x = x.permute(1, 2, 0, 3).reshape(len(si), R5.L + 24, -1).float()     # [B, L+H, Ms*6 or Ms*7]
         ext = torch.zeros(len(si), b["yc"].shape[1], R5.L + 24, self.extra, device=DEV)
         ext[:, 0] = x
         b["uc"] = torch.cat([b["uc"], ext[:, :, :R5.L]], -1)
@@ -210,9 +229,13 @@ class HybridData:
 
 
 def train(a):
-    D = HybridData(a.raw, a.nwp)
+    D = HybridData(a.raw, a.nwp, fresh_lat=a.fresh_latency)
     pure = load_any(a.view, DEV).to(DEV)
     m = widen_forcing(pure, D.extra).to(DEV)
+    if a.fresh_latency:
+        m.hybrid_meta.update(offset=f"freshest published, delay {a.fresh_latency} h", fresh_latency=a.fresh_latency)
+    torch.manual_seed(a.seed)
+    tag = a.name
     with torch.no_grad():                                                     # exactness: the widened model = the pure one
         t0 = torch.as_tensor(D.starts("val", 24)[:64], device=DEV); si = torch.arange(len(t0), device=DEV) % len(D.HS)
         b = D.batch(si, t0)
@@ -245,7 +268,7 @@ def train(a):
     best, bad, hist = *val()[:1], 0, []
     print(f"step 0 (= pure model) val E {best:.5f}", flush=True)
     os.makedirs(a.out, exist_ok=True)
-    torch.save(dict(sd=m.state_dict(), cfg=m.cfg, meta=m.hybrid_meta), os.path.join(a.out, "hybrid_best.pt"))
+    torch.save(dict(sd=m.state_dict(), cfg=m.cfg, meta=m.hybrid_meta), os.path.join(a.out, f"{tag}_best.pt"))
     for step in range(1, a.steps + 1):
         t0 = tr[torch.randint(0, len(tr), (a.bs,), device=DEV)]
         si = torch.randint(0, len(D.HS), (a.bs,), device=DEV)
@@ -260,19 +283,20 @@ def train(a):
             hist.append(dict(step=step, E=E, mae=mae, loss=loss.item()))
             if E < best - 1e-5:
                 best, bad = E, 0
-                torch.save(dict(sd=m.state_dict(), cfg=m.cfg, meta=m.hybrid_meta, step=step, val_E=E), os.path.join(a.out, "hybrid_best.pt"))
+                torch.save(dict(sd=m.state_dict(), cfg=m.cfg, meta=m.hybrid_meta, step=step, val_E=E), os.path.join(a.out, f"{tag}_best.pt"))
             else:
                 bad += 1
             print(f"step {step} val E {E:.5f} (best {best:.5f}) loss {loss.item():.4f}", flush=True)
             if bad >= a.patience:
                 break
-    json.dump(dict(history=hist, best=best), open(os.path.join(a.out, "hybrid_train.json"), "w"), indent=1)
+    json.dump(dict(history=hist, best=best, fresh_latency=a.fresh_latency, seed=a.seed), open(os.path.join(a.out, f"{tag}_train.json"), "w"), indent=1)
 
 
 # ================================================================================================= score
 def score(a):
     import paired_w5k as PW
     D = HybridData(a.raw, a.nwp)
+    D2 = HybridData(a.raw, a.nwp, fresh_lat=a.fresh_latency) if a.hybrid2 else None
     z = np.load(a.nwp); Fall = z["F"]                                         # [Ms, T, S, 5, 2] own units
     O = np.load(os.path.join(a.raw, "W5K_OBS.npy"), mmap_mode="r")
     M = np.load(os.path.join(a.raw, "W5K_META.npz")); off = M["offset"].astype(np.float32)
@@ -296,7 +320,7 @@ def score(a):
         mae = sae.sum((0, 1)) / np.maximum(cnt.sum((0, 1)), 1)
         print(f"{name:<28} " + "  ".join(f"{x:.3f}" for x in mae), flush=True)
 
-    def model_fn(path, hybrid):
+    def model_fn(path, hybrid, D=D):
         """The model works in (value - benchmark mean) / benchmark std; R5.load's offset cancels, so value = p*std + mean."""
         m = load_any(path, DEV).to(DEV).eval()
         sd, mu = torch.tensor(R5.STD, device=DEV), torch.tensor(R5.MEAN, device=DEV)
@@ -312,6 +336,8 @@ def score(a):
 
     acc(model_fn(a.pure, False), "Atlas-100M pure")
     acc(model_fn(a.hybrid, True), "Atlas-100M hybrid")
+    if D2 is not None:
+        acc(model_fn(a.hybrid2, True, D2), "Atlas-100M-H2")
     lead = np.arange(1, 25)
     for mi, sysname in enumerate([str(x) for x in z["systems"]]):
         if not np.isfinite(Fall[mi]).any():
@@ -337,26 +363,34 @@ def score(a):
         acc(raw_fn, f"{sysname} raw")
         acc(bias_fn, f"{sysname} bias-corrected")
         acc(lambda j, s0, mi=mi: raw_fn(j, s0, mi, True), f"{sysname} day1 (freshest, not yet published)")
-    rows = []
-    ours = out["Atlas-100M hybrid"]
-    for k, v in out.items():
-        if k == "Atlas-100M hybrid":
-            continue
-        both = dict(sae=ours["sae"], cnt=np.minimum(ours["cnt"], v["cnt"]))
-        for r in PW.compare(dict(sae=ours["sae"], cnt=both["cnt"]), dict(sae=v["sae"], cnt=both["cnt"])):
-            r.update(opponent=k); rows.append(r)
-    p = np.array([max(1.0 if np.isnan(r["p_dm"]) else r["p_dm"], r["p_bootstrap"]) for r in rows])
-    for r, ph in zip(rows, PW.holm(p)):
-        r["p_holm"] = float(ph)
-        ci_ok = r["ci95_pct"][1] < 0 if r["diff_pct"] < 0 else r["ci95_pct"][0] > 0
-        r["verdict"] = ("WIN" if r["diff_pct"] < 0 else "LOSS") if (ph < 0.01 and ci_ok) else "TIE"
-        print(f"TEST vs {r['opponent']:<34} {r['variable']:<19} {r['ours']:.3f} vs {r['theirs']:.3f} {r['diff_pct']:+.2f}% "
-              f"p_holm {r['p_holm']:.2g} {r['verdict']}", flush=True)
-    os.makedirs(a.out, exist_ok=True)
-    json.dump(dict(tests=rows, stations=len(D.HS), starts=len(starts), first=str(START + np.timedelta64(int(starts[0]), "h")),
-                   last=str(START + np.timedelta64(int(starts[-1]), "h")), latency_h=LATENCY,
-                   mae={k: (v["sae"].sum((0, 1)) / np.maximum(v["cnt"].sum((0, 1)), 1)).tolist() for k, v in out.items()}),
-              open(os.path.join(a.out, "atlas100m_hybrid_results.json"), "w"), indent=1, default=float)
+    def family(oursname, skip, fname):
+        """One Holm family: `oursname` against every other forecast in `out` except those in `skip`."""
+        rows = []
+        ours = out[oursname]
+        for k, v in out.items():
+            if k == oursname or k in skip:
+                continue
+            both = dict(sae=ours["sae"], cnt=np.minimum(ours["cnt"], v["cnt"]))
+            for r in PW.compare(dict(sae=ours["sae"], cnt=both["cnt"]), dict(sae=v["sae"], cnt=both["cnt"])):
+                r.update(opponent=k); rows.append(r)
+        p = np.array([max(1.0 if np.isnan(r["p_dm"]) else r["p_dm"], r["p_bootstrap"]) for r in rows])
+        for r, ph in zip(rows, PW.holm(p)):
+            r["p_holm"] = float(ph)
+            ci_ok = r["ci95_pct"][1] < 0 if r["diff_pct"] < 0 else r["ci95_pct"][0] > 0
+            r["verdict"] = ("WIN" if r["diff_pct"] < 0 else "LOSS") if (ph < 0.01 and ci_ok) else "TIE"
+            print(f"TEST {oursname} vs {r['opponent']:<34} {r['variable']:<19} {r['ours']:.3f} vs {r['theirs']:.3f} "
+                  f"{r['diff_pct']:+.2f}% p_holm {r['p_holm']:.2g} {r['verdict']}", flush=True)
+        os.makedirs(a.out, exist_ok=True)
+        json.dump(dict(model=oursname, tests=rows, stations=len(D.HS), starts=len(starts),
+                       first=str(START + np.timedelta64(int(starts[0]), "h")),
+                       last=str(START + np.timedelta64(int(starts[-1]), "h")), latency_h=LATENCY,
+                       hybrid_input_latency_h=(a.fresh_latency if oursname == "Atlas-100M-H2" else None),
+                       mae={k: (v["sae"].sum((0, 1)) / np.maximum(v["cnt"].sum((0, 1)), 1)).tolist() for k, v in out.items()}),
+                  open(os.path.join(a.out, fname), "w"), indent=1, default=float)
+
+    family("Atlas-100M hybrid", {"Atlas-100M-H2"}, "atlas100m_hybrid_results.json")    # the registered family (section H)
+    if D2 is not None:
+        family("Atlas-100M-H2", set(), "atlas100m_h2_results.json")                   # addendum H2: its own family
 
 
 if __name__ == "__main__":
@@ -373,6 +407,11 @@ if __name__ == "__main__":
     ap.add_argument("--patience", type=int, default=5)
     ap.add_argument("--bs", type=int, default=256)
     ap.add_argument("--lr", type=float, default=5e-5)
+    ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--name", default="hybrid", help="checkpoint tag: hybrid (registered) or hybrid2 (addendum H2)")
+    ap.add_argument("--fresh-latency", dest="fresh_latency", type=int, default=0,
+                    help="0 = registered inputs (day2 only); >0 = H2: freshest run published this many hours before the start")
+    ap.add_argument("--hybrid2", default="", help="score: the H2 checkpoint (scored in its own Holm family)")
     a = ap.parse_args()
     os.environ["PW_RAW"] = a.raw
     R5.RAW = a.raw

@@ -220,8 +220,13 @@ def main(a):
         if os.path.exists(os.path.join(NWP, "NWP_W5K.npz")):
             job(st, "h_train", [PY, "-u", os.path.join(HERE, "hybrid.py"), "train", "--raw", LIVE, "--nwp", os.path.join(NWP, "NWP_W5K.npz"),
                                 "--view", view("weather"), "--out", OUT])
+            # Atlas-100M-H2 (PREREG addendum H2): the freshest run published 12 h before the start; scored with the
+            # registered hybrid in one pass, each in its own Holm family
+            job(st, "h2_train", [PY, "-u", os.path.join(HERE, "hybrid.py"), "train", "--raw", LIVE, "--nwp", os.path.join(NWP, "NWP_W5K.npz"),
+                                 "--view", view("weather"), "--out", OUT, "--name", "hybrid2", "--fresh-latency", "12"])
             job(st, "h_score", [PY, "-u", os.path.join(HERE, "hybrid.py"), "score", "--raw", LIVE, "--nwp", os.path.join(NWP, "NWP_W5K.npz"),
-                                "--hybrid", os.path.join(OUT, "hybrid_best.pt"), "--pure", view("weather"), "--out", OUT])
+                                "--hybrid", os.path.join(OUT, "hybrid_best.pt"), "--pure", view("weather"), "--out", OUT,
+                                "--hybrid2", os.path.join(OUT, "hybrid2_best.pt"), "--fresh-latency", "12"])
         else:
             print("HYBRID: the forecast archive is still being fetched (free daily limit). Run the hybrid stage again tomorrow.", flush=True)
     print("PIPELINE PASS FINISHED", flush=True)

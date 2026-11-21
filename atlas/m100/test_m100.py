@@ -5,6 +5,7 @@
 3  save/load: the shared core is stored once and reloads shared; an exported view loads with atlas.grow.load_any
 4  new domains start at persistence: an untrained AQ / traffic view's median equals each node's last observation
 5  hybrid widening: extra forcing channels with zero weights leave every forecast unchanged
+6  H2 (addendum): 4 systems x 7 channels also start unchanged; the day1 run is used only where published by the start
 """
 import os, sys, tempfile
 
@@ -65,6 +66,17 @@ def main():
         a = w(*x[:5], None, x[5])[0]
         b = big(x[0], x[1], torch.cat([x[2], ex_c], -1), torch.cat([x[3], ex_f], -1), x[4], None, x[5])[0]
     gap = float((a - b).abs().max()); print(f"5 hybrid widening: max change = {gap:.1e} (float32 summation order)"); assert gap < 1e-3
+    from m100.hybrid import fresh_mask
+    big2 = widen_forcing(w, 28).eval()
+    ex_c, ex_f = torch.randn(2, 16, 48, 28, generator=g), torch.randn(2, 16, 24, 28, generator=g)
+    with torch.no_grad():
+        b2 = big2(x[0], x[1], torch.cat([x[2], ex_c], -1), torch.cat([x[3], ex_f], -1), x[4], None, x[5])[0]
+    gap = float((a - b2).abs().max()); print(f"6 H2 widening (28 channels): max change = {gap:.1e}"); assert gap < 1e-3
+    u = fresh_mask(12, 48, 24)
+    assert u[:48].all() and u[48:60].all() and not u[60:].any(), u     # leads 1-12 day1, 13-24 day2 at a 12 h delay
+    u6 = fresh_mask(6, 48, 24)
+    assert u6[48:66].all() and not u6[66:].any()                       # = the opponents' rule (LATENCY 6): leads 1-18
+    print("6 H2 freshness: day1 for leads 1-12 at a 12 h delay (1-18 at 6 h), past hours always")
     print("ALL CHECKS PASSED")
 
 

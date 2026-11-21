@@ -177,6 +177,40 @@ weights may cost weather a little; traffic against tuned specialists and pressur
 - **Other data sources:** NOAA ISD (public), WEATHER-5K (its licence), CPCB via the public Kaggle copy, Caltrans
   PeMS / METR-LA / PEMS-BAY (as in paper 1).
 
+## Addendum H2: a hybrid that reads the freshest published forecast (written 2026-11-22, before any hybrid training or scoring)
+
+Asked to make Atlas the strongest weather model it can be, we add one hybrid variant before the archive is complete
+and before either hybrid is trained. The registered hybrid (section H) stays exactly as written and is reported with
+P14–P17; this variant is reported next to it, whatever either does.
+
+**Why.** The registered hybrid reads only each system's day-2 forecast (issued 48 h before the valid hour), while the
+systems themselves are scored on their day-1 run wherever it was out 6 h after issue (leads 1–18). That gives every
+opponent a fresher forecast than the hybrid reads. Station-level post-processing of the freshest forecast is the
+standard way to beat raw global forecasts at stations; reading a stale run throws much of that away.
+
+- **Atlas-100M-H2** = the registered hybrid with these inputs, per system and valid hour: the day-1 run where it was
+  published by the forecast start under a delay of **12 h** (leads 1–12; twice the 6 h assumed for the opponents, and
+  above the real delay of every system), otherwise the day-2 run, plus a flag saying which run was used (7 channels per
+  system instead of 6). No forecast is read before the delay allows; the opponents keep their 6 h rule, so where the
+  two differ the opponents read the fresher run.
+- Everything else as section H: same 178 stations, splits, learning rate, steps, patience, check H0 (widened model =
+  pure model at the start; CPU check with 28 channels: 5.7e-5), seed 0, scoring code and opponents
+  (`hybrid.py train --name hybrid2 --fresh-latency 12`; `score --hybrid2 …`).
+- **Own Holm family:** H2 against every forecast the score produces (pure Atlas-100M, the registered hybrid, and each
+  system raw, bias-corrected, and day-1-unpublished). The registered hybrid's family is unchanged (H2 left out of it).
+- **What may be claimed:** H2 is "more accurate than system X" only for a variable where it WINs against X raw and
+  bias-corrected, and only for 24-hour forecasts at these 178 stations in 2025. No result here supports calling any
+  model the best weather model in general: global gridded forecasting (e.g. WeatherBench 2) is a different task that
+  this study does not attempt.
+
+| # | Prediction | Probability |
+|---|---|---|
+| P18 | H2: WIN against raw IFS, AIFS, GFS and GraphCast (freshest published run) on temperature and dewpoint | 0.75 |
+| P19 | H2: WIN against bias-corrected IFS and bias-corrected AIFS on temperature | 0.50 |
+| P20 | H2: WIN against the registered hybrid on temperature | 0.60 |
+| P21 | H2: WIN against raw IFS on sea-level pressure | 0.15 |
+| P22 | H2: WIN against every system's day-1 run (not yet published, an advantaged reference) on temperature | 0.30 |
+
 ## Deviations
 
 1. **2026-11-20, air quality: two opponents failed on the first pass and are re-run.** Sundial and Time-MoE 200M

@@ -1,0 +1,62 @@
+{
+ "station": "42184",
+ "name": "New Delhi-Ridge",
+ "url": "https://city.imd.gov.in/citywx/citywxnew.php?id=42184",
+ "sha256": "58955b54adb7cd7d43053aad340bca04410fa88907918e1cdc363a8d1b9843ad",
+ "dated": "Nov 22, 2026",
+ "forecast": [
+  {
+   "date": "22-Nov",
+   "tmin": 13.0,
+   "tmax": 27.0,
+   "weather": "Mainly Clear sky"
+  },
+  {
+   "date": "23-Nov",
+   "tmin": 12.0,
+   "tmax": 24.0,
+   "weather": "Shallow Fog"
+  },
+  {
+   "date": "24-Nov",
+   "tmin": 12.0,
+   "tmax": 24.0,
+   "weather": "Shallow Fog"
+  },
+  {
+   "date": "25-Nov",
+   "tmin": 11.0,
+   "tmax": 24.0,
+   "weather": "Moderate Fog"
+  },
+  {
+   "date": "26-Nov",
+   "tmin": 11.0,
+   "tmax": 24.0,
+   "weather": "Moderate Fog"
+  },
+  {
+   "date": "27-Nov",
+   "tmin": 11.0,
+   "tmax": 24.0,
+   "weather": "Moderate Fog"
+  },
+  {
+   "date": "28-Nov",
+   "tmin": 11.0,
+   "tmax": 24.0,
+   "weather": "Moderate Fog"
+  }
+ ],
+ "observed": {
+  "max_temp": "26.5",
+  "max_recorded_on": "22/11/26",
+  "min_temp": "13.5",
+  "min_recorded_on": "22/11/26",
+  "rain_24h": "NIL",
+  "rh_0830": "94",
+  "rh_1730": "70"
+ },
+ "parsed_ok": true,
+ "text": "Weather Report\nLocal Weather Report and Forecast For:\nNew Delhi-Ridge\nDated :Nov 22, 2026\nPast 24 Hours Weather Data |\nMaximum Temp( o C) (Recorded. on 22/11/26)\n|\n26.5\n|\nDeparture from Normal( o C)\n|\n-0.2\n|\nMinimum Temp ( o C) (Recorded. on 22/11/26)\n|\n13.5\n|\nDeparture from Normal( o C)\n|\n0.0\n|\n24 Hours Rainfall (mm) (Recorded from 0830 hrs IST\nof yesterday to 0830 hrs IST of today)\n|\nNIL\n|\nR.H. at 0830 hrs (%)\n|\n94\n|\nR.H. at 1730 hrs (%) (Recorded. on 22/11/26)\n|\n70\n|\nTodays Sunset (IST)\n|\n17:25\n|\nTommorows Sunrise (IST)\n|\n06:49\n|\nMoonset (IST)\n|\n04:04\n|\nMoonrise (IST)\n|\n15:25\n|\n|\n7 Day's Forecast |\nDate |\nMin Temp |\nMax Temp |\nWeather |\n22-Nov |\n13.0 |\n27.0 |\n|\nMainly Clear sky |\n23-Nov |\n12.0 |\n24.0 |\n|\nShallow Fog |\n24-Nov |\n12.0 |\n24.0 |\n|\nShallow Fog |\n25-Nov |\n11.0 |\n24.0 |\n|\nModerate Fog |\n26-Nov |\n11.0 |\n24.0 |\n|\nModerate Fog |\n27-Nov |\n11.0 |\n24.0 |\n|\nModerate Fog |\n28-Nov |\n11.0 |\n24.0 |\n|\nModerate Fog |\n|\nClimatological & Extreme Weather Information"
+}

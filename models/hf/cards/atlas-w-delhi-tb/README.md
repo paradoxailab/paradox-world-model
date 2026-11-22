@@ -47,7 +47,7 @@ Checkpoints B, C are identical in this file.
 ```python
 import torch
 from huggingface_hub import hf_hub_download
-path = hf_hub_download("paradoxailab/atlas-w-delhi-tb", "54_atlas-w_delhi_real_forecasts.pt")
+path = hf_hub_download("PARADOXAIlabs/atlas-w-delhi-tb", "54_atlas-w_delhi_real_forecasts.pt")
 ck = torch.load(path, map_location="cpu", weights_only=False)
 print(ck["meta"])            # name, task, data, parameters, result, source run
 weights = ck["weights"]       # PyTorch state dict per checkpoint
@@ -67,7 +67,7 @@ Training data are not included; their sources and terms are in [DATA_SOURCES.md]
 
 ## Series
 
-Previous: [#53 Atlas W10r (10M + weather, regularised)](https://huggingface.co/paradoxailab/atlas-w10r) · Next: [#55 Atlas-5K v1](https://huggingface.co/paradoxailab/atlas-5k-v1) · [All models](https://huggingface.co/paradoxailab/paradox-world-model-series)
+Previous: [#53 Atlas W10r (10M + weather, regularised)](https://huggingface.co/PARADOXAIlabs/atlas-w10r) · Next: [#55 Atlas-5K v1](https://huggingface.co/PARADOXAIlabs/atlas-5k-v1) · [All models](https://huggingface.co/PARADOXAIlabs/paradox-world-model-series)
 
 ## Licence and citation
 

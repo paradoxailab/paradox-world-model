@@ -17,7 +17,7 @@ no losses to foundation models.
 
 98.6M parameters, one set of weights with a shared core and small per-domain adapters, trained only on real station
 data. Pre-registered before the first GPU run (`atlas/m100/PREREG.md`); full report with every win, tie and loss in
-[`atlas/m100/RESULTS.md`](atlas/m100/RESULTS.md). Weights: [huggingface.co/paradoxailab/atlas-100m](https://huggingface.co/paradoxailab/atlas-100m). The hybrid comparison with ECMWF / GFS is still pending.
+[`atlas/m100/RESULTS.md`](atlas/m100/RESULTS.md). Weights: [huggingface.co/PARADOXAIlabs/atlas-100m](https://huggingface.co/PARADOXAIlabs/atlas-100m). The hybrid comparison with ECMWF / GFS is still pending.
 
 - **Weather:** WIN in all 100 paired comparisons with ten zero-shot foundation models (TimesFM 2.5 / 3.0, Chronos-2,
   Chronos-Bolt, TiRex, Sundial, Time-MoE, TTM, persistence) on the 2023 test and the 2024–25 live period; e.g. against
@@ -185,7 +185,7 @@ the validation pass ran twice and the two passes differ in the fifth decimal (se
 
 All released weights are in [`models/series/`](models/series) (56 files, 508.6 MB, SHA-256 in `SHA256SUMS`, index in
 `SERIES.json`).
-The same 56 models are on **Hugging Face** at [huggingface.co/paradoxailab](https://huggingface.co/paradoxailab), one repository per model with its model card, oldest first in the index [paradoxailab/paradox-world-model-series](https://huggingface.co/paradoxailab/paradox-world-model-series); every uploaded file's SHA-256 was checked against `SHA256SUMS` after upload. Each file holds the weights, the configuration, the dataset name and every result for that model.
+The same 56 models are on **Hugging Face** in the **ParadoxAI Lab organization** [huggingface.co/PARADOXAIlabs](https://huggingface.co/PARADOXAIlabs) (moved from the personal account on 2026-11-22; old links redirect), one repository per model with its model card, oldest first in the index [PARADOXAIlabs/paradox-world-model-series](https://huggingface.co/PARADOXAIlabs/paradox-world-model-series); every uploaded file's SHA-256 was checked against `SHA256SUMS` after upload. Each file holds the weights, the configuration, the dataset name and every result for that model.
 The Atlas-5K line:
 
 | # | File | Params | Size | 2023 test E (h2h) | Status |

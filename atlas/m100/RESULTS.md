@@ -6,7 +6,7 @@ This file reports every finished comparison of the pre-registered Atlas-100M stu
 first GPU run) as it came out: wins, ties and losses. **The hybrid comparison with ECMWF / GFS is still waiting for its
 forecast archive and is marked pending; nothing below is a projection.** Raw outputs are in `results/` (copied unchanged from the run's Drive store);
 deviations from the plan are listed in `PREREG.md` (1–6, each dated, with the reason). Weights:
-[huggingface.co/paradoxailab/atlas-100m](https://huggingface.co/paradoxailab/atlas-100m) (SHA-256 in `results/SHA256SUMS`,
+[huggingface.co/PARADOXAIlabs/atlas-100m](https://huggingface.co/PARADOXAIlabs/atlas-100m) (SHA-256 in `results/SHA256SUMS`,
 verified against Hugging Face after upload).
 
 **Verdict rule (section 6 of PREREG):** WIN = lower error, Holm-adjusted p < 0.01 and a 95% interval of the difference

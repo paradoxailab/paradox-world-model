@@ -44,7 +44,7 @@ v2c grown to 9.64M parameters (width 196->392, 4->8 heads, 2->7 encoder and 2->7
 ```python
 import torch
 from huggingface_hub import hf_hub_download
-path = hf_hub_download("paradoxailab/atlas-5k-10m", "58_atlas-5k-10m_weather5k_adopted.pt")
+path = hf_hub_download("PARADOXAIlabs/atlas-5k-10m", "58_atlas-5k-10m_weather5k_adopted.pt")
 ck = torch.load(path, map_location="cpu", weights_only=False)
 print(ck["meta"])            # name, task, data, parameters, result, source run
 weights = ck["weights"]       # PyTorch state dict
@@ -75,7 +75,7 @@ Training data are not included; their sources and terms are in [DATA_SOURCES.md]
 
 ## Series
 
-Previous: [#57 Atlas-5K v2c (adopted)](https://huggingface.co/paradoxailab/atlas-5k-v2c) · Next: [#59 Atlas-5K 25M (adopted)](https://huggingface.co/paradoxailab/atlas-5k-25m) · [All models](https://huggingface.co/paradoxailab/paradox-world-model-series)
+Previous: [#57 Atlas-5K v2c (adopted)](https://huggingface.co/PARADOXAIlabs/atlas-5k-v2c) · Next: [#59 Atlas-5K 25M (adopted)](https://huggingface.co/PARADOXAIlabs/atlas-5k-25m) · [All models](https://huggingface.co/PARADOXAIlabs/paradox-world-model-series)
 
 ## Licence and citation
 

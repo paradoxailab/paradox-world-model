@@ -51,7 +51,7 @@ cross-network model; the data threshold measured
 ```python
 import torch
 from huggingface_hub import hf_hub_download
-path = hf_hub_download("paradoxailab/pwm-x-cpcb", "29_pwm-x_v0.9_cpcb.pt")
+path = hf_hub_download("PARADOXAIlabs/pwm-x-cpcb", "29_pwm-x_v0.9_cpcb.pt")
 ck = torch.load(path, map_location="cpu", weights_only=False)
 print(ck["meta"])            # name, task, data, parameters, result, source run
 weights = ck["weights"]       # PyTorch state dict
@@ -71,7 +71,7 @@ Training data are not included; their sources and terms are in [DATA_SOURCES.md]
 
 ## Series
 
-Previous: [#28 PWM-W Weather v0.8](https://huggingface.co/paradoxailab/pwm-w-weather-v0.8-cpcb) · Next: [#30 PWM-W v0.9 live](https://huggingface.co/paradoxailab/pwm-w-live-v0.9) · [All models](https://huggingface.co/paradoxailab/paradox-world-model-series)
+Previous: [#28 PWM-W Weather v0.8](https://huggingface.co/PARADOXAIlabs/pwm-w-weather-v0.8-cpcb) · Next: [#30 PWM-W v0.9 live](https://huggingface.co/PARADOXAIlabs/pwm-w-live-v0.9) · [All models](https://huggingface.co/PARADOXAIlabs/paradox-world-model-series)
 
 ## Licence and citation
 

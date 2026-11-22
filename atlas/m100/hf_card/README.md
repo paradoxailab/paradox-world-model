@@ -24,7 +24,7 @@ and NOAA GFS; GraphCast and the Indian-station comparison follow when their fore
 |---|---|
 | Parameters | **98,599,994** in one set of weights: shared core 94,755,808 + adapters (weather 779,932 · air quality 2,983,932 · traffic 80,322) |
 | Architecture | per-station encoder (8 residual blocks) → attention between stations with a learned geometry bias → latent dynamics stepped forward in time (7 blocks per step) → quantile decoder (10 / 50 / 90 %) that predicts the change from the last observation; width 784, 16 heads |
-| Built from | Atlas-5K 24.1M (paradoxailab/atlas-5k-25m), grown exactly (check G0: same forecasts before training) |
+| Built from | Atlas-5K 24.1M (PARADOXAIlabs/atlas-5k-25m), grown exactly (check G0: same forecasts before training) |
 | Training | 100,000 steps, real station data only: WEATHER-5K (5,672 stations), CPCB all-India PM2.5 (263 stations), six US road networks; one A100, 317.6 min, seed 700 |
 | Pre-registration | [`atlas/m100/PREREG.md`](https://github.com/paradoxailab/paradox-world-model/blob/main/atlas/m100/PREREG.md), committed before the first GPU run |
 | Full report | [`atlas/m100/RESULTS.md`](https://github.com/paradoxailab/paradox-world-model/blob/main/atlas/m100/RESULTS.md): every win, tie and loss |

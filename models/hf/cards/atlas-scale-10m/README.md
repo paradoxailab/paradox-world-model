@@ -45,7 +45,7 @@ parameter ladder: more parameters did not help
 ```python
 import torch
 from huggingface_hub import hf_hub_download
-path = hf_hub_download("paradoxailab/atlas-scale-10m", "50_atlas_scale_10m.pt")
+path = hf_hub_download("PARADOXAIlabs/atlas-scale-10m", "50_atlas_scale_10m.pt")
 ck = torch.load(path, map_location="cpu", weights_only=False)
 print(ck["meta"])            # name, task, data, parameters, result, source run
 weights = ck["weights"]       # PyTorch state dict
@@ -65,7 +65,7 @@ Training data are not included; their sources and terms are in [DATA_SOURCES.md]
 
 ## Series
 
-Previous: [#49 Atlas S2 (3M parameters)](https://huggingface.co/paradoxailab/atlas-scale-3m) · Next: [#51 Atlas W1 (1M + weather)](https://huggingface.co/paradoxailab/atlas-w1) · [All models](https://huggingface.co/paradoxailab/paradox-world-model-series)
+Previous: [#49 Atlas S2 (3M parameters)](https://huggingface.co/PARADOXAIlabs/atlas-scale-3m) · Next: [#51 Atlas W1 (1M + weather)](https://huggingface.co/PARADOXAIlabs/atlas-w1) · [All models](https://huggingface.co/PARADOXAIlabs/paradox-world-model-series)
 
 ## Licence and citation
 

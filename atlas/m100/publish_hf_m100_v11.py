@@ -1,4 +1,4 @@
-"""Add the Atlas-100M follow-up weights to Hugging Face (paradoxailab/atlas-100m) and update the card.
+"""Add the Atlas-100M follow-up weights to Hugging Face (PARADOXAIlabs/atlas-100m) and update the card.
 Adds traffic/ (Atlas-100M-T, T1d, TXL2) and hybrid/ (registered hybrid, H2); the v1.0 files are not touched.
 Every new file's SHA-256 is computed locally and compared with what Hugging Face reports after upload.
 The token comes from a prior `hf auth login`; it is never printed or written.
@@ -10,7 +10,7 @@ import argparse, hashlib, os
 from huggingface_hub import HfApi, CommitOperationAdd, hf_hub_download
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-RID = "paradoxailab/atlas-100m"
+RID = "PARADOXAIlabs/atlas-100m"
 
 
 def sha(p):

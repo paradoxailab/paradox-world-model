@@ -45,7 +45,7 @@ one model for all of India (263 stations); beats TimesFM 2.5
 ```python
 import torch
 from huggingface_hub import hf_hub_download
-path = hf_hub_download("paradoxailab/atlas-india-v1.0", "40_atlas_india_v1.0.pt")
+path = hf_hub_download("PARADOXAIlabs/atlas-india-v1.0", "40_atlas_india_v1.0.pt")
 ck = torch.load(path, map_location="cpu", weights_only=False)
 print(ck["meta"])            # name, task, data, parameters, result, source run
 weights = ck["weights"]       # PyTorch state dict
@@ -65,7 +65,7 @@ Training data are not included; their sources and terms are in [DATA_SOURCES.md]
 
 ## Series
 
-Previous: [#39 Atlas-Delhi v1.2](https://huggingface.co/paradoxailab/atlas-delhi-v1.2) · Next: [#41 Atlas v1.3 (pre-training on 13 networks)](https://huggingface.co/paradoxailab/atlas-india-v1.3-pretrain) · [All models](https://huggingface.co/paradoxailab/paradox-world-model-series)
+Previous: [#39 Atlas-Delhi v1.2](https://huggingface.co/PARADOXAIlabs/atlas-delhi-v1.2) · Next: [#41 Atlas v1.3 (pre-training on 13 networks)](https://huggingface.co/PARADOXAIlabs/atlas-india-v1.3-pretrain) · [All models](https://huggingface.co/PARADOXAIlabs/paradox-world-model-series)
 
 ## Licence and citation
 

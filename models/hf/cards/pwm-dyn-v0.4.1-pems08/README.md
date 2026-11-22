@@ -44,7 +44,7 @@ training recipe chosen on PEMS08 validation (100 epochs); Track B PEMS08 14.38 -
 ```python
 import torch
 from huggingface_hub import hf_hub_download
-path = hf_hub_download("paradoxailab/pwm-dyn-v0.4.1-pems08", "05_pwm-dyn_v0.4.1_PEMS08.pt")
+path = hf_hub_download("PARADOXAIlabs/pwm-dyn-v0.4.1-pems08", "05_pwm-dyn_v0.4.1_PEMS08.pt")
 ck = torch.load(path, map_location="cpu", weights_only=False)
 print(ck["meta"])            # name, task, data, parameters, result, source run
 weights = ck["weights"]       # PyTorch state dict
@@ -65,7 +65,7 @@ Training data are not included; their sources and terms are in [DATA_SOURCES.md]
 
 ## Series
 
-Previous: [#04 PWM-Dyn v0.4](https://huggingface.co/paradoxailab/pwm-dyn-v0.4-imd_west_coast) · Next: [#06 PWM-Dyn v0.4.1](https://huggingface.co/paradoxailab/pwm-dyn-v0.4.1-pems04) · [All models](https://huggingface.co/paradoxailab/paradox-world-model-series)
+Previous: [#04 PWM-Dyn v0.4](https://huggingface.co/PARADOXAIlabs/pwm-dyn-v0.4-imd_west_coast) · Next: [#06 PWM-Dyn v0.4.1](https://huggingface.co/PARADOXAIlabs/pwm-dyn-v0.4.1-pems04) · [All models](https://huggingface.co/PARADOXAIlabs/paradox-world-model-series)
 
 ## Licence and citation
 

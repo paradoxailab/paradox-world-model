@@ -45,7 +45,7 @@ physics decoder test (negative)
 ```python
 import torch
 from huggingface_hub import hf_hub_download
-path = hf_hub_download("paradoxailab/atlas-p", "48_atlas-p_physics_decoder.pt")
+path = hf_hub_download("PARADOXAIlabs/atlas-p", "48_atlas-p_physics_decoder.pt")
 ck = torch.load(path, map_location="cpu", weights_only=False)
 print(ck["meta"])            # name, task, data, parameters, result, source run
 weights = ck["weights"]       # PyTorch state dict
@@ -65,7 +65,7 @@ Training data are not included; their sources and terms are in [DATA_SOURCES.md]
 
 ## Series
 
-Previous: [#47 Atlas v1.4n (neighbours only)](https://huggingface.co/paradoxailab/atlas-v1.4n) · Next: [#49 Atlas S2 (3M parameters)](https://huggingface.co/paradoxailab/atlas-scale-3m) · [All models](https://huggingface.co/paradoxailab/paradox-world-model-series)
+Previous: [#47 Atlas v1.4n (neighbours only)](https://huggingface.co/PARADOXAIlabs/atlas-v1.4n) · Next: [#49 Atlas S2 (3M parameters)](https://huggingface.co/PARADOXAIlabs/atlas-scale-3m) · [All models](https://huggingface.co/PARADOXAIlabs/paradox-world-model-series)
 
 ## Licence and citation
 

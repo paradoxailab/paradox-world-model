@@ -45,7 +45,7 @@ from air quality to weather; station-only world model vs global models
 ```python
 import torch
 from huggingface_hub import hf_hub_download
-path = hf_hub_download("paradoxailab/pwm-w-weather-v0.3-wmo", "22_pwm-w_weather_v0.3_wmo.pt")
+path = hf_hub_download("PARADOXAIlabs/pwm-w-weather-v0.3-wmo", "22_pwm-w_weather_v0.3_wmo.pt")
 ck = torch.load(path, map_location="cpu", weights_only=False)
 print(ck["meta"])            # name, task, data, parameters, result, source run
 weights = ck["weights"]       # PyTorch state dict
@@ -65,7 +65,7 @@ Training data are not included; their sources and terms are in [DATA_SOURCES.md]
 
 ## Series
 
-Previous: [#21 PWM-W Weather v0.3 (league run)](https://huggingface.co/paradoxailab/pwm-w-weather-v0.3-cpcb) · Next: [#23 PWM-W Weather v0.4](https://huggingface.co/paradoxailab/pwm-w-weather-v0.4-cpcb) · [All models](https://huggingface.co/paradoxailab/paradox-world-model-series)
+Previous: [#21 PWM-W Weather v0.3 (league run)](https://huggingface.co/PARADOXAIlabs/pwm-w-weather-v0.3-cpcb) · Next: [#23 PWM-W Weather v0.4](https://huggingface.co/PARADOXAIlabs/pwm-w-weather-v0.4-cpcb) · [All models](https://huggingface.co/PARADOXAIlabs/paradox-world-model-series)
 
 ## Licence and citation
 

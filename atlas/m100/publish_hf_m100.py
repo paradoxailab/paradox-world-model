@@ -1,4 +1,4 @@
-"""Upload Atlas-100M to Hugging Face (paradoxailab/atlas-100m): weights, model card, licence, SHA256SUMS.
+"""Upload Atlas-100M to Hugging Face (PARADOXAIlabs/atlas-100m): weights, model card, licence, SHA256SUMS.
 Every weights file's SHA-256 is computed locally first and compared with what Hugging Face reports after upload.
 The token comes from HF_TOKEN or a prior `hf auth login`; it is never printed or written.
 
@@ -25,7 +25,7 @@ def main(a):
     api = HfApi(token=os.environ.get("HF_TOKEN"))
     me = api.whoami()["name"]
     assert me == "paradoxailab", f"logged in as '{me}', expected 'paradoxailab'"
-    rid = "paradoxailab/atlas-100m"
+    rid = "PARADOXAIlabs/atlas-100m"
     sums = {f: sha(os.path.join(a.out, f)) for f in FILES}
     for f, s in sums.items():
         print(f"{f}: {os.path.getsize(os.path.join(a.out, f)):,} B  sha256 {s}", flush=True)

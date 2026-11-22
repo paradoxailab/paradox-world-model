@@ -45,7 +45,7 @@ self-correction and a two-architecture ensemble (adopted only if >2 sigma better
 ```python
 import torch
 from huggingface_hub import hf_hub_download
-path = hf_hub_download("paradoxailab/pwm-w-v1.0-wmo", "33_pwm-w_v1.0_wmo.pt")
+path = hf_hub_download("PARADOXAIlabs/pwm-w-v1.0-wmo", "33_pwm-w_v1.0_wmo.pt")
 ck = torch.load(path, map_location="cpu", weights_only=False)
 print(ck["meta"])            # name, task, data, parameters, result, source run
 weights = ck["weights"]       # PyTorch state dict
@@ -65,7 +65,7 @@ Training data are not included; their sources and terms are in [DATA_SOURCES.md]
 
 ## Series
 
-Previous: [#32 PWM-W v1.0](https://huggingface.co/paradoxailab/pwm-w-v1.0-metar) · Next: [#35 PWM-F encoder (India v2.0)](https://huggingface.co/paradoxailab/pwm-f-encoder-v2.0) · [All models](https://huggingface.co/paradoxailab/paradox-world-model-series)
+Previous: [#32 PWM-W v1.0](https://huggingface.co/PARADOXAIlabs/pwm-w-v1.0-metar) · Next: [#35 PWM-F encoder (India v2.0)](https://huggingface.co/PARADOXAIlabs/pwm-f-encoder-v2.0) · [All models](https://huggingface.co/PARADOXAIlabs/paradox-world-model-series)
 
 ## Licence and citation
 

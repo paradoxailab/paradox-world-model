@@ -45,7 +45,7 @@ architecture test (negative)
 ```python
 import torch
 from huggingface_hub import hf_hub_download
-path = hf_hub_download("paradoxailab/atlas-v1.4n", "47_atlas_v1.4n.pt")
+path = hf_hub_download("PARADOXAIlabs/atlas-v1.4n", "47_atlas_v1.4n.pt")
 ck = torch.load(path, map_location="cpu", weights_only=False)
 print(ck["meta"])            # name, task, data, parameters, result, source run
 weights = ck["weights"]       # PyTorch state dict
@@ -65,7 +65,7 @@ Training data are not included; their sources and terms are in [DATA_SOURCES.md]
 
 ## Series
 
-Previous: [#46 Atlas-Delhi I1 (operational comparison)](https://huggingface.co/paradoxailab/atlas-delhi-i1) · Next: [#48 Atlas-P (physics decoder)](https://huggingface.co/paradoxailab/atlas-p) · [All models](https://huggingface.co/paradoxailab/paradox-world-model-series)
+Previous: [#46 Atlas-Delhi I1 (operational comparison)](https://huggingface.co/PARADOXAIlabs/atlas-delhi-i1) · Next: [#48 Atlas-P (physics decoder)](https://huggingface.co/PARADOXAIlabs/atlas-p) · [All models](https://huggingface.co/PARADOXAIlabs/paradox-world-model-series)
 
 ## Licence and citation
 

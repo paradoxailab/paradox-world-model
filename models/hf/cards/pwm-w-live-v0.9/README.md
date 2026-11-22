@@ -45,7 +45,7 @@ first real-time Indian forecasts
 ```python
 import torch
 from huggingface_hub import hf_hub_download
-path = hf_hub_download("paradoxailab/pwm-w-live-v0.9", "30_pwm-w_live_v0.9.pt")
+path = hf_hub_download("PARADOXAIlabs/pwm-w-live-v0.9", "30_pwm-w_live_v0.9.pt")
 ck = torch.load(path, map_location="cpu", weights_only=False)
 print(ck["meta"])            # name, task, data, parameters, result, source run
 weights = ck["weights"]       # PyTorch state dict
@@ -65,7 +65,7 @@ Training data are not included; their sources and terms are in [DATA_SOURCES.md]
 
 ## Series
 
-Previous: [#29 PWM-X (v0.9)](https://huggingface.co/paradoxailab/pwm-x-cpcb) · Next: [#32 PWM-W v1.0](https://huggingface.co/paradoxailab/pwm-w-v1.0-metar) · [All models](https://huggingface.co/paradoxailab/paradox-world-model-series)
+Previous: [#29 PWM-X (v0.9)](https://huggingface.co/PARADOXAIlabs/pwm-x-cpcb) · Next: [#32 PWM-W v1.0](https://huggingface.co/PARADOXAIlabs/pwm-w-v1.0-metar) · [All models](https://huggingface.co/PARADOXAIlabs/paradox-world-model-series)
 
 ## Licence and citation
 

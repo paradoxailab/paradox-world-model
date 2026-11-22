@@ -46,7 +46,7 @@ validation 8.773 (+1.02% vs W1): not adopted
 ```python
 import torch
 from huggingface_hub import hf_hub_download
-path = hf_hub_download("paradoxailab/atlas-w10", "52_atlas_w10_weather_10m.pt")
+path = hf_hub_download("PARADOXAIlabs/atlas-w10", "52_atlas_w10_weather_10m.pt")
 ck = torch.load(path, map_location="cpu", weights_only=False)
 print(ck["meta"])            # name, task, data, parameters, result, source run
 weights = ck["weights"]       # PyTorch state dict
@@ -66,7 +66,7 @@ Training data are not included; their sources and terms are in [DATA_SOURCES.md]
 
 ## Series
 
-Previous: [#51 Atlas W1 (1M + weather)](https://huggingface.co/paradoxailab/atlas-w1) · Next: [#53 Atlas W10r (10M + weather, regularised)](https://huggingface.co/paradoxailab/atlas-w10r) · [All models](https://huggingface.co/paradoxailab/paradox-world-model-series)
+Previous: [#51 Atlas W1 (1M + weather)](https://huggingface.co/PARADOXAIlabs/atlas-w1) · Next: [#53 Atlas W10r (10M + weather, regularised)](https://huggingface.co/PARADOXAIlabs/atlas-w10r) · [All models](https://huggingface.co/PARADOXAIlabs/paradox-world-model-series)
 
 ## Licence and citation
 

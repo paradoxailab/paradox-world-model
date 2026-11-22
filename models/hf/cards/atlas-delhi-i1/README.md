@@ -47,7 +47,7 @@ Checkpoints B, C are different training stages; the record says which stage each
 ```python
 import torch
 from huggingface_hub import hf_hub_download
-path = hf_hub_download("paradoxailab/atlas-delhi-i1", "46_atlas_delhi_i1.pt")
+path = hf_hub_download("PARADOXAIlabs/atlas-delhi-i1", "46_atlas_delhi_i1.pt")
 ck = torch.load(path, map_location="cpu", weights_only=False)
 print(ck["meta"])            # name, task, data, parameters, result, source run
 weights = ck["weights"]       # PyTorch state dict per checkpoint
@@ -67,7 +67,7 @@ Training data are not included; their sources and terms are in [DATA_SOURCES.md]
 
 ## Series
 
-Previous: [#45 Atlas-W v1 (Delhi)](https://huggingface.co/paradoxailab/atlas-w-v1-delhi) · Next: [#47 Atlas v1.4n (neighbours only)](https://huggingface.co/paradoxailab/atlas-v1.4n) · [All models](https://huggingface.co/paradoxailab/paradox-world-model-series)
+Previous: [#45 Atlas-W v1 (Delhi)](https://huggingface.co/PARADOXAIlabs/atlas-w-v1-delhi) · Next: [#47 Atlas v1.4n (neighbours only)](https://huggingface.co/PARADOXAIlabs/atlas-v1.4n) · [All models](https://huggingface.co/PARADOXAIlabs/paradox-world-model-series)
 
 ## Licence and citation
 

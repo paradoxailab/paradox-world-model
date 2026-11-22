@@ -45,7 +45,7 @@ Atlas-W trained the v1.3 way
 ```python
 import torch
 from huggingface_hub import hf_hub_download
-path = hf_hub_download("paradoxailab/atlas-w-v1-pretrain", "44_atlas-w_v1_pretrain.pt")
+path = hf_hub_download("PARADOXAIlabs/atlas-w-v1-pretrain", "44_atlas-w_v1_pretrain.pt")
 ck = torch.load(path, map_location="cpu", weights_only=False)
 print(ck["meta"])            # name, task, data, parameters, result, source run
 weights = ck["weights"]       # PyTorch state dict
@@ -65,7 +65,7 @@ Training data are not included; their sources and terms are in [DATA_SOURCES.md]
 
 ## Series
 
-Previous: [#43 Atlas-W v0 (air core)](https://huggingface.co/paradoxailab/atlas-w-v0) · Next: [#45 Atlas-W v1 (Delhi)](https://huggingface.co/paradoxailab/atlas-w-v1-delhi) · [All models](https://huggingface.co/paradoxailab/paradox-world-model-series)
+Previous: [#43 Atlas-W v0 (air core)](https://huggingface.co/PARADOXAIlabs/atlas-w-v0) · Next: [#45 Atlas-W v1 (Delhi)](https://huggingface.co/PARADOXAIlabs/atlas-w-v1-delhi) · [All models](https://huggingface.co/PARADOXAIlabs/paradox-world-model-series)
 
 ## Licence and citation
 

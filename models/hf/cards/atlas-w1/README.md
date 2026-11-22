@@ -46,7 +46,7 @@ weather forcing
 ```python
 import torch
 from huggingface_hub import hf_hub_download
-path = hf_hub_download("paradoxailab/atlas-w1", "51_atlas_w1_weather.pt")
+path = hf_hub_download("PARADOXAIlabs/atlas-w1", "51_atlas_w1_weather.pt")
 ck = torch.load(path, map_location="cpu", weights_only=False)
 print(ck["meta"])            # name, task, data, parameters, result, source run
 weights = ck["weights"]       # PyTorch state dict
@@ -66,7 +66,7 @@ Training data are not included; their sources and terms are in [DATA_SOURCES.md]
 
 ## Series
 
-Previous: [#50 Atlas S3 (10M parameters)](https://huggingface.co/paradoxailab/atlas-scale-10m) · Next: [#52 Atlas W10 (10M + weather)](https://huggingface.co/paradoxailab/atlas-w10) · [All models](https://huggingface.co/paradoxailab/paradox-world-model-series)
+Previous: [#50 Atlas S3 (10M parameters)](https://huggingface.co/PARADOXAIlabs/atlas-scale-10m) · Next: [#52 Atlas W10 (10M + weather)](https://huggingface.co/PARADOXAIlabs/atlas-w10) · [All models](https://huggingface.co/PARADOXAIlabs/paradox-world-model-series)
 
 ## Licence and citation
 

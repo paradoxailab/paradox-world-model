@@ -44,7 +44,7 @@ validation E 0.28869 vs 0.29292 (-1.44%); not yet tested
 ```python
 import torch
 from huggingface_hub import hf_hub_download
-path = hf_hub_download("paradoxailab/atlas-5k-v2a", "56_atlas-5k_v2a_weather5k.pt")
+path = hf_hub_download("PARADOXAIlabs/atlas-5k-v2a", "56_atlas-5k_v2a_weather5k.pt")
 ck = torch.load(path, map_location="cpu", weights_only=False)
 print(ck["meta"])            # name, task, data, parameters, result, source run
 weights = ck["weights"]       # PyTorch state dict
@@ -75,7 +75,7 @@ Training data are not included; their sources and terms are in [DATA_SOURCES.md]
 
 ## Series
 
-Previous: [#55 Atlas-5K v1](https://huggingface.co/paradoxailab/atlas-5k-v1) · Next: [#57 Atlas-5K v2c (adopted)](https://huggingface.co/paradoxailab/atlas-5k-v2c) · [All models](https://huggingface.co/paradoxailab/paradox-world-model-series)
+Previous: [#55 Atlas-5K v1](https://huggingface.co/PARADOXAIlabs/atlas-5k-v1) · Next: [#57 Atlas-5K v2c (adopted)](https://huggingface.co/PARADOXAIlabs/atlas-5k-v2c) · [All models](https://huggingface.co/PARADOXAIlabs/paradox-world-model-series)
 
 ## Licence and citation
 

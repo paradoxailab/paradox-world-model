@@ -44,7 +44,7 @@ ParadoxBench-1 tracks and split-conformal calibration; rainfall 80% coverage 54.
 ```python
 import torch
 from huggingface_hub import hf_hub_download
-path = hf_hub_download("paradoxailab/pwm-dyn-v0.4-pems08", "01_pwm-dyn_v0.4_PEMS08.pt")
+path = hf_hub_download("PARADOXAIlabs/pwm-dyn-v0.4-pems08", "01_pwm-dyn_v0.4_PEMS08.pt")
 ck = torch.load(path, map_location="cpu", weights_only=False)
 print(ck["meta"])            # name, task, data, parameters, result, source run
 weights = ck["weights"]       # PyTorch state dict
@@ -65,7 +65,7 @@ Training data are not included; their sources and terms are in [DATA_SOURCES.md]
 
 ## Series
 
-Next: [#02 PWM-Dyn v0.4](https://huggingface.co/paradoxailab/pwm-dyn-v0.4-pems04) · [All models](https://huggingface.co/paradoxailab/paradox-world-model-series)
+Next: [#02 PWM-Dyn v0.4](https://huggingface.co/PARADOXAIlabs/pwm-dyn-v0.4-pems04) · [All models](https://huggingface.co/PARADOXAIlabs/paradox-world-model-series)
 
 ## Licence and citation
 

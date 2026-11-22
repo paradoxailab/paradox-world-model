@@ -44,7 +44,7 @@ fallback base + outage training: real-outage error -11 to -22% vs v0.6 on five n
 ```python
 import torch
 from huggingface_hub import hf_hub_download
-path = hf_hub_download("paradoxailab/pwm-dyn-v0.7-pems07", "16_pwm-dyn_v0.7_PEMS07.pt")
+path = hf_hub_download("PARADOXAIlabs/pwm-dyn-v0.7-pems07", "16_pwm-dyn_v0.7_PEMS07.pt")
 ck = torch.load(path, map_location="cpu", weights_only=False)
 print(ck["meta"])            # name, task, data, parameters, result, source run
 weights = ck["weights"]       # PyTorch state dict
@@ -65,7 +65,7 @@ Training data are not included; their sources and terms are in [DATA_SOURCES.md]
 
 ## Series
 
-Previous: [#15 PWM-Dyn v0.7](https://huggingface.co/paradoxailab/pwm-dyn-v0.7-pems03) · Next: [#17 PWM-Dyn v0.7](https://huggingface.co/paradoxailab/pwm-dyn-v0.7-metr-la) · [All models](https://huggingface.co/paradoxailab/paradox-world-model-series)
+Previous: [#15 PWM-Dyn v0.7](https://huggingface.co/PARADOXAIlabs/pwm-dyn-v0.7-pems03) · Next: [#17 PWM-Dyn v0.7](https://huggingface.co/PARADOXAIlabs/pwm-dyn-v0.7-metr-la) · [All models](https://huggingface.co/PARADOXAIlabs/paradox-world-model-series)
 
 ## Licence and citation
 

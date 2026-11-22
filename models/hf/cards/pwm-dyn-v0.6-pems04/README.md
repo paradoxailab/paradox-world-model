@@ -44,7 +44,7 @@ climatology input removed (the v0.4 loss); beats v0.3 on PEMS08/04; best on PEMS
 ```python
 import torch
 from huggingface_hub import hf_hub_download
-path = hf_hub_download("paradoxailab/pwm-dyn-v0.6-pems04", "08_pwm-dyn_v0.6_PEMS04.pt")
+path = hf_hub_download("PARADOXAIlabs/pwm-dyn-v0.6-pems04", "08_pwm-dyn_v0.6_PEMS04.pt")
 ck = torch.load(path, map_location="cpu", weights_only=False)
 print(ck["meta"])            # name, task, data, parameters, result, source run
 weights = ck["weights"]       # PyTorch state dict
@@ -65,7 +65,7 @@ Training data are not included; their sources and terms are in [DATA_SOURCES.md]
 
 ## Series
 
-Previous: [#07 PWM-Dyn v0.6](https://huggingface.co/paradoxailab/pwm-dyn-v0.6-pems08) · Next: [#09 PWM-Dyn v0.6](https://huggingface.co/paradoxailab/pwm-dyn-v0.6-pems03) · [All models](https://huggingface.co/paradoxailab/paradox-world-model-series)
+Previous: [#07 PWM-Dyn v0.6](https://huggingface.co/PARADOXAIlabs/pwm-dyn-v0.6-pems08) · Next: [#09 PWM-Dyn v0.6](https://huggingface.co/PARADOXAIlabs/pwm-dyn-v0.6-pems03) · [All models](https://huggingface.co/PARADOXAIlabs/paradox-world-model-series)
 
 ## Licence and citation
 

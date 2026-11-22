@@ -45,7 +45,7 @@ information-efficient output-first design
 ```python
 import torch
 from huggingface_hub import hf_hub_download
-path = hf_hub_download("paradoxailab/atlas-w-v0", "43_atlas-w_v0_14k.pt")
+path = hf_hub_download("PARADOXAIlabs/atlas-w-v0", "43_atlas-w_v0_14k.pt")
 ck = torch.load(path, map_location="cpu", weights_only=False)
 print(ck["meta"])            # name, task, data, parameters, result, source run
 weights = ck["weights"]       # PyTorch state dict
@@ -65,7 +65,7 @@ Training data are not included; their sources and terms are in [DATA_SOURCES.md]
 
 ## Series
 
-Previous: [#42 Atlas-Delhi v1.3](https://huggingface.co/paradoxailab/atlas-delhi-v1.3) · Next: [#44 Atlas-W v1 (pre-training)](https://huggingface.co/paradoxailab/atlas-w-v1-pretrain) · [All models](https://huggingface.co/paradoxailab/paradox-world-model-series)
+Previous: [#42 Atlas-Delhi v1.3](https://huggingface.co/PARADOXAIlabs/atlas-delhi-v1.3) · Next: [#44 Atlas-W v1 (pre-training)](https://huggingface.co/PARADOXAIlabs/atlas-w-v1-pretrain) · [All models](https://huggingface.co/PARADOXAIlabs/paradox-world-model-series)
 
 ## Licence and citation
 

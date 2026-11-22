@@ -1,0 +1,36 @@
+# Atlas-Delhi live log (atlas/PREREG_DELHI.md, part B). Twice a day: IMD's official Delhi city forecasts, every global
+# forecast Open-Meteo serves for Delhi, and Delhi airport METARs, committed to the branch `delhi-live` the moment they
+# are fetched. The commit times are the proof of what each forecaster said before the weather happened.
+name: delhi-live-log
+on:
+  schedule:
+    - cron: "17 3 * * *"     # 08:47 IST, after IMD's 08:30 observations
+    - cron: "17 12 * * *"    # 17:47 IST, after IMD's 17:30 observations
+  workflow_dispatch: {}
+permissions:
+  contents: write
+concurrency:
+  group: delhi-live-log
+  cancel-in-progress: false
+jobs:
+  log:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: code
+      - name: Check out (or start) the log branch
+        run: |
+          git clone --depth 1 --branch delhi-live "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" logbr \
+            || (mkdir logbr && cd logbr && git init -q -b delhi-live && git remote add origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git")
+      - name: Fetch forecasts and observations
+        run: python3 code/atlas/delhi_live/log_live.py --out logbr/delhi_live
+      - name: Commit
+        run: |
+          cd logbr
+          git config user.name "ParadoxAI Lab live log"
+          git config user.email "contact.paradoxailab@gmail.com"
+          git add -A
+          git commit -q -m "Delhi live log $(date -u +%Y-%m-%dT%H:%MZ)" || exit 0
+          git push -q origin HEAD:delhi-live

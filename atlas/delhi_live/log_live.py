@@ -140,7 +140,7 @@ def openaq_delhi():
 def datagov_delhi():
     q = dict(format="json", limit=2000, **{"filters[state]": "Delhi"})
     url = DATAGOV_AQ + "?" + urllib.parse.urlencode(dict(q, **{"api-key": KEYS["DATAGOV_API_KEY"]}))
-    j = json.loads(get(url))
+    j = json.loads(get(url, tries=1, timeout=40))                            # timed out from GitHub's runners (22 Nov)
     j.pop("api_key", None)
     return j
 

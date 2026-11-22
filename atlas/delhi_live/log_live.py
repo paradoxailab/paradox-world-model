@@ -126,7 +126,12 @@ def openaq_delhi():
     def j(url):
         with urllib.request.urlopen(urllib.request.Request(url, headers=h), timeout=60) as r:
             return json.loads(r.read())
-    locs = j(f"{OPENAQ}/locations?coordinates=28.6139,77.2090&radius=25000&limit=1000")["results"]
+    locs, page = [], 1
+    while page <= 10:                                                         # pages of 100 (the first run got exactly 100)
+        r = j(f"{OPENAQ}/locations?coordinates=28.6139,77.2090&radius=25000&limit=100&page={page}")["results"]
+        locs += r; page += 1
+        if len(r) < 100:
+            break
     out = []
     for L in locs:
         try:

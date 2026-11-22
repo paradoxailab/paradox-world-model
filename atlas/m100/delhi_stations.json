@@ -1,0 +1,24 @@
+{
+ "rule": "The two Delhi WEATHER-5K / NOAA ISD stations: New Delhi Palam (IGI Airport, WMO 42181, ICAO VIDP) and New Delhi Safdarjung (WMO 42182, ICAO VIDD), the reference station for Delhi (PREREG_DELHI.md A2)",
+ "count": 2,
+ "index": [
+  2195,
+  2194
+ ],
+ "station": [
+  "42182099999",
+  "42181099999"
+ ],
+ "lat": [
+  28.5845,
+  28.5665
+ ],
+ "lon": [
+  77.2058,
+  77.1031
+ ],
+ "name": [
+  "New Delhi Safdarjung",
+  "New Delhi Palam"
+ ]
+}

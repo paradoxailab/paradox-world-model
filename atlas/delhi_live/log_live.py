@@ -1,0 +1,113 @@
+"""Atlas-Delhi live log (PREREG_DELHI.md, part B): every run saves, with the time it was fetched,
+  1. IMD's official city forecasts for Delhi stations (7 days of max / min temperature and weather, e.g. fog), and the
+     past-24-hour observations IMD prints on the same page (city.imd.gov.in, public pages, no account);
+  2. the latest forecast of every global system Open-Meteo serves, at the same stations (hourly, 3 days);
+  3. METAR reports from the Delhi airports for the past 2 days (Iowa Environmental Mesonet ASOS archive).
+Each file is committed by GitHub Actions the moment it is fetched, so the git history proves what every forecaster had
+said before the weather happened. That is the only fair way to score IMD, which keeps no public forecast archive.
+
+  python atlas/delhi_live/log_live.py --out delhi_live
+Standard library only. Never stores keys; IMD pages are kept as parsed numbers, the page text and its SHA-256.
+"""
+import argparse, datetime as dt, hashlib, html, json, os, re, sys, time, urllib.parse, urllib.request
+
+UA = {"User-Agent": "ParadoxAI-Lab-research-log (contact.paradoxailab@gmail.com)"}
+IMD = {"42182": "New Delhi-Safdarjung", "42181": "New Delhi-Palam", "42184": "New Delhi-Ridge", "99923": "New Delhi-Lodi Road"}
+IMD_URL = "https://city.imd.gov.in/citywx/citywxnew.php?id={}"
+POINTS = {"Safdarjung": (28.5845, 77.2058), "Palam": (28.5665, 77.1031)}        # = WEATHER-5K / ISD station positions
+OM_URL = "https://api.open-meteo.com/v1/forecast"
+OM_MODELS = ["best_match", "ecmwf_ifs025", "ecmwf_ifs", "ecmwf_aifs025_single", "gfs_global", "gfs_graphcast025", "ncep_aigfs025",
+             "icon_global", "ukmo_global_deterministic_10km", "meteofrance_arpege_world", "jma_gsm", "cma_grapes_global", "gem_global"]
+OM_HOURLY = ["temperature_2m", "dew_point_2m", "relative_humidity_2m", "wind_speed_10m", "wind_direction_10m", "pressure_msl",
+             "precipitation", "visibility", "cloud_cover"]
+OM_DAILY = ["temperature_2m_max", "temperature_2m_min", "precipitation_sum"]
+METAR = ["VIDP", "VIDD", "VIDX"]                                                   # Palam, Safdarjung, Hindon
+IEM = "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py"
+
+
+def get(url, tries=4, timeout=60):
+    for k in range(tries):
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=timeout) as r:
+                return r.read()
+        except Exception as e:
+            err = str(e)[:200]
+            time.sleep(5 * (k + 1))
+    raise RuntimeError(err)
+
+
+def text(b):
+    s = b.decode("utf-8", "replace")
+    s = re.sub(r"(?is)<(script|style).*?</\1>", " ", s)
+    s = re.sub(r"(?i)<br\s*/?>|</(tr|p|div|h\d)>", "\n", s)
+    s = re.sub(r"(?i)</t[dh]>", " | ", s)
+    s = html.unescape(re.sub(r"<[^>]+>", " ", s))
+    return "\n".join(re.sub(r"[ \t\xa0]+", " ", l).strip() for l in s.splitlines() if l.strip())
+
+
+def imd(sid):
+    b = get(IMD_URL.format(sid))
+    t = text(b)
+    num = lambda x: None if x is None or x.strip().upper() in ("NA", "") else float(x)
+    rows = []
+    for m in re.finditer(r"(\d{1,2}-[A-Z][a-z]{2})\s*\|\s*([\d.]+|NA)\s*\|\s*([\d.]+|NA)([^\n]*)", t):
+        cells = [c.strip() for c in m.group(4).split("|") if c.strip()]          # an icon cell may come first
+        rows.append(dict(date=m.group(1), tmin=num(m.group(2)), tmax=num(m.group(3)), weather=cells[-1] if cells else ""))
+    def obs(label):
+        m = re.search(label + r"[^|\n]*\|\s*([\d.]+|NA|NIL)", t, re.I)
+        return None if not m else m.group(1)
+    dated = re.search(r"Dated\s*:?\s*([A-Z][a-z]{2} \d{1,2}, \d{4})", t)
+    return dict(station=sid, name=IMD[sid], url=IMD_URL.format(sid), sha256=hashlib.sha256(b).hexdigest(),
+                dated=dated.group(1) if dated else None, forecast=rows[:7],
+                observed=dict(max_temp=obs("Maximum Temp"), min_temp=obs("Minimum Temp"), rain_24h=obs("24 Hours Rainfall"),
+                              rh_0830=obs("Relative Humidity at 0830"), rh_1730=obs("Relative Humidity at 1730")),
+                parsed_ok=len(rows) >= 5, text=t[:6000])
+
+
+def openmeteo(model, la, lo):
+    q = dict(latitude=la, longitude=lo, hourly=",".join(OM_HOURLY), daily=",".join(OM_DAILY), models=model,
+             forecast_days=3, past_days=1, timezone="Asia/Kolkata", wind_speed_unit="ms")
+    j = json.loads(get(OM_URL + "?" + urllib.parse.urlencode(q)))
+    return j
+
+
+def metar(station, now):
+    a = now - dt.timedelta(days=2)
+    q = dict(station=station, data="all", year1=a.year, month1=a.month, day1=a.day, year2=now.year, month2=now.month,
+             day2=now.day, tz="Etc/UTC", format="onlycomma", latlon="no", missing="M", trace="T", direct="no", report_type="3,4")
+    return get(IEM + "?" + urllib.parse.urlencode(q), timeout=120).decode("utf-8", "replace")
+
+
+def main(a):
+    now = dt.datetime.now(dt.timezone.utc).replace(microsecond=0)
+    d = os.path.join(a.out, now.strftime("%Y/%m/%d"), now.strftime("%H%M"))
+    os.makedirs(d, exist_ok=True)
+    log = dict(fetched_utc=now.isoformat(), ok={}, errors={})
+    for sid in IMD:
+        try:
+            r = imd(sid); json.dump(r, open(os.path.join(d, f"imd_{sid}.json"), "w"), indent=1)
+            log["ok"][f"imd_{sid}"] = r["parsed_ok"]
+        except Exception as e:
+            log["errors"][f"imd_{sid}"] = str(e)[:300]
+    for name, (la, lo) in POINTS.items():
+        for m in OM_MODELS:
+            try:
+                j = openmeteo(m, la, lo)
+                json.dump(j, open(os.path.join(d, f"om_{name}_{m}.json"), "w"))
+                log["ok"][f"om_{name}_{m}"] = True
+            except Exception as e:
+                log["errors"][f"om_{name}_{m}"] = str(e)[:300]
+    for s in METAR:
+        try:
+            open(os.path.join(d, f"metar_{s}.csv"), "w").write(metar(s, now)); log["ok"][f"metar_{s}"] = True
+        except Exception as e:
+            log["errors"][f"metar_{s}"] = str(e)[:300]
+    json.dump(log, open(os.path.join(d, "log.json"), "w"), indent=1)
+    print(json.dumps(dict(dir=d, ok=sum(bool(v) for v in log["ok"].values()), errors=len(log["errors"]),
+                          error_keys=list(log["errors"])[:20])), flush=True)
+    return 0
+
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser(); ap.add_argument("--out", default="delhi_live")
+    sys.exit(main(ap.parse_args()))

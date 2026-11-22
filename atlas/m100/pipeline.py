@@ -5,7 +5,7 @@ the job in progress (training itself also resumes mid-run). Test windows are rea
 training has finished.
 
   python atlas/m100/pipeline.py --store /content/drive/MyDrive/PWM-100M --w10 /content/drive/MyDrive/PWM-10M --stage all
-Stages: data, train, opponents, weather, aq, traffic, hybrid (comma-separated), or all.
+Stages: data, train, opponents, weather, aq, traffic, hybrid, delhi (comma-separated), or all.
 Two GPUs at once: run "data,train,weather,aq,traffic,hybrid" on one account and "data,opponents" on another;
 both use the same Drive store (different jobs, different files).
 """
@@ -280,6 +280,51 @@ def main(a):
                 print("HYBRID: GraphCast archive still being fetched (daily limit). Run again tomorrow.", flush=True)
         else:
             print("HYBRID: the forecast archive is still being fetched (free daily limit). Run the hybrid stage again tomorrow.", flush=True)
+    if on("delhi") and trained():                                 # atlas/PREREG_DELHI.md, part A
+        NWP = os.path.join(st.p, "nwp")
+        L26 = os.path.join(st.p, "live26")                        # NOAA ISD-Lite, 1 Jan 2024 .. 1 Nov 2026 (A2)
+        LIVE26 = "/content/live26"
+        if not os.path.exists(os.path.join(L26, "W5K_META.npz")):
+            if job(st, "d_live26", [PY, "-u", "tools/fetch_isd_live.py", "--meta", os.path.join(RAW, "W5K_META.npz"), "--out", LIVE26,
+                                    "--years", "2024,2025,2026", "--end", "2026-11-01T00"], cwd=DELHI) \
+                    and os.path.exists(os.path.join(LIVE26, "W5K_META.npz")):
+                os.makedirs(L26, exist_ok=True)
+                for f in ("W5K_X.npy", "W5K_OBS.npy", "W5K_META.npz"):
+                    shutil.copy(os.path.join(LIVE26, f), L26)
+        if os.path.exists(os.path.join(L26, "W5K_META.npz")) and not os.path.exists(os.path.join(LIVE26, "W5K_META.npz")):
+            os.makedirs(LIVE26, exist_ok=True)
+            for f in ("W5K_X.npy", "W5K_OBS.npy", "W5K_META.npz"):
+                shutil.copy(os.path.join(L26, f), LIVE26)
+        HY = [PY, "-u", os.path.join(HERE, "hybrid.py")]
+        DS = os.path.join(HERE, "delhi_stations.json"); NS = os.path.join(HERE, "north_india_stations.json")
+        common = ["--raw", LIVE26, "--test-end", "2026-11-01T00", "--cluster", "days"]
+        h2 = ["--hybrid", os.path.join(OUT, "hybrid_best.pt"), "--pure", view("weather"), "--out", OUT,
+              "--hybrid2", os.path.join(OUT, "hybrid2_best.pt"), "--fresh-latency", "12",
+              "--model-systems", "IFS,AIFS,GFS,GraphCast", "--input-systems", "IFS,AIFS,GFS"]
+        ND = os.path.join(NWP, "NWP_DELHI.npz"); NN = os.path.join(NWP, "NWP_NORTH.npz")
+        if os.path.exists(os.path.join(LIVE26, "W5K_META.npz")):
+            if not os.path.exists(ND):                            # A4: every archived system at the two Delhi stations
+                sh(HY + ["fetch", "--raw", LIVE26, "--out", NWP, "--stations-file", DS, "--systems", "all",
+                         "--nwp-name", "NWP_DELHI.npz", "--reuse-ids", os.path.join(NWP, "NWP_W5K.npz")],
+                   os.path.join(st.p, "logs", "d_fetch_delhi.txt"))
+            if os.path.exists(ND):                                # D1: Atlas-100M-H2, unchanged, at Delhi
+                job(st, "d_score_h2", HY + ["score", "--nwp", ND, "--suffix", "_delhi_h2"] + common + h2)
+                if not os.path.exists(NN):                        # A3: the 16 stations within 700 km, same systems
+                    sh(HY + ["fetch", "--raw", LIVE26, "--out", NWP, "--stations-file", NS, "--systems", "all",
+                             "--nwp-name", "NWP_NORTH.npz", "--reuse-ids", ND], os.path.join(st.p, "logs", "d_fetch_north.txt"))
+            if os.path.exists(NN):
+                tr = HY + ["train", "--raw", LIVE26, "--nwp", NN, "--view", view("weather"), "--out", OUT, "--model-systems", "all",
+                           "--fresh-latency", "12", "--val-stations", DS]
+                job(st, "d_train1", tr + ["--name", "atlasdelhi1"])                      # A3 stage 1: 16 stations
+                job(st, "d_train2", tr + ["--name", "atlasdelhi2", "--init", os.path.join(OUT, "atlasdelhi1_best.pt"),
+                                          "--train-stations", DS, "--lr", "2e-5"])          # A3 stage 2: Delhi only
+                job(st, "d_score", HY + ["score", "--nwp", NN, "--score-stations", DS, "--delhi",
+                                         os.path.join(OUT, "atlasdelhi2_best.pt"), "--delhi-latency", "12",
+                                         "--tsfm", "chronos2,tfm25", "--save-forecasts", "--suffix", "_delhi"] + common + h2)
+            elif os.path.exists(ND):
+                print("DELHI: the North-India archive is still being fetched (daily limit). Run again tomorrow.", flush=True)
+            else:
+                print("DELHI: the Delhi archive is still being fetched (daily limit). Run again tomorrow.", flush=True)
     print("PIPELINE PASS FINISHED", flush=True)
 
 

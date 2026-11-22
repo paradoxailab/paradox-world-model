@@ -37,6 +37,11 @@ DEV = Dm.DEV
 API = "https://previous-runs-api.open-meteo.com/v1/forecast"
 SYSTEMS = {"IFS": ["ecmwf_ifs025", "ecmwf_ifs"], "AIFS": ["ecmwf_aifs025_single", "ecmwf_aifs025"],
            "GFS": ["gfs_global", "gfs_seamless"], "GraphCast": ["gfs_graphcast025"]}
+# Atlas-Delhi (atlas/PREREG_DELHI.md): every other global system Open-Meteo archives; a system without data is skipped
+SYSTEMS_ALL = dict(SYSTEMS, **{"AIGFS": ["ncep_aigfs025"], "ICON": ["icon_global", "icon_seamless"],
+                               "UKMO": ["ukmo_global_deterministic_10km", "ukmo_seamless"],
+                               "ARPEGE": ["meteofrance_arpege_world", "meteofrance_seamless"],
+                               "JMA": ["jma_gsm", "jma_seamless"], "CMA": ["cma_grapes_global"], "GEM": ["gem_global", "gem_seamless"]})
 OM_VARS = ["temperature_2m", "dew_point_2m", "wind_direction_10m", "wind_speed_10m", "pressure_msl"]   # = W5K order
 OFFS = ["previous_day1", "previous_day2"]
 LATENCY = 6
@@ -98,10 +103,11 @@ def fetch(a):
     cache = os.path.join(a.out, "cache"); os.makedirs(cache, exist_ok=True)
     end = (START + np.timedelta64(T - 1, "h")).astype("datetime64[D]").astype(str)
     hv = [f"{v}_{o}" for o in OFFS for v in OM_VARS]
-    F = np.full((len(SYSTEMS), T, len(HS), 5, 2), np.nan, np.float32)
+    SYS = SYSTEMS_ALL if a.systems == "all" else SYSTEMS
+    F = np.full((len(SYS), T, len(HS), 5, 2), np.nan, np.float32)
     ids = {}
     keep = json.loads(str(np.load(a.reuse_ids)["ids"])) if a.reuse_ids else {}   # deviation 7: same ids as the first archive
-    for si, (sysname, cands) in enumerate(SYSTEMS.items()):
+    for si, (sysname, cands) in enumerate(SYS.items()):
         mid = keep.get(sysname) or resolve(cands, lat[HS[0]], lon[HS[0]])
         ids[sysname] = mid
         print(f"{sysname}: {mid}", flush=True)
@@ -138,14 +144,14 @@ def fetch(a):
                             x = np.array([np.nan if z is None else z for z in jj["hourly"][f"{v}_{o}"]], np.float32)
                             F[si, ix[ok], k, vi, oi] = x[ok]
             print(f"  {sysname}: {c1} done", flush=True)
-    np.savez_compressed(os.path.join(a.out, a.nwp_name), F=F, systems=np.array(list(SYSTEMS)), ids=np.array(json.dumps(ids)),
+    np.savez_compressed(os.path.join(a.out, a.nwp_name), F=F, systems=np.array(list(SYS)), ids=np.array(json.dumps(ids)),
                         stations=HS, vars=np.array(OM_VARS), offsets=np.array(OFFS), start=np.array(str(START)))
-    cov = {s: float(np.isfinite(F[i]).mean()) for i, s in enumerate(SYSTEMS)}
+    cov = {s: float(np.isfinite(F[i]).mean()) for i, s in enumerate(SYS)}
     print("NWP " + json.dumps(dict(ids=ids, coverage=cov, hours=T, stations=len(HS))), flush=True)
 
 
 # ================================================================================================= model
-def widen_forcing(view, extra):
+def widen_forcing(view, extra, systems=None):
     """The weather view with `extra` more forcing channels, whose input weights are ZERO: forecasts are unchanged."""
     cfg = {k: v for k, v in view.cfg.items() if k != "grown_from"}
     L, C, U, S0 = cfg["L"], cfg["C"], cfg["U"], cfg.get("static", 0)
@@ -169,7 +175,7 @@ def widen_forcing(view, extra):
         w2[:, j * U2: j * U2 + U] = w[:, j * U: (j + 1) * U]
     new["uemb.weight"] = w2
     big.load_state_dict(new)
-    big.hybrid_meta = dict(extra_forcing=extra, systems=list(SYSTEMS), offset="previous_day2")   # kept out of cfg: load_any reads cfg
+    big.hybrid_meta = dict(extra_forcing=extra, systems=list(systems or SYSTEMS), offset="previous_day2")   # kept out of cfg: load_any reads cfg
     return big
 
 
@@ -182,7 +188,7 @@ def fresh_mask(fresh_lat, L, H=24, device="cpu"):
 
 
 class HybridData:
-    def __init__(self, raw, nwp, k=32, fresh_lat=0, input_systems=None):
+    def __init__(self, raw, nwp, k=32, fresh_lat=0, input_systems=None, model_systems=None):
         self.Z, lat, lon, elev, M = R5.load(False)                          # live inputs (gaps carried forward)
         O = np.load(os.path.join(raw, "W5K_OBS.npy"), mmap_mode="r")
         off = M["offset"].astype(np.float32); mu = R5.MEAN - off
@@ -199,17 +205,21 @@ class HybridData:
             Fz = (F - R5.MEAN[None, None, None]) / R5.STD[None, None, None]   # the benchmark's scaler
             ok = np.isfinite(Fz).all(-1, keepdims=True)
             return torch.from_numpy(np.concatenate([np.nan_to_num(Fz), ok], -1).astype(np.float16)).to(DEV)  # [Ms, T, S, 6]
-        self.sysF = enc(z["F"][..., 1])                                       # day2: [systems, T, S, 5] -> 6 channels
-        self.Ms = z["F"].shape[0]
+        names = [str(x) for x in z["systems"]]
+        sel = [names.index(n) for n in model_systems] if model_systems else list(range(len(names)))   # Atlas-Delhi:
+        self.names = [names[i] for i in sel]                                  # the systems (and order) the model reads
+        Fm = z["F"][sel]
+        self.sysF = enc(Fm[..., 1])                                           # day2: [systems, T, S, 5] -> 6 channels
+        self.Ms = len(sel)
         self.extra = self.Ms * 6
         if fresh_lat:
-            self.sysF1 = enc(z["F"][..., 0])                                  # day1
+            self.sysF1 = enc(Fm[..., 0])                                      # day1
             self.use1 = fresh_mask(fresh_lat, R5.L, 24, DEV)                  # [L+24]
             self.extra = self.Ms * 7                                          # + a "day1 run used" flag per system
         self.T = min(self.Z.shape[1], z["F"].shape[1])
         if input_systems:                                                     # deviation 7: the hybrid reads only the
-            names = [str(x) for x in z["systems"]]                            # systems it was trained with; the others
-            for i, n in enumerate(names):                                     # are opponents only (inputs zero, flag 0)
+            for i, n in enumerate(self.names):                                # systems it was trained with; the others
+                                                                              # are opponents only (inputs zero, flag 0)
                 if n not in input_systems:
                     self.sysF[i] = 0
                     if fresh_lat:
@@ -239,22 +249,49 @@ class HybridData:
         return np.arange(max(a, R5.L), e - 24 + 1, every) - R5.L             # first input hours
 
 
+def subset(D, fn):
+    """Positions in D.HS of the WEATHER-5K stations listed in a JSON file's 'index' (Atlas-Delhi: training / scoring subsets)."""
+    if not fn:
+        return None
+    want = set(int(i) for i in json.load(open(fn))["index"])
+    pos = [k for k, h in enumerate(D.HS.tolist()) if int(h) in want]
+    assert pos, f"none of the stations in {fn} is in the archive"
+    return np.array(pos, dtype=np.int64)
+
+
+def model_systems(a, nwp):
+    if not a.model_systems:
+        return None
+    if a.model_systems == "all":                                              # every system with data in the archive
+        z = np.load(nwp)
+        return [str(n) for i, n in enumerate(z["systems"]) if np.isfinite(z["F"][i]).any()]
+    return a.model_systems.split(",")
+
+
 def train(a):
-    D = HybridData(a.raw, a.nwp, fresh_lat=a.fresh_latency)
-    pure = load_any(a.view, DEV).to(DEV)
-    m = widen_forcing(pure, D.extra).to(DEV)
-    if a.fresh_latency:
-        m.hybrid_meta.update(offset=f"freshest published, delay {a.fresh_latency} h", fresh_latency=a.fresh_latency)
+    D = HybridData(a.raw, a.nwp, fresh_lat=a.fresh_latency, model_systems=model_systems(a, a.nwp))
+    trs, vas = subset(D, a.train_stations), subset(D, a.val_stations)
     torch.manual_seed(a.seed)
     tag = a.name
+    if a.init:                                                                # Atlas-Delhi stage 2: continue from a hybrid
+        ck = torch.load(a.init, map_location=DEV)
+        m = load_any(a.init, DEV).to(DEV); m.hybrid_meta = dict(ck.get("meta", {}), init=os.path.basename(a.init))
+        assert m.hybrid_meta.get("systems", D.names) == D.names, "the checkpoint reads other systems than the archive gives"
+        pure = None
+    else:
+        pure = load_any(a.view, DEV).to(DEV)
+        m = widen_forcing(pure, D.extra, D.names).to(DEV)
+    if a.fresh_latency:
+        m.hybrid_meta.update(offset=f"freshest published, delay {a.fresh_latency} h", fresh_latency=a.fresh_latency)
     with torch.no_grad():                                                     # exactness: the widened model = the pure one
         t0 = torch.as_tensor(D.starts("val", 24)[:64], device=DEV); si = torch.arange(len(t0), device=DEV) % len(D.HS)
         b = D.batch(si, t0)
         q1 = m(b["yc"], b["mc"], b["uc"], b["uf"], b["geo"], None, b["static"])[0]
-        q0 = pure(b["yc"], b["mc"], b["uc"][..., :4], b["uf"][..., :4], b["geo"], None, b["static"])[0]
+        q0 = q1 if pure is None else pure(b["yc"], b["mc"], b["uc"][..., :4], b["uf"][..., :4], b["geo"], None, b["static"])[0]
         gap = float((q1 - q0).abs().max())
-    print(f"H0 widening check: max |hybrid - pure| at start = {gap:.2e}", flush=True)
-    assert gap < 1e-3, "the widened model does not start as the pure model (a logic error shows up at order 1)"
+    if pure is not None:
+        print(f"H0 widening check: max |hybrid - pure| at start = {gap:.2e}", flush=True)
+        assert gap < 1e-3, "the widened model does not start as the pure model (a logic error shows up at order 1)"
     del pure
     tr = torch.as_tensor(D.starts("train"), device=DEV); va = D.starts("val", 6)
     opt = torch.optim.AdamW(m.parameters(), lr=a.lr, weight_decay=1e-4)
@@ -266,7 +303,7 @@ def train(a):
         with torch.no_grad():
             for j in range(0, len(va), 64):
                 t0 = torch.as_tensor(va[j:j + 64], device=DEV)
-                for si0 in range(len(D.HS)):
+                for si0 in (vas if vas is not None else range(len(D.HS))):
                     si = torch.full_like(t0, si0); b = D.batch(si, t0)
                     with torch.autocast(DEV, dtype=torch.bfloat16, enabled=bf16):
                         p = m(b["yc"], b["mc"], b["uc"], b["uf"], b["geo"], None, b["static"])[0][:, 0, :, :, 1].float()
@@ -282,7 +319,8 @@ def train(a):
     torch.save(dict(sd=m.state_dict(), cfg=m.cfg, meta=m.hybrid_meta), os.path.join(a.out, f"{tag}_best.pt"))
     for step in range(1, a.steps + 1):
         t0 = tr[torch.randint(0, len(tr), (a.bs,), device=DEV)]
-        si = torch.randint(0, len(D.HS), (a.bs,), device=DEV)
+        si = torch.randint(0, len(D.HS), (a.bs,), device=DEV) if trs is None else \
+            torch.as_tensor(trs, device=DEV)[torch.randint(0, len(trs), (a.bs,), device=DEV)]
         b = D.batch(si, t0)
         with torch.autocast(DEV, dtype=torch.bfloat16, enabled=bf16):
             q, _, _ = m(b["yc"], b["mc"], b["uc"], b["uf"], b["geo"], None, b["static"])
@@ -300,33 +338,87 @@ def train(a):
             print(f"step {step} val E {E:.5f} (best {best:.5f}) loss {loss.item():.4f}", flush=True)
             if bad >= a.patience:
                 break
-    json.dump(dict(history=hist, best=best, fresh_latency=a.fresh_latency, seed=a.seed), open(os.path.join(a.out, f"{tag}_train.json"), "w"), indent=1)
+    json.dump(dict(history=hist, best=best, fresh_latency=a.fresh_latency, seed=a.seed, systems=D.names,
+                   train_stations=a.train_stations, val_stations=a.val_stations, init=a.init), open(os.path.join(a.out, f"{tag}_train.json"), "w"), indent=1)
 
 
 # ================================================================================================= score
+def compare_days(a, b, names, B=10000, seed=0, block=7):
+    """Atlas-Delhi (PREREG_DELHI.md A6): with two stations a station bootstrap means nothing, so the interval comes from a
+    moving-block bootstrap over DAYS (7-day blocks) and the Diebold-Mariano test runs on the daily mean difference."""
+    import paired_w5k as PW
+    rng = np.random.default_rng(seed)
+    rows = []
+    nd = a["sae"].shape[1]
+    nb = int(math.ceil(nd / block))
+    idx = (rng.integers(0, max(nd - block + 1, 1), size=(B, nb))[..., None] + np.arange(block)).reshape(B, -1)[:, :nd]
+    for v, n in enumerate(names):
+        m = (a["cnt"][..., v] > 0) & (b["cnt"][..., v] > 0)
+        c = np.where(m, a["cnt"][..., v], 0).astype(np.float64)
+        sa = np.where(m, a["sae"][..., v], 0).astype(np.float64); sb = np.where(m, b["sae"][..., v], 0).astype(np.float64)
+        if c.sum() == 0:
+            continue
+        mae_a, mae_b = sa.sum() / c.sum(), sb.sum() / c.sum()
+        Dd, Cd = (sa - sb).sum(0), c.sum(0)                                     # per day, summed over stations
+        boot = Dd[idx].sum(1) / np.maximum(Cd[idx].sum(1), 1)
+        p_boot = min(1.0, 2 * min((boot >= 0).mean(), (boot <= 0).mean()) + 1 / B)
+        day = Dd / np.maximum(Cd, 1)
+        rows.append(dict(variable=n, ours=round(mae_a, 4), theirs=round(mae_b, 4), diff_pct=round(100 * (mae_a / mae_b - 1), 2),
+                         ci95_pct=[round(100 * np.quantile(boot, 0.025) / mae_b, 2), round(100 * np.quantile(boot, 0.975) / mae_b, 2)],
+                         p_bootstrap=float(p_boot), p_dm=float(PW.dm(day[Cd > 0])), points=int(c.sum()), cluster=f"days ({block}-day blocks)"))
+    return rows
+
+
+def tsfm_forecasts(key, D, sel, st, H=24, ctx=512):
+    """Zero-shot foundation model on each station's own past (gap-filled inputs, own units): [starts, S, 24, 5]."""
+    sys.path.insert(0, os.path.join(os.path.dirname(HERE), "delhi", "pw"))
+    import opponents as Op
+    fc = Op.make(key, ctx, H)
+    sd, mu = R5.STD, R5.MEAN
+    HSs = D.HS[sel]
+    out = np.full((len(st), len(sel), H, 5), np.nan, np.float32)
+    for j0 in range(0, len(st), 256):
+        jj = st[j0:j0 + 256] + R5.L                                             # forecast start hours
+        tt = np.clip(jj[:, None] + np.arange(-ctx, 0)[None], 0, None)           # [n, ctx]
+        w = D.Z[torch.as_tensor(HSs, device=DEV)[:, None, None], torch.as_tensor(tt, device=DEV)[None]].float().cpu().numpy()
+        w = w * sd + mu                                                         # [S, n, ctx, 5] own units
+        c = np.nan_to_num(w.transpose(0, 1, 3, 2).reshape(-1, ctx))             # [S*n*5, ctx]
+        q = np.asarray(fc(c))[..., 1].reshape(len(sel), len(jj), 5, H)          # median
+        out[j0:j0 + len(jj)] = q.transpose(1, 0, 3, 2)
+    return out, fc.name
+
+
 def score(a):
     import paired_w5k as PW
     ins = a.input_systems.split(",") if a.input_systems else None
-    D = HybridData(a.raw, a.nwp, input_systems=ins)
-    D2 = HybridData(a.raw, a.nwp, fresh_lat=a.fresh_latency, input_systems=ins) if a.hybrid2 else None
+    ms = model_systems(a, a.nwp)                                              # the systems the hybrids were trained on
+    D = HybridData(a.raw, a.nwp, input_systems=ins, model_systems=ms)
+    D2 = HybridData(a.raw, a.nwp, fresh_lat=a.fresh_latency, input_systems=ins, model_systems=ms) if a.hybrid2 else None
+    D3 = None
+    if a.delhi:                                                                # Atlas-Delhi reads every system it was trained on
+        dsys = torch.load(a.delhi, map_location="cpu").get("meta", {}).get("systems")
+        D3 = HybridData(a.raw, a.nwp, fresh_lat=a.delhi_latency, model_systems=dsys)
     z = np.load(a.nwp); Fall = z["F"]                                         # [Ms, T, S, 5, 2] own units
+    sel = subset(D, a.score_stations)
+    sel = np.arange(len(D.HS)) if sel is None else sel
+    Fall = Fall[:, :, sel]
     O = np.load(os.path.join(a.raw, "W5K_OBS.npy"), mmap_mode="r")
     M = np.load(os.path.join(a.raw, "W5K_META.npz")); off = M["offset"].astype(np.float32)
-    obs = (O[D.HS, :D.T].astype(np.float32) + off).transpose(1, 0, 2)          # [T, S, 5] own units
+    obs = (O[D.HS[sel], :D.T].astype(np.float32) + off).transpose(1, 0, 2)    # [T, S, 5] own units
     st = D.starts("test", 6)                                                   # first input hours
     starts = st + R5.L                                                         # forecast start hours
     days = (starts - starts[0]) // 24
     nd = int(days.max()) + 1
-    S = len(D.HS)
+    S = len(sel)
     out = {}
     P = {}                                                                     # name -> forecasts [starts, S, 24, 5]
     Y = np.stack([obs[s0:s0 + 24].transpose(1, 0, 2) for s0 in starts]).astype(np.float32)   # truth [starts, S, 24, 5]
 
-    def acc(pred_fn, name):
+    def acc(pred_fn, name, pre=None):
         sae = np.zeros((S, nd, 5)); cnt = np.zeros((S, nd, 5))
-        Pn = np.full((len(starts), S, 24, 5), np.nan, np.float32)
+        Pn = np.full((len(starts), S, 24, 5), np.nan, np.float32) if pre is None else pre
         for j, s0 in enumerate(starts):
-            p = pred_fn(j, s0)                                                 # [S, 24, 5] own units
+            p = Pn[j] if pre is not None else pred_fn(j, s0)                   # [S, 24, 5] own units
             Pn[j] = p
             y = obs[s0:s0 + 24]                                                # [24, S, 5]
             ok = np.isfinite(y).transpose(1, 0, 2) & np.isfinite(p)
@@ -343,7 +435,7 @@ def score(a):
         sd, mu = torch.tensor(R5.STD, device=DEV), torch.tensor(R5.MEAN, device=DEV)
 
         def f(j, s0):
-            t0 = torch.full((S,), int(st[j]), device=DEV); si = torch.arange(S, device=DEV)
+            t0 = torch.full((S,), int(st[j]), device=DEV); si = torch.as_tensor(sel, device=DEV)
             b = D.batch(si, t0)
             uc, uf = (b["uc"], b["uf"]) if hybrid else (b["uc"][..., :4], b["uf"][..., :4])
             with torch.no_grad(), torch.autocast(DEV, dtype=torch.float16, enabled=(DEV == "cuda")):
@@ -355,52 +447,76 @@ def score(a):
     acc(model_fn(a.hybrid, True), "Atlas-100M hybrid")
     if D2 is not None:
         acc(model_fn(a.hybrid2, True, D2), "Atlas-100M-H2")
+    if D3 is not None:
+        acc(model_fn(a.delhi, True, D3), "Atlas-Delhi")
     lead = np.arange(1, 25)
+    published, newest = [], []
     for mi, sysname in enumerate([str(x) for x in z["systems"]]):
         if not np.isfinite(Fall[mi]).any():
             print(f"{sysname}: no data", flush=True); continue
         use1 = lead <= 24 - LATENCY                                           # day1 run already published at the start
 
-        def raw_fn(j, s0, mi=mi, fresh=False):
+        def raw_fn(j, s0, mi=mi, fresh=False, use1=use1):
             v = s0 + np.arange(24)
             f1, f2 = Fall[mi, v, :, :, 0], Fall[mi, v, :, :, 1]               # [24, S, 5]
             f = np.where((np.ones_like(use1) if fresh else use1)[:, None, None], f1, f2)
             return f.transpose(1, 0, 2)
 
-        def bias_fn(j, s0, mi=mi):
-            f = raw_fn(j, s0)                                                  # [S, 24, 5]
+        def bias_fn(j, s0, mi=mi, fresh=False, use1=use1):
+            f = raw_fn(j, s0, mi, fresh)                                       # [S, 24, 5]
             past = np.arange(s0 - 30 * 24, s0)                                 # valid hours wholly before the start
             past = past[past >= 0]
             b1 = np.nanmean(Fall[mi, past, :, :, 0] - obs[past], 0)            # [S, 5]
             b2 = np.nanmean(Fall[mi, past, :, :, 1] - obs[past], 0)
-            bb = np.where(use1[None, :, None], b1[:, None], b2[:, None])
+            bb = np.where((np.ones_like(use1) if fresh else use1)[None, :, None], b1[:, None], b2[:, None])
             bb[..., 2] = 0                                                     # wind direction is circular: not corrected
             return f - np.nan_to_num(bb)
 
         acc(raw_fn, f"{sysname} raw")
         acc(bias_fn, f"{sysname} bias-corrected")
         acc(lambda j, s0, mi=mi: raw_fn(j, s0, mi, True), f"{sysname} day1 (freshest, not yet published)")
-    def joint(na, nb):
+        published += [f"{sysname} raw", f"{sysname} bias-corrected"]
+        newest.append(f"{sysname} day1 (freshest, not yet published)")
+        if a.delhi:                                                            # PREREG_DELHI A5: the upper-bound family
+            acc(lambda j, s0, mi=mi: bias_fn(j, s0, mi, True), f"{sysname} day1 bias-corrected (not yet published)")
+            newest.append(f"{sysname} day1 bias-corrected (not yet published)")
+    if a.delhi:
+        bc = [k for k in published if k.endswith("bias-corrected")]
+        ens = np.nanmean(np.stack([P[k] for k in bc]), 0)                      # mean of the bias-corrected systems
+        ens[..., 2] = np.nan                                                   # (no mean of a circular variable)
+        acc(None, "Ensemble of all systems (bias-corrected)", pre=ens)
+        published.append("Ensemble of all systems (bias-corrected)")
+        for key in [k for k in a.tsfm.split(",") if k]:
+            try:
+                Pt, nm = tsfm_forecasts(key, D, sel, st)
+                acc(None, nm, pre=Pt); published.append(nm)
+            except Exception as e:
+                print(f"{key}: not run ({str(e)[:160]})", flush=True)
+
+    def joint(na, nb, PP=P, YY=Y):
         """PREREG deviation 8: both forecasts scored on exactly the same hours (truth observed and BOTH forecasts present),
         then summed per station-day. Before, our errors were summed over all our hours while only the hours shared with
         the opponent were counted, which inflated our error wherever an opponent's archive had gaps."""
-        sa = np.zeros((S, nd, 5)); sb = np.zeros((S, nd, 5)); c = np.zeros((S, nd, 5))
-        ok = np.isfinite(Y) & np.isfinite(P[na]) & np.isfinite(P[nb])          # [starts, S, 24, 5]
-        ea = np.where(ok, np.abs(P[na] - np.nan_to_num(Y)), 0).sum(2)          # [starts, S, 5]
-        eb = np.where(ok, np.abs(P[nb] - np.nan_to_num(Y)), 0).sum(2)
+        K = YY.shape[-1]
+        sa = np.zeros((S, nd, K)); sb = np.zeros((S, nd, K)); c = np.zeros((S, nd, K))
+        ok = np.isfinite(YY) & np.isfinite(PP[na]) & np.isfinite(PP[nb])       # [starts, S, h, K]
+        ea = np.where(ok, np.abs(PP[na] - np.nan_to_num(YY)), 0).sum(2)        # [starts, S, K]
+        eb = np.where(ok, np.abs(PP[nb] - np.nan_to_num(YY)), 0).sum(2)
         n = ok.sum(2)
         for j in range(len(starts)):
             sa[:, days[j]] += ea[j]; sb[:, days[j]] += eb[j]; c[:, days[j]] += n[j]
         return dict(sae=sa, cnt=c), dict(sae=sb, cnt=c)
 
-    def family(oursname, skip, fname):
-        """One Holm family: `oursname` against every other forecast in `out` except those in `skip`."""
+    def family(oursname, skip, fname, only=None, PP=P, YY=Y, names=None):
+        """One Holm family: `oursname` against every other forecast in `out` except those in `skip` (or only those in `only`)."""
         rows = []
-        ours = out[oursname]
-        for k, v in out.items():
-            if k == oursname or k in skip:
+        opp = only if only is not None else [k for k in out if k != oursname and k not in skip]
+        for k in opp:
+            if k == oursname or k not in PP:
                 continue
-            for r in PW.compare(*joint(oursname, k)):
+            ja, jb = joint(oursname, k, PP, YY)
+            res = compare_days(ja, jb, names or PW.NAMES) if (a.cluster == "days" or names) else PW.compare(ja, jb)
+            for r in res:
                 r.update(opponent=k); rows.append(r)
         p = np.array([max(1.0 if np.isnan(r["p_dm"]) else r["p_dm"], r["p_bootstrap"]) for r in rows])
         for r, ph in zip(rows, PW.holm(p)):
@@ -410,16 +526,47 @@ def score(a):
             print(f"TEST {oursname} vs {r['opponent']:<34} {r['variable']:<19} {r['ours']:.3f} vs {r['theirs']:.3f} "
                   f"{r['diff_pct']:+.2f}% p_holm {r['p_holm']:.2g} {r['verdict']}", flush=True)
         os.makedirs(a.out, exist_ok=True)
-        json.dump(dict(model=oursname, tests=rows, stations=len(D.HS), starts=len(starts),
+        json.dump(dict(model=oursname, tests=rows, stations=S, station_ids=D.HS[sel].tolist(), starts=len(starts),
                        first=str(START + np.timedelta64(int(starts[0]), "h")),
-                       last=str(START + np.timedelta64(int(starts[-1]), "h")), latency_h=LATENCY,
-                       hybrid_input_latency_h=(a.fresh_latency if oursname == "Atlas-100M-H2" else None),
+                       last=str(START + np.timedelta64(int(starts[-1]), "h")), latency_h=LATENCY, cluster=a.cluster,
+                       hybrid_input_latency_h=(a.fresh_latency if oursname == "Atlas-100M-H2" else
+                                               a.delhi_latency if oursname == "Atlas-Delhi" else None),
                        mae={k: (v["sae"].sum((0, 1)) / np.maximum(v["cnt"].sum((0, 1)), 1)).tolist() for k, v in out.items()}),
                   open(os.path.join(a.out, fname.replace(".json", f"{a.suffix}.json")), "w"), indent=1, default=float)
 
-    family("Atlas-100M hybrid", {"Atlas-100M-H2"}, "atlas100m_hybrid_results.json")    # the registered family (section H)
+    family("Atlas-100M hybrid", {"Atlas-100M-H2", "Atlas-Delhi"}, "atlas100m_hybrid_results.json")    # registered family (H)
     if D2 is not None:
-        family("Atlas-100M-H2", set(), "atlas100m_h2_results.json")                   # addendum H2: its own family
+        family("Atlas-100M-H2", {"Atlas-Delhi"}, "atlas100m_h2_results.json")                        # addendum H2
+    if D3 is not None:                                                                               # PREREG_DELHI
+        f1 = published + ["Atlas-100M-H2", "Atlas-100M hybrid", "Atlas-100M pure"]
+        family("Atlas-Delhi", set(), "atlas_delhi_F1_published.json", only=f1)
+        family("Atlas-Delhi", set(), "atlas_delhi_F2_newest_run.json", only=newest)
+        # F3: 24-h maximum and minimum temperature of each forecast window (hours where the truth was observed)
+        okY = np.isfinite(Y[..., 0])                                                                 # [starts, S, 24]
+        full = okY.sum(2) >= 20
+        def mm(X):
+            x = np.where(okY, X[..., 0], np.nan)
+            r = np.stack([np.nanmax(x, 2), np.nanmin(x, 2)], -1)[:, :, None]                        # [starts, S, 1, 2]
+            r[~full] = np.nan
+            return r
+        with np.errstate(all="ignore"):
+            P3 = {k: mm(v) for k, v in P.items()}; Y3 = mm(Y)
+        family("Atlas-Delhi", set(), "atlas_delhi_F3_maxmin.json", only=f1, PP=P3, YY=Y3,
+               names=["24-h max temperature", "24-h min temperature"])
+        # seasons (descriptive): MAE per forecaster and variable by the month the forecast starts
+        mon = ((START + starts.astype("timedelta64[h]")).astype("datetime64[M]").astype(int) % 12) + 1
+        seasons = dict(winter_DJF=(12, 1, 2), premonsoon_MAM=(3, 4, 5), monsoon_JJAS=(6, 7, 8, 9), postmonsoon_ON=(10, 11))
+        tab = {}
+        for sn, months in seasons.items():
+            jm = np.isin(mon, months)
+            tab[sn] = {}
+            for k, Pk in P.items():
+                okk = np.isfinite(Y[jm]) & np.isfinite(Pk[jm])
+                tab[sn][k] = (np.where(okk, np.abs(Pk[jm] - np.nan_to_num(Y[jm])), 0).sum((0, 1, 2)) / np.maximum(okk.sum((0, 1, 2)), 1)).tolist()
+        json.dump(dict(seasons=tab, variables=PW.NAMES), open(os.path.join(a.out, f"atlas_delhi_seasons{a.suffix}.json"), "w"), indent=1)
+    if a.save_forecasts:
+        np.savez_compressed(os.path.join(a.out, f"forecasts{a.suffix}.npz"), names=np.array(list(P)), starts=starts,
+                            stations=D.HS[sel], Y=Y, **{f"P{i}": v for i, v in enumerate(P.values())})
 
 
 if __name__ == "__main__":
@@ -447,7 +594,22 @@ if __name__ == "__main__":
     ap.add_argument("--suffix", default="", help="score: added to the result file names (e.g. _india)")
     ap.add_argument("--input-systems", dest="input_systems", default="",
                     help="score: systems the hybrids read (others scored as opponents only), e.g. IFS,AIFS,GFS")
+    # Atlas-Delhi (atlas/PREREG_DELHI.md); every default below leaves the registered H / H2 / I runs unchanged
+    ap.add_argument("--systems", default="core", choices=["core", "all"], help="fetch: core = IFS, AIFS, GFS, GraphCast; all = + 7 more")
+    ap.add_argument("--model-systems", dest="model_systems", default="",
+                    help="train/score: systems the model reads, in order ('all' = every system with data); default = all in the archive")
+    ap.add_argument("--init", default="", help="train: continue from this hybrid checkpoint instead of widening the pure view")
+    ap.add_argument("--train-stations", dest="train_stations", default="", help="train: JSON 'index' list of stations to train on")
+    ap.add_argument("--val-stations", dest="val_stations", default="", help="train: JSON 'index' list of stations to validate on")
+    ap.add_argument("--test-end", dest="test_end", default="2026-01-01T00", help="exclusive end of the test period")
+    ap.add_argument("--score-stations", dest="score_stations", default="", help="score: JSON 'index' list (a subset of the archive)")
+    ap.add_argument("--cluster", default="stations", choices=["stations", "days"], help="score: bootstrap unit")
+    ap.add_argument("--delhi", default="", help="score: the Atlas-Delhi checkpoint (families F1-F3 of PREREG_DELHI)")
+    ap.add_argument("--delhi-latency", dest="delhi_latency", type=int, default=12)
+    ap.add_argument("--tsfm", default="", help="score (with --delhi): zero-shot foundation models, e.g. chronos2,tfm25")
+    ap.add_argument("--save-forecasts", dest="save_forecasts", action="store_true")
     a = ap.parse_args()
+    SPLIT["test"] = (SPLIT["test"][0], a.test_end)
     os.environ["PW_RAW"] = a.raw
     R5.RAW = a.raw
     {"fetch": fetch, "train": train, "score": score}[a.cmd](a)

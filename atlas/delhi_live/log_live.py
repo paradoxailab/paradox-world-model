@@ -45,23 +45,33 @@ def text(b):
     return "\n".join(re.sub(r"[ \t\xa0]+", " ", l).strip() for l in s.splitlines() if l.strip())
 
 
-def imd(sid):
-    b = get(IMD_URL.format(sid))
-    t = text(b)
+def parse_imd(t):
+    """IMD city page text -> 7-day forecast rows and the past-24-hour observations (cells are separated by '|')."""
+    f = re.sub(r"\s*\n\s*", " ", t)                                          # one line: rows may span lines
     num = lambda x: None if x is None or x.strip().upper() in ("NA", "") else float(x)
     rows = []
-    for m in re.finditer(r"(\d{1,2}-[A-Z][a-z]{2})\s*\|\s*([\d.]+|NA)\s*\|\s*([\d.]+|NA)([^\n]*)", t):
+    for m in re.finditer(r"(\d{1,2}-[A-Z][a-z]{2}) \| ([\d.]+|NA) \| ([\d.]+|NA) \|((?: [^|]*\|){0,2})", f):
         cells = [c.strip() for c in m.group(4).split("|") if c.strip()]          # an icon cell may come first
         rows.append(dict(date=m.group(1), tmin=num(m.group(2)), tmax=num(m.group(3)), weather=cells[-1] if cells else ""))
     def obs(label):
-        m = re.search(label + r"[^|\n]*\|\s*([\d.]+|NA|NIL)", t, re.I)
+        m = re.search(re.escape(label) + r"[^|]*\|\s*([\d.]+|NA|NIL)", f, re.I)
         return None if not m else m.group(1)
-    dated = re.search(r"Dated\s*:?\s*([A-Z][a-z]{2} \d{1,2}, \d{4})", t)
+    def rec(label):
+        m = re.search(re.escape(label) + r"[^|]*?Recorded\.? on (\d{2}/\d{2}/\d{2})", f, re.I)
+        return None if not m else m.group(1)
+    dated = re.search(r"Dated\s*:?\s*([A-Z][a-z]{2} \d{1,2}, \d{4})", f)
+    observed = dict(max_temp=obs("Maximum Temp"), max_recorded_on=rec("Maximum Temp"), min_temp=obs("Minimum Temp"),
+                    min_recorded_on=rec("Minimum Temp"), rain_24h=obs("24 Hours Rainfall"), rh_0830=obs("R.H. at 0830"),
+                    rh_1730=obs("R.H. at 1730"))
+    return rows[:7], observed, dated.group(1) if dated else None
+
+
+def imd(sid):
+    b = get(IMD_URL.format(sid))
+    t = text(b)
+    rows, observed, dated = parse_imd(t)
     return dict(station=sid, name=IMD[sid], url=IMD_URL.format(sid), sha256=hashlib.sha256(b).hexdigest(),
-                dated=dated.group(1) if dated else None, forecast=rows[:7],
-                observed=dict(max_temp=obs("Maximum Temp"), min_temp=obs("Minimum Temp"), rain_24h=obs("24 Hours Rainfall"),
-                              rh_0830=obs("Relative Humidity at 0830"), rh_1730=obs("Relative Humidity at 1730")),
-                parsed_ok=len(rows) >= 5, text=t[:6000])
+                dated=dated, forecast=rows, observed=observed, parsed_ok=len(rows) >= 5, text=t[:6000])
 
 
 def openmeteo(model, la, lo):

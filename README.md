@@ -9,6 +9,8 @@ result file in this repository.
 
 ## Latest: Atlas-100M, one model for weather, air quality and traffic (2026-11-21, v1.0)
 
+**Everything we have published — models, datasets, collections, releases, links: [`CATALOG.md`](CATALOG.md).** Hugging Face organization: [huggingface.co/PARADOXAIlabs](https://huggingface.co/PARADOXAIlabs).
+
 **Where we stand (2026-11-22): one-page scoreboard in [`atlas/m100/STANDINGS.md`](atlas/m100/STANDINGS.md)** — weather
 WIN 100/100 against ten foundation models worldwide; level with them in India (19/74/7); with ECMWF/GFS forecasts as
 input (Atlas-100M-H2), WIN against raw and bias-corrected ECMWF IFS and NOAA GFS on temperature, dewpoint and wind at

@@ -84,6 +84,29 @@ def main():
                        adopt_new_form=(best is not None and best != "E B power law + floor" and
                                        res["forms"][best]["score"] < 0.5 * b.get("score", np.inf)))
     log("W5K-THR-RULE " + json.dumps(res["rule"]))
+    # README "WB1-T addendum": the data threshold n*(eps) = (a / (eps c))^(1/alpha), form B on ALL shares, bootstrap 80 %
+    n_all = np.array([P[s]["n"] for s in shares]); y_all = np.array([P[s]["E"] for s in shares])
+    if len(shares) >= 5:
+        f = FORMS["B power law + floor"][0]
+        p_all = fit("B power law + floor", n_all, y_all)
+        nstar = lambda q, eps: (q[1] / (eps * q[0])) ** (1 / q[2])
+        resid = np.log(y_all) - np.log(f(n_all, *p_all)); rng = np.random.default_rng(0); boots = []
+        for _ in range(1000):
+            yb = np.exp(np.log(f(n_all, *p_all)) + rng.choice(resid, len(resid)))
+            try:
+                boots.append(fit("B power law + floor", n_all, yb))
+            except Exception:
+                pass
+        thr = {}
+        for eps in (0.05, 0.02, 0.01):
+            bs = [nstar(q, eps) for q in boots if q[0] > 0]
+            lo, hi = (float(np.quantile(bs, 0.1)), float(np.quantile(bs, 0.9))) if bs else (float("nan"), float("nan"))
+            thr[f"{eps:g}"] = dict(n_star=float(nstar(p_all, eps)), interval80=[lo, hi])
+            log(f"n*({100 * eps:g}%) = {nstar(p_all, eps):,.0f} station-days (80% interval {lo:,.0f} to {hi:,.0f})")
+        i5 = thr["0.05"]["interval80"]
+        res["threshold"] = dict(form_B_all=p_all.tolist(), n_star=thr, determined=bool(i5[1] / max(i5[0], 1) < 3))
+        log("W5K-THRESHOLD " + json.dumps(dict(determined=res["threshold"]["determined"], floor=float(p_all[0]),
+                                               alpha=float(p_all[2]))))
     json.dump(res, open(os.path.join(OUT, "w5k_thr.json"), "w"), indent=1, default=float)
 
 

@@ -2916,3 +2916,21 @@ CPCB data after March 2023, which the public copy used here does not hold (Delhi
     cd delhi && bash kaggle_atlas_delhi.sh            # stage 7 on Kaggle (CPU is enough up to 1M parameters)
 
 Runs are deterministic for a given seed on the same machine (the same configuration run twice gave identical numbers).
+
+### Threshold grid on Colab: clarifications before any grid run (2026-11-22, 23:40 IST)
+
+Phases 2–3 of "Head-to-head on WEATHER-5K and the minimum threshold function" (rules of 2026-11-17) and the three
+remaining WB1-T shares run on Google Colab (`notebooks/atlas_threshold_grid_colab.ipynb`, output Drive `PWM-10M/thr/`),
+not Kaggle; the recipe, seed and validation measure are unchanged. Written now, before any of these runs exists:
+
+1. **Tags.** Grid runs `w5k_grid_{100k,300k,3m,10m}_h24[_f<share>]`, second seeds `w5k_seed2_*` (seed 601); the 1M row
+   is the WB1-T runs. Every grid run is validation-only (`--no-test`), including share 1.
+2. **Form C** ("interacting"), made exact: E = c + (a·n^(−α/g) + b·P^(−β/g))^g, g > 0 (g = 1 is form B). **Form A**
+   (data only, per size) cannot predict the unseen 10M row and so cannot be verified; it is reported on the cells it
+   can predict.
+3. **Nearest-cell baseline:** each held-out cell is predicted by the fitted cell one grid step away (the next smaller
+   size, or the next smaller share; for 10M at all data, 3M at 1/4).
+4. **Intervals** for the MTF's inversion and the Phase 4 condition: residual bootstrap in log E, 1,000 refits of the MTF
+   on all 20 cells; "the lower end of its 80% interval still a gain" = the 90th percentile of the predicted relative
+   change 37.7M vs 10M is below 0.
+5. Scoring code: `delhi/score_w5k_grid.py` (checked on synthetic cells only; no real grid result exists).

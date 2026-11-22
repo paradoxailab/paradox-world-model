@@ -2,7 +2,9 @@
   1. IMD's official city forecasts for Delhi stations (7 days of max / min temperature and weather, e.g. fog), and the
      past-24-hour observations IMD prints on the same page (city.imd.gov.in, public pages, no account);
   2. the latest forecast of every global system Open-Meteo serves, at the same stations (hourly, 3 days);
-  3. METAR reports from the Delhi airports for the past 2 days (Iowa Environmental Mesonet ASOS archive).
+  3. METAR reports from the Delhi airports for the past 2 days (Iowa Environmental Mesonet ASOS archive);
+  4. Delhi living twin layers: CAMS air-quality forecasts at six CPCB / DPCC station positions, and (morning run)
+     yesterday's Delhi SLDC electricity load curve for Delhi and each discom.
 Each file is committed by GitHub Actions the moment it is fetched, so the git history proves what every forecaster had
 said before the weather happened. That is the only fair way to score IMD, which keeps no public forecast archive.
 
@@ -21,6 +23,14 @@ OM_MODELS = ["best_match", "ecmwf_ifs025", "ecmwf_ifs", "ecmwf_aifs025_single", 
 OM_HOURLY = ["temperature_2m", "dew_point_2m", "relative_humidity_2m", "wind_speed_10m", "wind_direction_10m", "pressure_msl",
              "precipitation", "visibility", "cloud_cover"]
 OM_DAILY = ["temperature_2m_max", "temperature_2m_min", "precipitation_sum"]
+# Delhi living twin, layer 2 (air quality): CAMS forecasts (Copernicus, via Open-Meteo's air-quality API, no account)
+# at CPCB / DPCC station positions; the observed truth comes later from CPCB archives (OpenAQ / data.gov.in)
+AQ_URL = "https://air-quality-api.open-meteo.com/v1/air-quality"
+AQ_POINTS = {"Anand Vihar": (28.6469, 77.3159), "ITO": (28.6286, 77.2410), "Punjabi Bagh": (28.6740, 77.1310),
+             "RK Puram": (28.5632, 77.1869), "Safdarjung": (28.5845, 77.2058), "Dwarka": (28.5708, 77.0717)}
+AQ_HOURLY = ["pm2_5", "pm10", "nitrogen_dioxide", "ozone", "carbon_monoxide", "sulphur_dioxide", "aerosol_optical_depth", "dust"]
+# layer 3 (electricity): Delhi SLDC load curve for yesterday (public page, Delhi and each discom)
+SLDC_URL = "https://www.delhisldc.org/Loaddata.aspx?mode={}"
 METAR = ["VIDP", "VIDD", "VIDX"]                                                   # Palam, Safdarjung, Hindon
 IEM = "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py"
 
@@ -81,6 +91,22 @@ def openmeteo(model, la, lo):
     return j
 
 
+def airquality(la, lo):
+    q = dict(latitude=la, longitude=lo, hourly=",".join(AQ_HOURLY), forecast_days=4, past_days=1, timezone="Asia/Kolkata",
+             domains="cams_global")
+    return json.loads(get(AQ_URL + "?" + urllib.parse.urlencode(q)))
+
+
+def sldc(day):
+    b = get(SLDC_URL.format(day.strftime("%d/%m/%Y")))
+    t = text(b)
+    rows = re.findall(r"(\d{2}:\d{2})((?:\s*\|\s*[\d.]+){3,})", re.sub(r"\s*\n\s*", " ", t))
+    table = [[r[0]] + [float(x) for x in re.findall(r"[\d.]+", r[1])] for r in rows]
+    head = re.search(r"TIMESLOT[^\n]{0,200}", t, re.I)
+    return dict(date=day.isoformat(), url=SLDC_URL.format(day.strftime("%d/%m/%Y")), sha256=hashlib.sha256(b).hexdigest(),
+                header=head.group(0) if head else None, rows=table, parsed_ok=len(table) >= 200, text=t[:3000] if len(table) < 200 else "")
+
+
 def metar(station, now):
     a = now - dt.timedelta(days=2)
     q = dict(station=station, data="all", year1=a.year, month1=a.month, day1=a.day, year2=now.year, month2=now.month,
@@ -107,6 +133,18 @@ def main(a):
                 log["ok"][f"om_{name}_{m}"] = True
             except Exception as e:
                 log["errors"][f"om_{name}_{m}"] = str(e)[:300]
+    for name, (la, lo) in AQ_POINTS.items():
+        try:
+            json.dump(airquality(la, lo), open(os.path.join(d, f"aq_cams_{name.replace(' ', '_')}.json"), "w"))
+            log["ok"][f"aq_{name}"] = True
+        except Exception as e:
+            log["errors"][f"aq_{name}"] = str(e)[:300]
+    if now.hour < 6 or os.environ.get("FORCE_SLDC") == "true":                # once a day: yesterday's load curve (IST)
+        y = (now + dt.timedelta(hours=5, minutes=30)).date() - dt.timedelta(days=1)
+        try:
+            r = sldc(y); json.dump(r, open(os.path.join(d, "sldc_load.json"), "w"), indent=0); log["ok"]["sldc"] = r["parsed_ok"]
+        except Exception as e:
+            log["errors"]["sldc"] = str(e)[:300]
     for s in METAR:
         try:
             open(os.path.join(d, f"metar_{s}.csv"), "w").write(metar(s, now)); log["ok"][f"metar_{s}"] = True

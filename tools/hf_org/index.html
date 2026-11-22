@@ -1,1 +1,41 @@
-<!doctype html><meta charset="utf-8"><title>ParadoxAI Lab</title><p>ParadoxAI Lab — see the organization card.</p>
+<div class="lg:col-span-3">
+  <p class="mb-2"><b>Compact world models for the physical world: weather, air quality and traffic.</b>
+    Trained from scratch on real sensor data, tested in public, every loss reported.
+    Independent AI lab from India · Aditya Kumar &amp; Anupam Singh.</p>
+
+  <h3 class="mt-4 mb-2 font-semibold">Where we stand (November 2026)</h3>
+  <table class="w-full text-sm">
+    <thead><tr><th class="text-left pr-3">Test</th><th class="text-left">Result</th></tr></thead>
+    <tbody>
+      <tr><td class="pr-3 align-top">🌦️ Weather, 709 stations worldwide, 24 h</td>
+          <td><b>WIN 100 / 100</b> against ten zero-shot foundation models (TimesFM 2.5 / 3.0, Chronos-2, Chronos-Bolt, TiRex, Sundial, Time-MoE, TTM and others)</td></tr>
+      <tr><td class="pr-3 align-top">🛰️ Weather + global forecasts (Atlas-100M-H2), 178 stations, 2025</td>
+          <td><b>Lower error than raw and bias-corrected ECMWF IFS and NOAA GFS</b> on temperature, dewpoint and wind (11–34%). Loses to bias-corrected IFS on sea-level pressure. GraphCast comparison pending.</td></tr>
+      <tr><td class="pr-3 align-top">🇮🇳 Weather, all 68 Indian stations</td>
+          <td>Level with the foundation models (WIN 19, TIE 74, LOSS 7)</td></tr>
+      <tr><td class="pr-3 align-top">🌫️ PM2.5, all-India CPCB</td>
+          <td>WIN against 7 of 9 foundation models; ties TimesFM 3.0</td></tr>
+      <tr><td class="pr-3 align-top">🚦 Traffic, six road networks</td>
+          <td>Atlas-100M-TXL2: no loss to any foundation model (18 / 12 / 0); still behind the best trained specialists</td></tr>
+    </tbody>
+  </table>
+  <p class="mt-2 text-sm">Every study is pre-registered before it runs; deviations are dated and published.
+    Full scoreboard: <a class="underline" href="https://github.com/paradoxailab/paradox-world-model/blob/main/atlas/m100/STANDINGS.md">STANDINGS.md</a>.</p>
+
+  <h3 class="mt-4 mb-2 font-semibold">Start here</h3>
+  <ul class="list-disc pl-5 text-sm">
+    <li><a class="underline" href="https://huggingface.co/PARADOXAIlabs/atlas-100m"><b>atlas-100m</b></a>: one 98.6M model for weather, air quality and traffic, plus traffic and hybrid variants</li>
+    <li><a class="underline" href="https://huggingface.co/PARADOXAIlabs/atlas-5k-25m"><b>atlas-5k-25m</b></a>: the 24.1M weather model it was grown from</li>
+    <li><a class="underline" href="https://huggingface.co/PARADOXAIlabs/atlas-india-v1.0"><b>atlas-india-v1.0</b></a>: PM2.5 across India</li>
+    <li><a class="underline" href="https://huggingface.co/PARADOXAIlabs/pwm-dyn-v0.7-pems08"><b>pwm-dyn</b></a>: compact traffic dynamics</li>
+    <li>Datasets: <a class="underline" href="https://huggingface.co/datasets/PARADOXAIlabs/atlas-benchmark-results">atlas-benchmark-results</a> ·
+      <a class="underline" href="https://huggingface.co/datasets/PARADOXAIlabs/atlas-station-forecast-archive">atlas-station-forecast-archive</a></li>
+  </ul>
+
+  <h3 class="mt-4 mb-2 font-semibold">Links</h3>
+  <p class="text-sm">🌐 <a class="underline" href="https://www.paradoxailab.com">paradoxailab.com</a> ·
+    💻 <a class="underline" href="https://github.com/paradoxailab/paradox-world-model">GitHub</a> ·
+    📄 <a class="underline" href="https://zenodo.org/records/24370660">Papers (Zenodo)</a> ·
+    🗺️ <a class="underline" href="https://atlaswebapp.paradoxailab.com">Atlas web app</a> ·
+    💼 <a class="underline" href="https://www.linkedin.com/in/aditya-kumar16/">LinkedIn: Aditya Kumar</a></p>
+</div>

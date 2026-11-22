@@ -2934,3 +2934,23 @@ not Kaggle; the recipe, seed and validation measure are unchanged. Written now, 
    on all 20 cells; "the lower end of its 80% interval still a gain" = the 90th percentile of the predicted relative
    change 37.7M vs 10M is below 0.
 5. Scoring code: `delhi/score_w5k_grid.py` (checked on synthetic cells only; no real grid result exists).
+
+### WB1-T addendum: the data threshold n*(ε), written 2026-11-22 23:55 IST, before the 1/32, 1/8 and 1/2 runs
+
+**Definition.** For a model of fixed size whose validation error follows E(n) = c + a·n^(−α) (form B, n = training
+station-days), the **data threshold** at tolerance ε is the data needed to come within ε of that size's floor c:
+n*(ε) = (a / (ε·c))^(1/α). Headline ε = 5% ("practical threshold"); also reported at 2% and 1%. The floor c belongs to
+one model size; the size × data grid (Phases 2–3) gives c and n*(ε) per size.
+
+**Exploratory fit (labelled as such).** Form B fitted to the four shares already run (1/64, 1/16, 1/4, all; 1M,
+validation E): c = 0.2855, a = 26.50, α = 0.499. It implies n*(5%) ≈ 3.5M station-days (0.21 of WEATHER-5K's
+2014–2021 training data, about 620 days of all 5,672 stations), n*(2%) ≈ 22M (1.3× the data we have) and n*(1%) ≈ 88M
+(5.3×). Four points for three parameters leave it poorly determined: leave-one-out refits put n*(5%) anywhere from
+1.4M to 39M. This fit is not the registered WB1-T test, which stands unchanged (fit on 1/64–1/8, predict 1/4, 1/2, all).
+
+**Predictions for the three runs not yet made** (from the exploratory fit): validation E at 1/32 = 0.3227, at 1/8 =
+0.3041, at 1/2 = 0.2949. Each within 1.5% (60%); all three within 1.5% (40%).
+
+**After the runs.** Form B refitted on all seven shares; n*(5%), n*(2%), n*(1%) reported with a residual-bootstrap
+80% interval (1,000 refits). The threshold is called **determined** if the 80% interval of n*(5%) spans less than a
+factor of 3; otherwise we report it as undetermined at this data range.

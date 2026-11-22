@@ -31,7 +31,20 @@ AQ_POINTS = {"Anand Vihar": (28.6469, 77.3159), "ITO": (28.6286, 77.2410), "Punj
 AQ_HOURLY = ["pm2_5", "pm10", "nitrogen_dioxide", "ozone", "carbon_monoxide", "sulphur_dioxide", "aerosol_optical_depth", "dust"]
 # layer 3 (electricity): Delhi SLDC load curve for yesterday (public page, Delhi and each discom)
 SLDC_URL = "https://www.delhisldc.org/Loaddata.aspx?mode={}"
-METAR = ["VIDP", "VIDD", "VIDX"]                                                   # Palam, Safdarjung, Hindon
+METAR = ["VIDP", "VIDD", "VIDX"]
+# Keyed sources: keys come ONLY from environment variables (GitHub Actions / Colab secrets set by the lab owner); they
+# are never written to any file, log or error message. A source whose key is missing is skipped.
+KEYS = {k: os.environ.get(k, "").strip() for k in ("OPENAQ_API_KEY", "DATAGOV_API_KEY", "OTD_API_KEY")}
+OPENAQ = "https://api.openaq.org/v3"
+DATAGOV_AQ = "https://api.data.gov.in/resource/3b01bcb8-0b14-4abf-b6f2-c1bfd384ba69"   # CPCB real-time AQ, all stations
+OTD_VP = "https://otd.delhi.gov.in/api/realtime/VehiclePositions.pb"
+
+
+def scrub(msg):
+    for v in KEYS.values():
+        if v:
+            msg = msg.replace(v, "***")
+    return msg                                                   # Palam, Safdarjung, Hindon
 IEM = "https://mesonet.agron.iastate.edu/cgi-bin/request/asos.py"
 
 
@@ -107,6 +120,35 @@ def sldc(day):
                 header=head.group(0) if head else None, rows=table, parsed_ok=len(table) >= 200, text=t[:3000] if len(table) < 200 else "")
 
 
+def openaq_delhi():
+    """Latest readings of every OpenAQ location within 25 km of central Delhi (CPCB / DPCC and others)."""
+    h = {"X-API-Key": KEYS["OPENAQ_API_KEY"], **UA}
+    def j(url):
+        with urllib.request.urlopen(urllib.request.Request(url, headers=h), timeout=60) as r:
+            return json.loads(r.read())
+    locs = j(f"{OPENAQ}/locations?coordinates=28.6139,77.2090&radius=25000&limit=1000")["results"]
+    out = []
+    for L in locs:
+        try:
+            out.append(dict(location=L, latest=j(f"{OPENAQ}/locations/{L['id']}/latest")["results"]))
+        except Exception as e:
+            out.append(dict(location=L, error=scrub(str(e))[:200]))
+        time.sleep(0.3)
+    return out
+
+
+def datagov_delhi():
+    q = dict(format="json", limit=2000, **{"filters[state]": "Delhi"})
+    url = DATAGOV_AQ + "?" + urllib.parse.urlencode(dict(q, **{"api-key": KEYS["DATAGOV_API_KEY"]}))
+    j = json.loads(get(url))
+    j.pop("api_key", None)
+    return j
+
+
+def otd_positions():
+    return get(OTD_VP + "?" + urllib.parse.urlencode({"key": KEYS["OTD_API_KEY"]}), timeout=60)
+
+
 def metar(station, now):
     a = now - dt.timedelta(days=2)
     q = dict(station=station, data="all", year1=a.year, month1=a.month, day1=a.day, year2=now.year, month2=now.month,
@@ -145,11 +187,22 @@ def main(a):
             r = sldc(y); json.dump(r, open(os.path.join(d, "sldc_load.json"), "w"), indent=0); log["ok"]["sldc"] = r["parsed_ok"]
         except Exception as e:
             log["errors"]["sldc"] = str(e)[:300]
+    for name, need, fn, ext in (("openaq_delhi", "OPENAQ_API_KEY", openaq_delhi, "json"),
+                                ("cpcb_datagov_delhi", "DATAGOV_API_KEY", datagov_delhi, "json"),
+                                ("otd_vehicle_positions", "OTD_API_KEY", otd_positions, "pb")):
+        if not KEYS[need]:
+            log["errors"][name] = f"skipped: {need} not set"; continue
+        try:
+            r = fn(); fn_out = os.path.join(d, f"{name}.{ext}")
+            open(fn_out, "wb").write(r) if ext == "pb" else json.dump(r, open(fn_out, "w"))
+            log["ok"][name] = True
+        except Exception as e:
+            log["errors"][name] = scrub(str(e))[:300]
     for s in METAR:
         try:
             open(os.path.join(d, f"metar_{s}.csv"), "w").write(metar(s, now)); log["ok"][f"metar_{s}"] = True
         except Exception as e:
-            log["errors"][f"metar_{s}"] = str(e)[:300]
+            log["errors"][f"metar_{s}"] = scrub(str(e))[:300]
     json.dump(log, open(os.path.join(d, "log.json"), "w"), indent=1)
     print(json.dumps(dict(dir=d, ok=sum(bool(v) for v in log["ok"].values()), errors=len(log["errors"]),
                           error_keys=list(log["errors"])[:20])), flush=True)

@@ -32,6 +32,9 @@ jobs:
       - name: Fetch forecasts and observations
         env:
           FORCE_SLDC: ${{ inputs.force_sldc }}
+          OPENAQ_API_KEY: ${{ secrets.OPENAQ_API_KEY }}
+          DATAGOV_API_KEY: ${{ secrets.DATAGOV_API_KEY }}
+          OTD_API_KEY: ${{ secrets.OTD_API_KEY }}
         run: python3 code/atlas/delhi_live/log_live.py --out logbr/delhi_live
       - name: Commit
         run: |

@@ -15,9 +15,9 @@ tags:
 
 # Atlas-100M: one compact world model for weather, air quality and traffic
 
-**ParadoxAI Lab** · Aditya Kumar, Anupam Singh · v1.1 (interim), 2026-11-22. v1.0 (weather, air quality, traffic)
-is final; v1.1 adds the traffic follow-ups, the India study and the hybrid with global forecasts (interim; GraphCast
-and the final scoring pending). One-page scoreboard:
+**ParadoxAI Lab** · Aditya Kumar, Anupam Singh · v1.1, 2026-11-22. v1.0 (weather, air quality, traffic) is final;
+v1.1 adds the traffic follow-ups, the India study and the hybrid with global forecasts (scored against ECMWF IFS, AIFS
+and NOAA GFS; GraphCast and the Indian-station comparison follow when their forecast archives are complete). One-page scoreboard:
 [`atlas/m100/STANDINGS.md`](https://github.com/paradoxailab/paradox-world-model/blob/main/atlas/m100/STANDINGS.md).
 
 | | |
@@ -56,11 +56,12 @@ best traffic model: STAEformer and PWM-Dyn win on some networks.
 **Weather in India** (all 68 Indian stations, 2023 and 2024–25): **level** with the foundation models, not ahead —
 WIN 19, TIE 74, LOSS 7 of 100 (worldwide: 100 of 100).
 
-**Hybrid with global forecasts — interim** (178 stations, 2025, 24 h): the weather model reading ECMWF IFS, AIFS and
-NOAA GFS forecasts (H2: the freshest published run) is ahead of raw and bias-corrected IFS on temperature (−19% / −11%),
-dewpoint (−25% / −16%) and wind speed (−30% / −17%), ahead of GFS on every variable, and **loses to bias-corrected IFS
-on sea-level pressure (+12%)**. Interim: GraphCast is still being fetched and the final scoring uses a corrected pairing
-(PREREG deviations 7 and 8). This card will be updated with the final verdicts.
+**Hybrid with global forecasts** (178 stations, 2025, 24 h; `hybrid/hybrid2_best.pt`): the weather model reading ECMWF
+IFS, AIFS and NOAA GFS forecasts (H2: the freshest published run) has **WIN** against raw and bias-corrected IFS on
+temperature (−19% / −11%), dewpoint (−25% / −16%), wind direction (−22%) and wind speed (−30% / −17%), WIN against raw and
+bias-corrected GFS on all five variables, WIN against raw AIFS on temperature and wind (other AIFS comparisons TIE), and
+**LOSS to bias-corrected IFS on sea-level pressure (+12%)**. WIN 45, TIE 9, LOSS 1 in all. GraphCast is still being
+fetched; its comparison will be added and replaces these verdicts where they differ (PREREG deviations 7–9).
 
 ## Limits (read before using)
 

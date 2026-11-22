@@ -20,11 +20,11 @@ opponent's (negative = Atlas-100M better).
 | Weather | **WIN 100 / 100** (10 models, 2023 and 2024–25) | better than PhysicsFormer on 4/5 (not pressure); equal to Atlas-5K 24.1M |
 | Air quality | WIN 7/9 on trained stations, 2/9 on never-trained (rest TIE) | TIE with Atlas-India v1.0 |
 | Traffic | WIN 7, TIE 11, LOSS 12 (5 models × 6 networks) | **LOSS** 22 / 24 against STID, Graph WaveNet, STAEformer, PWM-Dyn |
-| Hybrid vs ECMWF / GFS | pending | pending |
+| Hybrid H2 vs ECMWF IFS / AIFS / NOAA GFS (178 stations, 2025) | WIN 45, TIE 9, LOSS 1 (loss: pressure vs bias-corrected IFS) | GraphCast pending |
 | *Traffic, follow-up Atlas-100M-T (4.84M traffic parameters)* | *WIN 14, TIE 16, LOSS 0* | *WIN 2, TIE 8, LOSS 14* |
 | *Traffic, follow-up Atlas-100M-TXL2 (20.45M traffic parameters)* | ***WIN 18, TIE 12, LOSS 0*** | *WIN 4, TIE 13, LOSS 7* |
 
-Predictions: 4 of 13 scored so far held (P1, P2, P4, P6); 9 failed; P14–P17 pending. The rows above are Atlas-100M
+Predictions P1–P17: 5 held (P1, P2, P4, P6, P17), 12 failed. The rows above are Atlas-100M
 v1.0 and stay as published; Atlas-100M-T is a separate, separately pre-registered model (`PREREG_TRAFFIC.md`).
 
 ## The model
@@ -274,17 +274,21 @@ loss into no losses against the zero-shot foundation models and a much smaller g
 changing a byte of the weather or air-quality model. It did not make Atlas the best traffic model: STAEformer and our
 own single-domain PWM-Dyn are still ahead on some networks. Of 19 traffic predictions, 7 held (T1–T4, T15–T17).
 
-## Hybrid against ECMWF IFS, AIFS, GFS and GraphCast (interim; final scoring pending)
+## Hybrid against ECMWF IFS, AIFS and NOAA GFS (corrected scoring; GraphCast pending)
 
-The archive of IFS, AIFS and GFS was complete on 2026-11-21 (coverage of hours 0.93, 0.60, 0.97); GraphCast was
-wrongly reported missing and is being fetched (deviation 7). Both hybrids were trained: the registered one (section H)
-and Atlas-100M-H2 (addendum H2, the freshest published run). Check H0 held exactly for both (0.0). Validation error E
-(every station, 2024-11-01 – 12-31): pure Atlas-100M 0.3227, hybrid 0.2477, **H2 0.2380**.
+The weather model reading global forecasts as extra inputs (section H) and its variant **Atlas-100M-H2** (addendum H2:
+the freshest run published 12 h before the start). Archive coverage of hours: IFS 0.93, AIFS 0.60, GFS 0.97. Check H0
+held exactly for both (0.0). Validation error E (2024-11-01 – 12-31, every station): pure Atlas-100M 0.3227, hybrid
+0.2477, **H2 0.2380**.
 
-**Interim test, 2025-01-01 – 08-23, 178 stations, 940 forecast starts, 24 h ahead.** Not the final result: it lacks
-GraphCast, and its pairing inflated our error wherever an opponent's archive had gaps (deviation 8, found after this
-score was seen; fixed). The final scoring (full family, fixed pairing) replaces it; the interim files stay published in
-`results/interim_no_graphcast/`. MAE (own units; wind direction in degrees):
+**Test: 2025-01-01 – 08-23, 178 stations worldwide, 940 forecast starts, 24 h ahead,** scored with the corrected pairing
+(deviation 8: both forecasts on exactly the same hours) against IFS, AIFS and GFS (deviation 9). GraphCast is still being
+fetched under Open-Meteo's free limits (deviation 7); when it arrives the full family is scored and replaces these
+verdicts wherever they differ (more tests can only make verdicts more conservative). "Raw" = each system's freshest run
+published 6 h after issue; "bias-corrected" = raw minus its 2024 mean error per station, hour and variable; "day 1" = the
+run issued 24 h before the valid hour even when not yet published (an advantaged reference).
+
+MAE (each forecast on its own hours; wind direction in degrees):
 
 | Forecast | Temperature | Dewpoint | Wind dir. | Wind speed | Sea-level pressure |
 |---|---|---|---|---|---|
@@ -295,10 +299,47 @@ score was seen; fixed). The final scoring (full family, fixed pairing) replaces 
 | ECMWF AIFS raw / bias-corrected | 1.782 / 1.682 | 1.809 / 1.650 | 73.6 / 73.6 | 1.538 / 1.313 | 1.862 / 1.674 |
 | NOAA GFS raw / bias-corrected | 1.848 / 1.673 | 2.067 / 1.669 | 72.4 / 72.4 | 1.518 / 1.255 | 1.135 / 0.910 |
 
-Each system's MAE is on its own available hours; the paired tests use shared hours only. Interim verdicts for H2:
-WIN against IFS raw and bias-corrected and GFS raw and bias-corrected on temperature, dewpoint, wind direction and wind
-speed; against IFS on sea-level pressure TIE (raw) and **LOSS (bias-corrected, +12%)**; AIFS all TIE (the comparison the
-pairing error affected most). No prediction is scored on these interim numbers.
+**Atlas-100M-H2** (one Holm family of 55; WIN 45, TIE 9, LOSS 1). Cells: H2's error relative to the opponent on shared hours.
+
+| vs | Temperature | Dewpoint | Wind direction | Wind speed | Sea-level pressure |
+|---|---|---|---|---|---|
+| Atlas-100M pure | -13.1% WIN | -16.4% WIN | -16.2% WIN | -14.7% WIN | -50.4% WIN |
+| Atlas-100M hybrid | -2.9% WIN | -2.6% WIN | -1.1% WIN | -1.4% WIN | -12.6% WIN |
+| ECMWF IFS raw | **-19.2% WIN** | **-24.5% WIN** | **-21.8% WIN** | **-30.2% WIN** | -12.4% TIE |
+| ECMWF IFS bias-corrected | **-11.4% WIN** | **-15.5% WIN** | **-21.8% WIN** | **-16.9% WIN** | **+12.4% LOSS** |
+| ECMWF IFS day 1 (unpublished) | -17.8% WIN | -22.9% WIN | -21.2% WIN | -29.8% WIN | -8.0% TIE |
+| ECMWF AIFS raw | **-31.4% WIN** | -28.9% TIE | **-25.6% WIN** | **-32.0% WIN** | -52.4% TIE |
+| ECMWF AIFS bias-corrected | -27.4% TIE | -22.0% TIE | **-25.6% WIN** | **-20.4% WIN** | -47.1% TIE |
+| ECMWF AIFS day 1 (unpublished) | -30.7% WIN | -27.9% TIE | -25.3% WIN | -31.9% WIN | -51.4% TIE |
+| NOAA GFS raw | **-31.2% WIN** | **-39.7% WIN** | **-24.1% WIN** | **-33.6% WIN** | **-28.8% WIN** |
+| NOAA GFS bias-corrected | **-24.1% WIN** | **-25.3% WIN** | **-24.1% WIN** | **-19.7% WIN** | **-11.1% WIN** |
+| NOAA GFS day 1 (unpublished) | -30.3% WIN | -38.8% WIN | -23.4% WIN | -33.1% WIN | -24.7% WIN |
+
+**Registered hybrid** (family of 50; WIN 36, TIE 13, LOSS 1): the same pattern a little weaker — WIN against IFS raw and
+bias-corrected on temperature (-16.8% / -8.8%), dewpoint, wind direction and wind speed; LOSS to bias-corrected IFS on
+pressure (+28.5%); against AIFS WIN on wind only; against GFS WIN on 9 of 10 (TIE on bias-corrected pressure).
+Raw output: `results/hybrid/` (and the interim, pre-correction score in `results/interim_no_graphcast/`).
+
+- **Where it stands:** with global forecasts as input, Atlas is more accurate than raw and bias-corrected ECMWF IFS and
+  NOAA GFS on temperature, dewpoint and wind 24 h ahead at these 178 stations, by 11–34%. Against ECMWF AIFS it is 20–32%
+  lower in error on every variable, but only the wind comparisons and raw temperature clear the WIN bar (AIFS's archive
+  covers about a third of the test hours, which leaves the tests less power).
+- **Where it does not:** sea-level pressure. Bias-corrected IFS is 12% better than H2 and 28% better than the registered
+  hybrid; against raw IFS pressure is a TIE. Pure Atlas-100M (no global forecasts) is 76% worse than raw IFS on pressure,
+  though 7% lower in error than raw IFS on temperature (by MAE; 2% worse than bias-corrected IFS) — for pressure,
+  station history alone cannot match a global model 24 h ahead.
+
+| # | Prediction | Probability | Result |
+|---|---|---|---|
+| P14 | Hybrid: WIN against raw IFS, AIFS, GFS and GraphCast on temperature and dewpoint | 0.70 | **failed** (TIE with AIFS raw on both; GraphCast cannot change this) |
+| P15 | Hybrid: WIN against bias-corrected AIFS on temperature | 0.45 | failed (TIE, -21.9%) |
+| P16 | Hybrid: WIN against raw IFS on sea-level pressure | 0.10 | failed (TIE, +0.2%) |
+| P17 | Pure Atlas-100M LOSES to raw IFS on sea-level pressure | 0.90 | **held by MAE** (1.628 vs 0.923); the scorer has no Holm test for the pure model |
+| P18 | H2: WIN against raw IFS, AIFS, GFS and GraphCast on temperature and dewpoint | 0.75 | failed (TIE with AIFS raw on dewpoint) |
+| P19 | H2: WIN against bias-corrected IFS and bias-corrected AIFS on temperature | 0.50 | failed (WIN vs IFS, TIE vs AIFS) |
+| P20 | H2: WIN against the registered hybrid on temperature | 0.60 | **held** (-2.9%; to be confirmed in the family with GraphCast) |
+| P21 | H2: WIN against raw IFS on sea-level pressure | 0.15 | failed (TIE, -12.4%) |
+| P22 | H2: WIN against every system's day-1 run on temperature | 0.30 | held for IFS, AIFS and GFS; pending GraphCast |
 
 ## India: all 68 Indian WEATHER-5K stations (addendum I)
 

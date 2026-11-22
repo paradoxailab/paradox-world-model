@@ -72,6 +72,13 @@ WINs against every comparable opponent in that region and pollutant, raw and bia
 3. Fetch, build stations lists (all CPCB/DPCC; AirNow; China if available), freeze them by hash.
 4. Train the three candidates on 2021–2024; select on validation; score the test year once.
 
+## Addenda (dated; before any Atlas-AQ data is downloaded)
+
+- **23 Nov 2026, 03:45 IST — GEOS-CF archive checked.** NASA's OPeNDAP server lists dated GEOS-CF v2 forecast runs
+  (`fcst/aqc_tavg_1hr_glo_L1440x721_slv.<YYYYMMDD>_09z`, 463 entries) starting **5 August 2025**. GEOS-CF is therefore
+  compared on the archived test year from 5 Aug 2025 (the July 2025 starts have no GEOS-CF forecast and are scored without
+  it), using the 09 UTC run issued before each forecast start.
+
 ## Deviations
 
 None yet.

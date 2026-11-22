@@ -79,6 +79,14 @@ WINs against every comparable opponent in that region and pollutant, raw and bia
   compared on the archived test year from 5 Aug 2025 (the July 2025 starts have no GEOS-CF forecast and are scored without
   it), using the 09 UTC run issued before each forecast start.
 
+- **23 Nov 2026, 04:35 IST — China station data checked.** CN-AEBench (aiweather126.github.io/CN-AEBench) publishes
+  hourly PM2.5, PM10, NO₂, O₃, SO₂ and CO from about 2,600 Chinese environmental monitoring stations, 2023 onward, on
+  Hugging Face (rolling, ~2-day delay) and ScienceDB; no licence is stated, so it is used for research only and not
+  redistributed. China therefore enters with training 1 Jan 2023 – 31 Dec 2024 (shorter than India and the USA), the same
+  validation and test periods, and opponents CAMS, GEOS-CF (from 5 Aug 2025) and Aurora. CMA stays not comparable.
+- **Station truth for India and the USA:** OpenAQ's public archive (`s3://openaq-data-archive`, anonymous access), all
+  CPCB / DPCC and AirNow locations with PM2.5, NO₂ or O₃.
+
 ## Deviations
 
 None yet.

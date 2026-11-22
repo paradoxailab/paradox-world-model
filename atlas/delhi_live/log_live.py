@@ -98,7 +98,7 @@ def airquality(la, lo):
 
 
 def sldc(day):
-    b = get(SLDC_URL.format(day.strftime("%d/%m/%Y")))
+    b = get(SLDC_URL.format(day.strftime("%d/%m/%Y")), tries=1, timeout=45)  # timed out from GitHub's US runners (22 Nov)
     t = text(b)
     rows = re.findall(r"(\d{2}:\d{2})((?:\s*\|\s*[\d.]+){3,})", re.sub(r"\s*\n\s*", " ", t))
     table = [[r[0]] + [float(x) for x in re.findall(r"[\d.]+", r[1])] for r in rows]

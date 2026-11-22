@@ -298,3 +298,11 @@ a different model, and no claim is made about them.
    are unchanged. The fix can only lower our reported error, never the opponent's, so we state plainly that it was made
    after seeing results. The interim files (`results/interim_no_graphcast/`, buggy pairing, no GraphCast) stay published
    next to the final ones.
+9. **2026-11-22, hybrid: scoring the three complete systems now, GraphCast and India when their archives arrive.**
+   The GraphCast re-fetch (deviation 7) and the Indian archive (addendum I) are held back by Open-Meteo's free hourly and
+   daily limits (GraphCast about 85% fetched at 10:10 UTC). Decided before any fixed-pairing number was seen: the
+   hybrids are scored now with the corrected pairing (deviation 8) against IFS, AIFS and GFS from the complete first
+   archive (`*_fixed_nogc.json`, Holm family without GraphCast). These are reported as the result for those three systems,
+   labelled as such. When `NWP_W5K_GC.npz` is complete, the full registered family (with GraphCast, `*_gc.json`) is scored
+   unchanged and **replaces** these verdicts wherever they differ (a larger Holm family can only make verdicts more
+   conservative); predictions involving GraphCast (P14) and the Indian stations (P25–P27) are scored only then.

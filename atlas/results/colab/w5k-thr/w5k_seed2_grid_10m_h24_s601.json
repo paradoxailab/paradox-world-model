@@ -1,0 +1,40 @@
+{
+ "model": "atlas",
+ "H": 24,
+ "seed": 601,
+ "tag": "w5k_seed2_grid_10m_h24",
+ "stations": 5672,
+ "k": 16,
+ "steps": 60000,
+ "protocol": "WEATHER-5K: L=48, train 2014-2021, val 2022, test 2023, all hourly windows",
+ "gpu": "NVIDIA L4",
+ "params": 9942032,
+ "frac": 1.0,
+ "train_days": 2920,
+ "train_station_days": 16562240,
+ "val_best": 0.28435298800468445,
+ "best_step": 60000,
+ "minutes_train": 81.2,
+ "val": {
+  "MAE": {
+   "Temperature": 1.4598,
+   "Dewpoint": 1.5238,
+   "Wind direction": 54.5554,
+   "Wind speed": 1.2028,
+   "Sea-level pressure": 1.625
+  },
+  "MSE": {
+   "Temperature": 5.2308,
+   "Dewpoint": 5.9583,
+   "Wind direction": 6983.944,
+   "Wind speed": 3.3654,
+   "Sea-level pressure": 7.4462
+  },
+  "MAE_overall": 12.073357109524196,
+  "MSE_overall": 1401.1889220674157,
+  "points": 49312368,
+  "windows_per_station": 1449
+ },
+ "val_E": 0.2828435003757477,
+ "minutes_total": 85.1
+}

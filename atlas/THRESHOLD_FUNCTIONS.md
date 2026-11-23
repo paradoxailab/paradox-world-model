@@ -91,7 +91,7 @@ Both forms agree that a 1M model comes within 5% of its own floor with 11–28% 
 disagree at tight tolerances, where B keeps a slow tail and C saturates (C puts all data 0.6% above its floor of 0.2905).
 The floor belongs to this size; the size × data grid gives it per size.
 
-**Size × data grid (23 Nov; validation E; all 20 cells done, seed-2 10M running):**
+**Size × data grid (23 Nov; validation E; all 20 cells and both second seeds done):**
 
 | Size | 1/64 | 1/16 | 1/4 | all |
 |---|---|---|---|---|
@@ -101,6 +101,7 @@ The floor belongs to this size; the size × data grid gives it per size.
 | 3M (2,959,632) | 0.3403 | 0.3151 | 0.2947 | 0.2874 |
 | 10M (9,942,032) | 0.3414 | 0.3168 | 0.2949 | **0.2824** |
 | 1M, seed 601 | | | | 0.2927 |
+| 10M, seed 601 | | | | 0.2828 |
 
 First reading (no fit yet; the rule waits for all 20 cells; one seed per cell, seed noise not yet measured): with
 little data, size does not help — at 1/64 and 1/16 the 3M model is slightly *worse* than 1M (+0.8%, +0.7%; its 1/64 run
@@ -115,14 +116,32 @@ its 1/64 run peaked at step 10,000). **With all data it is the best model in the
 below 1M.** At all data each ~3× in size has bought a similar step (1M → 3M −1.9%, 3M → 10M −1.7%); at a quarter of
 the data the step from 3M to 10M is zero.
 
-**Seed noise (first pair):** the 1M all-data run repeated with seed 601 gives 0.2927 against 0.2929 (0.07% apart), about
-25× smaller than the size steps at all data. One pair is not a noise estimate; the 10M seed-601 run (running) gives the
-second. On this evidence the size effect at all data is real.
+**Seed noise:** second seeds differ by 0.08% (1M: 0.2927 vs 0.2929) and 0.15% (10M: 0.2828 vs 0.2824); the scorer's
+noise allowance (2 × mean spread) is 0.23%. The size steps at all data (1.9%, 1.7%) are 8–25 times that: **the size
+effect at all data is real.**
+
+**Phase 3 verdict (pre-registered rule, scorer run on Colab 23 Nov 14:33 UTC): no form verified.** Fitted on the 12 cells
+with share ≤ 1/4 and size ≤ 3M, predicting the 8 held-out cells (the all-data column and the 10M row):
+
+| Form | held-out median | largest | beats nearest-cell baseline (median 0.64%)? | verified |
+|---|---|---|---|---|
+| A data only, per size | — | — | cannot predict the 10M row | not verifiable |
+| B additive | 2.16% | 5.81% (0.1M all) | no | **no** |
+| C interacting | 0.82% | 2.10% (3M all) | no | **no** |
+
+Both B and C are inside the 3% / 6% error limits; both fail the third condition, a lower median error than simply
+copying the nearest fitted cell. The grid's cells differ so little at this resolution (the whole grid spans E 0.282–0.341)
+that the nearest cell is already within 0.64% at the median. By the rule written on 17 Nov: **no threshold function is
+adopted, no extrapolated claim is made, and Phase 4 (a 37.7M model) is not indicated.**
+
+Exploratory, not a result: B predicts the 10M all-data cell at 0.2920 (measured 0.2824, +3.4%): the additive law
+expects size to saturate, and it did not. C, where size and data interact, misses it by −0.7%. The measured cells, not
+any fitted law, are what this grid establishes.
 
 **What this changes.** The earlier statement "data beats parameters" holds where data is short (India; WEATHER-5K at ≤ 1/4)
-and is wrong for WEATHER-5K with all its data: there, 10M beats 1M by 3.6%. Size and data interact: each size needs a
-minimum amount of data before it pays, and that amount grows with size. Phase 3 (form C, interacting) is scored by the
-pre-registered scorer when the last run finishes; nothing here is a fitted result.
+and is wrong for WEATHER-5K with all its data: there, 10M beats 1M by 3.6%, well beyond seed noise. Each size needs a
+minimum amount of data before it pays, and that amount grows with size. How far this continues above 10M is not known:
+the rule forbids extrapolating it, and only a measured larger model can say.
 
 ## What the threshold functions say, together
 
@@ -130,8 +149,9 @@ pre-registered scorer when the last run finishes; nothing here is a fitted resul
    data. The threshold is the amount of data needed for a chosen error, read off a curve.
 2. **Data first, then parameters:** where data is short, the parameter term is near zero (10M did not beat 1M on
    India with or without weather; on WEATHER-5K at ≤ 1/4 of the data, 10M ≈ 3M). With all of WEATHER-5K, size pays:
-   10M beats 1M by 3.6% (seed noise ≈ 0.1%).
+   10M beats 1M by 3.6% (seed noise 0.08–0.15%).
 3. **Transfer is the largest lever for a single city:** pre-training on the rest of India is worth about 3.5 years of
    local data.
 4. **The size threshold moves with data:** on WEATHER-5K (about 40× India's station-hours) 10M pays with all the data
-   and not with a quarter of it — answered 23 Nov (one seed per cell; second seed for 10M running).
+   and not with a quarter of it — answered 23 Nov (second seeds: 0.08% and 0.15%). No threshold function passed the
+   pre-registered test, so none is used to extrapolate.

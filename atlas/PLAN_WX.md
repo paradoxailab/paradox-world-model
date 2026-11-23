@@ -1,7 +1,8 @@
 # Atlas-WX: plan to build the most accurate station weather forecast we can, and test it fairly (ParadoxAI Lab, 23 Nov 2026)
 
 Status: **plan, not a pre-registration.** The pre-registration (`PREREG_WX.md`) is written from this plan and committed
-before any Atlas-WX training data is downloaded. Nothing here is a result.
+before any Atlas-WX training data is downloaded. Nothing here is a result. **Where this plan and `PREREG_WX.md` differ
+(splits, horizon, station rule, sizes), `PREREG_WX.md` and its addenda hold.**
 
 ## 1. Which "best" is winnable, and which is not
 

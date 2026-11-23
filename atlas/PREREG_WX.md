@@ -107,6 +107,15 @@ live test**. "Worldwide" for a variable and lead band needs that in all five reg
   grown model gets its own 200,000-step cap after growth (so it has also seen the 10M's steps; stated with the result).
   Code: `atlas/wx/run_atlas_wx.py` (the Atlas-5K recipe on the ISD data; values held in CPU memory when the GPU has no
   room).
+- **24 Nov 2026, 00:10 IST, before any station data is downloaded — source switched to GHCNh for all years.** The first
+  trial found that NOAA stopped updating ISD in late August 2025 (`isd-history.csv` ends 2025-08-28; no 2026 ISD-Lite
+  files), so ISD-Lite cannot cover the 2025 test year. Rather than mix sources between training and test, every year
+  (1995–2025) now comes from GHCNh, ISD's successor (AWS `noaa-ghcnh-pds`, by-year parquet, CC0, updated daily; it also
+  serves the live test). Per hour, the observation nearest the top of the hour within 30 minutes, variable by variable.
+  A value is kept only if its quality code is empty or 0, 1, 4 or 5; the codes dropped are counted and published. The
+  station rule, QC, splits and everything else stand. The sixth channel holds the raw precipitation value of the kept
+  observation (its accumulation period varies); the 6 h totals for Stage 2 are derived from it before Stage 2 and the
+  derivation is recorded then. Code: `atlas/wx/fetch_ghcnh_all.py`. Only the ISD station list had been downloaded.
 
 ## Deviations
 

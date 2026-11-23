@@ -116,6 +116,17 @@ live test**. "Worldwide" for a variable and lead band needs that in all five reg
   station rule, QC, splits and everything else stand. The sixth channel holds the raw precipitation value of the kept
   observation (its accumulation period varies); the 6 h totals for Stage 2 are derived from it before Stage 2 and the
   derivation is recorded then. Code: `atlas/wx/fetch_ghcnh_all.py`. Only the ISD station list had been downloaded.
+- **24 Nov 2026, 01:25 IST — station list frozen (before any model sees the data).** 13,267 GHCNh stations had 2024
+  and 2025 files; 9,335 met the 2024/2025 rule; **8,791** remain after the 5-qualifying-years rule and duplicate
+  positions. SHA-256 of the sorted ID list: `dd1da8fc8a755c46fb5af043af5d021639293a5809895097f984a83fb7123ab1`.
+  Temperature hours 1995–2023: 1,211,343,893 (≈ 50.5M station-days, about **3× WEATHER-5K's training data**, less than
+  the 4–8× the plan guessed). Largest countries: US 2,844, CA 706, DE 509, BR 391, JP 252, CN 239, …, IN 112.
+  Coverage of 2025 hours: T 84.0%, Td 78.9%, WD 66.6%, WS 78.2%, SLP 42.4%, raw precipitation 26.3%.
+  Dropped by quality code (largest): WD code 9 (missing) 137.3M; T code 7 (erroneous) 7.56M; Td code 7 7.50M;
+  precipitation "Null" 2.55M; SLP 9 1.65M; WS 3 1.53M; values whose code is the text "Null" (T 0.99M, about 0.08%
+  of temperature hours) are dropped as the rule says (not in the passed list). Dropped by our QC: WD out of 0–360
+  (the 999 "variable" code) 104.8M; WS 8-SD 0.49M; SLP bounds 0.25M; Td 8-SD 0.24M; Td above T 0.19M; WS bounds
+  0.19M; SLP 8-SD 0.07M; T 8-SD 0.04M; others < 0.03M. Full counts: `summary.json` beside the data.
 
 ## Deviations
 

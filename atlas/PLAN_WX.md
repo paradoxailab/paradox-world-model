@@ -67,6 +67,25 @@ needs that in every region. Losses are published with the wins.
 - 10M on WEATHER-5K, all data: 81 min on an L4. Stage 1 with 10–20× the data at 10M / 30M / 100M: roughly 25–40 A100
   hours in total; Stage 2 hybrid: ~10 A100 hours; scoring: ~2 hours.
 
+## Addendum, 23 Nov 2026 21:45 IST: archives checked (step 1; before any download)
+
+- **Open-Meteo Previous Runs:** "most models are archived from January 2024"; GFS 2 m temperature from March 2021, JMA
+  from 2018; offsets `previous_day0` … `previous_day7`. → The hybrid trains on **2024** only, and leads stop at **7 days**
+  (not 10). The 2025 test is unaffected.
+- **WeatherNext 2 (Google DeepMind):** Earth Engine / GCS archive from **1 Jan 2022**, 0.25°, 6-hourly steps to 15 days,
+  64 members, 2 m temperature, 10 m wind, MSLP, 6 h precipitation (no dewpoint); historic data CC BY 4.0, access by
+  Google's WeatherNext Data Request form. → An opponent (and possible input) **only if the lab owner requests access**;
+  the form and its terms are his to accept.
+- **RealBench (arXiv 2605.24945, May 2026):** scores AIFS, Aurora, GraphCast, Pangu, FuXi, FengWu, Stormer at 10,000+
+  GHCNh stations in 2025; code at github.com/lixruize-del/NWP-Benchmark; release of the forecasts themselves not stated.
+  → Their models enter as opponents only if their forecasts can be scored on our stations and hours; otherwise their
+  published numbers are cited as context and never compared as if paired.
+- **Station truth:** NOAA ISD-Lite on AWS (`noaa-isd-pds/isd-lite/data/<year>/<USAF>-<WBAN>-<year>.gz`, the path our
+  Phase 5b live data already used; hourly temperature, dewpoint, SLP, wind direction and speed, 1 h and 6 h precipitation)
+  with the station list `isd-history.csv`; GHCNh (`noaa-ghcnh-pds`, CC0) as the fallback if ISD-Lite stops updating.
+  Expected data: roughly 4–8× WEATHER-5K's station-days (counted on fetch, not assumed).
+- **NOAA NBM (USA):** archive depth at stations to be checked when the US opponents are fetched; until then not listed.
+
 ## 8. Order of work
 
 1. Check archives (NWP depth per system at stations, RealBench forecast release, WeatherNext archive, NBM); dated addendum.

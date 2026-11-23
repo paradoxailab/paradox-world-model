@@ -96,14 +96,18 @@ The floor belongs to this size; the size × data grid gives it per size.
 | Size | 1/64 | 1/16 | 1/4 | all |
 |---|---|---|---|---|
 | 0.1M (95,472) | 0.3406 | 0.3321 | 0.3270 | 0.3294 |
-| 0.3M (282,672) | 0.3361 | 0.3163 | 0.3072 | running |
+| 0.3M (282,672) | 0.3361 | 0.3163 | 0.3072 | 0.3058 |
 | 1M (968,672) | 0.3376 | 0.3129 | 0.2971 | 0.2929 |
-| 3M, 10M | pending | | | |
+| 3M (2,959,632) | 0.3403 | 0.3151 | 0.2947 | 0.2874 |
+| 10M | running | | | |
 
-First reading (no fit yet; the rule waits for all 20 cells): with little data, size hardly matters (all three sizes
-within 1% at 1/64); with more data the small models stop improving — the 0.1M model is no better with all data than
-with a quarter. The floor falls with size, so **below about 1M, parameters do matter**; whether they still matter above
-1M is what the 3M and 10M rows decide.
+First reading (no fit yet; the rule waits for all 20 cells; one seed per cell, seed noise not yet measured): with
+little data, size does not help — at 1/64 and 1/16 the 3M model is slightly *worse* than 1M (+0.8%, +0.7%; its 1/64 run
+peaked at step 12,000 of 60,000, i.e. it overfits). With more data the order flips: 3M is 0.8% better than 1M at 1/4 and
+**1.9% better with all data (0.2874 vs 0.2929)**, below the 0.2905 floor that form C fitted for 1M. The small models
+stop improving early (0.1M: no better with all data than with a quarter; 0.3M: 0.5% better). So the floor keeps falling
+with size above 1M, but slowly, and **only once the data is there**: size and data interact, which is what form C
+(interacting) is for. Whether 1.9% is larger than seed noise is decided by the seed-2 runs (1M and 10M, all data).
 
 ## What the threshold functions say, together
 

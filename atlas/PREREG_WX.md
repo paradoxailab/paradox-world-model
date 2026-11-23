@@ -95,7 +95,12 @@ live test**. "Worldwide" for a variable and lead band needs that in all five reg
 
 ## Addenda
 
-None yet.
+- **23 Nov 2026, 22:15 IST, before any download — station rule restated in observation counts.** ISD-Lite stores one
+  observation per hour at most, and much of the world (India's IMD network among it) reports 3-hourly synoptic
+  observations; "≥ 60% of hours" would exclude most of India, Africa and Asia. The rule becomes: a qualifying year has
+  **≥ 2,190 temperature observations** (at least 3-hourly on average); a station needs ≥ 5 qualifying years in
+  1995–2023 and qualifying 2024 and 2025. Candidates are pre-selected from `isd-history.csv` (BEGIN ≤ 2019-12-31,
+  END ≥ 2025-12-01, valid coordinates, USAF ≠ 999999). Code: `atlas/wx/fetch_isd_all.py`.
 
 ## Deviations
 

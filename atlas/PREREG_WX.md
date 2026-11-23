@@ -101,6 +101,12 @@ live test**. "Worldwide" for a variable and lead band needs that in all five reg
   **≥ 2,190 temperature observations** (at least 3-hourly on average); a station needs ≥ 5 qualifying years in
   1995–2023 and qualifying 2024 and 2025. Candidates are pre-selected from `isd-history.csv` (BEGIN ≤ 2019-12-31,
   END ≥ 2025-12-01, valid coordinates, USAF ≠ 999999). Code: `atlas/wx/fetch_isd_all.py`.
+- **23 Nov 2026, 22:50 IST, before any download — exact Stage 1 sizes.** 10M = `sized(10_000_000)` (9,942,032
+  parameters, width 680, 2 + 2 blocks, the grid's 10M). "30M" = the trained 10M grown `--grow 1,7,7` (depth 7 + 7, same
+  width): **28,472,032**. "100M" = the trained 10M grown `--grow 2,6,6` (width 1,360, depth 6 + 6): **97,621,300**. Each
+  grown model gets its own 200,000-step cap after growth (so it has also seen the 10M's steps; stated with the result).
+  Code: `atlas/wx/run_atlas_wx.py` (the Atlas-5K recipe on the ISD data; values held in CPU memory when the GPU has no
+  room).
 
 ## Deviations
 

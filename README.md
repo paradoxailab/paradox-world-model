@@ -1,11 +1,34 @@
 # Paradox World Model (PWM)
 
-**ParadoxAI Lab** · [paradoxailab.com](https://paradoxailab.com) · contact.paradoxailab@gmail.com · Authors: Aditya Kumar, Anupam Singh
+[![Apache 2.0](https://img.shields.io/badge/licence-Apache--2.0-0b7285.svg)](LICENSE)
+[![Models](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-58%20models-f6c700)](https://huggingface.co/PARADOXAIlabs)
+[![Atlas-100M](https://img.shields.io/badge/Atlas--100M-weather%20100%2F100-2f9e44)](https://huggingface.co/PARADOXAIlabs/atlas-100m)
+[![Papers](https://img.shields.io/badge/papers-Zenodo-1864ab)](https://zenodo.org/records/24370660)
+[![Try Atlas](https://img.shields.io/badge/try-Atlas%20live-111111)](https://atlaswebapp.paradoxailab.com)
+[![Pre-registered](https://img.shields.io/badge/evaluation-pre--registered-7048e8)](atlas/m100/PREREG.md)
+
+**ParadoxAI Lab** · [paradoxailab.com](https://paradoxailab.com) · info@paradoxailab.com · Authors: Aditya Kumar, Anupam Singh
 
 Compact physical world models for station weather, air quality, traffic and rainfall, trained from scratch on public
 data and scored against the strongest public forecasting models on identical windows with paired significance tests.
 Every rule and prediction is committed here **before** the run it governs, and every number below is copied from a
 result file in this repository.
+
+## At a glance
+
+| | |
+|---|---|
+| **Largest model** | Atlas-100M — 98,599,994 parameters, one shared core plus per-domain adapters |
+| **How it was built** | Grown 0.97M → 9.64M → 24.1M → 98.6M by exact function-preserving expansion. Never restarted |
+| **Training** | Real station data only. No images, no text, no pretrained weights. 100k steps, 317.6 min on one A100 |
+| **Weather** | WIN 100/100 paired comparisons against ten zero-shot foundation models, 709 stations |
+| **Air quality** | WIN against 7 of 9 foundation models on trained stations; mostly ties on never-trained ones |
+| **Traffic** | A clear loss at 100M (22 of 24 against trained specialists). The TXL2 follow-up closes it against foundation models, not against specialists |
+| **Known weaknesses** | Sea-level pressure; transfer to Maharashtra and Karnataka; one seed per model; GraphCast pending |
+| **Everything open** | [58 models](https://huggingface.co/PARADOXAIlabs) · [papers](https://zenodo.org/records/24370660) · [benchmark](PWM-Dyn_ParadoxBench.md) · [live app](https://atlaswebapp.paradoxailab.com) |
+
+Every claim here is copied from a result file in this repository, and every pre-registration was committed before the
+run it governs. Where we lose, it is written down in the same table as where we win.
 
 ## Latest: Atlas-100M, one model for weather, air quality and traffic (2026-11-21, v1.0)
 
@@ -243,6 +266,23 @@ WEATHER-5K and NOAA data are downloaded by the scripts and are not redistributed
 
 Earlier Atlas results (India air quality with real ECMWF forecasts, threshold functions, Atlas-F) are summarised in
 [`atlas/README.md`](atlas/README.md) and [`atlas/THRESHOLD_FUNCTIONS.md`](atlas/THRESHOLD_FUNCTIONS.md).
+
+## Follow the work
+
+| | |
+|---|---|
+| Website | [paradoxailab.com](https://paradoxailab.com) |
+| Atlas, live | [atlaswebapp.paradoxailab.com](https://atlaswebapp.paradoxailab.com) |
+| Hugging Face | [huggingface.co/PARADOXAIlabs](https://huggingface.co/PARADOXAIlabs) |
+| GitHub | [github.com/paradoxailab](https://github.com/paradoxailab) |
+| X | [@paradoxailab](https://x.com/paradoxailab) |
+| LinkedIn | [ParadoxAI Lab](https://www.linkedin.com/company/paradoxai-lab/) |
+| YouTube | [@paradoxailab](https://www.youtube.com/@paradoxailab) |
+| Instagram | [@paradoxailab](https://www.instagram.com/paradoxailab/) |
+| Email | info@paradoxailab.com |
+
+Found a number here you cannot reproduce? [Open an issue](https://github.com/paradoxailab/paradox-world-model/issues)
+— that is what the frozen windows, the scorers and the raw outputs are in this repository for.
 
 ## Licence and citation
 

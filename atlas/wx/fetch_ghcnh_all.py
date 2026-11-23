@@ -106,7 +106,7 @@ def hourly(path, y):
         return np.zeros(0, np.int64), np.zeros((0, 6), np.float32), Counter()
     if d.empty or "DATE" not in d:
         return np.zeros(0, np.int64), np.zeros((0, 6), np.float32), Counter()
-    t = pd.to_datetime(d["DATE"], errors="coerce")
+    t = pd.to_datetime(d["DATE"], format="ISO8601", errors="coerce")   # mixed ISO forms parse fast
     ok = t.notna().values
     d, t = d[ok], t[ok]
     t0 = np.datetime64(f"{y}-01-01T00:00")

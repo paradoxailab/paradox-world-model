@@ -154,13 +154,14 @@ def n_temp(args):
 
 
 def qc(series, hours):
-    s = series.copy(); dropped = 0
+    """-> QC'd copy and a Counter of values dropped per (variable, check)."""
+    s = series.copy(); dropped = Counter()
     for j, k in enumerate(VARS):
         lo, hi = BOUNDS[k]
         bad = np.isfinite(s[:, j]) & ((s[:, j] < lo) | (s[:, j] > hi))
-        dropped += int(bad.sum()); s[bad, j] = np.nan
+        dropped[f"{k}:bounds"] += int(bad.sum()); s[bad, j] = np.nan
     bad = np.isfinite(s[:, 1]) & np.isfinite(s[:, 0]) & (s[:, 1] > s[:, 0] + 0.5)
-    dropped += int(bad.sum()); s[bad, 1] = np.nan
+    dropped["Td:above_T"] += int(bad.sum()); s[bad, 1] = np.nan
     month = (np.datetime64(f"{Y0}-01-01T00") + hours.astype("timedelta64[h]")).astype("datetime64[M]").astype(int) % 12
     for j, k in enumerate(VARS):
         if k in ("WD", "P_raw"):
@@ -174,8 +175,8 @@ def qc(series, hours):
                 continue
             bad = np.abs(x - med) > 8 * mad
             if bad.any():
-                idx = np.nonzero(sel)[0][bad]; s[idx, j] = np.nan; dropped += int(bad.sum())
-    return s, dropped
+                idx = np.nonzero(sel)[0][bad]; s[idx, j] = np.nan; dropped[f"{k}:8sd"] += int(bad.sum())
+    return s, +dropped
 
 
 def build_station(args):
@@ -251,10 +252,10 @@ def main(a):
 
     T = int((np.datetime64(f"{Y1 + 1}-01-01T00") - np.datetime64(f"{Y0}-01-01T00")) / np.timedelta64(1, "h"))
     V = np.lib.format.open_memmap(os.path.join(a.raw, "wx_all.f16"), mode="w+", dtype=np.float16, shape=(len(st), T, 6))
-    dropped, codes = 0, Counter()
+    dropped, codes = Counter(), Counter()
     with ProcessPoolExecutor(a.procs) as ex:
         for i, (x, d, cd) in enumerate(ex.map(build_station, [(a.raw, s["id"], T) for s in st], chunksize=4)):
-            V[i] = x; dropped += d; codes.update(cd)
+            V[i] = x; dropped.update(d); codes.update(cd)
             if i % 500 == 0:
                 print(f"step 5: packed {i}/{len(st)} ({(time.time() - t0) / 60:.1f} min)", flush=True)
     V.flush()
@@ -271,7 +272,7 @@ def main(a):
     summ = dict(source="GHCNh by-year parquet (noaa-ghcnh-pds)", stations=len(st), sha256=sha, hours=T,
                 start=f"{Y0}-01-01T00", end_exclusive=f"{Y1 + 1}-01-01T00",
                 station_hours_temp_1995_2023=int(sum(s["n_temp"] for s in st)),
-                qc_dropped=dropped, quality_codes_dropped=dict(codes.most_common(30)),
+                qc_dropped=dict(dropped.most_common()), quality_codes_dropped=dict(codes.most_common(30)),
                 coverage_2025_pct={k: (round(float(np.isfinite(last[:, :, j]).mean() * 100), 1) if len(st) else None)
                                    for j, k in enumerate(VARS)},
                 by_country=dict(Counter(s["ctry"] for s in st).most_common(25)),

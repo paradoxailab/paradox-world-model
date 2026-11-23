@@ -91,7 +91,7 @@ Both forms agree that a 1M model comes within 5% of its own floor with 11–28% 
 disagree at tight tolerances, where B keeps a slow tail and C saturates (C puts all data 0.6% above its floor of 0.2905).
 The floor belongs to this size; the size × data grid gives it per size.
 
-**Size × data grid (running, 23 Nov; validation E):**
+**Size × data grid (23 Nov; validation E; all 20 cells done, seed-2 10M running):**
 
 | Size | 1/64 | 1/16 | 1/4 | all |
 |---|---|---|---|---|
@@ -99,7 +99,8 @@ The floor belongs to this size; the size × data grid gives it per size.
 | 0.3M (282,672) | 0.3361 | 0.3163 | 0.3072 | 0.3058 |
 | 1M (968,672) | 0.3376 | 0.3129 | 0.2971 | 0.2929 |
 | 3M (2,959,632) | 0.3403 | 0.3151 | 0.2947 | 0.2874 |
-| 10M (9,942,032) | 0.3414 | 0.3168 | 0.2949 | running |
+| 10M (9,942,032) | 0.3414 | 0.3168 | 0.2949 | **0.2824** |
+| 1M, seed 601 | | | | 0.2927 |
 
 First reading (no fit yet; the rule waits for all 20 cells; one seed per cell, seed noise not yet measured): with
 little data, size does not help — at 1/64 and 1/16 the 3M model is slightly *worse* than 1M (+0.8%, +0.7%; its 1/64 run
@@ -109,17 +110,28 @@ stop improving early (0.1M: no better with all data than with a quarter; 0.3M: 0
 with size above 1M, but slowly, and **only once the data is there**: size and data interact, which is what form C
 (interacting) is for. Whether 1.9% is larger than seed noise is decided by the seed-2 runs (1M and 10M, all data).
 
-10M (23 Nov, 11:10 UTC): no better than 3M at any share so far — 0.3414 / 0.3168 / 0.2949 against 3M's
-0.3403 / 0.3151 / 0.2947 (10M worse by 0.3%, 0.5%, 0.1%; its 1/64 run peaked at step 10,000). At a quarter of the data,
-the gain from size has stopped between 3M and 10M. The all-data cell decides whether it resumes with 4× the data.
+10M (23 Nov): no better than 3M at 1/64, 1/16 or 1/4 (0.3414 / 0.3168 / 0.2949 against 3M's 0.3403 / 0.3151 / 0.2947;
+its 1/64 run peaked at step 10,000). **With all data it is the best model in the grid: 0.2824, 1.7% below 3M and 3.6%
+below 1M.** At all data each ~3× in size has bought a similar step (1M → 3M −1.9%, 3M → 10M −1.7%); at a quarter of
+the data the step from 3M to 10M is zero.
+
+**Seed noise (first pair):** the 1M all-data run repeated with seed 601 gives 0.2927 against 0.2929 (0.07% apart), about
+25× smaller than the size steps at all data. One pair is not a noise estimate; the 10M seed-601 run (running) gives the
+second. On this evidence the size effect at all data is real.
+
+**What this changes.** The earlier statement "data beats parameters" holds where data is short (India; WEATHER-5K at ≤ 1/4)
+and is wrong for WEATHER-5K with all its data: there, 10M beats 1M by 3.6%. Size and data interact: each size needs a
+minimum amount of data before it pays, and that amount grows with size. Phase 3 (form C, interacting) is scored by the
+pre-registered scorer when the last run finishes; nothing here is a fitted result.
 
 ## What the threshold functions say, together
 
 1. **No sudden jump anywhere:** on simulators, Indian stations and global weather stations, error falls smoothly with
    data. The threshold is the amount of data needed for a chosen error, read off a curve.
-2. **Data beats parameters at these sizes:** the parameter term is near zero on real stations; 10M did not beat 1M on
-   India with or without weather.
+2. **Data first, then parameters:** where data is short, the parameter term is near zero (10M did not beat 1M on
+   India with or without weather; on WEATHER-5K at ≤ 1/4 of the data, 10M ≈ 3M). With all of WEATHER-5K, size pays:
+   10M beats 1M by 3.6% (seed noise ≈ 0.1%).
 3. **Transfer is the largest lever for a single city:** pre-training on the rest of India is worth about 3.5 years of
    local data.
-4. **The size threshold moves with data:** whether 10M pays on WEATHER-5K (about 40× India's station-hours) is the
-   open, pre-registered question.
+4. **The size threshold moves with data:** on WEATHER-5K (about 40× India's station-hours) 10M pays with all the data
+   and not with a quarter of it — answered 23 Nov (one seed per cell; second seed for 10M running).

@@ -105,11 +105,18 @@ for p in PER:
               f"E = standardised mean error, lower is better.\n")
     md.append("| Rank | Model | Params | E | " + " | ".join(f"{s} ({u})" for s, u in zip(SHORT, UNITS)) + " |")
     md.append("|---|---|---|---|" + "---|" * 5)
-    for i, k in enumerate(order(p), 1):
-        n, pr = label(k); b = "**" if k == "atlas25m" else ""
-        md.append(f"| {i} | {b}{n}{b} | {pr} | {b}{H[p][k]['E']:.4f}{b} | " +
+    ks = order(p); Es = [f"{H[p][k]['E']:.4f}" for k in ks]
+    for i, k in enumerate(ks):
+        r = Es.index(Es[i]) + 1; tie = Es.count(Es[i]) > 1          # equal E at the printed precision: shared rank
+        n, pr = label(k); b = "**" if k in ("atlas25m", "atlas100m") else ""
+        be = b if r == 1 else ""                                      # bold E only for the best
+        md.append(f"| {r}{'=' if tie else ''} | {b}{n}{b} | {pr} | {be}{Es[i]}{be} | " +
                   " | ".join(fmt(H[p][k]["MAE"][v], j) for j, v in enumerate(VARS)) + " |")
     md.append("")
+    vv = {r["variable"]: r for r in M100v25[p]}
+    md.append("Atlas-100M against Atlas-5K 25M, paired on the same windows: " + "; ".join(
+        f"{sh} {vv[v]['diff_pct']:+.2f}% {vv[v]['verdict']}" for sh, v in zip(SHORT, VARS)) + "." +
+        (" Ranks marked = share the same E at four decimals." if len(set(Es)) < len(Es) else "") + "\n")
 md.append("**Paired verdicts** (station-block bootstrap, 10,000 resamples, and Diebold–Mariano; the larger p-value, "
           "Holm-corrected over the 50 opponent × variable pairs, α = 0.01):\n")
 md.append("| Our model | Period | Significant wins | Largest Holm p | Margin vs the 9 foundation models (per variable) |")

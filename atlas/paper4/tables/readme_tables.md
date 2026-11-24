@@ -2,8 +2,8 @@
 
 | Rank | Model | Params | E | Temp. (°C) | Dew pt. (°C) | Wind dir. (°) | Wind spd. (m/s) | Pressure (hPa) |
 |---|---|---|---|---|---|---|---|---|
-| 1 | **Atlas-5K 25M (ours)** | 24.1M | **0.2742** | 1.391 | 1.460 | 53.93 | 1.179 | 1.466 |
-| 2 | Atlas-100M (ours) | 98.6M | 0.2742 | 1.390 | 1.458 | 53.85 | 1.179 | 1.471 |
+| 1= | **Atlas-5K 25M (ours)** | 24.1M | **0.2742** | 1.391 | 1.460 | 53.93 | 1.179 | 1.466 |
+| 1= | **Atlas-100M (ours)** | 98.6M | **0.2742** | 1.390 | 1.458 | 53.85 | 1.179 | 1.471 |
 | 3 | Atlas-5K 10M (ours) | 9.64M | 0.2770 | 1.420 | 1.475 | 54.51 | 1.190 | 1.472 |
 | 4 | Atlas-5K v2c (ours) | 0.97M | 0.2822 | 1.462 | 1.506 | 55.39 | 1.206 | 1.520 |
 | 5 | TimesFM 3.0 (Google) | 0.3B | 0.3303 | 1.876 | 1.960 | 63.06 | 1.327 | 1.965 |
@@ -17,12 +17,14 @@
 | 13 | TTM r2 (IBM Research) | 0.8M | 0.3647 | 2.175 | 2.155 | 65.79 | 1.359 | 2.827 |
 | 14 | Persistence | 0 | 0.4361 | 3.738 | 2.224 | 75.69 | 1.724 | 2.785 |
 
+Atlas-100M against Atlas-5K 25M, paired on the same windows: Temp. -0.03% TIE; Dew pt. -0.09% TIE; Wind dir. -0.14% WIN; Wind spd. +0.07% TIE; Pressure +0.40% TIE. Ranks marked = share the same E at four decimals.
+
 **Live, Jan 2024 – Aug 2025** (709 stations, 145 forecast starts from 2024-01-23 to 2025-08-21, 24 h each; up to 1,914,220 scored values per variable; hours with no observation are not scored). E = standardised mean error, lower is better.
 
 | Rank | Model | Params | E | Temp. (°C) | Dew pt. (°C) | Wind dir. (°) | Wind spd. (m/s) | Pressure (hPa) |
 |---|---|---|---|---|---|---|---|---|
 | 1 | **Atlas-5K 25M (ours)** | 24.1M | **0.3007** | 1.421 | 1.453 | 64.38 | 1.202 | 1.624 |
-| 2 | Atlas-100M (ours) | 98.6M | 0.3009 | 1.420 | 1.453 | 64.33 | 1.202 | 1.640 |
+| 2 | **Atlas-100M (ours)** | 98.6M | 0.3009 | 1.420 | 1.453 | 64.33 | 1.202 | 1.640 |
 | 3 | Atlas-5K 10M (ours) | 9.64M | 0.3028 | 1.448 | 1.469 | 64.76 | 1.210 | 1.623 |
 | 4 | Atlas-5K v2c (ours) | 0.97M | 0.3071 | 1.487 | 1.498 | 65.40 | 1.227 | 1.655 |
 | 5 | TimesFM 3.0 (Google) | 0.3B | 0.3508 | 1.882 | 1.952 | 71.25 | 1.353 | 2.070 |
@@ -35,6 +37,8 @@
 | 12 | Time-MoE (Shi et al.) | 200M | 0.3665 | 1.993 | 2.049 | 75.27 | 1.397 | 2.115 |
 | 13 | TTM r2 (IBM Research) | 0.8M | 0.3829 | 2.176 | 2.120 | 74.28 | 1.375 | 2.854 |
 | 14 | Persistence | 0 | 0.4646 | 3.807 | 2.178 | 87.11 | 1.778 | 2.842 |
+
+Atlas-100M against Atlas-5K 25M, paired on the same windows: Temp. -0.06% TIE; Dew pt. -0.05% TIE; Wind dir. -0.07% TIE; Wind spd. -0.05% TIE; Pressure +0.99% LOSS.
 
 **Paired verdicts** (station-block bootstrap, 10,000 resamples, and Diebold–Mariano; the larger p-value, Holm-corrected over the 50 opponent × variable pairs, α = 0.01):
 

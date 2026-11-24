@@ -17,7 +17,7 @@ Output, one file per system and month: <out>/<system>/<system>_<YYYYMM>.npz with
   python -u fetch_nwp_runs.py --stations /content/wx_out/stations.json --out /content/nwp --system ifs \\
          --start 2024-02-01 --end 2026-01-01
 """
-import argparse, datetime as dt, json, os, time, urllib.request
+import argparse, datetime as dt, json, os, random, time, urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
@@ -29,7 +29,8 @@ GFS = {"TMP:2 m above ground": "t2", "DPT:2 m above ground": "d2", "UGRD:10 m ab
        "VGRD:10 m above ground": "v10", "PRMSL:mean sea level": "msl", "APCP:surface": "tp"}
 
 
-def http(url, rng=None, tries=6):
+def http(url, rng=None, tries=8):
+    """GET with exponential back-off; S3 answers 503 "SlowDown" when requests come too fast."""
     for k in range(tries):
         try:
             h = {"User-Agent": "ParadoxAI-Lab research"}
@@ -40,9 +41,9 @@ def http(url, rng=None, tries=6):
         except urllib.error.HTTPError as e:
             if e.code == 404:
                 return None
-            time.sleep(2 * (k + 1) + (5 if e.code in (429, 503) else 0))     # S3 "SlowDown": back off
+            time.sleep(min(60, 2 ** k) + random.random() * 2)
         except Exception:
-            time.sleep(2 * (k + 1))
+            time.sleep(min(60, 2 ** k) + random.random() * 2)
     return None
 
 
@@ -158,9 +159,15 @@ def main(a):
                     if s <= d < e for h in (0, 12)]
             V = np.full((len(runs), len(steps), len(st), 6), np.nan, np.float16)
             jobs = [(i, j) for i in range(len(runs)) for j in range(len(steps))]
-            with ThreadPoolExecutor(a.workers) as ex:
-                for (i, j), x in zip(jobs, ex.map(lambda ij: one(a.system, runs[ij[0]], steps[ij[1]], interp), jobs)):
-                    V[i, j] = x
+            for rnd in range(3):                          # first pass, then up to two passes over what is still missing
+                if rnd:
+                    jobs = [(i, j) for (i, j) in jobs if np.isnan(V[i, j, :, 0].astype(np.float32)).all()]
+                    if not jobs:
+                        break
+                    time.sleep(30)
+                with ThreadPoolExecutor(a.workers) as ex:
+                    for (i, j), x in zip(jobs, ex.map(lambda ij: one(a.system, runs[ij[0]], steps[ij[1]], interp), jobs)):
+                        V[i, j] = x
             np.savez_compressed(fo, values=V, runs=np.array([r.isoformat() for r in runs]), steps=np.array(steps),
                                 vars=np.array(VARS), system=a.system)
             have = np.isfinite(V[..., 0].astype(np.float32)).mean()
@@ -174,5 +181,5 @@ if __name__ == "__main__":
     ap.add_argument("--stations", required=True); ap.add_argument("--out", default="/content/nwp")
     ap.add_argument("--system", choices=["ifs", "aifs", "gfs"], required=True)
     ap.add_argument("--start", default="2024-02-01"); ap.add_argument("--end", default="2026-01-01")
-    ap.add_argument("--max-lead", type=int, default=168); ap.add_argument("--workers", type=int, default=16)
+    ap.add_argument("--max-lead", type=int, default=168); ap.add_argument("--workers", type=int, default=6)
     main(ap.parse_args())

@@ -212,8 +212,12 @@ def predict_center(model, kind, b):
     return q[:, 0, :, :, 1]
 
 
-def evaluate(model, kind, bt, N, year, stride=1, stations=None, bs=2048):
+EVAL_BS = 2048                                            # windows per validation batch (--eval-bs; TPUs with 16 GB use less)
+
+
+def evaluate(model, kind, bt, N, year, stride=1, stations=None, bs=None):
     """MAE and MSE per variable in the variables' own units over every window wholly inside `year`."""
+    bs = bs or EVAL_BS
     a, e = YEARS[year]
     t0s = torch.arange(a, e - (L + bt.H) + 1, stride, device=HOST)
     S = torch.arange(N) if stations is None else torch.as_tensor(stations)
@@ -245,6 +249,8 @@ def std_E(v):
 
 def main(a):
     t_start = time.time()
+    global EVAL_BS
+    EVAL_BS = a.eval_bs or (256 if (TPU or XLA) else 2048)
     torch.manual_seed(a.seed); np.random.seed(a.seed)
     Z, lat, lon, elev, M = load(a.quick)
     N = Z.shape[0]
@@ -296,7 +302,7 @@ def main(a):
             perm = np.random.default_rng(12345).permutation(days)            # same for every size and seed
             days = np.sort(perm[:int(math.ceil(a.frac * len(days)))])
         kd = torch.from_numpy(days).to(HOST)
-        res.update(frac=a.frac, train_days=int(len(days)), train_station_days=int(len(days)) * N)
+        res.update(micro=a.micro, frac=a.frac, train_days=int(len(days)), train_station_days=int(len(days)) * N)
         log(f"training data: {len(days)} days x {N} stations ({a.frac:g} of 1995-2022)")
         vst = rng.choice(N, min(N, 300 if not a.quick else N), replace=False)   # validation: 300 stations, every 6th hour
         best, best_step, bad, f_best = float("inf"), 0, 0, os.path.join(OUT, f"{a.tag}_s{a.seed}.pt")
@@ -322,26 +328,32 @@ def main(a):
             os.replace(f_last + ".tmp", f_last)           # never a half-written checkpoint, even if the session dies
 
         t0, t_eval = time.time(), 0.0                     # t_eval: time spent validating (not training)
+        t_mark, s_mark = time.time(), first - 1           # for the s/step of the latest interval (no compile time)
         for step in (range(first, a.steps + 1) if not done else []):
             model.train()
             s = torch.randint(0, N, (a.bs,), device=HOST)
             t = (kd[torch.randint(0, len(kd), (a.bs,), device=HOST)] * 24 + torch.randint(0, 24, (a.bs,), device=HOST)).clamp(ta, tmax)
-            b = bt(s, t)
-            with torch.autocast(DT, dtype=AMP_DTYPE, enabled=amp_on(a.model)):
-                if a.model == "atlas":
-                    hide = (torch.rand_like(b["mc"]) < 0.15).float() * b["mc"]       # reconstruction of hidden inputs
-                    mc = b["mc"] - hide
-                    q, rec, _ = model(b["yc"] * mc, mc, b["uc"], b["uf"], b["geo"], None, b["static"])
-                    loss = pinball(q.float(), b["y"], b["my"]) + 0.2 * ((rec.float() - b["yc"]).abs() * hide).sum() / hide.sum().clamp(min=1)
-                else:
-                    p = model(b["yc"][:, 0])
-                    loss = F.mse_loss(p * b["my"][:, 0], b["y"][:, 0] * b["my"][:, 0])     # DLinear's own loss (MSE)
             opt.zero_grad(set_to_none=True)
-            scaler.scale(loss).backward(); scaler.unscale_(opt)
+            for part in range(a.micro):                   # --micro > 1: same batch, processed in equal parts (less memory)
+                sl = slice(part * a.bs // a.micro, (part + 1) * a.bs // a.micro)
+                b = bt(s[sl], t[sl])
+                with torch.autocast(DT, dtype=AMP_DTYPE, enabled=amp_on(a.model)):
+                    if a.model == "atlas":
+                        hide = (torch.rand_like(b["mc"]) < 0.15).float() * b["mc"]       # reconstruction of hidden inputs
+                        mc = b["mc"] - hide
+                        q, rec, _ = model(b["yc"] * mc, mc, b["uc"], b["uf"], b["geo"], None, b["static"])
+                        loss = pinball(q.float(), b["y"], b["my"]) + 0.2 * ((rec.float() - b["yc"]).abs() * hide).sum() / hide.sum().clamp(min=1)
+                    else:
+                        p = model(b["yc"][:, 0])
+                        loss = F.mse_loss(p * b["my"][:, 0], b["y"][:, 0] * b["my"][:, 0])     # DLinear's own loss (MSE)
+                scaler.scale(loss / a.micro).backward()
+                sync()
+            scaler.unscale_(opt)
             nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             scaler.step(opt); scaler.update(); sched.step()
             sync()
             if step % a.every == 0 or step == a.steps:
+                lv = float(loss.item())                   # waits for the step to finish (TPU and GPU run ahead of Python)
                 te0 = time.time()
                 v = evaluate(model, a.model, bt, N, "val", stride=6, stations=vst)
                 vm = v["MAE_overall_std"] if "MAE_overall_std" in v else float(np.mean([v["MAE"][n] / STD[i] for i, n in enumerate(NAMES)]))
@@ -351,12 +363,14 @@ def main(a):
                 else:
                     bad += 1
                 t_eval += time.time() - te0
+                isps = (te0 - t_mark) / max(1, step - s_mark)
                 sps = (time.time() - t0 - t_eval) / max(1, step - first + 1)
-                log(f"  step {step} loss {loss.item():.4f} val MAE (standardised mean) {vm:.4f} (best {best:.4f} at {best_step}) "
-                    f"T {v['MAE']['Temperature']:.3f} {(time.time() - t0) / 60:.1f} min, {sps:.3f} s/step, "
+                log(f"  step {step} loss {lv:.4f} val MAE (standardised mean) {vm:.4f} (best {best:.4f} at {best_step}) "
+                    f"T {v['MAE']['Temperature']:.3f} {(time.time() - t0) / 60:.1f} min, {sps:.3f} s/step ({isps:.3f} in the last interval), "
                     f"about {(sps * (a.steps - step) + t_eval / max(1, (step - first + 1) // a.every) * (a.steps - step) / a.every) / 3600:.1f} h left at most")
                 stop = bad >= a.patience or step == a.steps
                 save_last(step, done=stop)
+                t_mark, s_mark = time.time(), step
                 if stop:
                     log(f"  stop at step {step} ({'patience' if bad >= a.patience else 'end of schedule'})"); break
                 if (time.time() - t_start) / 60 > a.cap:
@@ -384,6 +398,8 @@ if __name__ == "__main__":
     ap.add_argument("--seed", type=int, default=600)
     ap.add_argument("--steps", type=int, default=200000)
     ap.add_argument("--bs", type=int, default=256)
+    ap.add_argument("--micro", type=int, default=1, help="process each batch in this many equal parts (same samples, less memory)")
+    ap.add_argument("--eval-bs", type=int, default=0, help="validation windows per batch (0: 2048 on GPU/CPU, 256 on TPU)")
     ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--every", type=int, default=2000)
     ap.add_argument("--patience", type=int, default=6)

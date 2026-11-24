@@ -45,12 +45,17 @@ for f in glob.glob(os.path.join(os.environ["ATLAS_OUT"], sys.argv[1] + "_s600*")
 print("uploaded", sys.argv[1])
 EOF
 }
-run() {
+run() {   # batch 256 in one pass; if the GPU runs out of memory, the same batch in 2, 4, 8 equal parts (--micro)
   local tag=$1; shift
   if [ -f "$RUNS/${tag}_s600.json" ]; then say "$tag already finished"; return 0; fi
-  say "training $tag"
-  python -u run_atlas_wx.py --tag "$tag" --cap 100000 "$@" >> "$RUNS/log_${tag}.txt" 2>&1
-  [ -f "$RUNS/${tag}_s600.json" ] || { say "$tag stopped (see runs/log_${tag}.txt); run the script again to resume"; exit 1; }
+  local m=${MICRO_START:-1}
+  while :; do
+    say "training $tag (batch 256 in $m part(s))"
+    python -u run_atlas_wx.py --tag "$tag" --cap 100000 --micro $m "$@" >> "$RUNS/log_${tag}.txt" 2>&1
+    [ -f "$RUNS/${tag}_s600.json" ] && break
+    if tail -50 "$RUNS/log_${tag}.txt" | grep -q -i "out of memory" && [ $m -lt 8 ]; then m=$((m * 2)); continue; fi
+    say "$tag stopped (see runs/log_${tag}.txt); run the script again to resume"; exit 1
+  done
   say "$tag finished: $(python -c "import json;d=json.load(open('$RUNS/${tag}_s600.json'));print('val E', round(d['val_E'],4), 'params', d['params'], 'best step', d['best_step'])")"
   upload "$tag"
 }
@@ -58,5 +63,6 @@ run wx_s1_10m --size 10000000
 run wx_s1_30m --init "$RUNS/wx_s1_10m_s600.pt" --grow 1,7,7 --lr 3e-4
 export WX_DATA_CPU=1
 run wx_s1_100m --init "$RUNS/wx_s1_10m_s600.pt" --grow 2,6,6 --lr 3e-4
-run wx_s1_250m --init "$RUNS/wx_s1_10m_s600.pt" --grow 3,7,7 --lr 2e-4 --max-params 260000000
+GPU_GB=$(python -c "import torch;print(int(torch.cuda.get_device_properties(0).total_memory/1e9))")
+MICRO_START=$([ "$GPU_GB" -ge 70 ] && echo 2 || echo 4) run wx_s1_250m --init "$RUNS/wx_s1_10m_s600.pt" --grow 3,7,7 --lr 2e-4 --max-params 260000000   # build_250m.py: ~1 GB per window (fp32)
 say "Stage 1 complete: all four candidates trained"

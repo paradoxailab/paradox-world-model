@@ -159,6 +159,18 @@ live test**. "Worldwide" for a variable and lead band needs that in all five reg
   reported with the Stage 2 results, never filled. Comparisons in a period are made only where every compared system
   has a forecast.
 
+- **24 Nov 2026, 23:40 IST, before any Stage 1 training — the 250M candidate built and checked; how batch 256 fits.**
+  `atlas/wx/build_250m.py` grows a 10M model built exactly as Stage 1 builds it with `--grow 3,7,7`: **251,879,368
+  parameters (the registered count)**, width 2,040, 12 heads, depth 7 + 7; check G0 (same forecasts before and after
+  growth, on real-format windows) passes with a maximum difference of 0. This used an untrained 10M and synthetic data:
+  it checks the build, not the model; the registered 250M is grown from the *trained* Stage 1 10M. One training step
+  needs about 1 GB per window in float32 on top of about 4 GB of weights, gradients and optimiser state, so batch 256
+  does not fit in one pass on an A100. Rule, fixed now: each batch of 256 is processed in equal parts (`--micro`; 2 on an
+  80 GB A100, 4 on a 40 GB one; for any model, doubled automatically on an out-of-memory error, at most 8), with the same
+  256 samples and one optimiser update per step. The loss is averaged over the parts, which weights the parts equally
+  rather than by their number of observed values, a negligible difference. This is not a change of batch size, so no
+  deviation is recorded for it; the number of parts used is written into each run's result file (`micro`).
+
 ## Deviations
 
 None yet.

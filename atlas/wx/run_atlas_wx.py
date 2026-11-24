@@ -71,11 +71,15 @@ def amp_on(kind):
     return DT in ("cuda", "xla") and kind == "atlas"
 
 
-def sync():
+def sync(t=None):
     """PyTorch/XLA: cut the lazily built graph here and run it (once per training step and per validation batch).
-    Native TorchTPU runs eagerly and needs nothing here."""
+    Native TorchTPU runs asynchronously: without a wait, Python queues many steps ahead and every queued step keeps its
+    TPU memory (16 GB on a v5e-1 fills within one step). Materialising a small result after each part keeps at most
+    one part in flight; the TPU executes in order, so everything queued before it has finished too."""
     if XLA:
         xm.mark_step()
+    elif TPU and t is not None:
+        t.detach().reshape(-1)[:1].cpu()
 
 
 def save(obj, f):
@@ -238,7 +242,7 @@ def evaluate(model, kind, bt, N, year, stride=1, stations=None, bs=None):
                 err = (p - b["y"][:, 0]) * sd                                   # own units
                 m = b["my"][:, 0]
                 sae += (err.abs() * m).sum((0, 1)).to(acc); sse += (err ** 2 * m).sum((0, 1)).to(acc); cnt += m.sum((0, 1)).to(acc)
-                sync()
+                sync(cnt)
     mae, mse = (sae / cnt).cpu().numpy(), (sse / cnt).cpu().numpy()
     return dict(MAE=dict(zip(NAMES, mae.round(4).tolist())), MSE=dict(zip(NAMES, mse.round(4).tolist())),
                 MAE_overall=float(mae.mean()), MSE_overall=float(mse.mean()), points=int(cnt[0].item()), windows_per_station=len(t0s))
@@ -349,11 +353,11 @@ def main(a):
                         p = model(b["yc"][:, 0])
                         loss = F.mse_loss(p * b["my"][:, 0], b["y"][:, 0] * b["my"][:, 0])     # DLinear's own loss (MSE)
                 scaler.scale(loss / a.micro).backward()
-                sync()
+                sync(next(model.parameters()).grad)       # first layer's gradient: written last by backward
             scaler.unscale_(opt)
             nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             scaler.step(opt); scaler.update(); sched.step()
-            sync()
+            sync(next(model.parameters()))                # updated in place by the optimiser step
             if step % a.every == 0 or step == a.steps:
                 lv = float(loss.item())                   # waits for the step to finish (TPU and GPU run ahead of Python)
                 te0 = time.time()

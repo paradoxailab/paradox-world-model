@@ -170,6 +170,16 @@ live test**. "Worldwide" for a variable and lead band needs that in all five reg
   256 samples and one optimiser update per step. The loss is averaged over the parts, which weights the parts equally
   rather than by their number of observed values, a negligible difference. This is not a change of batch size, so no
   deviation is recorded for it; the number of parts used is written into each run's result file (`micro`).
+- **25 Nov 2026, 00:05 IST, before any Stage 1 training — Stage 1 may run on a Colab TPU.** A v5e-1 TPU (Colab Pro,
+  about 3.3 compute units per hour, against about 11 for an A100) runs the Stage 1 trainer through native TorchTPU
+  (`torch_tpu` 0.2.0 with PyTorch 2.14), measured on synthetic data with `tpu_smoke.sh`: 10M at batch 256 in one pass,
+  0.11 s per step; the grown 97.6M at batch 256 in 4 parts, 0.44 s per step; check G0 holds after growth on the TPU.
+  On a TPU the trainer computes in float32 (weights, gradients, optimiser), with matrix products at the TPU's default
+  precision (bf16 passes with float32 accumulation); bf16 autocast is off because `torch_tpu` 0.2.0 fails on layer
+  normalisation under it. On an A100 the trainer uses float16 autocast as before. Each run's result file records the
+  device (`gpu`) and the batch split (`micro`). Data, model, schedule, selection rule and test are unchanged; a model's
+  device is not a criterion, so no deviation is recorded for it. The 250M candidate needs about 70 TPU-hours at
+  this speed (more than the lab's Colab units), so it waits for an A100 as planned.
 
 ## Deviations
 

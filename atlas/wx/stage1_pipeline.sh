@@ -2,7 +2,7 @@
 # Atlas-WX Stage 1, end to end on ONE Colab GPU runtime with Drive mounted (atlas/PREREG_WX.md section 3).
 #   1. fetch GHCNh to the local disk (skipped if the packed data are already on Drive; resumable)
 #   2. copy the packed data to Drive (PWM-WX/isd) so later runtimes do not fetch again
-#   3. train 10M, then 28.5M (--grow 1,7,7) and 97.6M (--grow 2,6,6) from the trained 10M; results to PWM-WX/runs
+#   3. train 10M, then 28.5M (--grow 1,7,7), 97.6M (--grow 2,6,6) and 251.9M (--grow 3,7,7) from the trained 10M
 # Every step is resumable: if the runtime ends, run the notebook cell again and it continues where it stopped.
 # Progress: PWM-WX/runs/pipeline.log on Drive.
 set -u
@@ -29,6 +29,9 @@ else
 fi
 
 export WX_DATA=$LOCAL ATLAS_OUT=$RUNS
+if ! python -c "import torch,sys; sys.exit(0 if torch.cuda.is_available() else 1)"; then
+  say "no GPU on this runtime: data are on Drive; switch the runtime to A100 and run the cell again to train"; exit 0
+fi
 run() {   # tag, then the trainer's arguments
   local tag=$1; shift
   if [ -f "$RUNS/${tag}_s600.json" ]; then say "$tag already finished"; return 0; fi
@@ -38,5 +41,7 @@ run() {   # tag, then the trainer's arguments
 }
 run wx_s1_10m --size 10000000
 run wx_s1_30m --init "$RUNS/wx_s1_10m_s600.pt" --grow 1,7,7 --lr 3e-4
+export WX_DATA_CPU=1                                   # 97.6M and 251.9M: data in CPU memory, GPU for the model
 run wx_s1_100m --init "$RUNS/wx_s1_10m_s600.pt" --grow 2,6,6 --lr 3e-4
-say "Stage 1 complete: all three candidates trained"
+run wx_s1_250m --init "$RUNS/wx_s1_10m_s600.pt" --grow 3,7,7 --lr 2e-4 --max-params 260000000
+say "Stage 1 complete: all four candidates trained"

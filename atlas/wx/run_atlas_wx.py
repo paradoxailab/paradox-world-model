@@ -53,6 +53,8 @@ def load(quick=False):
     need = n * T * 5 * 2
     free = torch.cuda.mem_get_info()[0] if DEV == "cuda" else 0
     where = DEV if free > need + 8e9 else "cpu"           # values on the GPU only when 8 GB stay free for the model
+    if os.environ.get("WX_DATA_CPU"):                     # large models: leave the whole GPU to the model
+        where = "cpu"
     Z = torch.empty((n, T, 5), dtype=torch.float16, device=where)
     mu, sd = MEAN, STD
     t = 0

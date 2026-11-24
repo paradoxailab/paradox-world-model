@@ -127,6 +127,20 @@ live test**. "Worldwide" for a variable and lead band needs that in all five reg
   of temperature hours) are dropped as the rule says (not in the passed list). Dropped by our QC: WD out of 0–360
   (the 999 "variable" code) 104.8M; WS 8-SD 0.49M; SLP bounds 0.25M; Td 8-SD 0.24M; Td above T 0.19M; WS bounds
   0.19M; SLP 8-SD 0.07M; T 8-SD 0.04M; others < 0.03M. Full counts: `summary.json` beside the data.
+- **24 Nov 2026, 15:55 IST, before any Stage 1 training — a fourth size, 250M (Adi's request).** "250M" = the trained
+  10M grown `--grow 3,7,7` (width 2,040, depth 7 + 7): **251,879,368** parameters, learning rate 2 × 10⁻⁴, the same
+  200,000-step cap, batch and data; trained last, after 97.6M. The selection rule is unchanged (lowest 2023 validation
+  E; within 0.5% → the smaller), so 250M is used only if it beats every smaller candidate by more than 0.5%. Added
+  prediction **W11**: 250M is selected (P = 0.25); W1 now reads "30M, 100M or 250M" (P unchanged, 0.70). Expected cost
+  of the 250M run: about 40–50 A100-hours (several 10-hour sessions; it resumes from its last checkpoint). If it runs
+  out of GPU memory at batch 256, the batch change is recorded as a deviation before the run continues.
+- **24 Nov 2026, 15:55 IST — forecast archives for Stage 2, checked.** Open-Meteo's AWS bucket (`openmeteo`) holds each
+  model's continuous best-estimate series (`data/<model>/<variable>/chunk_*.om`), not the forecasts as issued at each
+  lead, so it cannot serve as a fair Stage 2 input or opponent. The Previous Runs API is limited to 10,000 weighted calls a
+  day, far short of 8,791 stations × 2 years. Stage 2 will therefore extract the issued forecasts at the frozen stations
+  from the public run archives: ECMWF open data (IFS, AIFS) and NOAA GFS on AWS, 00 and 12 UTC runs, 2024–2025, leads to
+  168 h, variables 2 m temperature and dewpoint, 10 m wind, mean sea-level pressure, precipitation. The fetcher and the
+  exact archive depth per system are recorded in a further addendum before Stage 2 data are downloaded.
 
 ## Deviations
 

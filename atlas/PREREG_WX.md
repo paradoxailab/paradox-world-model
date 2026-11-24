@@ -141,6 +141,10 @@ live test**. "Worldwide" for a variable and lead band needs that in all five reg
   from the public run archives: ECMWF open data (IFS, AIFS) and NOAA GFS on AWS, 00 and 12 UTC runs, 2024–2025, leads to
   168 h, variables 2 m temperature and dewpoint, 10 m wind, mean sea-level pressure, precipitation. The fetcher and the
   exact archive depth per system are recorded in a further addendum before Stage 2 data are downloaded.
+- **24 Nov 2026, 20:20 IST — data reproduced and stored.** A second, independent GHCNh fetch (needed after the first
+  runtime ended) reproduced the frozen list exactly: 13,267 → 9,335 → 8,853 → **8,791 stations, SHA-256 `dd1da8fc…`
+  (match)**. The packed yearly files, `stations.json` and `summary.json` are on Drive (`PWM-WX/isd`). Stage 1 training
+  has not started: Colab reports no GPU available for the lab's account.
 
 ## Deviations
 

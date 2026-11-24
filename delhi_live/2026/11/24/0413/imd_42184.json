@@ -1,0 +1,56 @@
+{
+ "station": "42184",
+ "name": "New Delhi-Ridge",
+ "url": "https://city.imd.gov.in/citywx/citywxnew.php?id=42184",
+ "sha256": "626bf109a4c75e8a29013ce67062a869ce22c33ed3f7db3a425b54e29592433b",
+ "dated": "Nov 24, 2026",
+ "forecast": [
+  {
+   "date": "24-Nov",
+   "tmin": 12.0,
+   "tmax": 24.0,
+   "weather": "Shallow Fog"
+  },
+  {
+   "date": "25-Nov",
+   "tmin": 12.0,
+   "tmax": 24.0,
+   "weather": "Shallow Fog"
+  },
+  {
+   "date": "26-Nov",
+   "tmin": 11.0,
+   "tmax": 24.0,
+   "weather": "Shallow Fog"
+  },
+  {
+   "date": "27-Nov",
+   "tmin": 11.0,
+   "tmax": 25.0,
+   "weather": "Shallow Fog"
+  },
+  {
+   "date": "28-Nov",
+   "tmin": 12.0,
+   "tmax": 24.0,
+   "weather": "Shallow Fog"
+  },
+  {
+   "date": "29-Nov",
+   "tmin": 12.0,
+   "tmax": 24.0,
+   "weather": "Shallow Fog"
+  }
+ ],
+ "observed": {
+  "max_temp": "NA",
+  "max_recorded_on": "24/11/26",
+  "min_temp": "12.0",
+  "min_recorded_on": "24/11/26",
+  "rain_24h": "NIL",
+  "rh_0830": "93",
+  "rh_1730": "NA"
+ },
+ "parsed_ok": true,
+ "text": "Weather Report\nLocal Weather Report and Forecast For:\nNew Delhi-Ridge\nDated :Nov 24, 2026\nPast 24 Hours Weather Data |\nMaximum Temp( o C) (Recorded. on 24/11/26)\n|\nNA\n|\nDeparture from Normal( o C)\n|\nNA\n|\nMinimum Temp ( o C) (Recorded. on 24/11/26)\n|\n12.0\n|\nDeparture from Normal( o C)\n|\n-1.5\n|\n24 Hours Rainfall (mm) (Recorded from 0830 hrs IST\nof yesterday to 0830 hrs IST of today)\n|\nNIL\n|\nR.H. at 0830 hrs (%)\n|\n93\n|\nR.H. at 1730 hrs (%) (Recorded. on 24/11/26)\n|\nNA\n|\nTodays Sunset (IST)\n|\n17:24\n|\nTommorows Sunrise (IST)\n|\n06:50\n|\nMoonset (IST)\n|\n06:22\n|\nMoonrise (IST)\n|\n16:56\n|\n|\n7 Day's Forecast |\nDate |\nMin Temp |\nMax Temp |\nWeather |\n24-Nov |\n12.0 |\n24.0 |\n|\nShallow Fog |\n25-Nov |\n12.0 |\n24.0 |\n|\nShallow Fog |\n26-Nov |\n11.0 |\n24.0 |\n|\nShallow Fog |\n27-Nov |\n11.0 |\n25.0 |\n|\nShallow Fog |\n28-Nov |\n12.0 |\n24.0 |\n|\nShallow Fog |\n29-Nov |\n12.0 |\n24.0 |\n|\nShallow Fog |\n|\nClimatological & Extreme Weather Information"
+}

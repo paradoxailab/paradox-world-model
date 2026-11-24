@@ -1,0 +1,56 @@
+{
+ "station": "99923",
+ "name": "New Delhi-Lodi Road",
+ "url": "https://city.imd.gov.in/citywx/citywxnew.php?id=99923",
+ "sha256": "7ca0c7cbdac4a97724d2b5f46d00fa5a8268a381cc59d7eb6e9a044965f3d67a",
+ "dated": "Nov 24, 2026",
+ "forecast": [
+  {
+   "date": "24-Nov",
+   "tmin": 12.0,
+   "tmax": 25.0,
+   "weather": "Shallow Fog"
+  },
+  {
+   "date": "25-Nov",
+   "tmin": 12.0,
+   "tmax": 25.0,
+   "weather": "Shallow Fog"
+  },
+  {
+   "date": "26-Nov",
+   "tmin": 11.0,
+   "tmax": 25.0,
+   "weather": "Shallow Fog"
+  },
+  {
+   "date": "27-Nov",
+   "tmin": 11.0,
+   "tmax": 26.0,
+   "weather": "Shallow Fog"
+  },
+  {
+   "date": "28-Nov",
+   "tmin": 12.0,
+   "tmax": 25.0,
+   "weather": "Shallow Fog"
+  },
+  {
+   "date": "29-Nov",
+   "tmin": 12.0,
+   "tmax": 25.0,
+   "weather": "Shallow Fog"
+  }
+ ],
+ "observed": {
+  "max_temp": "NA",
+  "max_recorded_on": "24/11/26",
+  "min_temp": "NA",
+  "min_recorded_on": "24/11/26",
+  "rain_24h": "NA",
+  "rh_0830": "NA",
+  "rh_1730": "NA"
+ },
+ "parsed_ok": true,
+ "text": "Weather Report\nLocal Weather Report and Forecast For:\nNew Delhi-Lodi Road\nDated :Nov 24, 2026\nPast 24 Hours Weather Data |\nMaximum Temp( o C) (Recorded. on 24/11/26)\n|\nNA\n|\nDeparture from Normal( o C)\n|\nNA\n|\nMinimum Temp ( o C) (Recorded. on 24/11/26)\n|\nNA\n|\nDeparture from Normal( o C)\n|\nNA\n|\n24 Hours Rainfall (mm) (Recorded from 0830 hrs IST\nof yesterday to 0830 hrs IST of today)\n|\nNA\n|\nR.H. at 0830 hrs (%)\n|\nNA\n|\nR.H. at 1730 hrs (%) (Recorded. on 24/11/26)\n|\nNA\n|\nTodays Sunset (IST)\n|\n17:25\n|\nTommorows Sunrise (IST)\n|\n06:51\n|\nMoonset (IST)\n|\n06:22\n|\nMoonrise (IST)\n|\n16:56\n|\n|\n7 Day's Forecast |\nDate |\nMin Temp |\nMax Temp |\nWeather |\n24-Nov |\n12.0 |\n25.0 |\n|\nShallow Fog |\n25-Nov |\n12.0 |\n25.0 |\n|\nShallow Fog |\n26-Nov |\n11.0 |\n25.0 |\n|\nShallow Fog |\n27-Nov |\n11.0 |\n26.0 |\n|\nShallow Fog |\n28-Nov |\n12.0 |\n25.0 |\n|\nShallow Fog |\n29-Nov |\n12.0 |\n25.0 |\n|\nShallow Fog |\n|\nClimatological & Extreme Weather Information"
+}

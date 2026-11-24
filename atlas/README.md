@@ -2,6 +2,8 @@
 
 ParadoxAI Lab (Aditya Kumar, Anupam Singh).
 
+> This page is the Atlas research log from v0.1 onward. The newest model, **Atlas-100M** (one model for weather, air quality and traffic, 2026-11-21), and every win, tie and loss it scored are in [`m100/RESULTS.md`](m100/RESULTS.md); one-page scoreboard [`m100/STANDINGS.md`](m100/STANDINGS.md); all models [`MODELS.md`](MODELS.md).
+
 **Question.** Is there a minimum amount of useful information a model needs before it can predict a physical system,
 and can it be worked out before training? This version builds the model and the measuring apparatus, and answers the
 question on four systems whose equations are known. It uses numbers only: no images, video or text, and no

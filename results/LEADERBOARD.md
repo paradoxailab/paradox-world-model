@@ -1,5 +1,7 @@
 # ParadoxBench-1 leaderboard
 
+> Atlas-100M (2026-11-21) was scored on traffic under its own pre-registered protocol (six road networks, next hour), not on these tracks, so it has no row here: LOSS 22 of 24 against trained specialists including PWM-Dyn; the TXL2 follow-up WIN 18 / TIE 12 / LOSS 0 against foundation models. See [`atlas/m100/RESULTS.md`](../atlas/m100/RESULTS.md).
+
 Official test windows (every 2nd). Ranked by MAE. Lower is better for MAE, RMSE, QL and IS80; COV80 should be close to 80 %.
 Traffic in vehicles per 5 min (zero readings excluded); rainfall in mm/day (dry days included, so MAPE is not meaningful for rain).
 

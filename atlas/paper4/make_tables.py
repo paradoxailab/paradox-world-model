@@ -13,7 +13,7 @@ D = os.path.join(HERE, "data"); T = os.path.join(HERE, "tables"); os.makedirs(T,
 VARS = ["Temperature", "Dewpoint", "Wind direction", "Wind speed", "Sea-level pressure"]
 SHORT = ["Temp.", "Dew pt.", "Wind dir.", "Wind spd.", "Pressure"]
 UNITS = ["°C", "°C", "°", "m/s", "hPa"]
-OPP = [("tfm3", "TimesFM 3.0", "Google", "n/a", "non-commercial research (eval. only)"),
+OPP = [("tfm3", "TimesFM 3.0", "Google", "0.3B", "non-commercial research (eval. only)"),
        ("chronos2mv", "Chronos-2 multivariate", "Amazon", "120M", "Apache-2.0"),
        ("tirex", "TiRex", "NX-AI", "35M", "NXAI community (eval. only)"),
        ("chronos2", "Chronos-2", "Amazon", "120M", "Apache-2.0"),
@@ -23,7 +23,7 @@ OPP = [("tfm3", "TimesFM 3.0", "Google", "n/a", "non-commercial research (eval. 
        ("timemoe200", "Time-MoE", "Shi et al.", "200M", "Apache-2.0"),
        ("ttm", "TTM r2", "IBM Research", "0.8M", "Apache-2.0"),
        ("persist", "Persistence", "--", "0", "--")]
-OURS = [("atlas25m", "Atlas-5K 25M (ours)", "24.1M"), ("atlas10m", "Atlas-5K 10M (ours)", "9.64M"), ("v2c", "Atlas-5K v2c (ours)", "0.97M")]
+OURS = [("atlas100m", "Atlas-100M (ours)", "98.6M"), ("atlas25m", "Atlas-5K 25M (ours)", "24.1M"), ("atlas10m", "Atlas-5K 10M (ours)", "9.64M"), ("v2c", "Atlas-5K v2c (ours)", "0.97M")]
 PF = [1.55, 1.59, 57.37, 1.21, 1.43]; HRES = [1.76, 1.85, 63.8, 1.48, 0.86]          # published, WEATHER-5K paper
 PER = {"test": "2023 test", "live": "Live, Jan 2024 – Aug 2025"}
 
@@ -36,6 +36,14 @@ H = {p: J(f"h2h_{p}.json") for p in PER}
 P = {(m, p): J(f"paired_{m}_{p}_r25.json") for m in ("atlas25m", "atlas10m") for p in PER}
 V = {p: J(f"paired_atlas25m_{p}_vs10m.json")["atlas10m"] for p in ("val", "test", "live")}
 RUN = {"atlas25m": J("w5k_atlas_25m_h24_g2_s600.json"), "atlas10m": J("w5k_atlas_10m_h24_g1_s600.json")}
+M100D = os.path.join(HERE, "..", "m100", "results")          # Atlas-100M (atlas/m100/RESULTS.md): same windows
+M100 = {p: json.load(open(os.path.join(M100D, f"paired_atlas100m_{p}_m100.json"))) for p in PER}
+M100v25 = {p: json.load(open(os.path.join(M100D, f"paired_atlas100m_{p}_m100vs25m.json")))["atlas25m"] for p in PER}
+RUN["atlas100m"] = json.load(open(os.path.join(M100D, "atlas100m_eval_s600.json")))
+STD = [13.08167293, 12.13875438, 99.67403125, 2.65729403, 9.17480999]   # the benchmark's scales (E = mean MAE / scale)
+for p in PER:
+    mae = {r["variable"]: r["ours"] for r in M100v25[p]}
+    H[p]["atlas100m"] = dict(MAE=mae, E=sum(mae[v] / sd for v, sd in zip(VARS, STD)) / 5)
 V2C = json.load(open(os.path.join(HERE, "..", "results", "colab", "atlas5k_grown", "w5k_atlas_1m_h24_v2c_final_s600.json")))
 
 
@@ -70,8 +78,17 @@ for p in PER:
             for r, v in zip(rows, VARS):                     # paired file and h2h file agree on both MAEs
                 assert abs(r["ours"] / H[p][m]["MAE"][v] - 1) < 1e-4 and abs(r["theirs"] / H[p][k]["MAE"][v] - 1) < 1e-4, (m, p, k, v)
     assert H[p]["atlas25m"]["points"] == H[p]["tfm3"]["points"]
+for p in PER:
+    assert abs(sum(H[p]["atlas25m"]["MAE"][v] / sd for v, sd in zip(VARS, STD)) / 5 - H[p]["atlas25m"]["E"]) < 2e-4, p
+    for r in M100v25[p]:
+        assert abs(r["theirs"] / H[p]["atlas25m"]["MAE"][r["variable"]] - 1) < 1e-3, (p, r)
+    assert sorted(M100[p]) == sorted(k for k, *_ in OPP)
+    for k, rows in M100[p].items():
+        for r in rows:
+            assert abs(r["ours"] / H[p]["atlas100m"]["MAE"][r["variable"]] - 1) < 1e-3 and abs(r["theirs"] / H[p][k]["MAE"][r["variable"]] - 1) < 1e-3, (p, k, r)
 assert all(abs(H["live"]["atlas10m_chk"]["MAE"][v] - H["live"]["atlas10m"]["MAE"][v]) < 1e-3 for v in VARS)
 
+P.update({("atlas100m", p): M100[p] for p in PER})
 wins = {(m, p): sum(r["verdict"] == "WIN" for rows in P[(m, p)].values() for r in rows) for (m, p) in P}
 pmax = {(m, p): max(r["p_holm"] for rows in P[(m, p)].values() for r in rows) for (m, p) in P}
 fm = [k for k, *_ in OPP if k != "persist"]
@@ -97,7 +114,7 @@ md.append("**Paired verdicts** (station-block bootstrap, 10,000 resamples, and D
           "Holm-corrected over the 50 opponent × variable pairs, α = 0.01):\n")
 md.append("| Our model | Period | Significant wins | Largest Holm p | Margin vs the 9 foundation models (per variable) |")
 md.append("|---|---|---|---|---|")
-for m, n, _ in OURS[:2]:
+for m, n, _ in OURS[:3]:
     for p in PER:
         lo, hi = rng[(m, p)]
         md.append(f"| {n} | {PER[p]} | {wins[(m, p)]}/50 | {pmax[(m, p)]:.3g} | {lo:.1f}% to {hi:.1f}% lower MAE |")
@@ -120,12 +137,13 @@ md.append("**Full 2023 test** (all 5,672 stations, every hourly window, about 1.
           "protocol, MAE). Published rows are from the WEATHER-5K paper, compared by number only:\n")
 md.append("| Model | Params | " + " | ".join(SHORT) + " |")
 md.append("|---|---|" + "---|" * 5)
-for k, n, pr in (("atlas25m", "**Atlas-5K 25M (ours)**", "24.1M"), ("atlas10m", "Atlas-5K 10M (ours)", "9.64M")):
+for k, n, pr in (("atlas100m", "Atlas-100M (ours)", "98.6M"), ("atlas25m", "**Atlas-5K 25M (ours)**", "24.1M"), ("atlas10m", "Atlas-5K 10M (ours)", "9.64M")):
     md.append(f"| {n} | {pr} | " + " | ".join(fmt(RUN[k]["test"]["MAE"][v], j) for j, v in enumerate(VARS)) + " |")
 md.append("| Atlas-5K v2c (ours) | 0.97M | " + " | ".join(fmt(V2C["test"]["MAE"][v], j) for j, v in enumerate(VARS)) + " |")
 md.append("| PhysicsFormer (published) | 19.3M | " + " | ".join(str(x) for x in PF) + " |")
 md.append("| ECMWF-HRES at stations (published) | – | " + " | ".join(str(x) for x in HRES) + " |")
 md.append("| 25M vs PhysicsFormer | | " + " | ".join(f"{pct(RUN['atlas25m']['test']['MAE'][v], b):+.1f}%" for v, b in zip(VARS, PF)) + " |")
+md.append("| 100M vs PhysicsFormer | | " + " | ".join(f"{pct(RUN['atlas100m']['test']['MAE'][v], b):+.1f}%" for v, b in zip(VARS, PF)) + " |")
 md.append("| 25M vs ECMWF-HRES | | " + " | ".join(f"{pct(RUN['atlas25m']['test']['MAE'][v], b):+.1f}%" for v, b in zip(VARS, HRES)) + " |")
 open(os.path.join(T, "readme_tables.md"), "w").write("\n".join(md) + "\n")
 

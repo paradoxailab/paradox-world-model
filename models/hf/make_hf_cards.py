@@ -19,6 +19,8 @@ GH = "https://github.com/paradoxailab/paradox-world-model"
 TRAINED = {59: "Google Colab: steps 0-8,000 on an A100, steps 8,000-80,000 on an L4; final evaluation on an A100-40GB"}
 
 
+GROWN_INTO = {"atlas-5k-25m": ("Atlas-100M, grown from this model (weather equal; adds air quality and traffic)", "atlas-100m")}
+
 def sha(p):
     h = hashlib.sha256()
     with open(p, "rb") as f:
@@ -134,6 +136,9 @@ def main(a):
         L += [f"Previous: [#{prev['series_no']:02d} {prev['version']}](https://huggingface.co/{a.ns}/{prev['name']}) · "
               if prev else ""]
         L[-1] += (f"Next: [#{nxt['series_no']:02d} {nxt['version']}](https://huggingface.co/{a.ns}/{nxt['name']}) · " if nxt else "")
+        if not nxt and m["name"] in GROWN_INTO:                    # a successor released outside the series files
+            gn, gr = GROWN_INTO[m["name"]]
+            L[-1] += f"Next: [{gn}](https://huggingface.co/{a.ns}/{gr}) · "
         L[-1] += f"[All models](https://huggingface.co/{plan['index_repo']})"
         L += ["", "## Licence and citation", "",
               f"Apache-2.0. ParadoxAI Lab (Aditya Kumar, Anupam Singh), [paradoxailab.com](https://paradoxailab.com). "

@@ -85,6 +85,10 @@ Versions whose weights are identical to an earlier file (not stored twice):
 * #31 PWM-W v1.0: same weights as #29 (`29_pwm-x_v0.9_cpcb.pt`)
 * #34 PWM-W India v2.0: same weights as #29 (`29_pwm-x_v0.9_cpcb.pt`)
 
+Released separately: **Atlas-100M** (98,599,994 parameters, grown from #59 Atlas-5K 25M; weights and the traffic and hybrid
+variants at [huggingface.co/PARADOXAIlabs/atlas-100m](https://huggingface.co/PARADOXAIlabs/atlas-100m); results in
+[`atlas/m100/RESULTS.md`](../../atlas/m100/RESULTS.md)).
+
 Not included: PWM-Dyn v0.3 (trained on Colab; weights were not kept), v0.5 (stopped, no model reported), extra seeds
 and ablation runs (on Kaggle). Atlas-5K v2c is added when its training finishes.
 

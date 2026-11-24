@@ -3,13 +3,17 @@
   "('atlas25m', 'test')": 50,
   "('atlas25m', 'live')": 50,
   "('atlas10m', 'test')": 50,
-  "('atlas10m', 'live')": 50
+  "('atlas10m', 'live')": 50,
+  "('atlas100m', 'test')": 50,
+  "('atlas100m', 'live')": 50
  },
  "pmax": {
   "('atlas25m', 'test')": 0.005,
   "('atlas25m', 'live')": 0.005,
   "('atlas10m', 'test')": 0.005,
-  "('atlas10m', 'live')": 0.005
+  "('atlas10m', 'live')": 0.005,
+  "('atlas100m', 'test')": 0.005,
+  "('atlas100m', 'live')": 0.005
  },
  "rng": {
   "('atlas25m', 'test')": [
@@ -27,6 +31,14 @@
   "('atlas10m', 'live')": [
    8.51,
    43.15
+  ],
+  "('atlas100m', 'test')": [
+   10.96,
+   47.95
+  ],
+  "('atlas100m', 'live')": [
+   9.11,
+   42.53
   ]
  },
  "best_fm": {
@@ -36,6 +48,7 @@
  "E": {
   "test": {
    "atlas25m": 0.2742,
+   "atlas100m": 0.2742,
    "atlas10m": 0.277,
    "v2c": 0.2822,
    "tfm3": 0.3303,
@@ -51,6 +64,7 @@
   },
   "live": {
    "atlas25m": 0.3007,
+   "atlas100m": 0.3009,
    "atlas10m": 0.3028,
    "v2c": 0.3071,
    "tfm3": 0.3508,

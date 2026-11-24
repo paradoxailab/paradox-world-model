@@ -75,7 +75,7 @@ Training data are not included; their sources and terms are in [DATA_SOURCES.md]
 
 ## Series
 
-Previous: [#58 Atlas-5K 10M (adopted)](https://huggingface.co/PARADOXAIlabs/atlas-5k-10m) · [All models](https://huggingface.co/PARADOXAIlabs/paradox-world-model-series)
+Previous: [#58 Atlas-5K 10M (adopted)](https://huggingface.co/PARADOXAIlabs/atlas-5k-10m) · Next: [Atlas-100M, grown from this model (weather equal; adds air quality and traffic)](https://huggingface.co/PARADOXAIlabs/atlas-100m) · [All models](https://huggingface.co/PARADOXAIlabs/paradox-world-model-series)
 
 ## Licence and citation
 

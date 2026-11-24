@@ -1,11 +1,15 @@
 # Atlas models — model card
 
-ParadoxAI Lab. Status as of 2026-11-19. Every number below is from a run whose log and rules are in `README.md`.
+ParadoxAI Lab. Status as of 2026-11-24. Every number below is from a run whose log and rules are in `README.md`
+(Atlas-100M: [`m100/RESULTS.md`](m100/RESULTS.md), scoreboard [`m100/STANDINGS.md`](m100/STANDINGS.md)).
 
 ## The models
 
 | Model | Parameters | Task | Inputs | Status |
 |---|---|---|---|---|
+| **Atlas-100M** (v1.0, 2026-11-21) | 98,599,994 | one shared core with per-domain adapters: station weather (24 h, WEATHER-5K), all-India PM2.5 (24 h), traffic (next hour, 6 road networks) | as 25M, plus each domain's own sensors | **grown from 25M**; weather WIN 100/100 against ten zero-shot opponents (709 stations worldwide), level in India (19/74/7), equal to 25M; 2023 full test 1.396 / 1.466 / 53.23 / 1.172 / 1.474; air quality WIN 7/9 (trained stations); traffic LOSS 22/24 against specialists |
+| Atlas-100M-TXL2 | 118,974,606 | Atlas-100M + 20.45M traffic-only parameters | as 100M, one day of traffic look-back | traffic WIN 18 / TIE 12 / LOSS 0 against foundation models; WIN 4 / TIE 13 / LOSS 7 against specialists |
+| Atlas-100M-H2 (hybrid) | 100M weather view + forecast-input weights | station weather 24 h, also reading ECMWF IFS / AIFS and NOAA GFS forecasts | as 100M + the freshest published forecasts | 178 stations worldwide, 2025: WIN 45 / TIE 9 / LOSS 1 against raw and bias-corrected IFS, AIFS, GFS (loss: pressure vs bias-corrected IFS); GraphCast pending |
 | **Atlas-5K 25M** (series #59) | 24,103,796 | 5-variable station weather, next 24 h, WEATHER-5K | last 48 h at the station and its 31 nearest stations; location, elevation, time | **WB1 entry at 24 h**: grown from 10M; validation E 0.27307; 2023 test 1.400 / 1.468 / 53.33 / 1.173 / 1.473 |
 | Atlas-5K 10M (series #58) | 9,639,780 | as 25M | as 25M | adopted; grown from v2c; validation E 0.27592; 2023 test 1.429 / 1.486 / 53.93 / 1.183 / 1.477 |
 | **Atlas-5K v1** | 968,672 | 5-variable station weather, next 24 h, WEATHER-5K (5,672 stations worldwide) | last 48 h at the station and its 15 nearest stations; location, elevation, time | **WB1 entry at 24 h** (test 2023 scored once) |

@@ -1,5 +1,7 @@
 # Results
 
+> **Newest results (2026-11-21/22): Atlas-100M** — one 98.6M-parameter model for weather, air quality and traffic. Weather: WIN 100/100 against ten zero-shot opponents (nine foundation models + persistence) at 709 stations worldwide; level in India (WIN 19, TIE 74, LOSS 7); with ECMWF/GFS forecasts as input (H2) WIN 45, TIE 9, LOSS 1 against raw and bias-corrected IFS, AIFS and GFS at 178 stations worldwide. Air quality: WIN against 7 of 9 foundation models on trained stations, mostly ties on never-trained ones. Traffic: a clear loss at 100M (LOSS 22 of 24 against specialists); the TXL2 follow-up reaches WIN 18 / TIE 12 / LOSS 0 against foundation models. Full report: [`atlas/m100/RESULTS.md`](atlas/m100/RESULTS.md); scoreboard: [`atlas/m100/STANDINGS.md`](atlas/m100/STANDINGS.md).
+>
 > **Newest results (2026-11-19): Atlas-5K 10M and 25M on WEATHER-5K** (head-to-head with nine foundation-model configurations on the 2023 test and fresh 2024–25 NOAA data) are in the main [README](README.md#latest-atlas-5k-10m-and-25m-on-weather-5k-2026-11-19) and [`atlas/README.md`](atlas/README.md). This page covers PWM-Dyn and ParadoxBench.
 
 Every number below was produced by the code in this repository on real public data, scored by one

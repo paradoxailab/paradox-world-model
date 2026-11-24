@@ -52,7 +52,9 @@ AMP_DTYPE = torch.bfloat16 if (XLA or TPU) else torch.float16   # TPUs compute i
 
 
 def _tpu_amp():
-    if not TPU or os.environ.get("ATLAS_TPU_AMP", "1") != "1":
+    # Off by default: torch_tpu 0.2.0 fails on layer_norm under bf16 autocast ("failed to inline functions in MLIR
+    # module", tpu_debug.sh, 24 Nov 2026). float32 matmuls still run in bf16 on the TPU's matrix units.
+    if not TPU or os.environ.get("ATLAS_TPU_AMP", "0") != "1":
         return False
     try:
         return torch.amp.is_autocast_available("tpu")

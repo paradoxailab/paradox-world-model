@@ -32,9 +32,11 @@ try() {   # try(tag, steps, every, args...): smallest --micro that fits
     rm -f /content/wx_synth_runs/${tag}_s600*
     python -u run_atlas_wx.py --tag "$tag" --steps "$steps" --every "$every" --micro $m --cap 1000 "$@" > /content/smoke_$tag.log 2>&1
     filt < /content/smoke_$tag.log
-    [ -f /content/wx_synth_runs/${tag}_s600.json ] && { echo "== $tag fits with --micro $m"; return 0; }
+    [ -f /content/wx_synth_runs/${tag}_s600.json ] && { echo "== $tag fits with --micro $m"; FIT_M=$m; return 0; }
   done
   echo "== $tag did not fit"; return 1
 }
 try tpu10m 60 30 --size 10000000 || exit 1
+echo "== 10M strict eager (no DeferAndFuse), the fitting split"
+TORCH_TPU_DEFER_AND_FUSE=0 python -u run_atlas_wx.py --tag tpu10m_strict --steps 60 --every 30 --micro ${FIT_M:-1} --size 10000000 --cap 1000 2>&1 | filt
 try tpu100m 40 20 --init /content/wx_synth_runs/tpu10m_s600.pt --grow 2,6,6 --lr 3e-4

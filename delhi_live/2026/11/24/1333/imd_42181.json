@@ -1,0 +1,62 @@
+{
+ "station": "42181",
+ "name": "New Delhi-Palam",
+ "url": "https://city.imd.gov.in/citywx/citywxnew.php?id=42181",
+ "sha256": "643a6bbee54183f2da048d16f8b1fd457e410a80dc4d1f86b0df69193b547223",
+ "dated": "Nov 24, 2026",
+ "forecast": [
+  {
+   "date": "24-Nov",
+   "tmin": 11.0,
+   "tmax": 24.0,
+   "weather": "Mainly Clear sky"
+  },
+  {
+   "date": "25-Nov",
+   "tmin": 10.0,
+   "tmax": 24.0,
+   "weather": "Shallow Fog"
+  },
+  {
+   "date": "26-Nov",
+   "tmin": 10.0,
+   "tmax": 24.0,
+   "weather": "Shallow Fog"
+  },
+  {
+   "date": "27-Nov",
+   "tmin": 9.0,
+   "tmax": 24.0,
+   "weather": "Shallow Fog"
+  },
+  {
+   "date": "28-Nov",
+   "tmin": 9.0,
+   "tmax": 23.0,
+   "weather": "Moderate Fog"
+  },
+  {
+   "date": "29-Nov",
+   "tmin": 10.0,
+   "tmax": 23.0,
+   "weather": "Moderate Fog"
+  },
+  {
+   "date": "30-Nov",
+   "tmin": 9.0,
+   "tmax": 23.0,
+   "weather": "Moderate Fog"
+  }
+ ],
+ "observed": {
+  "max_temp": "24.5",
+  "max_recorded_on": "24/11/26",
+  "min_temp": "11.0",
+  "min_recorded_on": "24/11/26",
+  "rain_24h": "NIL",
+  "rh_0830": "73",
+  "rh_1730": "57"
+ },
+ "parsed_ok": true,
+ "text": "Weather Report\nLocal Weather Report and Forecast For:\nNew Delhi-Palam\nDated :Nov 24, 2026\nPast 24 Hours Weather Data |\nMaximum Temp( o C) (Recorded. on 24/11/26)\n|\n24.5\n|\nDeparture from Normal( o C)\n|\n-2.0\n|\nMinimum Temp ( o C) (Recorded. on 24/11/26)\n|\n11.0\n|\nDeparture from Normal( o C)\n|\n-0.9\n|\n24 Hours Rainfall (mm) (Recorded from 0830 hrs IST\nof yesterday to 0830 hrs IST of today)\n|\nNIL\n|\nR.H. at 0830 hrs (%)\n|\n73\n|\nR.H. at 1730 hrs (%) (Recorded. on 24/11/26)\n|\n57\n|\nTodays Sunset (IST)\n|\n17:25\n|\nTommorows Sunrise (IST)\n|\n06:51\n|\nMoonset (IST)\n|\n06:22\n|\nMoonrise (IST)\n|\n16:57\n|\n|\n7 Day's Forecast |\nDate |\nMin Temp |\nMax Temp |\nWeather |\n24-Nov |\n11.0 |\n24.0 |\n|\nMainly Clear sky |\n25-Nov |\n10.0 |\n24.0 |\n|\nShallow Fog |\n26-Nov |\n10.0 |\n24.0 |\n|\nShallow Fog |\n27-Nov |\n9.0 |\n24.0 |\n|\nShallow Fog |\n28-Nov |\n9.0 |\n23.0 |\n|\nModerate Fog |\n29-Nov |\n10.0 |\n23.0 |\n|\nModerate Fog |\n30-Nov |\n9.0 |\n23.0 |\n|\nModerate Fog |\n|\nClimatological & Extreme Weather Information"
+}

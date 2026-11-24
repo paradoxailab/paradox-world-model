@@ -145,6 +145,19 @@ live test**. "Worldwide" for a variable and lead band needs that in all five reg
   runtime ended) reproduced the frozen list exactly: 13,267 → 9,335 → 8,853 → **8,791 stations, SHA-256 `dd1da8fc…`
   (match)**. The packed yearly files, `stations.json` and `summary.json` are on Drive (`PWM-WX/isd`). Stage 1 training
   has not started: Colab reports no GPU available for the lab's account.
+- **24 Nov 2026, 22:10 IST — Stage 2 archive depths, checked before the Stage 2 download.** Trial (`fetch_nwp_runs.py`,
+  2025-03-01, 00 and 12 UTC, leads 0–48 h, all 8,791 stations): GFS and IFS have temperature at every station and lead
+  (share present 1.000); AIFS 0.529, because AIFS open data are 6-hourly (the 3-hourly leads in between do not exist).
+  Values at station 0 (ACW00011647, St John's, Antigua), 24 h lead: T 18.0 / 14.8 / 15.5 °C (GFS / IFS / AIFS).
+  The trial found one error, now fixed: AIFS precipitation is already in mm, and the fetcher multiplied it by 1,000;
+  conversion now follows each GRIB message's own units. Archive depth (index files probed on 2024-01-15, 2024-02-01,
+  2024-03-01, 2024-06-01, 2025-01-01, 2025-02-24, 2025-02-26): **GFS** complete from before 2024; **IFS 0.25°** absent on
+  2024-01-15, present from 2024-03-01, but without 2 m dewpoint on 2024-03-01 (dewpoint present by 2024-06-01);
+  2024-02-01 was throttled (HTTP 503) and is settled by the full download; **AIFS** under `aifs/0p25` from 2024-03-01 to
+  2025-02-24 and under `aifs-single/0p25` from 2025-02-26 (the fetcher reads both). The full download runs 2024-02-01 →
+  2026-01-01 for IFS and GFS first (AIFS after); months, leads or fields an archive lacks stay missing (NaN) and are
+  reported with the Stage 2 results, never filled. Comparisons in a period are made only where every compared system
+  has a forecast.
 
 ## Deviations
 

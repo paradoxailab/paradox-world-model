@@ -110,7 +110,10 @@ def decode(buf, interp):
         if interp.key != (nx, ny, la0, lo0, dlat, dlon):
             interp.build(nx, ny, la0, lo0, dlat, dlon)
         v = eccodes.codes_get_values(h).reshape(ny, nx)
-        return interp(v)
+        out = interp(v)
+        if eccodes.codes_get(h, "shortName") == "tp" and eccodes.codes_get(h, "units") == "m":
+            out = out * 1000.0                    # IFS precipitation in metres -> mm (AIFS and GFS already give kg m-2 = mm)
+        return out
     finally:
         eccodes.codes_release(h)
 
@@ -138,7 +141,7 @@ def one(system, run, step, interp):
             out[:, 2] = np.hypot(f["u10"], f["v10"])
             out[:, 3] = np.mod(np.degrees(np.arctan2(-f["u10"], -f["v10"])), 360)   # direction the wind blows from
         if "msl" in f: out[:, 4] = f["msl"] / 100.0
-        if "tp" in f: out[:, 5] = f["tp"] * (1000.0 if system != "gfs" else 1.0)      # ECMWF m -> mm; GFS kg/m2 = mm
+        if "tp" in f: out[:, 5] = f["tp"]                                             # mm (converted in decode by the GRIB units)
         return out
     return out
 

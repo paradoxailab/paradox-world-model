@@ -35,7 +35,7 @@ and NOAA GFS; GraphCast and the Indian-station comparison follow when their fore
 wind speed 1.172 · sea-level pressure 1.474. Better than the published PhysicsFormer on 4 of 5 variables (−9.9%,
 −7.8%, −7.2%, −3.1%), **worse on pressure (+3.1%)**; worse than ECMWF-HRES on pressure (0.86). Equal to our 24.1M model.
 
-**Weather, head-to-head with ten zero-shot foundation models** (709 stations, 2023 test and the 2024–25 live period):
+**Weather, head-to-head with ten zero-shot opponents: nine foundation models and persistence** (709 stations worldwide, 2023 test and the 2024–25 live period):
 WIN in **100 of 100** comparisons. Against TimesFM 3.0 on the 2023 test: temperature −25.9%, dew point −25.6%,
 wind direction −14.6%, wind speed −11.2%, pressure −25.1%.
 
@@ -56,7 +56,7 @@ best traffic model: STAEformer and PWM-Dyn win on some networks.
 **Weather in India** (all 68 Indian stations, 2023 and 2024–25): **level** with the foundation models, not ahead —
 WIN 19, TIE 74, LOSS 7 of 100 (worldwide: 100 of 100).
 
-**Hybrid with global forecasts** (178 stations, 2025, 24 h; `hybrid/hybrid2_best.pt`): the weather model reading ECMWF
+**Hybrid with global forecasts** (178 stations worldwide, 2025, 24 h; `hybrid/hybrid2_best.pt`): the weather model reading ECMWF
 IFS, AIFS and NOAA GFS forecasts (H2: the freshest published run) has **WIN** against raw and bias-corrected IFS on
 temperature (−19% / −11%), dewpoint (−25% / −16%), wind direction (−22%) and wind speed (−30% / −17%), WIN against raw and
 bias-corrected GFS on all five variables, WIN against raw AIFS on temperature and wind (other AIFS comparisons TIE), and

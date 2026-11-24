@@ -3,8 +3,8 @@
 ParadoxAI Lab · Aditya Kumar, Anupam Singh · 2026-11-21
 
 This file reports every finished comparison of the pre-registered Atlas-100M study (`PREREG.md`, committed before the
-first GPU run) as it came out: wins, ties and losses. **The hybrid comparison with ECMWF / GFS is still waiting for its
-forecast archive and is marked pending; nothing below is a projection.** Raw outputs are in `results/` (copied unchanged from the run's Drive store);
+first GPU run) as it came out: wins, ties and losses. **The hybrid comparison with ECMWF IFS / AIFS and NOAA GFS is final (corrected
+scoring); only GraphCast is still pending. Nothing below is a projection.** Raw outputs are in `results/` (copied unchanged from the run's Drive store);
 deviations from the plan are listed in `PREREG.md` (1–6, each dated, with the reason). Weights:
 [huggingface.co/PARADOXAIlabs/atlas-100m](https://huggingface.co/PARADOXAIlabs/atlas-100m) (SHA-256 in `results/SHA256SUMS`,
 verified against Hugging Face after upload).
@@ -17,10 +17,11 @@ opponent's (negative = Atlas-100M better).
 
 | Domain | Against zero-shot foundation models | Against trained specialists / our single-domain models |
 |---|---|---|
-| Weather | **WIN 100 / 100** (10 models, 2023 and 2024–25) | better than PhysicsFormer on 4/5 (not pressure); equal to Atlas-5K 24.1M |
+| Weather, worldwide (709 stations) | **WIN 100 / 100** (10 opponents: 9 foundation models + persistence; 2023 and 2024–25) | better than PhysicsFormer on 4/5 (not pressure); equal to Atlas-5K 24.1M |
+| Weather, India (all 68 Indian stations; addendum I) | **level**: WIN 19, TIE 74, LOSS 7 of 100 | hybrids at the Indian stations pending |
 | Air quality | WIN 7/9 on trained stations, 2/9 on never-trained (rest TIE) | TIE with Atlas-India v1.0 |
 | Traffic | WIN 7, TIE 11, LOSS 12 (5 models × 6 networks) | **LOSS** 22 / 24 against STID, Graph WaveNet, STAEformer, PWM-Dyn |
-| Hybrid H2 vs ECMWF IFS / AIFS / NOAA GFS (178 stations, 2025) | WIN 45, TIE 9, LOSS 1 (loss: pressure vs bias-corrected IFS) | GraphCast pending |
+| Hybrid H2 vs ECMWF IFS / AIFS / NOAA GFS (178 stations worldwide, 2025) | WIN 45, TIE 9, LOSS 1 (loss: pressure vs bias-corrected IFS) | GraphCast pending |
 | *Traffic, follow-up Atlas-100M-T (4.84M traffic parameters)* | *WIN 14, TIE 16, LOSS 0* | *WIN 2, TIE 8, LOSS 14* |
 | *Traffic, follow-up Atlas-100M-TXL2 (20.45M traffic parameters)* | ***WIN 18, TIE 12, LOSS 0*** | *WIN 4, TIE 13, LOSS 7* |
 
@@ -55,7 +56,7 @@ v1.0 and stay as published; Atlas-100M-T is a separate, separately pre-registere
 Published rows are compared by number only (no paired test is possible). Validation E (all stations):
 Atlas-100M 0.27275, Atlas-5K 24.1M 0.27307.
 
-### Head-to-head against ten zero-shot foundation models (709 stations; paired tests)
+### Head-to-head against ten zero-shot opponents: nine foundation models and persistence (709 stations worldwide; paired tests)
 
 2023 test (every 48 h) and the live period 1 Jan 2024 – 24 Aug 2025 (NOAA ISD-Lite, every 96 h):
 
@@ -343,7 +344,7 @@ Raw output: `results/hybrid/` (and the interim, pre-correction score in `results
 
 ## India: all 68 Indian WEATHER-5K stations (addendum I)
 
-**I1, pure Atlas-100M against the ten zero-shot foundation models.** Same code and settings as the global head-to-head,
+**I1, pure Atlas-100M against the ten zero-shot opponents (nine foundation models and persistence).** Same code and settings as the global head-to-head,
 run fresh on the 68 stations. Cells: Atlas-100M's error relative to the opponent (negative = Atlas-100M better) and the
 verdict; one Holm family of 50 per period.
 

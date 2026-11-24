@@ -151,7 +151,7 @@ live test**. "Worldwide" for a variable and lead band needs that in all five reg
   Values at station 0 (ACW00011647, St John's, Antigua), 24 h lead: T 18.0 / 14.8 / 15.5 °C (GFS / IFS / AIFS).
   The trial found one error, now fixed: AIFS precipitation is already in mm, and the fetcher multiplied it by 1,000;
   conversion now follows each GRIB message's own units. Archive depth (index files probed on 2024-01-15, 2024-02-01,
-  2024-03-01, 2024-06-01, 2025-01-01, 2025-02-24, 2025-02-26): **GFS** complete from before 2024; **IFS 0.25°** absent on
+  2024-03-01, 2024-06-01, 2025-01-01, 2025-02-24, 2025-02-26): **GFS** present on every date probed (from 2024-01-15); **IFS 0.25°** absent on
   2024-01-15, present from 2024-03-01, but without 2 m dewpoint on 2024-03-01 (dewpoint present by 2024-06-01);
   2024-02-01 was throttled (HTTP 503) and is settled by the full download; **AIFS** under `aifs/0p25` from 2024-03-01 to
   2025-02-24 and under `aifs-single/0p25` from 2025-02-26 (the fetcher reads both). The full download runs 2024-02-01 →

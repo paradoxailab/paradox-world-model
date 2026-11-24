@@ -27,7 +27,7 @@ Models: [PARADOXAIlabs/atlas-100m](https://huggingface.co/PARADOXAIlabs/atlas-10
 | `RESULTS.md` | the full report |
 | `PREREG.md`, `PREREG_TRAFFIC.md` | plans committed before each run, predictions with probabilities, deviations 1–9 |
 | `results/*paired*.json`, `results/*_results*.json` | weather, air-quality and traffic tests (one record per opponent and variable / network) |
-| `results/india/` | the 68 Indian WEATHER-5K stations against ten foundation models (2023 test, 2024–25 live) |
+| `results/india/` | the 68 Indian WEATHER-5K stations against ten zero-shot opponents (2023 test, 2024–25 live) |
 | `results/hybrid/` | the hybrid (Atlas reading ECMWF IFS / AIFS and NOAA GFS forecasts) — corrected scoring |
 | `results/interim_no_graphcast/` | the first, pre-correction hybrid score, kept for transparency (deviation 8) |
 | `results/*log.jsonl`, `*summary.json`, `*.txt` | training logs and run logs |

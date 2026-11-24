@@ -20,13 +20,13 @@ Weather and air-quality weights are byte-identical across all traffic variants (
 
 | Domain and test | Opponents | Result | Status |
 |---|---|---|---|
-| **Weather, worldwide** (709 stations, 2023 test + 2024–25 live, 24 h) | 10 zero-shot foundation models: TimesFM 2.5 / 3.0, Chronos-2 (uni / multi), Chronos-Bolt, TiRex, Sundial, Time-MoE, TTM, persistence | **WIN 100 / 100** | final |
+| **Weather, worldwide** (709 stations, 2023 test + 2024–25 live, 24 h) | 10 zero-shot opponents (9 foundation models + persistence): TimesFM 2.5 / 3.0, Chronos-2 (uni / multi), Chronos-Bolt, TiRex, Sundial, Time-MoE, TTM, persistence | **WIN 100 / 100** | final |
 | Weather, full 2023 test (5,672 stations) | published PhysicsFormer | better on 4 of 5 variables, **worse on pressure** (+3.1%) | final |
-| **Weather + global forecasts (hybrid H2)**, 178 stations, 2025, 24 h | ECMWF IFS raw and bias-corrected | **WIN on temperature (−19% / −11%), dewpoint (−25% / −16%), wind direction (−22%), wind speed (−30% / −17%)**; pressure TIE (raw), **LOSS (bias-corrected, +12%)** | final (corrected scoring) |
+| **Weather + global forecasts (hybrid H2)**, 178 stations worldwide, 2025, 24 h | ECMWF IFS raw and bias-corrected | **WIN on temperature (−19% / −11%), dewpoint (−25% / −16%), wind direction (−22%), wind speed (−30% / −17%)**; pressure TIE (raw), **LOSS (bias-corrected, +12%)** | final (corrected scoring) |
 | | NOAA GFS raw and bias-corrected | **WIN on all five variables** (−11% to −40%) | final (corrected scoring) |
 | | ECMWF AIFS raw and bias-corrected | 20–52% lower error everywhere; WIN on wind (both) and raw temperature; rest TIE (AIFS archive covers ~⅓ of hours) | final (corrected scoring) |
 | | GraphCast | archive ~85% fetched (free API limits) | pending; replaces verdicts above where they differ |
-| **Weather, India** (all 68 Indian stations, 2023 + 2024–25) | the same 10 foundation models | **WIN 19, TIE 74, LOSS 7**: level with TimesFM, Chronos, TiRex, Sundial; ahead of TTM and persistence | final |
+| **Weather, India** (all 68 Indian stations, 2023 + 2024–25) | the same 10 opponents | **WIN 19, TIE 74, LOSS 7**: level with TimesFM, Chronos, TiRex, Sundial; ahead of TTM and persistence | final |
 | Weather + global forecasts, India | IFS, AIFS, GFS, GraphCast at the 68 stations | archive being fetched | pending |
 | **Air quality, all-India PM2.5** (trained stations) | 9 foundation models + Atlas-India v1.0 | WIN 7 of 9; **TIE** with TimesFM 3.0, TimesFM 3.0 multivariate and Atlas-India v1.0 | final |
 | Air quality, never-trained stations | same | WIN only against Time-MoE and TTM; rest TIE | final |
@@ -41,7 +41,7 @@ Weather and air-quality weights are byte-identical across all traffic variants (
 
 - **Can:** Atlas-100M is more accurate than every zero-shot time-series foundation model we tested on 24-hour station
   weather worldwide (100 of 100). With global forecasts as input (Atlas-100M-H2), it is more accurate than raw and
-  bias-corrected ECMWF IFS and NOAA GFS on temperature, dewpoint and wind 24 h ahead at 178 stations in 2025 (WIN, by
+  bias-corrected ECMWF IFS and NOAA GFS on temperature, dewpoint and wind 24 h ahead at 178 stations worldwide in 2025 (WIN, by
   11–34%), and than raw ECMWF AIFS on temperature and wind.
 - **Cannot:** "best weather model on earth". It loses to bias-corrected IFS on sea-level pressure, is only level with
   the foundation models in India, has not been compared with GraphCast yet, and is not a global gridded model

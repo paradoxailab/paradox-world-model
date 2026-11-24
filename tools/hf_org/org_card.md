@@ -16,8 +16,8 @@ public, with every loss reported.** Independent AI lab from India · Aditya Kuma
 
 | | Result |
 |---|---|
-| 🌦️ Weather, 709 stations worldwide, 24 h | **WIN 100 / 100** against ten zero-shot foundation models (TimesFM 2.5 / 3.0, Chronos-2, Chronos-Bolt, TiRex, Sundial, Time-MoE, TTM …) |
-| 🛰️ Weather + global forecasts (Atlas-100M-H2), 178 stations, 2025 | **beats raw and bias-corrected ECMWF IFS and NOAA GFS** on temperature, dewpoint and wind (11–34% lower error); loses to bias-corrected IFS on sea-level pressure; GraphCast comparison pending |
+| 🌦️ Weather, 709 stations worldwide, 24 h | **WIN 100 / 100** against ten zero-shot opponents: nine foundation models (TimesFM 2.5 / 3.0, Chronos-2 uni / multi, Chronos-Bolt, TiRex, Sundial, Time-MoE, TTM) and persistence |
+| 🛰️ Weather + global forecasts (Atlas-100M-H2), 178 stations worldwide, 2025 | **beats raw and bias-corrected ECMWF IFS and NOAA GFS** on temperature, dewpoint and wind (11–34% lower error); loses to bias-corrected IFS on sea-level pressure; GraphCast comparison pending |
 | 🇮🇳 Weather, all 68 Indian stations | level with the foundation models (WIN 19, TIE 74, LOSS 7) |
 | 🌫️ PM2.5, all-India CPCB | WIN against 7 of 9 foundation models; ties TimesFM 3.0 |
 | 🚦 Traffic, six road networks | Atlas-100M-TXL2: no loss to any foundation model (18 / 12 / 0); still behind the best trained specialists |

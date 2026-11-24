@@ -27,30 +27,62 @@ from atlas.model import sized, QS
 
 RAW = os.environ.get("WX_DATA", "/content/drive/MyDrive/PWM-WX/isd")
 OUT = os.environ.get("ATLAS_OUT", "/content/drive/MyDrive/PWM-WX/runs")
-XLA = os.environ.get("ATLAS_DEVICE") == "xla" or os.environ.get("PJRT_DEVICE") == "TPU"   # Google TPU via PyTorch/XLA
-if XLA:
+def _native_tpu():
+    """True when PyTorch has the native TPU device (TorchTPU, the torch_tpu package; Colab TPU images from late 2026)."""
+    try:
+        return torch._C._get_privateuse1_backend_name() == "tpu"
+    except Exception:
+        return False
+
+
+_REQ = os.environ.get("ATLAS_DEVICE", "")                 # "", "tpu" (native TorchTPU), "xla" (PyTorch/XLA), "cuda", "cpu"
+TPU = _REQ == "tpu" or (_REQ == "" and _native_tpu())
+XLA = not TPU and (_REQ == "xla" or (_REQ == "" and os.environ.get("PJRT_DEVICE") == "TPU"))
+if TPU:
+    DEV, DT = torch.device("tpu"), "tpu"
+elif XLA:
     import torch_xla.core.xla_model as xm
     DEV, DT = xm.xla_device(), "xla"
 else:
     DEV = "cuda" if torch.cuda.is_available() else "cpu"
     DT = DEV
-HOST = "cpu" if XLA else DEV                              # where batch indices are drawn (TPU: on the host)
-MAPLOC = "cpu" if XLA else DEV
-AMP_DTYPE = torch.bfloat16 if XLA else torch.float16      # TPUs compute in bfloat16
+HOST = "cpu" if (XLA or TPU) else DEV                     # where batch indices are drawn (TPU: on the host)
+MAPLOC = "cpu" if (XLA or TPU) else DEV
+AMP_DTYPE = torch.bfloat16 if (XLA or TPU) else torch.float16   # TPUs compute in bfloat16
+
+
+def _tpu_amp():
+    if not TPU or os.environ.get("ATLAS_TPU_AMP", "1") != "1":
+        return False
+    try:
+        return torch.amp.is_autocast_available("tpu")
+    except Exception:
+        return False
+
+
+TPU_AMP = _tpu_amp()                                      # without autocast, float32 matmuls still run in bfloat16 on the MXU
 
 
 def amp_on(kind):
+    if DT == "tpu":
+        return TPU_AMP and kind == "atlas"
     return DT in ("cuda", "xla") and kind == "atlas"
 
 
 def sync():
-    """TPU: cut the lazily built graph here and run it (once per training step and per validation batch)."""
+    """PyTorch/XLA: cut the lazily built graph here and run it (once per training step and per validation batch).
+    Native TorchTPU runs eagerly and needs nothing here."""
     if XLA:
         xm.mark_step()
 
 
 def save(obj, f):
-    (xm.save if XLA else torch.save)(obj, f)
+    if XLA:
+        return xm.save(obj, f)
+    if TPU:                                               # checkpoints hold CPU tensors, loadable anywhere
+        from torch.utils._pytree import tree_map
+        obj = tree_map(lambda x: x.detach().cpu() if isinstance(x, torch.Tensor) else x, obj)
+    torch.save(obj, f)
 VARS = ["TMP", "DEW", "WND_ANGLE", "WND_RATE", "SLP"]
 NAMES = ["Temperature", "Dewpoint", "Wind direction", "Wind speed", "Sea-level pressure"]
 MEAN = np.array([12.70852261, 6.52705582, 191.18867587, 3.36941836, 1014.85317029], np.float32)   # the benchmark's scaler
@@ -186,7 +218,7 @@ def evaluate(model, kind, bt, N, year, stride=1, stations=None, bs=2048):
     t0s = torch.arange(a, e - (L + bt.H) + 1, stride, device=HOST)
     S = torch.arange(N) if stations is None else torch.as_tensor(stations)
     sd = torch.tensor(STD, device=DEV)
-    acc = torch.float32 if XLA else torch.float64                      # TPUs have no fast float64
+    acc = torch.float32 if (XLA or TPU) else torch.float64             # TPUs have no fast float64
     sae = torch.zeros(5, device=DEV, dtype=acc); sse = torch.zeros_like(sae); cnt = torch.zeros_like(sae)
     if model is not None:
         model.eval()
@@ -223,12 +255,12 @@ def main(a):
     log(f"WX: {N} stations, {Z.shape[1]} hours, missing share by split {json.dumps({k: round(v, 4) for k, v in miss.items()})}; "
         f"neighbourhood median radius {np.median(geo[:, 0, :, 2].max(1)) * 1000:.0f} km; device {DEV}")
     res = dict(model=a.model, H=a.H, seed=a.seed, tag=a.tag, stations=N, k=a.k, steps=a.steps, protocol="Atlas-WX Stage 1 (PREREG_WX): GHCNh 8,791 stations, L=48, train 1995-2022, val 2023 (every 4th station, every 6th hour)")
-    res["gpu"] = torch.cuda.get_device_name(0) if DT == "cuda" else ("TPU (PyTorch/XLA)" if XLA else "cpu")
+    res["gpu"] = torch.cuda.get_device_name(0) if DT == "cuda" else ("TPU (PyTorch/XLA)" if XLA else (f"TPU (TorchTPU, autocast {'bf16' if TPU_AMP else 'off'})" if TPU else "cpu"))
     model = None
     if a.eval:                                            # score a saved model once; no training
         f = a.eval if os.path.exists(a.eval) else next(iter(glob.glob(f"/kaggle/input/**/{a.eval}", recursive=True)), a.eval)
         from atlas.grow import load_any
-        model = load_any(f, DEV).to(DEV); model.eval()
+        model = load_any(f, MAPLOC).to(DEV); model.eval()
         res.update(params=sum(p.numel() for p in model.parameters()), eval_of=os.path.basename(f))
         log(f"EVAL {f}: {res['params']:,} parameters, k={a.k}")
     elif a.model in ("atlas", "dlinear"):

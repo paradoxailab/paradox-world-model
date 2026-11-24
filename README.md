@@ -21,7 +21,7 @@ result file in this repository.
 | **Largest model** | Atlas-100M — 98,599,994 parameters, one shared core plus per-domain adapters |
 | **How it was built** | Grown 0.97M → 9.64M → 24.1M → 98.6M by exact function-preserving expansion. Never restarted |
 | **Training** | Real station data only. No images, no text, no pretrained weights. 100k steps, 317.6 min on one A100 |
-| **Weather** | WIN 100/100 paired comparisons against ten zero-shot foundation models, 709 stations |
+| **Weather** | WIN 100/100 paired comparisons against ten zero-shot opponents (nine foundation models plus persistence), 709 stations worldwide; in India level with them (WIN 19, TIE 74, LOSS 7) |
 | **Air quality** | WIN against 7 of 9 foundation models on trained stations; mostly ties on never-trained ones |
 | **Traffic** | A clear loss at 100M (22 of 24 against trained specialists). The TXL2 follow-up closes it against foundation models, not against specialists |
 | **Known weaknesses** | Sea-level pressure; transfer to Maharashtra and Karnataka; one seed per model; GraphCast pending |
@@ -30,21 +30,23 @@ result file in this repository.
 Every claim here is copied from a result file in this repository, and every pre-registration was committed before the
 run it governs. Where we lose, it is written down in the same table as where we win.
 
+**Pre-registrations** (each committed before the run it governs; dates are the commit dates in this repository): [`atlas/m100/PREREG.md`](atlas/m100/PREREG.md) 2026-11-19 · [`atlas/m100/PREREG_TRAFFIC.md`](atlas/m100/PREREG_TRAFFIC.md) 2026-11-21 · [`atlas/PREREG_DELHI.md`](atlas/PREREG_DELHI.md) 2026-11-22 · [`atlas/PREREG_AQ.md`](atlas/PREREG_AQ.md) 2026-11-22 · [`atlas/PREREG_WX.md`](atlas/PREREG_WX.md) 2026-11-23. Check with `git log --diff-filter=A -- <file>`.
+
 ## Latest: Atlas-100M, one model for weather, air quality and traffic (2026-11-21, v1.0)
 
 **Everything we have published — models, datasets, collections, releases, links: [`CATALOG.md`](CATALOG.md).** Hugging Face organization: [huggingface.co/PARADOXAIlabs](https://huggingface.co/PARADOXAIlabs).
 
 **Where we stand (2026-11-22): one-page scoreboard in [`atlas/m100/STANDINGS.md`](atlas/m100/STANDINGS.md)** — weather
-WIN 100/100 against ten foundation models worldwide; level with them in India (19/74/7); with ECMWF/GFS forecasts as
+WIN 100/100 against ten opponents (nine foundation models and persistence) at 709 stations worldwide; level with them in India (19/74/7); with ECMWF/GFS forecasts as
 input (Atlas-100M-H2), WIN against raw and bias-corrected ECMWF IFS and NOAA GFS on temperature, dewpoint and wind at
-178 stations in 2025 (11–34% lower error; loses to bias-corrected IFS on pressure; GraphCast pending); traffic TXL2 with
+178 stations worldwide in 2025 (11–34% lower error; loses to bias-corrected IFS on pressure; GraphCast pending); traffic TXL2 with
 no losses to foundation models.
 
 98.6M parameters, one set of weights with a shared core and small per-domain adapters, trained only on real station
 data. Pre-registered before the first GPU run (`atlas/m100/PREREG.md`); full report with every win, tie and loss in
-[`atlas/m100/RESULTS.md`](atlas/m100/RESULTS.md). Weights: [huggingface.co/PARADOXAIlabs/atlas-100m](https://huggingface.co/PARADOXAIlabs/atlas-100m). The hybrid comparison with ECMWF / GFS is still pending.
+[`atlas/m100/RESULTS.md`](atlas/m100/RESULTS.md). Weights: [huggingface.co/PARADOXAIlabs/atlas-100m](https://huggingface.co/PARADOXAIlabs/atlas-100m). Of the forecast comparisons, only GraphCast is still pending.
 
-- **Weather:** WIN in all 100 paired comparisons with ten zero-shot foundation models (TimesFM 2.5 / 3.0, Chronos-2,
+- **Weather:** WIN in all 100 paired comparisons with ten zero-shot opponents (TimesFM 2.5 / 3.0, Chronos-2 uni / multi,
   Chronos-Bolt, TiRex, Sundial, Time-MoE, TTM, persistence) on the 2023 test and the 2024–25 live period; e.g. against
   TimesFM 3.0 on the 2023 test, temperature −25.9%, dew point −25.6%, pressure −25.1%. Full 2023 test: better than
   the published PhysicsFormer on 4 of 5 variables, worse on sea-level pressure (1.474 vs 1.43); equal to our 24.1M model.
@@ -103,7 +105,7 @@ zero-shot with 512 hours of history (Atlas uses 48) and scored by their median f
 | 1 | **Atlas-5K 25M (ours)** | 24.1M | **0.2742** | 1.391 | 1.460 | 53.93 | 1.179 | 1.466 |
 | 2 | Atlas-5K 10M (ours) | 9.64M | 0.2770 | 1.420 | 1.475 | 54.51 | 1.190 | 1.472 |
 | 3 | Atlas-5K v2c (ours) | 0.97M | 0.2822 | 1.462 | 1.506 | 55.39 | 1.206 | 1.520 |
-| 4 | TimesFM 3.0 (Google) | n/a | 0.3303 | 1.876 | 1.960 | 63.06 | 1.327 | 1.965 |
+| 4 | TimesFM 3.0 (Google) | 0.3B | 0.3303 | 1.876 | 1.960 | 63.06 | 1.327 | 1.965 |
 | 5 | Chronos-2 multivariate (Amazon) | 120M | 0.3313 | 1.843 | 1.920 | 62.79 | 1.335 | 2.067 |
 | 6 | TiRex (NX-AI) | 35M | 0.3326 | 1.900 | 1.955 | 64.38 | 1.325 | 1.948 |
 | 7 | Chronos-2 (Amazon) | 120M | 0.3343 | 1.899 | 1.965 | 63.39 | 1.349 | 2.027 |
@@ -121,7 +123,7 @@ zero-shot with 512 hours of history (Atlas uses 48) and scored by their median f
 | 1 | **Atlas-5K 25M (ours)** | 24.1M | **0.3007** | 1.421 | 1.453 | 64.38 | 1.202 | 1.624 |
 | 2 | Atlas-5K 10M (ours) | 9.64M | 0.3028 | 1.448 | 1.469 | 64.76 | 1.210 | 1.623 |
 | 3 | Atlas-5K v2c (ours) | 0.97M | 0.3071 | 1.487 | 1.498 | 65.40 | 1.227 | 1.655 |
-| 4 | TimesFM 3.0 (Google) | n/a | 0.3508 | 1.882 | 1.952 | 71.25 | 1.353 | 2.070 |
+| 4 | TimesFM 3.0 (Google) | 0.3B | 0.3508 | 1.882 | 1.952 | 71.25 | 1.353 | 2.070 |
 | 5 | Chronos-2 multivariate (Amazon) | 120M | 0.3522 | 1.848 | 1.916 | 70.78 | 1.367 | 2.175 |
 | 6 | Chronos-Bolt base (Amazon) | 205M | 0.3547 | 1.899 | 2.007 | 71.70 | 1.371 | 2.092 |
 | 7 | TiRex (NX-AI) | 35M | 0.3558 | 1.927 | 1.955 | 73.34 | 1.357 | 2.058 |

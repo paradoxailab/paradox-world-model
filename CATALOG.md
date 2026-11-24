@@ -18,7 +18,7 @@ Every model, dataset, collection and release, with links. Weights live in the Hu
 | Dataset | What |
 |---|---|
 | [atlas-benchmark-results](https://huggingface.co/datasets/PARADOXAIlabs/atlas-benchmark-results) | every score, log, plan and station list behind Atlas-100M (CC-BY-4.0) |
-| [atlas-station-forecast-archive](https://huggingface.co/datasets/PARADOXAIlabs/atlas-station-forecast-archive) | ECMWF IFS / AIFS and NOAA GFS forecasts at 178 WEATHER-5K stations, 2024-01 – 2025-08 (123 MB, CC-BY-4.0) |
+| [atlas-station-forecast-archive](https://huggingface.co/datasets/PARADOXAIlabs/atlas-station-forecast-archive) | ECMWF IFS / AIFS and NOAA GFS forecasts at 178 WEATHER-5K stations worldwide, 2024-01 – 2025-08 (123 MB, CC-BY-4.0) |
 
 ## Collections (Hugging Face)
 

@@ -193,7 +193,7 @@ def main(a):
     miss = {y: float(torch.isnan(Z[smp, YEARS[y][0]:YEARS[y][1]]).float().mean()) for y in YEARS}
     log(f"WX: {N} stations, {Z.shape[1]} hours, missing share by split {json.dumps({k: round(v, 4) for k, v in miss.items()})}; "
         f"neighbourhood median radius {np.median(geo[:, 0, :, 2].max(1)) * 1000:.0f} km; device {DEV}")
-    res = dict(model=a.model, H=a.H, seed=a.seed, tag=a.tag, stations=N, k=a.k, steps=a.steps, protocol="Atlas-WX Stage 1 (PREREG_WX): ISD-Lite, L=48, train 1995-2022, val 2023 (every 4th station, every 6th hour)")
+    res = dict(model=a.model, H=a.H, seed=a.seed, tag=a.tag, stations=N, k=a.k, steps=a.steps, protocol="Atlas-WX Stage 1 (PREREG_WX): GHCNh 8,791 stations, L=48, train 1995-2022, val 2023 (every 4th station, every 6th hour)")
     res["gpu"] = torch.cuda.get_device_name(0) if DEV == "cuda" else "cpu"
     model = None
     if a.eval:                                            # score a saved model once; no training

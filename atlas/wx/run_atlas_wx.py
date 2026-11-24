@@ -27,7 +27,30 @@ from atlas.model import sized, QS
 
 RAW = os.environ.get("WX_DATA", "/content/drive/MyDrive/PWM-WX/isd")
 OUT = os.environ.get("ATLAS_OUT", "/content/drive/MyDrive/PWM-WX/runs")
-DEV = "cuda" if torch.cuda.is_available() else "cpu"
+XLA = os.environ.get("ATLAS_DEVICE") == "xla" or os.environ.get("PJRT_DEVICE") == "TPU"   # Google TPU via PyTorch/XLA
+if XLA:
+    import torch_xla.core.xla_model as xm
+    DEV, DT = xm.xla_device(), "xla"
+else:
+    DEV = "cuda" if torch.cuda.is_available() else "cpu"
+    DT = DEV
+HOST = "cpu" if XLA else DEV                              # where batch indices are drawn (TPU: on the host)
+MAPLOC = "cpu" if XLA else DEV
+AMP_DTYPE = torch.bfloat16 if XLA else torch.float16      # TPUs compute in bfloat16
+
+
+def amp_on(kind):
+    return DT in ("cuda", "xla") and kind == "atlas"
+
+
+def sync():
+    """TPU: cut the lazily built graph here and run it (once per training step and per validation batch)."""
+    if XLA:
+        xm.mark_step()
+
+
+def save(obj, f):
+    (xm.save if XLA else torch.save)(obj, f)
 VARS = ["TMP", "DEW", "WND_ANGLE", "WND_RATE", "SLP"]
 NAMES = ["Temperature", "Dewpoint", "Wind direction", "Wind speed", "Sea-level pressure"]
 MEAN = np.array([12.70852261, 6.52705582, 191.18867587, 3.36941836, 1014.85317029], np.float32)   # the benchmark's scaler
@@ -51,8 +74,8 @@ def load(quick=False):
     files = [os.path.join(RAW, f"wx_{y}.npz") for y in range(1995, Y_LAST + 1)]
     T = YEARS["val"][1]
     need = n * T * 5 * 2
-    free = torch.cuda.mem_get_info()[0] if DEV == "cuda" else 0
-    where = DEV if free > need + 8e9 else "cpu"           # values on the GPU only when 8 GB stay free for the model
+    free = torch.cuda.mem_get_info()[0] if DT == "cuda" else 0
+    where = DEV if (DT == "cuda" and free > need + 8e9) else "cpu"   # values on the GPU only when 8 GB stay free
     if os.environ.get("WX_DATA_CPU"):                     # large models: leave the whole GPU to the model
         where = "cpu"
     Z = torch.empty((n, T, 5), dtype=torch.float16, device=where)
@@ -94,7 +117,7 @@ def static_feats(lat, lon, elev):
 
 
 def time_feats(t0, n):
-    h = torch.arange(n, device=DEV)[None] + t0[:, None]                # absolute hour index
+    h = torch.arange(n, device=t0.device)[None] + t0[:, None]                # absolute hour index
     hod = 2 * math.pi * (h % 24) / 24
     doy = 2 * math.pi * ((h / 24.0) % 365.2425) / 365.2425
     return torch.stack([torch.sin(hod), torch.cos(hod), torch.sin(doy), torch.cos(doy)], -1)   # [B, n, 4]
@@ -105,19 +128,23 @@ class Batcher:
         self.Z, self.H = Z, H
         if center_only:                                   # persistence and DLinear read only the station itself
             nb = nb[:, :1]; geo = geo[:, :1, :1]
-        self.nb = torch.from_numpy(nb).to(DEV); self.geo = torch.from_numpy(geo).to(DEV); self.st = torch.from_numpy(st).to(DEV)
+        self.hd = Z.device                                # indices and gathers happen where the values are
+        self.nb = torch.from_numpy(nb).to(self.hd); self.geo = torch.from_numpy(geo).to(self.hd); self.st = torch.from_numpy(st).to(self.hd)
 
     def __call__(self, s, t0):
         """s [B] stations, t0 [B] first input hour. Returns the Atlas inputs and the truth [B, K, H, 5] (standardised)."""
         H, B = self.H, len(s)
+        s, t0 = s.to(self.hd), t0.to(self.hd)
         ids = self.nb[s]                                                    # [B, K]
-        tt = t0[:, None] + torch.arange(L + H, device=DEV)[None]           # [B, L+H]
-        zd = self.Z.device
-        w = self.Z[ids[:, :, None].to(zd), tt[:, None, :].to(zd)].to(DEV, non_blocking=True).float()   # [B, K, L+H, 5]
+        tt = t0[:, None] + torch.arange(L + H, device=self.hd)[None]       # [B, L+H]
+        w = self.Z[ids[:, :, None], tt[:, None, :]].float()                # [B, K, L+H, 5]
         m = torch.isfinite(w).float(); w = torch.nan_to_num(w)
         tf = time_feats(t0, L + H)[:, None].expand(-1, ids.shape[1], -1, -1)
-        return dict(yc=w[:, :, :L], mc=m[:, :, :L], uc=tf[:, :, :L], uf=tf[:, :, L:], geo=self.geo[s],
-                    static=self.st[ids], y=w[:, :, L:], my=m[:, :, L:])
+        out = dict(yc=w[:, :, :L], mc=m[:, :, :L], uc=tf[:, :, :L], uf=tf[:, :, L:], geo=self.geo[s],
+                   static=self.st[ids], y=w[:, :, L:], my=m[:, :, L:])
+        if self.hd != DEV:
+            out = {k: v.to(DEV, non_blocking=True) for k, v in out.items()}
+        return out
 
 
 class DLinear(nn.Module):
@@ -156,10 +183,11 @@ def predict_center(model, kind, b):
 def evaluate(model, kind, bt, N, year, stride=1, stations=None, bs=2048):
     """MAE and MSE per variable in the variables' own units over every window wholly inside `year`."""
     a, e = YEARS[year]
-    t0s = torch.arange(a, e - (L + bt.H) + 1, stride, device=DEV)
-    S = torch.arange(N, device=DEV) if stations is None else torch.as_tensor(stations, device=DEV)
+    t0s = torch.arange(a, e - (L + bt.H) + 1, stride, device=HOST)
+    S = torch.arange(N) if stations is None else torch.as_tensor(stations)
     sd = torch.tensor(STD, device=DEV)
-    sae = torch.zeros(5, device=DEV, dtype=torch.float64); sse = torch.zeros_like(sae); cnt = torch.zeros_like(sae)
+    acc = torch.float32 if XLA else torch.float64                      # TPUs have no fast float64
+    sae = torch.zeros(5, device=DEV, dtype=acc); sse = torch.zeros_like(sae); cnt = torch.zeros_like(sae)
     if model is not None:
         model.eval()
     with torch.no_grad():
@@ -167,11 +195,12 @@ def evaluate(model, kind, bt, N, year, stride=1, stations=None, bs=2048):
             for i in range(0, len(t0s), bs):
                 t0 = t0s[i:i + bs]; ss = torch.full_like(t0, s)
                 b = bt(ss, t0)
-                with torch.autocast(DEV, dtype=torch.float16, enabled=(DEV == "cuda" and kind == "atlas")):
+                with torch.autocast(DT, dtype=AMP_DTYPE, enabled=amp_on(kind)):
                     p = predict_center(model, kind, b).float()
                 err = (p - b["y"][:, 0]) * sd                                   # own units
                 m = b["my"][:, 0]
-                sae += (err.abs() * m).sum((0, 1)).double(); sse += (err ** 2 * m).sum((0, 1)).double(); cnt += m.sum((0, 1)).double()
+                sae += (err.abs() * m).sum((0, 1)).to(acc); sse += (err ** 2 * m).sum((0, 1)).to(acc); cnt += m.sum((0, 1)).to(acc)
+                sync()
     mae, mse = (sae / cnt).cpu().numpy(), (sse / cnt).cpu().numpy()
     return dict(MAE=dict(zip(NAMES, mae.round(4).tolist())), MSE=dict(zip(NAMES, mse.round(4).tolist())),
                 MAE_overall=float(mae.mean()), MSE_overall=float(mse.mean()), points=int(cnt[0].item()), windows_per_station=len(t0s))
@@ -194,7 +223,7 @@ def main(a):
     log(f"WX: {N} stations, {Z.shape[1]} hours, missing share by split {json.dumps({k: round(v, 4) for k, v in miss.items()})}; "
         f"neighbourhood median radius {np.median(geo[:, 0, :, 2].max(1)) * 1000:.0f} km; device {DEV}")
     res = dict(model=a.model, H=a.H, seed=a.seed, tag=a.tag, stations=N, k=a.k, steps=a.steps, protocol="Atlas-WX Stage 1 (PREREG_WX): GHCNh 8,791 stations, L=48, train 1995-2022, val 2023 (every 4th station, every 6th hour)")
-    res["gpu"] = torch.cuda.get_device_name(0) if DEV == "cuda" else "cpu"
+    res["gpu"] = torch.cuda.get_device_name(0) if DT == "cuda" else ("TPU (PyTorch/XLA)" if XLA else "cpu")
     model = None
     if a.eval:                                            # score a saved model once; no training
         f = a.eval if os.path.exists(a.eval) else next(iter(glob.glob(f"/kaggle/input/**/{a.eval}", recursive=True)), a.eval)
@@ -226,7 +255,7 @@ def main(a):
         log(f"{a.model}: {P:,} parameters" + (f", width {model.cfg['d']}" if a.model == "atlas" else ""))
         opt = torch.optim.AdamW(model.parameters(), lr=a.lr, weight_decay=a.wd)
         sched = torch.optim.lr_scheduler.OneCycleLR(opt, a.lr, total_steps=a.steps, pct_start=a.warmup)
-        scaler = torch.amp.GradScaler(enabled=(DEV == "cuda" and a.model == "atlas"))
+        scaler = torch.amp.GradScaler(enabled=(DT == "cuda" and a.model == "atlas"))
         ta, te = YEARS["train"]
         rng = np.random.default_rng(a.seed)
         tmax = te - (L + a.H)                                                # last valid first-input hour
@@ -234,7 +263,7 @@ def main(a):
         if a.frac < 1:                                    # threshold study: a fixed, nested share of training days
             perm = np.random.default_rng(12345).permutation(days)            # same for every size and seed
             days = np.sort(perm[:int(math.ceil(a.frac * len(days)))])
-        kd = torch.from_numpy(days).to(DEV)
+        kd = torch.from_numpy(days).to(HOST)
         res.update(frac=a.frac, train_days=int(len(days)), train_station_days=int(len(days)) * N)
         log(f"training data: {len(days)} days x {N} stations ({a.frac:g} of 1995-2022)")
         vst = rng.choice(N, min(N, 300 if not a.quick else N), replace=False)   # validation: 300 stations, every 6th hour
@@ -242,7 +271,7 @@ def main(a):
         f_last, first, done = os.path.join(OUT, f"{a.tag}_s{a.seed}_last.pt"), 1, False
         os.makedirs(OUT, exist_ok=True)
         if os.path.exists(f_last):                        # resume: everything needed to continue exactly where it stopped
-            ck = torch.load(f_last, map_location=DEV, weights_only=False)
+            ck = torch.load(f_last, map_location=MAPLOC, weights_only=False)
             model.load_state_dict(ck["sd"]); opt.load_state_dict(ck["opt"]); sched.load_state_dict(ck["sched"])
             scaler.load_state_dict(ck["scaler"])
             best, best_step, bad, first, done = ck["best"], ck["best_step"], ck["bad"], ck["step"] + 1, ck.get("done", False)
@@ -255,7 +284,7 @@ def main(a):
             log(f"  step 0 (as initialised) val MAE (standardised mean) {res['val_step0']:.4f} T {v['MAE']['Temperature']:.3f}")
 
         def save_last(step, done=False):
-            torch.save(dict(sd=model.state_dict(), opt=opt.state_dict(), sched=sched.state_dict(), scaler=scaler.state_dict(),
+            save(dict(sd=model.state_dict(), opt=opt.state_dict(), sched=sched.state_dict(), scaler=scaler.state_dict(),
                             step=step, best=best, best_step=best_step, bad=bad, done=done, cfg=getattr(model, "cfg", None),
                             res_extra={k: res[k] for k in ("val_step0", "init", "init_params", "grown") if k in res}), f_last + ".tmp")
             os.replace(f_last + ".tmp", f_last)           # never a half-written checkpoint, even if the session dies
@@ -263,10 +292,10 @@ def main(a):
         t0, t_eval = time.time(), 0.0                     # t_eval: time spent validating (not training)
         for step in (range(first, a.steps + 1) if not done else []):
             model.train()
-            s = torch.randint(0, N, (a.bs,), device=DEV)
-            t = (kd[torch.randint(0, len(kd), (a.bs,), device=DEV)] * 24 + torch.randint(0, 24, (a.bs,), device=DEV)).clamp(ta, tmax)
+            s = torch.randint(0, N, (a.bs,), device=HOST)
+            t = (kd[torch.randint(0, len(kd), (a.bs,), device=HOST)] * 24 + torch.randint(0, 24, (a.bs,), device=HOST)).clamp(ta, tmax)
             b = bt(s, t)
-            with torch.autocast(DEV, dtype=torch.float16, enabled=(DEV == "cuda" and a.model == "atlas")):
+            with torch.autocast(DT, dtype=AMP_DTYPE, enabled=amp_on(a.model)):
                 if a.model == "atlas":
                     hide = (torch.rand_like(b["mc"]) < 0.15).float() * b["mc"]       # reconstruction of hidden inputs
                     mc = b["mc"] - hide
@@ -279,13 +308,14 @@ def main(a):
             scaler.scale(loss).backward(); scaler.unscale_(opt)
             nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             scaler.step(opt); scaler.update(); sched.step()
+            sync()
             if step % a.every == 0 or step == a.steps:
                 te0 = time.time()
                 v = evaluate(model, a.model, bt, N, "val", stride=6, stations=vst)
                 vm = v["MAE_overall_std"] if "MAE_overall_std" in v else float(np.mean([v["MAE"][n] / STD[i] for i, n in enumerate(NAMES)]))
                 if vm < best:
                     best, best_step, bad = vm, step, 0
-                    torch.save(dict(sd=model.state_dict(), cfg=getattr(model, "cfg", None)), f_best)
+                    save(dict(sd=model.state_dict(), cfg=getattr(model, "cfg", None)), f_best)
                 else:
                     bad += 1
                 t_eval += time.time() - te0
@@ -303,7 +333,7 @@ def main(a):
                         return
                     save_last(step, done=True)
                     log(f"  stop at step {step} (time cap)"); break
-        ck = torch.load(f_best, map_location=DEV); model.load_state_dict(ck["sd"])
+        ck = torch.load(f_best, map_location=MAPLOC); model.load_state_dict(ck["sd"])
         res.update(val_best=best, best_step=best_step, minutes_train=round((time.time() - t0) / 60, 1))
     v = evaluate(model, a.model, bt, N, "val", stride=6, stations=None if a.quick else np.arange(0, N, 4))
     res["val"] = v; res["val_E"] = std_E(v)

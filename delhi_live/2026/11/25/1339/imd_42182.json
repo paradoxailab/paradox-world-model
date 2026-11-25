@@ -1,0 +1,62 @@
+{
+ "station": "42182",
+ "name": "New Delhi-Safdarjung",
+ "url": "https://city.imd.gov.in/citywx/citywxnew.php?id=42182",
+ "sha256": "00e3a834195d780a8db0e7a0d0b6f6cd9fb99581cce54318bc22b6e94d94a2ab",
+ "dated": "Nov 25, 2026",
+ "forecast": [
+  {
+   "date": "25-Nov",
+   "tmin": 10.0,
+   "tmax": 28.0,
+   "weather": "Mainly Clear sky"
+  },
+  {
+   "date": "26-Nov",
+   "tmin": 9.0,
+   "tmax": 27.0,
+   "weather": "Mist"
+  },
+  {
+   "date": "27-Nov",
+   "tmin": 9.0,
+   "tmax": 25.0,
+   "weather": "Shallow Fog"
+  },
+  {
+   "date": "28-Nov",
+   "tmin": 10.0,
+   "tmax": 25.0,
+   "weather": "Moderate Fog"
+  },
+  {
+   "date": "29-Nov",
+   "tmin": 10.0,
+   "tmax": 24.0,
+   "weather": "Moderate Fog"
+  },
+  {
+   "date": "30-Nov",
+   "tmin": 10.0,
+   "tmax": 24.0,
+   "weather": "Moderate Fog"
+  },
+  {
+   "date": "01-Dec",
+   "tmin": 9.0,
+   "tmax": 24.0,
+   "weather": "Shallow Fog"
+  }
+ ],
+ "observed": {
+  "max_temp": "28.0",
+  "max_recorded_on": "25/11/26",
+  "min_temp": "10.0",
+  "min_recorded_on": "25/11/26",
+  "rain_24h": "NIL",
+  "rh_0830": "91",
+  "rh_1730": "61"
+ },
+ "parsed_ok": true,
+ "text": "Weather Report\nLocal Weather Report and Forecast For:\nNew Delhi-Safdarjung\nDated :Nov 25, 2026\nPast 24 Hours Weather Data |\nMaximum Temp( o C) (Recorded. on 25/11/26)\n|\n28.0\n|\nDeparture from Normal( o C)\n|\n1.3\n|\nMinimum Temp ( o C) (Recorded. on 25/11/26)\n|\n10.0\n|\nDeparture from Normal( o C)\n|\n-1.3\n|\n24 Hours Rainfall (mm) (Recorded from 0830 hrs IST\nof yesterday to 0830 hrs IST of today)\n|\nNIL\n|\nR.H. at 0830 hrs (%)\n|\n91\n|\nR.H. at 1730 hrs (%) (Recorded. on 25/11/26)\n|\n61\n|\nTodays Sunset (IST)\n|\n17:25\n|\nTommorows Sunrise (IST)\n|\n06:51\n|\nMoonset (IST)\n|\n07:34\n|\nMoonrise (IST)\n|\n17:54\n|\n|\n7 Day's Forecast |\nDate |\nMin Temp |\nMax Temp |\nWeather |\n25-Nov |\n10.0 |\n28.0 |\n|\nMainly Clear sky |\n26-Nov |\n9.0 |\n27.0 |\n|\nMist |\n27-Nov |\n9.0 |\n25.0 |\n|\nShallow Fog |\n28-Nov |\n10.0 |\n25.0 |\n|\nModerate Fog |\n29-Nov |\n10.0 |\n24.0 |\n|\nModerate Fog |\n30-Nov |\n10.0 |\n24.0 |\n|\nModerate Fog |\n01-Dec |\n9.0 |\n24.0 |\n|\nShallow Fog |\n|\nClimatological & Extreme Weather Information"
+}

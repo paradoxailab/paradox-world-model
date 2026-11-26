@@ -1,0 +1,62 @@
+{
+ "station": "99923",
+ "name": "New Delhi-Lodi Road",
+ "url": "https://city.imd.gov.in/citywx/citywxnew.php?id=99923",
+ "sha256": "8b9139c68ff5d94321cff25c49bd305fb91afbc1393ceb161aa7a72bf18e6ff7",
+ "dated": "Nov 26, 2026",
+ "forecast": [
+  {
+   "date": "26-Nov",
+   "tmin": 9.0,
+   "tmax": 27.0,
+   "weather": "Mainly Clear sky"
+  },
+  {
+   "date": "27-Nov",
+   "tmin": 9.0,
+   "tmax": 26.0,
+   "weather": "Shallow Fog"
+  },
+  {
+   "date": "28-Nov",
+   "tmin": 10.0,
+   "tmax": 25.0,
+   "weather": "Moderate Fog"
+  },
+  {
+   "date": "29-Nov",
+   "tmin": 10.0,
+   "tmax": 25.0,
+   "weather": "Moderate Fog"
+  },
+  {
+   "date": "30-Nov",
+   "tmin": 9.0,
+   "tmax": 24.0,
+   "weather": "Moderate Fog"
+  },
+  {
+   "date": "01-Dec",
+   "tmin": 9.0,
+   "tmax": 24.0,
+   "weather": "Moderate Fog"
+  },
+  {
+   "date": "02-Dec",
+   "tmin": 9.0,
+   "tmax": 23.0,
+   "weather": "Shallow Fog"
+  }
+ ],
+ "observed": {
+  "max_temp": "27.2",
+  "max_recorded_on": "26/11/26",
+  "min_temp": "9.4",
+  "min_recorded_on": "26/11/26",
+  "rain_24h": "NIL",
+  "rh_0830": "93",
+  "rh_1730": "67"
+ },
+ "parsed_ok": true,
+ "text": "Weather Report\nLocal Weather Report and Forecast For:\nNew Delhi-Lodi Road\nDated :Nov 26, 2026\nPast 24 Hours Weather Data |\nMaximum Temp( o C) (Recorded. on 26/11/26)\n|\n27.2\n|\nDeparture from Normal( o C)\n|\n1.2\n|\nMinimum Temp ( o C) (Recorded. on 26/11/26)\n|\n9.4\n|\nDeparture from Normal( o C)\n|\n-0.6\n|\n24 Hours Rainfall (mm) (Recorded from 0830 hrs IST\nof yesterday to 0830 hrs IST of today)\n|\nNIL\n|\nR.H. at 0830 hrs (%)\n|\n93\n|\nR.H. at 1730 hrs (%) (Recorded. on 26/11/26)\n|\n67\n|\nTodays Sunset (IST)\n|\n17:24\n|\nTommorows Sunrise (IST)\n|\n06:52\n|\nMoonset (IST)\n|\n08:43\n|\nMoonrise (IST)\n|\n19:00\n|\n|\n7 Day's Forecast |\nDate |\nMin Temp |\nMax Temp |\nWeather |\n26-Nov |\n9.0 |\n27.0 |\n|\nMainly Clear sky |\n27-Nov |\n9.0 |\n26.0 |\n|\nShallow Fog |\n28-Nov |\n10.0 |\n25.0 |\n|\nModerate Fog |\n29-Nov |\n10.0 |\n25.0 |\n|\nModerate Fog |\n30-Nov |\n9.0 |\n24.0 |\n|\nModerate Fog |\n01-Dec |\n9.0 |\n24.0 |\n|\nModerate Fog |\n02-Dec |\n9.0 |\n23.0 |\n|\nShallow Fog |\n|\nClimatological & Extreme Weather Information"
+}

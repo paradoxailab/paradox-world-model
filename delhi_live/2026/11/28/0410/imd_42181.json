@@ -1,0 +1,56 @@
+{
+ "station": "42181",
+ "name": "New Delhi-Palam",
+ "url": "https://city.imd.gov.in/citywx/citywxnew.php?id=42181",
+ "sha256": "d731d5f026c9c05ca25414676dcb6c93466ba769ed5cdf789aa8eec452848b53",
+ "dated": "Nov 28, 2026",
+ "forecast": [
+  {
+   "date": "28-Nov",
+   "tmin": 10.0,
+   "tmax": 24.0,
+   "weather": "Shallow Fog"
+  },
+  {
+   "date": "29-Nov",
+   "tmin": 11.0,
+   "tmax": 24.0,
+   "weather": "Moderate Fog"
+  },
+  {
+   "date": "30-Nov",
+   "tmin": 11.0,
+   "tmax": 24.0,
+   "weather": "Moderate Fog"
+  },
+  {
+   "date": "01-Dec",
+   "tmin": 10.0,
+   "tmax": 22.0,
+   "weather": "Moderate Fog"
+  },
+  {
+   "date": "02-Dec",
+   "tmin": 10.0,
+   "tmax": 22.0,
+   "weather": "Shallow Fog"
+  },
+  {
+   "date": "03-Dec",
+   "tmin": 10.0,
+   "tmax": 22.0,
+   "weather": "Shallow Fog"
+  }
+ ],
+ "observed": {
+  "max_temp": "NA",
+  "max_recorded_on": "28/11/26",
+  "min_temp": "10.9",
+  "min_recorded_on": "28/11/26",
+  "rain_24h": "NIL",
+  "rh_0830": "87",
+  "rh_1730": "NA"
+ },
+ "parsed_ok": true,
+ "text": "Weather Report\nLocal Weather Report and Forecast For:\nNew Delhi-Palam\nDated :Nov 28, 2026\nPast 24 Hours Weather Data |\nMaximum Temp( o C) (Recorded. on 28/11/26)\n|\nNA\n|\nDeparture from Normal( o C)\n|\nNA\n|\nMinimum Temp ( o C) (Recorded. on 28/11/26)\n|\n10.9\n|\nDeparture from Normal( o C)\n|\n0.1\n|\n24 Hours Rainfall (mm) (Recorded from 0830 hrs IST\nof yesterday to 0830 hrs IST of today)\n|\nNIL\n|\nR.H. at 0830 hrs (%)\n|\n87\n|\nR.H. at 1730 hrs (%) (Recorded. on 28/11/26)\n|\nNA\n|\nTodays Sunset (IST)\n|\n17:25\n|\nTommorows Sunrise (IST)\n|\n06:54\n|\nMoonset (IST)\n|\n10:41\n|\nMoonrise (IST)\n|\n21:23\n|\n|\n7 Day's Forecast |\nDate |\nMin Temp |\nMax Temp |\nWeather |\n28-Nov |\n10.0 |\n24.0 |\n|\nShallow Fog |\n29-Nov |\n11.0 |\n24.0 |\n|\nModerate Fog |\n30-Nov |\n11.0 |\n24.0 |\n|\nModerate Fog |\n01-Dec |\n10.0 |\n22.0 |\n|\nModerate Fog |\n02-Dec |\n10.0 |\n22.0 |\n|\nShallow Fog |\n03-Dec |\n10.0 |\n22.0 |\n|\nShallow Fog |\n|\nClimatological & Extreme Weather Information"
+}
